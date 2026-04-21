@@ -1,0 +1,293 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.searchHeader {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 3rem 0;
+}
+
+.headerInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+.backBtn {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.searchTitle h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.searchTitle p {
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+.layout {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+}
+
+/* --- FILTERS --- */
+.filters {
+  position: sticky;
+  top: 6rem;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.filterSection h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.25rem;
+  color: var(--foreground);
+  opacity: 0.8;
+}
+
+.filterOptions, .specialtyList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filterOptions label, .specialtyList label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.filterOptions label:hover, .specialtyList label:hover {
+  opacity: 0.7;
+}
+
+.filterOptions input[type="checkbox"], 
+.filterOptions input[type="radio"],
+.specialtyList input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}
+
+.showMore {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  padding-left: 0;
+}
+
+/* --- RESULTS --- */
+.resultsToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sort {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.sort b {
+  color: var(--foreground);
+  margin-left: 0.5rem;
+}
+
+.viewToggle {
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.avatarMini {
+  width: 50px;
+  height: 50px;
+  background: var(--input);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.badge {
+  background: rgba(var(--primary-hsl), 0.1);
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+}
+
+.cardContent h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.resRole {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.resSpec {
+  font-size: 0.95rem;
+  opacity: 0.6;
+  margin-bottom: 1.5rem;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.resStats {
+  font-weight: 700;
+}
+
+.resStats span {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.profileLink {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.9rem;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+
+.profileLink:hover {
+  opacity: 0.9;
+}
+
+/* --- SIDEBAR ENHANCEMENTS --- */
+.sidebarInput {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.priceToggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priceToggles button {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  color: white;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.priceToggles button.activePrice {
+  background: var(--primary-gold);
+  color: var(--primary-blue);
+  border-color: var(--primary-gold);
+}
+
+/* --- RESULT CARD ENHANCEMENTS --- */
+.headerBadges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-end;
+}
+
+.verifiedBadge {
+  font-size: 0.65rem;
+  color: #4CAF50;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.flexTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.saveBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.saveBtn:hover {
+  opacity: 1;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 1024px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .filters {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+}

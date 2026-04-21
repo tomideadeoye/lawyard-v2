@@ -1,0 +1,227 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+  padding: 2rem 0;
+}
+
+.topBar {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 3rem 2rem 0;
+}
+
+.backBtn {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 4rem;
+}
+
+/* --- CONTENT --- */
+.profileHero {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 4rem;
+  align-items: center;
+}
+
+.avatarLarge {
+  width: 180px;
+  height: 180px;
+  background: var(--input);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 800;
+  border: 1px solid var(--border);
+}
+
+.nameHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nameHeader h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+}
+
+.verifiedBadge {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+}
+
+.role {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.specialty {
+  font-size: 1.1rem;
+  opacity: 0.6;
+  margin-bottom: 1.5rem;
+}
+
+.quickStats {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.about, .achievements {
+  margin-bottom: 4rem;
+}
+
+.about h2, .achievements h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.about p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  opacity: 0.8;
+}
+
+.achievements ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.achievements li {
+  font-size: 1.05rem;
+  padding-left: 1.5rem;
+  position: relative;
+  opacity: 0.8;
+}
+
+.achievements li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: 900;
+}
+
+/* --- SIDEBAR --- */
+.bookingCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  border-radius: 32px;
+  position: sticky;
+  top: 6rem;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.1);
+}
+
+.bookingCard h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bookingCard p {
+  font-size: 0.9rem;
+  opacity: 0.5;
+  margin-bottom: 2rem;
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.formGroup input, .formGroup select {
+  padding: 1rem;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  border-color: var(--primary);
+}
+
+.disclaimer {
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  opacity: 0.4;
+}
+
+.shareProfile {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.shareProfile button {
+  flex: 1;
+  padding: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shareProfile button:hover {
+  background: var(--input);
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .profileHero {
+    flex-direction: column;
+    text-align: center;
+  }
+  .nameHeader {
+    justify-content: center;
+  }
+  .sidebar {
+    margin-top: 2rem;
+  }
+}

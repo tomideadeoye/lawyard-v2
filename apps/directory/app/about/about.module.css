@@ -1,0 +1,93 @@
+.container {
+  min-height: 100vh;
+  background: var(--primary-blue);
+  color: white;
+  padding: 2rem;
+}
+
+.header {
+  max-width: 1200px;
+  margin: 0 auto 6rem;
+}
+
+.logo {
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: white;
+  text-decoration: none;
+}
+
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 6rem;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  margin: 1.5rem 0;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.8;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  margin-bottom: 8rem;
+}
+
+.contentBlock h2 {
+  color: var(--primary-gold);
+  margin-bottom: 1.5rem;
+}
+
+.contentBlock p {
+  line-height: 1.8;
+  opacity: 0.8;
+}
+
+.team {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 4rem;
+  text-align: center;
+}
+
+.team h2 {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.teamGrid {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+}
+
+.teamMember h3 {
+  color: var(--primary-gold);
+}
+
+.teamMember p {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+}
