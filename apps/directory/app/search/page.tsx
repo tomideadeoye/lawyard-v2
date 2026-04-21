@@ -55,7 +55,7 @@ export default async function SearchPage() {
             <h4>Area of Specialty</h4>
             <div className={styles.specialtyList}>
               {SPECIALTIES.slice(0, 8).map(s => (
-                <label key={s}><input type="checkbox" /> {s}</label>
+                <label key={s.id}><input type="checkbox" /> {s.name}</label>
               ))}
               <button className={styles.showMore}>+ View All</button>
             </div>

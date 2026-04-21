@@ -44,7 +44,7 @@ export default async function Home() {
                 <label>Specialty</label>
                 <select>
                   <option>Select Specialty</option>
-                  {SPECIALTIES.map(s => <option key={s}>{s}</option>)}
+                  {SPECIALTIES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
               <div className={styles.divider} />
@@ -82,12 +82,12 @@ export default async function Home() {
         
         <div className={styles.specialtyGrid}>
           {SPECIALTIES.map((s, i) => (
-            <div key={s} className={styles.specialtyCard} style={{ '--delay': `${i * 0.05}s` } as any}>
+            <div key={s.id} className={styles.specialtyCard} style={{ '--delay': `${i * 0.05}s` } as any}>
               <div className={styles.specIcon}>
                 {i % 3 === 0 ? '🏛️' : i % 3 === 1 ? '💎' : '⚡'}
               </div>
-              <h3>{s}</h3>
-              <p>Explore {Math.floor(Math.random() * 20) + 5} specialists</p>
+              <h3>{s.name}</h3>
+              <p>Explore {s.count} specialists</p>
               <div className={styles.specArrow}>→</div>
             </div>
           ))}
@@ -108,7 +108,7 @@ export default async function Home() {
                 <div className={styles.avatar}>
                   <span>{l.name[0]}</span>
                 </div>
-                {l.id === 1 && <div className={styles.featuredBadge}>TOP PICK</div>}
+                {l.featured && <div className={styles.featuredBadge}>TOP PICK</div>}
               </div>
               
               <div className={styles.cardInfo}>
