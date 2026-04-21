@@ -3,8 +3,9 @@ import Link from "next/link";
 import { getLawyerById } from "../../../lib/api";
 import { notFound } from "next/navigation";
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const lawyer = await getLawyerById(params.id);
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const lawyer = await getLawyerById(id);
 
   if (!lawyer) {
     notFound();
