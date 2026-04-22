@@ -14,6 +14,7 @@ const geistMono = localFont({
 import siteConfig from "../config/site-config.json";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lawyard-v2.vercel.app"),
   title: siteConfig.brand.seo.title,
   description: siteConfig.brand.seo.description,
   keywords: [
@@ -36,13 +37,22 @@ export const metadata: Metadata = {
     title: "Lawyard Directory | Find Elite Legal Professionals",
     description: siteConfig.brand.seo.description,
     type: "website",
-    url: "https://directory.lawyard.org",
+    url: "https://lawyard-v2.vercel.app",
     siteName: "Lawyard",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 1200,
+        alt: "Lawyard Directory - Elite Legal Professionals",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@lawyardOrg",
     creator: "@lawyardOrg",
+    images: ["/og-image.png"],
   }
 };
 
