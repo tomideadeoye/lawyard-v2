@@ -32,6 +32,10 @@
   },
   "brand": {
     "name": "Lawyard",
-    "description": "This platform exists to provide you access to justices in Africa, lawyers of different practices and pay grade. Choose from the ones you can afford that suit your need. This directory is part of the Lawyard brand."
+    "description": "Lawyard is Nigeria's premier legal media and services platform. This directory exists to provide access to legal professionals across Africa, bridging the gap between experts and those needing legal assistance. Part of the Lawyard institutional brand.",
+    "seo": {
+      "title": "Lawyard | Nigeria's Premier Legal Media and Services Platform",
+      "description": "Access expert legal articles, industry news, legislative updates, and connect with legal professionals in our elite lawyer directory."
+    }
   }
 }
