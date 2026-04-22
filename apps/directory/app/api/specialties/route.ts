@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
-import SPECIALTIES from '../../../data/specialties.json';
+import { getSpecialties } from '../../../lib/api';
 
 export async function GET() {
-  return NextResponse.json(SPECIALTIES);
+  try {
+    const specialties = await getSpecialties();
+    return NextResponse.json(specialties);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }

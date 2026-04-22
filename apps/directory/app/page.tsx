@@ -2,6 +2,8 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import { getLawyers, getChambers, getSpecialties } from "../lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [specialties, lawyers, chambers] = await Promise.all([
     getSpecialties(),

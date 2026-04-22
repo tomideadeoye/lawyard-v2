@@ -1,44 +1,54 @@
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./Footer.module.css";
+import siteConfig from "../config/site-config.json";
 
 export default function Footer() {
+  const { socialLinks, navigation, brand } = siteConfig;
+
   return (
     <footer className={styles.footer}>
       <div className={styles.footerGrid}>
         <div className={styles.footerBrand}>
-          <div className={styles.logoGroup}>
-             <span className={styles.logoIcon}>⚖️</span>
-             <span className={styles.logoText}>LAWYARD</span>
+          <div className={styles.logoGroup} style={{ marginBottom: '1.5rem' }}>
+             <Image 
+               src="/lawyard-logo.png" 
+               alt={`${brand.name} Logo`} 
+               width={160} 
+               height={40} 
+               className={styles.footerLogo}
+               style={{ objectFit: 'contain' }}
+             />
           </div>
-          <p>The definitive ecosystem for legal prestige and digital discovery in Africa.</p>
+          <p>{brand.description}</p>
         </div>
         
         <div className={styles.footerLinks}>
           <h4>Directory</h4>
-          <Link href="/search">Find a Lawyer</Link>
-          <Link href="/search">Legal Chambers</Link>
-          <Link href="/search">Corporate Counsel</Link>
-          <Link href="/add-listing">Register Listing</Link>
+          {navigation.footer.directory.map(link => (
+            <Link key={link.name} href={link.href}>{link.name}</Link>
+          ))}
         </div>
 
         <div className={styles.footerLinks}>
           <h4>Resources</h4>
-          <Link href="/about">How it works</Link>
-          <Link href="/about">Legal Insights</Link>
-          <Link href="/about">Verification</Link>
-          <Link href="/about">Privacy Policy</Link>
+          {navigation.footer.resources.map(link => (
+            <Link key={link.name} href={link.href}>{link.name}</Link>
+          ))}
         </div>
 
         <div className={styles.footerLinks}>
           <h4>Connect</h4>
-          <a href="#">Contact Us</a>
-          <a href="#">Support Center</a>
-          <a href="#">Twitter</a>
-          <a href="#">LinkedIn</a>
+          {socialLinks.map(link => (
+            <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer">
+              {link.name}
+            </a>
+          ))}
+          <a href="mailto:support@lawyard.org">Contact Us</a>
         </div>
       </div>
       <div className={styles.footerBottom}>
-        <p>© 2026 Lawyard. Architecture by Orion Horizon. All Strategic Rights Reserved.</p>
+        <p>© 2026 {brand.name}. Architecture by Orion Horizon. All Strategic Rights Reserved.</p>
       </div>
     </footer>
   );

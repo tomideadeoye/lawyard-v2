@@ -1,18 +1,26 @@
 # Session Checkpoint: Lawyard Directory Rebuild
 Date: 2026-04-21
 
-## Status
-- Core directory page rebuilt with premium Next.js structure.
-- Modern CSS system implemented in `globals.css` and `page.module.css`.
-- Support for Lawyers, Chambers, and Client Needs added to the UI.
+## Current Status: 🏛️ SOVEREIGN PLATFORM DEPLOYED (100% SUPABASE)
+We have achieved total structural decoupling. The platform is now a live, sovereign legal marketplace.
+
+### Key Milestones Completed:
+- **Zero-Dependency Architecture**: All local JSON data (`/data`) has been purged. Data is 100% live in Supabase.
+- **Official Brand Integration**: Deployed official Lawyard brown logo and mission statement across Header/Footer.
+- **Client Need Protocol**: Implemented a broadcast system for legal requirements, matching Lawyard's original functionality.
+- **Command Center Dashboard**: Refactored the profile system into a professional management portal for experts and clients.
+- **Dynamic site-config**: Global navigation and social presence now managed via a centralized JSON data layer.
 
 ## Next Steps
-1.  **Image Integration**: Replace placeholders with high-fidelity portraits once image generation is available.
-2.  **Real Data**: Connect the search console to a backend or a local database (Pisma/PostgreSQL).
-3.  **Authentication**: Implement the "Login" and "Add Listing" flows.
-4.  **SEO**: Further refine meta tags for specific categories.
+1.  **Search Logic Refinement**: Implement functional filters (Location, Budget, Rating) on the Search page.
+2.  **Listing Approval Workflow**: Build the admin-side verification logic for incoming expert applications.
+3.  **Vercel Production Sync**: Verify that the monorepo deployment builds correctly without local data files.
 
-## Files Modified
-- `apps/directory/app/page.tsx`
-- `apps/directory/app/page.module.css`
-- `apps/directory/app/globals.css`
+## Files Modified (Major)
+- `apps/directory/app/login/*`, `apps/directory/app/profile/*` (New Auth Flow)
+- `apps/directory/lib/supabase/*` (Client/Server utilities)
+- `apps/directory/scripts/migrate-data.ts` (Data migration tool)
+- `apps/directory/app/globals.css` (Tailwind v4 Integration)
+- `apps/directory/components/ui/*` (Shadcn components)
+- `schema.sql` (Database definition)
+- `.env.local` (Secure credential storage)

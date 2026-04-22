@@ -1,0 +1,37 @@
+{
+  "socialLinks": [
+    { "name": "Facebook", "url": "https://facebook.com/lawyardNG", "icon": "facebook" },
+    { "name": "Twitter", "url": "https://twitter.com/lawyardOrg", "icon": "twitter" },
+    { "name": "LinkedIn", "url": "https://www.linkedin.com/company/lawyard-nigeria/", "icon": "linkedin" },
+    { "name": "Instagram", "url": "https://instagram.com/lawyardorg", "icon": "instagram" },
+    { "name": "YouTube", "url": "https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos", "icon": "youtube" }
+  ],
+  "navigation": {
+    "header": [
+      { "name": "Browse Directory", "href": "/search" },
+      { "name": "Chambers", "href": "/search" },
+      { "name": "Clients", "href": "/search" },
+      { "name": "About Us", "href": "/about" }
+    ],
+    "footer": {
+      "directory": [
+        { "name": "Find a Lawyer", "href": "/search" },
+        { "name": "Legal Chambers", "href": "/search" },
+        { "name": "Corporate Counsel", "href": "/search" },
+        { "name": "Register Listing", "href": "/add-listing" }
+      ],
+      "resources": [
+        { "name": "How it works", "href": "/about" },
+        { "name": "Legal Insights", "href": "/insights" },
+        { "name": "Legislations", "href": "/legislations" },
+        { "name": "Knowledge Base", "href": "/knowledge" },
+        { "name": "Privacy Policy", "href": "/privacy" },
+        { "name": "Terms & Conditions", "href": "/terms" }
+      ]
+    }
+  },
+  "brand": {
+    "name": "Lawyard",
+    "description": "This platform exists to provide you access to justices in Africa, lawyers of different practices and pay grade. Choose from the ones you can afford that suit your need. This directory is part of the Lawyard brand."
+  }
+}

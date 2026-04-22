@@ -2,6 +2,8 @@ import styles from "./search.module.css";
 import Link from "next/link";
 import { getLawyers, getSpecialties } from "../../lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SearchPage() {
   const [specialties, lawyers] = await Promise.all([
     getSpecialties(),

@@ -66,6 +66,7 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lawyers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chambers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE specialties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lawyer_specialties ENABLE ROW LEVEL SECURITY;
 
 -- Polices for Profiles
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
@@ -75,6 +76,7 @@ CREATE POLICY "Users can edit own profile" ON profiles FOR UPDATE USING (auth.ui
 CREATE POLICY "Directory data is publicly readable" ON lawyers FOR SELECT USING (true);
 CREATE POLICY "Chambers data is publicly readable" ON chambers FOR SELECT USING (true);
 CREATE POLICY "Specialties data is publicly readable" ON specialties FOR SELECT USING (true);
+CREATE POLICY "Lawyer specialties are publicly readable" ON lawyer_specialties FOR SELECT USING (true);
 
 -- Trigger: Handle user creation
 CREATE FUNCTION public.handle_new_user()

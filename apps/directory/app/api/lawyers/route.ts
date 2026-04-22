@@ -1,23 +1,15 @@
 import { NextResponse } from 'next/server';
-import LAWYERS from '../../../data/lawyers.json';
+import { getLawyers } from '../../../lib/api';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const featured = searchParams.get('featured');
-  const specialty = searchParams.get('specialty');
+  const featured = searchParams.get('featured') === 'true';
+  const specialty = searchParams.get('specialty') || undefined;
 
-  let data = [...LAWYERS];
-
-  if (featured === 'true') {
-    data = data.filter(l => l.featured);
+  try {
+    const lawyers = await getLawyers({ featured, specialty });
+    return NextResponse.json(lawyers);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  if (specialty) {
-    data = data.filter(l => l.specialty.toLowerCase().includes(specialty.toLowerCase()));
-  }
-
-  // Simulate network latency for realism
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  return NextResponse.json(data);
 }

@@ -1,0 +1,76 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: hsla(var(--card-hsl), 0.5);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid hsla(var(--border-hsl), 0.5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field input, .field textarea, .field select {
+  background: hsla(var(--background-hsl), 0.5);
+  border: 1px solid hsla(var(--border-hsl), 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.successState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: hsla(var(--card-hsl), 0.5);
+  border-radius: 24px;
+}
+
+.successState .icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.successState h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.successState p {
+  opacity: 0.7;
+  margin-bottom: 2rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+}

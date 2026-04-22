@@ -55,69 +55,57 @@ We will implement a relational structure to ensure data integrity and powerful s
 ## 2. Migration Steps
 
 ### Phase 1: Setup
-1. [ ] Finalize Supabase project creation.
-2. [ ] Install `@supabase/supabase-js` in the `directory` app.
-3. [ ] Configure environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+1. [x] Finalize Supabase project creation.
+2. [x] Install `@supabase/supabase-js` in the `directory` app.
+3. [x] Configure environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
 
 ### Phase 2: Schema Deployment
-1. [ ] Run the SQL migration script in Supabase SQL Editor.
+1. [x] Run the SQL migration script in Supabase SQL Editor.
 2. [ ] Generate TypeScript types using `supabase gen types typescript`.
 
 ### Phase 3: Data Ingestion
-1. [ ] Create a script `scripts/migrate-data.ts` to read JSON files and insert into Supabase.
-2. [ ] Verify relationships (ensuring `lawyer.chamber_id` matches the new UUIDs).
+1. [x] Create a script `scripts/migrate-data.ts` to read JSON files and insert into Supabase.
+2. [x] Verify relationships (ensuring `lawyer.chamber_id` matches the new UUIDs).
 
 ### Phase 4: API Refactoring
-1. [ ] Update `lib/api.ts` to use the Supabase client instead of `fetch('/api/...')`.
-2. [ ] Update API routes (`app/api/*/route.ts`) to serve as light wrappers or deprecate them in favor of direct client calls if appropriate for security.
+1. [x] Update `lib/api.ts` to use the Supabase client instead of `fetch('/api/...')`.
+2. [x] Update API routes (`app/api/*/route.ts`) to serve as light wrappers.
+3. [x] Deprecate local JSON data (`apps/directory/data/`).
+
+### Phase 5: Advanced Features & Identity
+1. [x] Implement Secure Dashboard (`/dashboard`).
+2. [x] Integrate Official Brand Assets (Brown Logo).
+3. [x] Decouple Site Configuration (`site-config.json`).
+4. [x] Deploy Client Needs broadcast system.
 
 ---
 
-## 3. SQL Initialization Script
+## 3. SQL Initialization Script (v2 - Final)
 
 ```sql
--- Create Chambers
-CREATE TABLE chambers (
+-- Core Directory Tables
+CREATE TABLE chambers (...);
+CREATE TABLE specialties (...);
+CREATE TABLE lawyers (...);
+CREATE TABLE lawyer_specialties (...);
+
+-- Business & Interaction Tables
+CREATE TABLE IF NOT EXISTS client_needs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
+  user_id UUID REFERENCES auth.users ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
   location TEXT,
-  focus TEXT,
-  image_url TEXT,
+  budget_range TEXT,
+  status TEXT DEFAULT 'open',
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Create Specialties
-CREATE TABLE specialties (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL
-);
-
--- Create Lawyers
-CREATE TABLE lawyers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  role TEXT,
-  location TEXT,
-  bio TEXT,
-  image_url TEXT,
-  rating NUMERIC(3,1) DEFAULT 0.0,
-  reviews_count INT DEFAULT 0,
-  email TEXT,
-  phone TEXT,
-  website TEXT,
-  chamber_id UUID REFERENCES chambers(id) ON DELETE SET NULL,
-  is_featured BOOLEAN DEFAULT false,
-  education TEXT[] DEFAULT '{}',
-  experience TEXT[] DEFAULT '{}',
-  achievements TEXT[] DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Create Junction Table
-CREATE TABLE lawyer_specialties (
-  lawyer_id UUID REFERENCES lawyers(id) ON DELETE CASCADE,
-  specialty_id TEXT REFERENCES specialties(id) ON DELETE CASCADE,
-  PRIMARY KEY (lawyer_id, specialty_id)
+-- Profiles & RBAC
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  role TEXT CHECK (role IN ('lawyer', 'client', 'admin')) DEFAULT 'client',
+  full_name TEXT,
+  avatar_url TEXT
 );
 ```

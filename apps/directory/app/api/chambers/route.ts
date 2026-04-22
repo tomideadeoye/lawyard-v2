@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
-import CHAMBERS from '../../../data/chambers.json';
+import { getChambers } from '../../../lib/api';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const featured = searchParams.get('featured');
+  const featured = searchParams.get('featured') === 'true';
 
-  let data = [...CHAMBERS];
-
-  if (featured === 'true') {
-    data = data.filter(c => c.featured);
+  try {
+    const chambers = await getChambers({ featured });
+    return NextResponse.json(chambers);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }
