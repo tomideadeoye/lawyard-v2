@@ -46,6 +46,15 @@ export default function Footer() {
           ))}
           <a href="mailto:support@lawyard.org">Contact Us</a>
         </div>
+
+        <div className={styles.footerNewsletter}>
+          <h4>Newsletter</h4>
+          <p>Join our weekly digest for legal engineering insights.</p>
+          <form action="/api/subscribe" method="POST" className={styles.subscribeForm}>
+            <input type="email" name="email" placeholder="your@email.com" required />
+            <button type="submit">Join</button>
+          </form>
+        </div>
       </div>
       <div className={styles.footerBottom}>
         <p>© 2026 {brand.name}. Architecture by Orion Horizon. All Strategic Rights Reserved.</p>

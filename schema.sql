@@ -36,6 +36,8 @@ CREATE TABLE lawyers (
   education TEXT[] DEFAULT '{}',
   experience TEXT[] DEFAULT '{}',
   achievements TEXT[] DEFAULT '{}',
+  verification_status TEXT DEFAULT 'pending' CHECK (verification_status IN ('pending', 'verified', 'rejected')),
+  verified_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -57,6 +59,8 @@ CREATE TABLE profiles (
   full_name TEXT,
   avatar_url TEXT,
   role TEXT CHECK (role IN ('lawyer', 'client', 'admin')) DEFAULT 'client',
+  subscription_tier TEXT CHECK (subscription_tier IN ('free', 'premium_single', 'premium_package')) DEFAULT 'free',
+  subscription_status TEXT CHECK (subscription_status IN ('active', 'past_due', 'canceled')) DEFAULT 'active',
   
   CONSTRAINT full_name_length CHECK (char_length(full_name) >= 3)
 );
@@ -93,3 +97,62 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- 3. CONTENT TABLES (REPLACING WORDPRESS)
+-- =======================================
+
+-- Articles Table
+CREATE TABLE articles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  content TEXT NOT NULL,
+  excerpt TEXT,
+  featured_image TEXT,
+  author_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+  category TEXT DEFAULT 'documentation' CHECK (category IN ('documentation', 'clients', 'lawyers', 'chambers')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Podcasts Table
+CREATE TABLE podcasts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  media_url TEXT NOT NULL,
+  media_type TEXT CHECK (media_type IN ('audio', 'video')) DEFAULT 'audio',
+  duration TEXT,
+  author_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE podcasts ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Articles are publicly readable" ON articles FOR SELECT USING (status = 'published');
+CREATE POLICY "Authors can manage own articles" ON articles FOR ALL USING (auth.uid() = author_id);
+
+CREATE POLICY "Podcasts are publicly readable" ON podcasts FOR SELECT USING (status = 'published');
+CREATE POLICY "Authors can manage own podcasts" ON podcasts FOR ALL USING (auth.uid() = author_id);
+
+-- 4. NEWSLETTER SUBSCRIPTIONS
+-- ==========================
+CREATE TABLE newsletter_subscribers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public can subscribe" ON newsletter_subscribers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Only admin can view subscribers" ON newsletter_subscribers FOR SELECT USING (EXISTS (
+  SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+));

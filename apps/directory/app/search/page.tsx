@@ -1,86 +1,42 @@
 import styles from "./search.module.css";
 import Link from "next/link";
 import { getLawyers, getSpecialties } from "../../lib/api";
+import SearchFilters from "../../components/search/SearchFilters";
 
 export const dynamic = 'force-dynamic';
 
-export default async function SearchPage() {
+interface SearchPageProps {
+  searchParams: Promise<{
+    specialty?: string;
+    location?: string;
+    query?: string;
+  }>;
+}
+
+export default async function SearchPage(props: SearchPageProps) {
+  const searchParams = await props.searchParams;
   const [specialties, lawyers] = await Promise.all([
     getSpecialties(),
-    getLawyers()
+    getLawyers({
+      specialty: searchParams.specialty,
+      location: searchParams.location,
+      query: searchParams.query,
+      rating: searchParams.rating ? Number(searchParams.rating) : undefined,
+      priceRange: searchParams.priceRange,
+      experience: searchParams.experience
+    })
   ]);
 
-  const SPECIALTIES = specialties;
-  const MOCK_RESULTS = lawyers;
   return (
     <div className={styles.layout}>
         {/* --- SIDEBAR FILTERS --- */}
-        <aside className={styles.filters}>
-          <div className={styles.filterSection}>
-            <h4>Category</h4>
-            <div className={styles.filterOptions}>
-              <label><input type="checkbox" defaultChecked /> Lawyers</label>
-              <label><input type="checkbox" /> Chambers</label>
-              <label><input type="checkbox" /> Client Needs</label>
-            </div>
-          </div>
-
-          <div className={styles.filterSection}>
-            <h4>Location</h4>
-            <div className={styles.filterInput}>
-              <input type="text" placeholder="State or City" className={styles.sidebarInput} />
-            </div>
-          </div>
-
-          <div className={styles.filterSection}>
-            <h4>Experience</h4>
-            <div className={styles.filterOptions}>
-              <label><input type="radio" name="exp" /> Under 5 Years</label>
-              <label><input type="radio" name="exp" /> 5-10 Years</label>
-              <label><input type="radio" name="exp" /> 10-20 Years</label>
-              <label><input type="radio" name="exp" /> 20+ Years</label>
-            </div>
-          </div>
-
-          <div className={styles.filterSection}>
-            <h4>Price Range</h4>
-            <div className={styles.priceToggles}>
-              <button>$</button>
-              <button>$$</button>
-              <button className={styles.activePrice}>$$$</button>
-              <button>$$$$</button>
-            </div>
-          </div>
-
-
-          <div className={styles.filterSection}>
-            <h4>Area of Specialty</h4>
-            <div className={styles.specialtyList}>
-              {SPECIALTIES.slice(0, 8).map(s => (
-                <label key={s.id}><input type="checkbox" /> {s.name}</label>
-              ))}
-              <button className={styles.showMore}>+ View All</button>
-            </div>
-          </div>
-
-          <div className={styles.filterSection}>
-            <h4>Gender</h4>
-            <div className={styles.filterOptions}>
-              <label><input type="checkbox" /> Male</label>
-              <label><input type="checkbox" /> Female</label>
-            </div>
-          </div>
-
-          <button className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-            Apply Filters
-          </button>
-        </aside>
+        <SearchFilters specialties={specialties} />
 
         {/* --- MAIN RESULTS --- */}
         <main className={styles.results}>
           <div className={styles.resultsToolbar}>
             <div className={styles.sort}>
-              Sort by: <b>Most Relevant</b>
+              Found <b>{lawyers.length}</b> experts {searchParams.location ? `in ${searchParams.location}` : ''}
             </div>
             <div className={styles.viewToggle}>
               <span>Grid</span> | <span>List</span>
@@ -88,7 +44,7 @@ export default async function SearchPage() {
           </div>
 
           <div className={styles.resultsGrid}>
-            {MOCK_RESULTS.map((res) => (
+            {lawyers.length > 0 ? lawyers.map((res) => (
               <div key={res.id} className="premium-card">
                 <div className={styles.cardHeader}>
                     <div className={styles.avatarMini}>{res.name[0]}</div>
@@ -121,9 +77,14 @@ export default async function SearchPage() {
                 </Link>
 
               </div>
-            ))}
+            )) : (
+              <div className={styles.noResults}>
+                <h3>No experts found</h3>
+                <p>Try adjusting your filters or search terms.</p>
+              </div>
+            )}
           </div>
         </main>
       </div>
-    );
+  );
 }

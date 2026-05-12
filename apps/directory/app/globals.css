@@ -28,28 +28,35 @@
   --card: hsl(var(--card-hsl));
   --card-foreground: hsl(var(--card-foreground-hsl));
   --border: hsl(var(--border-hsl));
-  
   --radius: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-hsl: 220 40% 5%;
-    --foreground-hsl: 220 10% 98%;
-    
-    --primary-hsl: 220 80% 60%;
-    --primary-foreground-hsl: 220 40% 10%;
-    
-    --accent-hsl: 45 90% 60%;
-    --accent-foreground-hsl: 220 40% 10%;
-    
-    --card-hsl: 220 40% 8%;
-    --card-foreground-hsl: 220 10% 98%;
-    
-    --border-hsl: 220 30% 15%;
-    --input-hsl: 220 30% 12%;
-    --ring-hsl: 220 80% 60%;
-  }
+.dark {
+  --background-hsl: 220 40% 5%;
+  --foreground-hsl: 220 10% 98%;
+  
+  --primary-hsl: 220 80% 60%;
+  --primary-foreground-hsl: 220 40% 10%;
+  
+  --accent-hsl: 45 90% 60%;
+  --accent-foreground-hsl: 220 40% 10%;
+  
+  --card-hsl: 220 40% 8%;
+  --card-foreground-hsl: 220 10% 98%;
+  
+  --border-hsl: 220 30% 15%;
+  --input-hsl: 220 30% 12%;
+  --ring-hsl: 220 80% 60%;
+
+  --background: hsl(var(--background-hsl));
+  --foreground: hsl(var(--foreground-hsl));
+  --primary: hsl(var(--primary-hsl));
+  --primary-foreground: hsl(var(--primary-foreground-hsl));
+  --accent: hsl(var(--accent-hsl));
+  --accent-foreground: hsl(var(--accent-foreground-hsl));
+  --card: hsl(var(--card-hsl));
+  --card-foreground: hsl(var(--card-foreground-hsl));
+  --border: hsl(var(--border-hsl));
 }
 
 * {
@@ -69,9 +76,18 @@ html, body {
 
 /* Premium Utilities */
 .glass {
-  background: rgba(var(--card-hsl), 0.7);
+  background: hsla(var(--card-hsl) / 0.7);
   backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(var(--border-hsl), 0.1);
+  border: 1px solid hsla(var(--border-hsl) / 0.2);
+}
+
+.mesh-gradient {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(var(--primary-hsl) / 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(var(--accent-hsl) / 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(var(--primary-hsl) / 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(var(--accent-hsl) / 0.05) 0px, transparent 50%);
 }
 
 .gradient-text {
@@ -79,44 +95,69 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .premium-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background: hsla(var(--card-hsl) / 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsla(var(--border-hsl) / 0.3);
+  border-radius: calc(var(--radius) * 1.5);
+  padding: 2.5rem;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 
+    0 10px 40px -10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px hsla(var(--border-hsl) / 0.1);
 }
 
 .premium-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  border-color: var(--accent);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 20px 60px -15px rgba(0, 0, 0, 0.15),
+    0 0 0 1px hsla(var(--accent-hsl) / 0.2);
+  border-color: hsla(var(--accent-hsl) / 0.4);
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  padding: 0.75rem 1.5rem;
+.glow-primary {
+  box-shadow: 0 0 20px -5px var(--primary);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px -5px var(--accent);
+}
+
+.input-premium {
+  width: 100%;
+  background: hsla(var(--input-hsl) / 0.5);
+  border: 1px solid hsla(var(--border-hsl) / 0.5);
+  padding: 0.875rem 1rem;
   border-radius: var(--radius);
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  outline: none;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
+.input-premium:focus {
+  background: hsla(var(--input-hsl) / 0.8);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px hsla(var(--primary-hsl) / 0.1);
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.8s ease forwards;
+  animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
 }

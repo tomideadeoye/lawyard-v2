@@ -1,14 +1,16 @@
 import styles from "./page.module.css";
 import Link from "next/link";
-import { getLawyers, getChambers, getSpecialties } from "../lib/api";
+import { getLawyers, getChambers, getSpecialties, getArticles, getPodcasts } from "../lib/api";
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [specialties, lawyers, chambers] = await Promise.all([
+  const [specialties, lawyers, chambers, articles, podcasts] = await Promise.all([
     getSpecialties(),
     getLawyers({ featured: true }),
-    getChambers({ featured: true })
+    getChambers({ featured: true }),
+    getArticles({ limit: 3 }),
+    getPodcasts({ limit: 2 })
   ]);
 
   const FEATURED_LAWYERS = lawyers;
@@ -171,18 +173,25 @@ export default async function Home() {
         </div>
         
         <div className={styles.insightsGrid}>
-          <div className={styles.insightCard}>
-            <div className={styles.insightTag}>ANALYSIS</div>
-            <h3>The Rise of Legal Engineering in Nigeria</h3>
-            <p>How automation is reshaping the billable hour in top Lagos firms.</p>
-            <div className={styles.insightMeta}>5 min read • by Adeoye Tomide</div>
-          </div>
-          <div className={styles.insightCard}>
-            <div className={styles.insightTag}>REGULATORY</div>
-            <h3>NDPR Compliance in 2026</h3>
-            <p>Critical updates for tech startups operating in the West African market.</p>
-            <div className={styles.insightMeta}>8 min read • by Data Protection Unit</div>
-          </div>
+          {articles.map((article: any) => (
+            <Link href={`/knowledge/${article.slug}`} key={article.id} className={styles.insightCard}>
+              <div className={styles.insightTag}>ARTICLE</div>
+              <h3>{article.title}</h3>
+              <p>{article.excerpt}</p>
+              <div className={styles.insightMeta}>By {article.author?.full_name || 'Lawyard Expert'}</div>
+            </Link>
+          ))}
+          {podcasts.map((podcast: any) => (
+            <Link href={`/knowledge/${podcast.slug}`} key={podcast.id} className={styles.insightCard} style={{ borderLeft: '4px solid var(--gold)' }}>
+              <div className={styles.insightTag}>{podcast.media_type.toUpperCase()} PODCAST</div>
+              <h3>{podcast.title}</h3>
+              <p>{podcast.description}</p>
+              <div className={styles.insightMeta}>By {podcast.author?.full_name || 'Lawyard Expert'}</div>
+            </Link>
+          ))}
+          {articles.length === 0 && podcasts.length === 0 && (
+            <p style={{ opacity: 0.5 }}>No insights published this week. Check back soon!</p>
+          )}
         </div>
       </section>
 

@@ -1,104 +1,44 @@
 import { z } from "zod";
 
 /**
- * Lawyard 2.0 Core Data Schemas
+ * Lawyard 2.0 Native Content Schemas (Supabase-ready)
  */
 
 export const ArticleSchema = z.object({
-  title: z.string(),
-  content: z.string(),
+  id: z.string().uuid().optional(),
+  title: z.string().min(5, "Title is too short"),
+  slug: z.string().min(3),
+  content: z.string().min(50, "Content is too short"),
   excerpt: z.string().optional(),
-  author_id: z.number().optional(),
-  categories: z.array(z.number()).optional(),
-  tags: z.array(z.number()).optional(),
-  featured_media: z.number().optional(), // WP Media ID
-  status: z.enum(["publish", "draft", "pending", "private"]).default("draft"),
+  featured_image: z.string().url().optional().nullable(),
+  author_id: z.string().uuid(),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  created_at: z.string().optional(),
 });
 
 export type Article = z.infer<typeof ArticleSchema>;
 
-export const PodcastSchema = ArticleSchema.extend({
-  audio_url: z.string().url(),
+export const PodcastSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().min(5),
+  slug: z.string().min(3),
+  description: z.string().optional(),
+  media_url: z.string().url(),
+  media_type: z.enum(["audio", "video"]).default("audio"),
   duration: z.string().optional(),
+  author_id: z.string().uuid(),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  created_at: z.string().optional(),
 });
 
 export type Podcast = z.infer<typeof PodcastSchema>;
 
 /**
- * Lawyard API Client
- * NextJS Control Plane -> WordPress REST API
+ * Newsletter Subscription Schema
  */
-export class LawyardClient {
-  private baseUrl: string;
-  private authHeader?: string;
+export const NewsletterSubscriptionSchema = z.object({
+  email: z.string().email(),
+  subscribed_at: z.string().optional(),
+});
 
-  constructor(config: { baseUrl: string; username?: string; password?: string }) {
-    this.baseUrl = config.baseUrl.endsWith("/") ? config.baseUrl.slice(0, -1) : config.baseUrl;
-    
-    if (config.username && config.password) {
-      // Basic Auth for WP REST API (Application Passwords)
-      const token = Buffer.from(`${config.username}:${config.password}`).toString("base64");
-      this.authHeader = `Basic ${token}`;
-    }
-  }
-
-  private async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    const headers = {
-      "Content-Type": "application/json",
-      ...(this.authHeader ? { Authorization: this.authHeader } : {}),
-      ...(options.headers || {}),
-    };
-
-    const response = await fetch(url, { ...options, headers });
-    
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(`Lawyard API error [${response.status}]: ${error.message}`);
-    }
-    
-    return response.json();
-  }
-
-  /**
-   * Article Management
-   */
-  async getArticles(params: Record<string, string> = {}) {
-    const query = new URLSearchParams(params).toString();
-    return this.request(`/wp-json/wp/v2/posts?${query}`);
-  }
-
-  async createArticle(article: Article) {
-    return this.request("/wp-json/wp/v2/posts", {
-      method: "POST",
-      body: JSON.stringify(article),
-    });
-  }
-
-  /**
-   * Podcast Management (Requires Custom Post Type in WP)
-   */
-  async createPodcast(podcast: Podcast) {
-    // Assuming 'podcasts' is the CPT slug
-    return this.request("/wp-json/wp/v2/podcasts", {
-      method: "POST",
-      body: JSON.stringify(podcast),
-    });
-  }
-
-  /**
-   * Media Upload
-   */
-  async uploadMedia(file: Buffer, fileName: string, mimeType: string) {
-    const headers = {
-      "Content-Disposition": `attachment; filename="${fileName}"`,
-      "Content-Type": mimeType,
-    };
-
-    return this.request("/wp-json/wp/v2/media", {
-      method: "POST",
-      body: file,
-      headers,
-    });
-  }
-}
+export type NewsletterSubscription = z.infer<typeof NewsletterSubscriptionSchema>;

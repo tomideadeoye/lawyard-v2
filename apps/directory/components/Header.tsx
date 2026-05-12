@@ -3,6 +3,7 @@ import Link from "next/link";
 import styles from "./Header.module.css";
 import { createClient } from "@/lib/supabase/server";
 import siteConfig from "../config/site-config.json";
+import { ModeToggle } from "./mode-toggle";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -32,10 +33,14 @@ export default async function Header() {
         </nav>
 
         <div className={styles.authGroup}>
+          <ModeToggle />
           {user ? (
             <Link href="/dashboard" className={styles.loginBtn}>Dashboard</Link>
           ) : (
-            <Link href="/login" className={styles.loginBtn}>Login</Link>
+            <>
+              <Link href="/signup" className={styles.loginBtn} style={{ background: 'transparent', border: '1px solid var(--border)' }}>Join Protocol</Link>
+              <Link href="/login" className={styles.loginBtn}>Login</Link>
+            </>
           )}
           <Link href="/add-listing" className={styles.addListingBtn}>Add Listing</Link>
         </div>

@@ -11,6 +11,7 @@
       { "name": "Browse Directory", "href": "/search" },
       { "name": "Chambers", "href": "/search" },
       { "name": "Clients", "href": "/search" },
+      { "name": "Pricing", "href": "/pricing" },
       { "name": "About Us", "href": "/about" }
     ],
     "footer": {

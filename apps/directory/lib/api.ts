@@ -34,7 +34,15 @@ export interface Specialty {
   count: number;
 }
 
-export async function getLawyers(options: { featured?: boolean; specialty?: string } = {}): Promise<Lawyer[]> {
+export async function getLawyers(options: { 
+  featured?: boolean; 
+  specialty?: string;
+  location?: string;
+  query?: string;
+  rating?: number;
+  priceRange?: string;
+  experience?: string;
+} = {}): Promise<Lawyer[]> {
   const supabase = await createClient();
   
   let query = supabase
@@ -46,19 +54,29 @@ export async function getLawyers(options: { featured?: boolean; specialty?: stri
       )
     `);
 
-  if (options.featured) {
-    query = query.eq('is_featured', true);
+  if (options.featured) query = query.eq('is_featured', true);
+  if (options.location) query = query.ilike('location', `%${options.location}%`);
+  if (options.rating) query = query.gte('rating', options.rating);
+  if (options.priceRange) query = query.eq('price_range', options.priceRange);
+  if (options.experience) query = query.eq('experience_level', options.experience);
+
+  if (options.query) {
+    query = query.or(`name.ilike.%${options.query}%,bio.ilike.%${options.query}%`);
   }
 
   const { data: lawyers, error } = await query;
 
   if (error) {
-    console.error('Error fetching lawyers:', error);
+    console.error('Error fetching lawyers:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code
+    });
     return [];
   }
 
   let formattedData = lawyers.map((l: any) => {
-    // Handle different possible structures for the specialty join
     let specialtyName = 'General Practice';
     if (l.specialties && Array.isArray(l.specialties) && l.specialties.length > 0) {
       const firstSpec = l.specialties[0];
@@ -73,12 +91,12 @@ export async function getLawyers(options: { featured?: boolean; specialty?: stri
       reviews: l.reviews_count || 0,
       rating: Number(l.rating) || 0,
       experience: Array.isArray(l.experience) ? (l.experience[0] || '10+ years') : (l.experience || '10+ years'),
-      priceRange: '₦₦₦',
+      priceRange: l.price_range || '₦₦₦',
       verified: true,
     };
   });
 
-  if (options.specialty) {
+  if (options.specialty && options.specialty !== 'all') {
     formattedData = formattedData.filter((l: any) => 
       l.specialty.toLowerCase().includes(options.specialty!.toLowerCase())
     );
@@ -151,6 +169,24 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
   }
 
   return formattedData;
+}
+
+export async function getArticles(options: { authorId?: string; limit?: number } = {}) {
+  const supabase = await createClient();
+  let query = supabase.from('articles').select('*, author:profiles(full_name)').eq('status', 'published').order('created_at', { ascending: false });
+  if (options.authorId) query = query.eq('author_id', options.authorId);
+  if (options.limit) query = query.limit(options.limit);
+  const { data } = await query;
+  return data || [];
+}
+
+export async function getPodcasts(options: { authorId?: string; limit?: number } = {}) {
+  const supabase = await createClient();
+  let query = supabase.from('podcasts').select('*, author:profiles(full_name)').eq('status', 'published').order('created_at', { ascending: false });
+  if (options.authorId) query = query.eq('author_id', options.authorId);
+  if (options.limit) query = query.limit(options.limit);
+  const { data } = await query;
+  return data || [];
 }
 
 export async function getSpecialties(): Promise<Specialty[]> {

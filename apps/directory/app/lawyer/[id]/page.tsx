@@ -1,11 +1,15 @@
 import styles from "./profile.module.css";
 import Link from "next/link";
-import { getLawyerById } from "../../../lib/api";
+import { getLawyerById, getArticles, getPodcasts } from "../../../lib/api";
 import { notFound } from "next/navigation";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const lawyer = await getLawyerById(id);
+  const [lawyer, articles, podcasts] = await Promise.all([
+    getLawyerById(id),
+    getArticles({ authorId: id }),
+    getPodcasts({ authorId: id })
+  ]);
 
   if (!lawyer) {
     notFound();
@@ -50,6 +54,29 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               ))}
             </ul>
           </section>
+
+          {/* PUBLISHED CONTENT SECTION */}
+          {(articles.length > 0 || podcasts.length > 0) && (
+            <section className={styles.insights}>
+              <h2>Published <span className="gradient-text">Insights</span></h2>
+              <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
+                {articles.map((article: any) => (
+                  <Link href={`/knowledge/${article.slug}`} key={article.id} className="premium-card" style={{ padding: '1.5rem' }}>
+                    <div className={styles.insightTag}>ARTICLE</div>
+                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{article.title}</h4>
+                    <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{article.excerpt}</p>
+                  </Link>
+                ))}
+                {podcasts.map((podcast: any) => (
+                  <Link href={`/knowledge/${podcast.slug}`} key={podcast.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--gold)' }}>
+                    <div className={styles.insightTag}>{podcast.media_type.toUpperCase()} PODCAST</div>
+                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{podcast.title}</h4>
+                    <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{podcast.description}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
 
         <aside className={styles.sidebar}>

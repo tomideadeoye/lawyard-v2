@@ -3,9 +3,9 @@
   top: 0;
   width: 100%;
   z-index: 100;
-  background: hsla(var(--background-hsl), 0.8);
+  background: hsl(var(--background-hsl) / 0.8);
   backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid hsla(var(--border-hsl), 0.5);
+  border-bottom: 1px solid hsla(var(--border-hsl) / 0.5);
   padding: 0.75rem 0;
 }
 
