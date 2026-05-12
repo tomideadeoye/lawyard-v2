@@ -2,7 +2,10 @@
 **Status**: ACTIVE | **Phase**: 2 (Directory Rebuild) | **Architecture**: Monorepo (Supabase)
 
 ## 👤 KEY CONTACTS
-- **Tobi Adebowale**: Primary Client / Decision Maker. (+234 706 100 3969)
+- **Tobi Adebowale**: Primary Client / Decision Maker.
+  - **Phone**: +234 706 100 3969
+  - **Lawyard Email**: lawyardmtc@gmail.com
+  - **Personal Email**: tsadebowale@gmail.com
 - **Shefiu**: AI Integration Lead (LawyardAI).
 - **Tomide Adeoye**: Lead Architect & Senior Engineer (Legal Engineering).
 
