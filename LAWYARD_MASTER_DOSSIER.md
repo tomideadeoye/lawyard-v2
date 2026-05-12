@@ -22,6 +22,7 @@
     - `packages/api`: Core Zod schemas and DB client.
     - `apps/directory`: Public legal marketplace.
     - `apps/control-plane`: Admin management portal.
+- **Deployment**: [Vercel Dashboard](https://vercel.com/tomideadeoyes-projects/lawyard-v2)
 
 ## 🚀 EXPANDED SCOPE (Roadmap)
 1. **Subscriber Content**: Publishing articles and podcasts directly to expert profiles.
