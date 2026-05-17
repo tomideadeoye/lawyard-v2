@@ -8,6 +8,7 @@ import { ModeToggle } from "./mode-toggle";
 export default async function Header() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user?.id || '').single();
 
   return (
     <header className={styles.header}>

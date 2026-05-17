@@ -26,7 +26,7 @@ export async function publishArticle(formData: FormData) {
       status: 'published'
     }]);
 
-  if (error) return { error: error.message };
+  if (error) throw new Error(error.message);
 
   revalidatePath('/');
   revalidatePath(`/lawyer/${user.id}`);
@@ -56,7 +56,7 @@ export async function publishPodcast(formData: FormData) {
       status: 'published'
     }]);
 
-  if (error) return { error: error.message };
+  if (error) throw new Error(error.message);
 
   revalidatePath('/');
   revalidatePath(`/lawyer/${user.id}`);

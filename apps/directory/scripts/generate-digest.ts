@@ -21,13 +21,17 @@ async function generateWeeklyDigest() {
   
   console.log('\nNEW ARTICLES:');
   articles?.forEach(a => {
-    console.log(`- ${a.title} by ${a.author?.full_name || 'Expert'}`);
+    const author: any = a.author;
+    const authorName = Array.isArray(author) ? author[0]?.full_name : author?.full_name;
+    console.log(`- ${a.title} by ${authorName || 'Expert'}`);
     console.log(`  Read more: https://directory.lawyard.org/knowledge/${a.slug}`);
   });
 
   console.log('\nNEW PODCASTS:');
   podcasts?.forEach(p => {
-    console.log(`- [${p.media_type.toUpperCase()}] ${p.title} by ${p.author?.full_name || 'Expert'}`);
+    const author: any = p.author;
+    const authorName = Array.isArray(author) ? author[0]?.full_name : author?.full_name;
+    console.log(`- [${p.media_type.toUpperCase()}] ${p.title} by ${authorName || 'Expert'}`);
     console.log(`  Listen/Watch: https://directory.lawyard.org/knowledge/${p.slug}`);
   });
 }

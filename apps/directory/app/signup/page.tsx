@@ -18,10 +18,10 @@ export default function SignupPage() {
             </div>
           </div>
           <h1 className="text-4xl font-black tracking-tighter">
-            Join the <span className="gradient-text">Protocol</span>
+            Create an account
           </h1>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-            Initialize your presence within Nigeria's most elite legal network.
+            Join Lawyard to manage your professional profile.
           </p>
         </div>
 

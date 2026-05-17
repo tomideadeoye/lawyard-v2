@@ -10,6 +10,9 @@ interface SearchPageProps {
     specialty?: string;
     location?: string;
     query?: string;
+    rating?: string;
+    priceRange?: string;
+    experience?: string;
   }>;
 }
 

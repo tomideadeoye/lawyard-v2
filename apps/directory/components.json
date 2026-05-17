@@ -17,5 +17,10 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "iconLibrary": "lucide"
+  "iconLibrary": "lucide",
+  "registries": {
+    "@ss-blocks": {
+      "url": "https://shadcnstudio.com/r/blocks/{name}"
+    }
+  }
 }
