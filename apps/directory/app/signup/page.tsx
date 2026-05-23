@@ -1,6 +1,6 @@
 import { signup } from "../login/actions";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/button";
 import { User, Mail, Lock, ShieldCheck, Scale, ArrowRight } from "lucide-react";
 
 export default function SignupPage() {

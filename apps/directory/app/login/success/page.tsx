@@ -1,42 +1,45 @@
-import styles from './Success.module.css'
 import Link from 'next/link'
 
-export default function RegistrationSuccessPage({
+export default async function RegistrationSuccessPage({
   searchParams,
 }: {
-  searchParams: { email?: string }
+  searchParams: Promise<{ email?: string }>
 }) {
-  const email = searchParams.email || 'your email'
+  const resolvedParams = await searchParams
+  const email = resolvedParams.email || 'your email'
 
   return (
-    <div className={styles.container}>
-      <div className={styles.successCard}>
-        <div className={styles.header}>
-          <h1 className="gradient-text">Registration Confirmation!</h1>
+    <div className="flex min-h-[80vh] flex-col items-center justify-center p-6 bg-background text-foreground">
+      <div className="glass max-w-md w-full p-8 rounded-2xl border border-border/50 bg-card/45 backdrop-blur-lg shadow-2xl text-center animate-fade-in">
+        <div className="mb-6">
+          <h1 className="gradient-text text-2xl font-bold tracking-tight">Registration Initiated</h1>
         </div>
         
-        <div className={styles.content}>
-          <div className={styles.icon}>✉️</div>
-          <p className={styles.message}>
-            The Lawyard Protocol has been initiated. We've sent a verification link to your inbox.
+        <div className="flex flex-col items-center gap-6">
+          <div className="text-5xl mb-2 animate-pulse-slow">✉️</div>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            The Lawyard Protocol has been initiated. We&apos;ve sent a verification link to your inbox.
           </p>
 
-          <div className={styles.info}>
-            <p>
-              Please verify <b>{email}</b> to complete your profile and access the directory dashboard.
+          <div className="bg-muted/30 p-4 rounded-xl border border-border/30 text-sm w-full">
+            <p className="text-muted-foreground">
+              Please verify <b className="text-foreground font-semibold">{email}</b> to complete your profile and access the directory dashboard.
             </p>
           </div>
 
-          <div className={styles.actions}>
-            <Link href="/login" className="btn-primary">
+          <div className="flex flex-col gap-3 w-full mt-4">
+            <Link 
+              href="/login" 
+              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+            >
               Return to Login
             </Link>
-            <button className={styles.resendBtn}>
-              Didn't receive the email? Resend
+            <button className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-2 bg-transparent border-0 cursor-pointer hover:underline">
+              Didn&apos;t receive the email? Resend
             </button>
           </div>
 
-          <p style={{ marginTop: '2.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <p className="mt-6 text-xs text-muted-foreground/60">
             We look forward to seeing you soon.
           </p>
         </div>

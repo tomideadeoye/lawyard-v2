@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": "./src/*.tsx"
+    "./components/*": "./src/components/*.tsx",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./styles/globals.css": "./src/styles/globals.css"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
-    "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
@@ -20,7 +21,13 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.8.0",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.5.0"
   }
 }

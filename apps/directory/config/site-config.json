@@ -8,11 +8,13 @@
   ],
   "navigation": {
     "header": [
-      { "name": "Browse Directory", "href": "/search" },
-      { "name": "Chambers", "href": "/search" },
-      { "name": "Clients", "href": "/search" },
+      {
+        "name": "Areas Of Specialty",
+        "href": "#",
+        "dataSource": "specialties"
+      },
       { "name": "Pricing", "href": "/pricing" },
-      { "name": "About Us", "href": "/about" }
+      { "name": "Help", "href": "/help" }
     ],
     "footer": {
       "directory": [

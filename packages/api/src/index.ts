@@ -1,5 +1,47 @@
 import { z } from "zod";
 
+export const SpecialtySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  count: z.number().default(0),
+});
+
+export type Specialty = z.infer<typeof SpecialtySchema>;
+
+export const LawyerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: z.string(),
+  specialty: z.string(),
+  specialties: z.array(z.string()),
+  image: z.string(),
+  location: z.string(),
+  rating: z.number(),
+  reviews: z.number(),
+  experience: z.string(),
+  priceRange: z.string(),
+  bio: z.string(),
+  achievements: z.array(z.string()),
+  verified: z.boolean(),
+  featured: z.boolean(),
+});
+
+export type Lawyer = z.infer<typeof LawyerSchema>;
+
+export const ChamberSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  focus: z.string(),
+  location: z.string(),
+  rating: z.number(),
+  image: z.string(),
+  featured: z.boolean(),
+});
+
+export type Chamber = z.infer<typeof ChamberSchema>;
+
 /**
  * Lawyard 2.0 Native Content Schemas (Supabase-ready)
  */

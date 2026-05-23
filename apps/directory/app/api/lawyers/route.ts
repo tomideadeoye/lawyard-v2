@@ -9,7 +9,8 @@ export async function GET(request: Request) {
   try {
     const lawyers = await getLawyers({ featured, specialty });
     return NextResponse.json(lawyers);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

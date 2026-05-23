@@ -23,6 +23,26 @@ export async function login(formData: FormData) {
   redirect('/dashboard')
 }
 
+export async function loginWithMagicLink(formData: FormData) {
+  const supabase = await createClient()
+
+  const email = formData.get('email') as string
+  const redirectTo = formData.get('redirectTo') as string
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo || undefined,
+    },
+  })
+
+  if (error) {
+    return redirect(`/login?message=${encodeURIComponent(error.message)}`)
+  }
+
+  return { success: true }
+}
+
 export async function signup(formData: FormData) {
   const supabase = await createClient()
 

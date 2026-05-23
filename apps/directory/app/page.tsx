@@ -1,238 +1,234 @@
 import styles from "./page.module.css";
+import Image from "next/image";
 import Link from "next/link";
 import { getLawyers, getChambers, getSpecialties, getArticles, getPodcasts } from "../lib/api";
+import { HeroSearchBar } from "../components/HeroSearchBar";
+import { Lawyer, Chamber, Specialty } from '@repo/api';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [specialties, lawyers, chambers, articles, podcasts] = await Promise.all([
-    getSpecialties(),
-    getLawyers({ featured: true }),
-    getChambers({ featured: true }),
-    getArticles({ limit: 3 }),
-    getPodcasts({ limit: 2 })
-  ]);
+  let specialties: Specialty[] = [];
+  let lawyers: Lawyer[] = [];
+  let chambers: Chamber[] = [];
+  let articles: any[] = [];
+  let podcasts: any[] = [];
 
-  const FEATURED_LAWYERS = lawyers;
-  const FEATURED_CHAMBERS = chambers;
-  const SPECIALTIES = specialties;
+  try {
+    [specialties, lawyers, chambers, articles, podcasts] = await Promise.all([
+      getSpecialties(),
+      getLawyers({ featured: true }),
+      getChambers({ featured: true }),
+      getArticles({ limit: 3 }),
+      getPodcasts({ limit: 3 }),
+    ]);
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+  }
+
   return (
     <>
       {/* --- HERO SECTION --- */}
       <section className={styles.hero}>
+        <div className={styles.heroOverlay} />
+        <Image
+          src="/hero-bg.jpg"
+          alt="Legal gavel on law books"
+          fill
+          priority
+          className={styles.heroBgImage}
+          sizes="100vw"
+        />
         <div className={styles.heroContent}>
-          <div className={styles.badge}>REBUILDING THE FUTURE</div>
-          <h1 className="animate-fade-in">
-            Find Your <span className="gradient-text">Elite</span> Legal Partner.
+          <h1>
+            Experienced Lawyers Are<br />
+            Ready To Help
           </h1>
-          <p className={styles.heroSub}>
-            The premium gateway to Africa's top lawyers, specialized chambers, and legal engineering talent. 
-            Built for speed, accuracy, and professional excellence.
-          </p>
 
-          {/* Search Console */}
-          <div className={styles.searchConsole}>
-            <div className={styles.searchTabs}>
-              <button className={styles.activeTab}>Lawyers</button>
-              <button>Chambers</button>
-              <button>Client Needs</button>
-            </div>
-            
-            <div className={styles.searchForm}>
-              <div className={styles.inputGroup}>
-                <label>Name</label>
-                <input type="text" placeholder="e.g. Tomide Adeoye" />
-              </div>
-              <div className={styles.divider} />
-              <div className={styles.inputGroup}>
-                <label>Specialty</label>
-                <select>
-                  <option>Select Specialty</option>
-                  {SPECIALTIES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
-              <div className={styles.divider} />
-              <div className={styles.inputGroup}>
-                <label>Location</label>
-                <input type="text" placeholder="Lagos, Nigeria" />
-              </div>
-              <Link href="/search" className={styles.searchBtn}>
-                <span>🔍</span> Search
-              </Link>
-            </div>
+          {/* Search Tabs */}
+          <div className={styles.searchTabs}>
+            <Link href="/search?type=chambers" className={styles.tab}>
+              <Image src="/icon-chambers.png" alt="" width={28} height={28} />
+              <span>Chambers</span>
+            </Link>
+            <Link href="/search?type=clients" className={styles.tab}>
+              <Image src="/icon-clients.png" alt="" width={28} height={28} />
+              <span>Clients</span>
+            </Link>
+            <Link href="/search?type=lawyers" className={`${styles.tab} ${styles.tabActive}`}>
+              <Image src="/icon-lawyers.png" alt="" width={28} height={28} />
+              <span>Lawyers</span>
+            </Link>
+          </div>
+
+          <HeroSearchBar specialties={specialties} />
+
+          {/* Quick Specialty Links */}
+          <div className={styles.quickLinks}>
+            <Link href="/search?specialty=dispute-resolution-law" className={styles.quickLink}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L10 5.5H15L11 8.5L12.5 13L8 10L3.5 13L5 8.5L1 5.5H6L8 1Z" stroke="white" strokeWidth="1" fill="none"/></svg>
+              Dispute Resolution Law
+            </Link>
+            <Link href="/search?specialty=commercial-law" className={styles.quickLink}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 13h12M4 13V7h2v6M7 13V5h2v8M10 13V3h2v10" stroke="white" strokeWidth="1" strokeLinecap="round"/></svg>
+              Commercial Law
+            </Link>
           </div>
         </div>
-        
-        <div className={styles.heroVisual}>
-           <div className={styles.floatingStats}>
-              <div className={styles.statLine}>
-                <span className={styles.statDot} />
-                <b>1,200+</b> Verified Profiles
-              </div>
-              <div className={styles.statLine}>
-                <span className={styles.statDot} />
-                <b>$50M+</b> Capital Advised
-              </div>
-           </div>
-        </div>
       </section>
 
-      {/* --- SPECIALTY GRID --- */}
+      {/* --- FEATURED LAWYER LISTINGS --- */}
       <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2>Areas of <span className="gradient-text">Mastery</span></h2>
-          <p>Browse directory listings by specialized legal practice areas.</p>
-        </div>
-        
-        <div className={styles.specialtyGrid}>
-          {SPECIALTIES.map((s, i) => (
-            <div key={s.id} className={styles.specialtyCard} style={{ '--delay': `${i * 0.05}s` } as any}>
-              <div className={styles.specIcon}>
-                {i % 3 === 0 ? '🏛️' : i % 3 === 1 ? '💎' : '⚡'}
-              </div>
-              <h3>{s.name}</h3>
-              <p>Explore {s.count} specialists</p>
-              <div className={styles.specArrow}>→</div>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>Featured Lawyer Listings</h2>
+          
+          {lawyers.length > 0 ? (
+            <div className={styles.listingsGrid}>
+              {lawyers.map((l) => (
+                <Link key={l.id} href={`/lawyer/${l.id}`} className={styles.listingCard}>
+                  <div className={styles.listingAvatar}>
+                    {l.image ? (
+                      <Image src={l.image} alt={l.name} width={80} height={80} className={styles.avatarImg} />
+                    ) : (
+                      <span className={styles.avatarFallback}>{l.name[0]}</span>
+                    )}
+                  </div>
+                  <div className={styles.listingInfo}>
+                    <h3>{l.name}</h3>
+                    <p className={styles.listingRole}>{l.role}</p>
+                    <p className={styles.listingSpecialty}>{l.specialties.slice(0, 2).join(', ')}{l.specialties.length > 2 ? '...' : ''}</p>
+                    <div className={styles.listingMeta}>
+                      <span className={styles.listingRating}>⭐ {l.rating}</span>
+                      <span className={styles.listingLocation}>📍 {l.location}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* --- FEATURED SECTION --- */}
-      <section className={styles.featuredSection}>
-        <div className={styles.sectionHeader}>
-          <h2>Featured Experts</h2>
-          <button className={styles.viewAllBtn}>View All Listings →</button>
-        </div>
-
-        <div className={styles.profilesGrid}>
-          {FEATURED_LAWYERS.map((l) => (
-            <div key={l.id} className="premium-card">
-              <div className={styles.cardTop}>
-                <div className={styles.avatar}>
-                  <span>{l.name[0]}</span>
-                </div>
-                {l.featured && <div className={styles.featuredBadge}>TOP PICK</div>}
-              </div>
-              
-              <div className={styles.cardInfo}>
-                <h3>{l.name}</h3>
-                <p className={styles.role}>{l.role}</p>
-                <p className={styles.specialty}>{l.specialty}</p>
-              </div>
-
-              <div className={styles.cardStats}>
-                <div className={styles.rating}>
-                  ⭐ {l.rating} <span>({l.reviews})</span>
-                </div>
-                <div className={styles.location}>
-                  📍 {l.location}
-                </div>
-              </div>
-
-              <Link href={`/lawyer/${l.id}`} className={styles.connectBtn}>
-                View Full Portfolio
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* --- FEATURED CHAMBERS --- */}
-      <section className={styles.section} style={{ background: 'var(--bg-glass)', borderRadius: 'var(--radius-lg)', margin: '4rem auto' }}>
-        <div className={styles.sectionHeader}>
-          <div className={styles.badge}>INSTITUTIONAL EXCELLENCE</div>
-          <h2>Elite <span className="gradient-text">Chambers</span></h2>
-          <p>Premium law firms and legal departments leading the continent's major transactions.</p>
-        </div>
-        
-        <div className={styles.chambersGrid}>
-          {FEATURED_CHAMBERS.map(c => (
-            <div key={c.id} className={styles.chamberCard}>
-              <div className={styles.chamberImage}>
-                <div className={styles.placeholderImg}>🏛️</div>
-              </div>
-              <div className={styles.chamberInfo}>
-                <div className={styles.chamberType}>{c.type}</div>
-                <h3>{c.name}</h3>
-                <p className={styles.chamberFocus}>{c.focus}</p>
-                <div className={styles.location}>📍 {c.location}</div>
-                <button className={styles.viewChamberBtn}>Explore Chamber</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* --- LEGAL INSIGHTS --- */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <div className={styles.badge}>LEGAL MEDIA</div>
-          <h2>Legal <span className="gradient-text">Insights</span></h2>
-          <p>Developments at the intersection of African Law and Global Technology.</p>
-        </div>
-        
-        <div className={styles.insightsGrid}>
-          {articles.map((article: any) => (
-            <Link href={`/knowledge/${article.slug}`} key={article.id} className={styles.insightCard}>
-              <div className={styles.insightTag}>ARTICLE</div>
-              <h3>{article.title}</h3>
-              <p>{article.excerpt}</p>
-              <div className={styles.insightMeta}>By {article.author?.full_name || 'Lawyard Expert'}</div>
-            </Link>
-          ))}
-          {podcasts.map((podcast: any) => (
-            <Link href={`/knowledge/${podcast.slug}`} key={podcast.id} className={styles.insightCard} style={{ borderLeft: '4px solid var(--gold)' }}>
-              <div className={styles.insightTag}>{podcast.media_type.toUpperCase()} PODCAST</div>
-              <h3>{podcast.title}</h3>
-              <p>{podcast.description}</p>
-              <div className={styles.insightMeta}>By {podcast.author?.full_name || 'Lawyard Expert'}</div>
-            </Link>
-          ))}
-          {articles.length === 0 && podcasts.length === 0 && (
-            <p style={{ opacity: 0.5 }}>No insights published this week. Check back soon!</p>
+          ) : (
+            <p className={styles.emptyMessage}>No listings found.</p>
           )}
         </div>
       </section>
 
-      {/* --- HOW IT WORKS / SYSTEM PROTOCOL --- */}
-      <section className={styles.section} id="how-it-works">
-        <div className={styles.sectionHeader}>
-          <h2>The Lawyard <span className="gradient-text">Protocol</span></h2>
-          <p>A streamlined three-step architecture for legal discovery.</p>
+      {/* --- FEATURED CHAMBER LISTINGS --- */}
+      <section className={`${styles.section} ${styles.sectionAlt}`}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>Featured Chamber Listings</h2>
+          
+          {chambers.length > 0 ? (
+            <div className={styles.listingsGrid}>
+              {chambers.map((c) => (
+                <div key={c.id} className={styles.listingCard}>
+                  <div className={styles.listingAvatar}>
+                    {c.image ? (
+                      <Image src={c.image} alt={c.name} width={80} height={80} className={styles.avatarImg} />
+                    ) : (
+                      <span className={styles.avatarFallback}>🏛️</span>
+                    )}
+                  </div>
+                  <div className={styles.listingInfo}>
+                    <h3>{c.name}</h3>
+                    <p className={styles.listingRole}>{c.type}</p>
+                    <p className={styles.listingSpecialty}>{c.focus}</p>
+                    <div className={styles.listingMeta}>
+                      <span className={styles.listingRating}>⭐ {c.rating}</span>
+                      <span className={styles.listingLocation}>📍 {c.location}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.emptyMessage}>No listings found.</p>
+          )}
         </div>
-        
-        <div className={styles.protocolGrid}>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>01</div>
-            <h4>Identify Need</h4>
-            <p>Define your legal challenge or growth objective through our intelligent search console.</p>
-          </div>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>02</div>
-            <h4>Filter Mastery</h4>
-            <p>Connect with vetted experts who possess the specific specialty and experience required.</p>
-          </div>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNumber}>03</div>
-            <h4>Execute Results</h4>
-            <p>Initiate a direct consultation and begin the collaboration through our secure gateway.</p>
+      </section>
+
+      {/* --- LATEST LEGAL INSIGHTS & MEDIA --- */}
+      <section className={styles.section}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>Latest Legal Insights & Media</h2>
+          
+          {(articles.length > 0 || podcasts.length > 0) ? (
+            <div className={styles.listingsGrid}>
+              {articles.map((article: any) => (
+                <Link key={article.id} href={`/knowledge/${article.slug}`} className={styles.listingCard}>
+                  <div className={styles.listingAvatar} style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    ✍️
+                  </div>
+                  <div className={styles.listingInfo}>
+                    <h3>{article.title}</h3>
+                    <p className={styles.listingRole}>ARTICLE</p>
+                    <p className={styles.listingSpecialty}>{article.excerpt}</p>
+                    <div className={styles.listingMeta}>
+                      <span>By {article.author?.full_name || 'Anonymous'}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {podcasts.map((podcast: any) => (
+                <a key={podcast.id} href={podcast.media_url} target="_blank" rel="noopener noreferrer" className={styles.listingCard}>
+                  <div className={styles.listingAvatar} style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {podcast.media_type === 'video' ? '📺' : '🎙️'}
+                  </div>
+                  <div className={styles.listingInfo}>
+                    <h3>{podcast.title}</h3>
+                    <p className={styles.listingRole}>{podcast.media_type.toUpperCase()} PODCAST</p>
+                    <p className={styles.listingSpecialty}>{podcast.description || 'No description available'}</p>
+                    <div className={styles.listingMeta}>
+                      <span>By {podcast.author?.full_name || 'Anonymous'}</span>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.emptyMessage}>No recent insights published yet.</p>
+          )}
+        </div>
+      </section>
+
+      {/* --- OUR LISTING TYPES --- */}
+      <section className={styles.section}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>Our Listing Types</h2>
+          
+          <div className={styles.typesGrid}>
+            <div className={styles.typeCard}>
+              <div className={styles.typeIcon}>👥</div>
+              <h3>Client listings</h3>
+              <p>Get a convenient way to find your closest law service provider that will help you in court</p>
+            </div>
+            <div className={styles.typeCard}>
+              <div className={styles.typeIcon}>⚖️</div>
+              <h3>Lawyer listings</h3>
+              <p>Contact with lawyers and experts listed in the Lawyer Directory out of the listing of all lawyers across.</p>
+            </div>
+            <div className={styles.typeCard}>
+              <div className={styles.typeIcon}>🏛️</div>
+              <h3>Chamber listings</h3>
+              <p>Have a sophisticated way to complete the case filing process to get things done effortlessly!</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* --- CLIENT NEEDS (NEW) --- */}
+      {/* --- CLIENT NEED LISTINGS --- */}
+      <section className={`${styles.section} ${styles.sectionAlt}`}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>Client Need Listings</h2>
+          <p className={styles.emptyMessage}>No listings found.</p>
+        </div>
+      </section>
 
-
-      <section className={styles.actionBanner}>
-        <div className={styles.bannerContent}>
-          <h2>Got a legal emergency or a specific need?</h2>
-          <p>Post your requirement and let top-tier lawyers reach out to you directly.</p>
-          <div className={styles.bannerActions}>
-            <Link href="/search" className="btn-primary">Post Client Need</Link>
-            <a href="#how-it-works" className={styles.outlineBtn}>How it works</a>
-          </div>
-
+      {/* --- CTA BANNER --- */}
+      <section className={styles.ctaBanner}>
+        <div className={styles.ctaContent}>
+          <p>
+            This platform exists to provide you access to justices in Africa, lawyers of different practices and pay grade. 
+            Choose of the ones you can afford that suit your need. This directory is part of the Lawyard brand.
+          </p>
         </div>
       </section>
     </>

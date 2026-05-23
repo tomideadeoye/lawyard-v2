@@ -1,5 +1,4 @@
 import styles from "./about.module.css";
-import Link from "next/link";
 
 export default function AboutPage() {
   return (
@@ -8,7 +7,7 @@ export default function AboutPage() {
           <div className={styles.badge}>OUR MISSION</div>
           <h1>Architecting the <span className="gradient-text">New Legal Frontier</span>.</h1>
           <p className={styles.subtitle}>
-            Lawyard is more than a directory. It is the infrastructure for Africa's elite legal talent, 
+            Lawyard is more than a directory. It is the infrastructure for Africa&apos;s elite legal talent, 
             connecting complex challenges with sophisticated solutions.
           </p>
         </section>

@@ -83,8 +83,6 @@ async function migrate() {
     }
   }
 
-  // Build a specialty name→id map for linking
-  const specialtyNameMap = new Map(specialties.map((s: { id: string; name: string; slug: string }) => [s.name, s.id]))
 
   // 4. Insert Lawyers
   console.log(`✨ Migrating ${lawyers.length} Lawyers...`)

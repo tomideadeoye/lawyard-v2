@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { publishArticle, publishPodcast } from '../../actions/content';
-import styles from '../Dashboard.module.css';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/components/card';
+import PublishArticleForm from '@/components/forms/PublishArticleForm';
+import PublishPodcastForm from '@/components/forms/PublishPodcastForm';
 
 export default async function PublishPage() {
   const supabase = await createClient();
@@ -10,38 +11,34 @@ export default async function PublishPage() {
   if (!user) redirect('/login');
 
   return (
-    <div className={styles.container}>
-      <div className="section-header">
-        <h1 className="gradient-text">Content Studio</h1>
-        <p>Publish insights, articles, and podcasts to the Lawyard Directory.</p>
+    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8 animate-fade-in">
+      <div className="border-b border-border pb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Content Studio</h1>
+        <p className="text-muted-foreground text-sm">Publish insights, articles, and podcasts to the Lawyard Directory.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Article Form */}
-        <div className="premium-card">
-          <h3>✍️ Publish Article</h3>
-          <form action={publishArticle} className="form-stack" style={{ marginTop: '1rem' }}>
-            <input name="title" type="text" placeholder="Article Title" className="input-field" required />
-            <input name="slug" type="text" placeholder="Slug (e.g. law-tech-nigeria)" className="input-field" required />
-            <textarea name="content" placeholder="Write your content here..." className="input-field" style={{ height: '200px' }} required></textarea>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }}>Publish to Directory</button>
-          </form>
-        </div>
+        <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">✍️ Publish Article</CardTitle>
+            <CardDescription>Share your insights with the legal community.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PublishArticleForm />
+          </CardContent>
+        </Card>
 
         {/* Podcast Form */}
-        <div className="premium-card">
-          <h3>🎙️ Publish Podcast</h3>
-          <form action={publishPodcast} className="form-stack" style={{ marginTop: '1rem' }}>
-            <input name="title" type="text" placeholder="Podcast Title" className="input-field" required />
-            <input name="media_url" type="text" placeholder="Media URL (Audio/Video Link)" className="input-field" required />
-            <select name="media_type" className="input-field">
-              <option value="audio">Audio Podcast</option>
-              <option value="video">Video Podcast</option>
-            </select>
-            <textarea name="description" placeholder="Short description..." className="input-field"></textarea>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }}>Go Live on Homepage</button>
-          </form>
-        </div>
+        <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">🎙️ Publish Podcast</CardTitle>
+            <CardDescription>Upload audio or video discussion links.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PublishPodcastForm />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

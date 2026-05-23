@@ -2,6 +2,7 @@ import styles from "./search.module.css";
 import Link from "next/link";
 import { getLawyers, getSpecialties } from "../../lib/api";
 import SearchFilters from "../../components/search/SearchFilters";
+import { Lawyer, Specialty } from '@repo/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,17 +19,24 @@ interface SearchPageProps {
 
 export default async function SearchPage(props: SearchPageProps) {
   const searchParams = await props.searchParams;
-  const [specialties, lawyers] = await Promise.all([
-    getSpecialties(),
-    getLawyers({
-      specialty: searchParams.specialty,
-      location: searchParams.location,
-      query: searchParams.query,
-      rating: searchParams.rating ? Number(searchParams.rating) : undefined,
-      priceRange: searchParams.priceRange,
-      experience: searchParams.experience
-    })
-  ]);
+  let specialties: Specialty[] = [];
+  let lawyers: Lawyer[] = [];
+
+  try {
+    [specialties, lawyers] = await Promise.all([
+      getSpecialties(),
+      getLawyers({
+        specialty: searchParams.specialty,
+        location: searchParams.location,
+        query: searchParams.query,
+        rating: searchParams.rating ? Number(searchParams.rating) : undefined,
+        priceRange: searchParams.priceRange,
+        experience: searchParams.experience
+      })
+    ]);
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+  }
 
   return (
     <div className={styles.layout}>
@@ -53,7 +61,7 @@ export default async function SearchPage(props: SearchPageProps) {
                     <div className={styles.avatarMini}>{res.name[0]}</div>
                     <div className={styles.headerBadges}>
                       <div className={styles.badge}>{res.experience}</div>
-                      <div className={styles.verifiedBadge}>✓ Verified</div>
+                      {res.verified && <div className={styles.verifiedBadge}>✓ Verified</div>}
                     </div>
                 </div>
                 
@@ -63,7 +71,14 @@ export default async function SearchPage(props: SearchPageProps) {
                     <button className={styles.saveBtn} title="Save to Shortlist">🔖</button>
                   </div>
                   <p className={styles.resRole}>{res.role}</p>
-                  <p className={styles.resSpec}>{res.specialty}</p>
+                  <div className={styles.resSpecs}>
+                    {res.specialties.slice(0, 3).map(s => (
+                      <span key={s} className={styles.resSpecTag}>{s}</span>
+                    ))}
+                    {res.specialties.length > 3 && (
+                      <span className={styles.resSpecTag}>+{res.specialties.length - 3}</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className={styles.cardFooter}>

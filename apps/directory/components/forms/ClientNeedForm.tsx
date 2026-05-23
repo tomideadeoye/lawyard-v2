@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import styles from './Forms.module.css';
 import { createClient } from '@/lib/supabase/client';
+import { Input } from '@repo/ui/components/input';
+import { Button } from '@repo/ui/components/button';
+import { Field, FieldLabel } from '@repo/ui/components/field';
 
 export default function ClientNeedForm() {
   const [loading, setLoading] = useState(false);
@@ -51,49 +53,72 @@ export default function ClientNeedForm() {
 
   if (success) {
     return (
-      <div className={styles.successState}>
-        <div className={styles.icon}>✅</div>
-        <h3>Requirement Posted Successfully</h3>
-        <p>Your legal need has been broadcast to the directory's vetted experts. You will receive notifications as they respond.</p>
-        <button onClick={() => window.location.href = '/dashboard'} className="btn-primary">Go to Dashboard</button>
+      <div className="text-center py-10 space-y-4">
+        <div className="text-5xl">✅</div>
+        <h3 className="text-xl font-bold tracking-tight">Requirement Posted Successfully</h3>
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+          Your legal need has been broadcast to the directory&apos;s vetted experts. You will receive notifications as they respond.
+        </p>
+        <Button onClick={() => window.location.href = '/dashboard'} className="mt-4">
+          Go to Dashboard
+        </Button>
       </div>
     );
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <div className={styles.field}>
-        <label htmlFor="title">Reason for consultation (Subject)</label>
-        <input name="title" id="title" placeholder="e.g. Intellectual Property Dispute in Lagos" required />
-      </div>
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <Field>
+        <FieldLabel htmlFor="title" className="text-xs uppercase tracking-wider text-accent font-bold">
+          Reason for consultation (Subject)
+        </FieldLabel>
+        <Input name="title" id="title" placeholder="e.g. Intellectual Property Dispute in Lagos" required />
+      </Field>
 
-      <div className={styles.field}>
-        <label htmlFor="description">Detailed Description</label>
-        <textarea name="description" id="description" rows={5} placeholder="Describe your legal situation in detail..." required />
-      </div>
+      <Field>
+        <FieldLabel htmlFor="description" className="text-xs uppercase tracking-wider text-accent font-bold">
+          Detailed Description
+        </FieldLabel>
+        <textarea 
+          name="description" 
+          id="description" 
+          rows={5} 
+          placeholder="Describe your legal situation in detail..." 
+          required 
+          className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        />
+      </Field>
 
-      <div className={styles.row}>
-        <div className={styles.field}>
-          <label htmlFor="location">Location</label>
-          <input name="location" id="location" placeholder="e.g. Lagos, Nigeria" />
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="budget">Budget Range</label>
-          <select name="budget" id="budget">
-            <option value="flexible">Flexible / Negotiable</option>
-            <option value="low">Under $500</option>
-            <option value="medium">$500 - $2,500</option>
-            <option value="high">$2,500 - $10,000</option>
-            <option value="premium">$10,000+</option>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Field>
+          <FieldLabel htmlFor="location" className="text-xs uppercase tracking-wider text-accent font-bold">
+            Location
+          </FieldLabel>
+          <Input name="location" id="location" placeholder="e.g. Lagos, Nigeria" />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="budget" className="text-xs uppercase tracking-wider text-accent font-bold">
+            Budget Range
+          </FieldLabel>
+          <select 
+            name="budget" 
+            id="budget"
+            className="flex h-9 w-full rounded-md border border-input bg-background/50 px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <option value="flexible" className="bg-background text-foreground">Flexible / Negotiable</option>
+            <option value="low" className="bg-background text-foreground">Under $500</option>
+            <option value="medium" className="bg-background text-foreground">$500 - $2,500</option>
+            <option value="high" className="bg-background text-foreground">$2,500 - $10,000</option>
+            <option value="premium" className="bg-background text-foreground">$10,000+</option>
           </select>
-        </div>
+        </Field>
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p className="text-sm text-destructive font-medium">{error}</p>}
 
-      <button type="submit" disabled={loading} className="btn-primary">
+      <Button type="submit" disabled={loading} className="w-full glow-primary">
         {loading ? 'Processing...' : 'Broadcast Requirement'}
-      </button>
+      </Button>
     </form>
   );
 }

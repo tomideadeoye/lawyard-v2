@@ -1,30 +1,45 @@
 import { NextResponse } from 'next/server'
-// The client you created in Step 2
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in search params, use it as the redirect URL
-  const next = searchParams.get('next') ?? '/'
+  const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
     if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+      const { data: { user } } = await supabase.auth.getUser()
+      let redirectTo = next
+
+      if (user) {
+        const createdAt = new Date(user.created_at).getTime()
+        const lastSignInAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : createdAt
+        
+        // A user is considered "new" if they signed up within the last 10 minutes
+        // or if their last sign-in is extremely close to creation time (OAuth/immediate verification)
+        const isNewUser = (Date.now() - createdAt < 600000) || (Math.abs(lastSignInAt - createdAt) < 15000)
+        
+        if (isNewUser && next === '/dashboard') {
+          redirectTo = '/dashboard?welcome=true'
+        }
+      }
+
+      const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'
+      
       if (isLocalEnv) {
-        // we can skip forwarded host check in local dev
-        return NextResponse.redirect(`${origin}${next}`)
+        return NextResponse.redirect(`${origin}${redirectTo}`)
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+        return NextResponse.redirect(`https://${forwardedHost}${redirectTo}`)
       } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        return NextResponse.redirect(`${origin}${redirectTo}`)
       }
     }
   }
 
-  // return the user to an error page with instructions
+  // return the user to the login page with an error message
   return NextResponse.redirect(`${origin}/login?message=Could not authenticate user`)
 }

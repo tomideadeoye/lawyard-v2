@@ -1,0 +1,21 @@
+[
+  { "id": "banking-and-finance", "name": "Banking and Finance", "slug": "banking-and-finance" },
+  { "id": "capital-markets", "name": "Capital Markets", "slug": "capital-markets" },
+  { "id": "construction-law", "name": "Construction Law", "slug": "construction-law" },
+  { "id": "corporate-law", "name": "Corporate Law", "slug": "corporate-law" },
+  { "id": "criminal-law", "name": "Criminal Law", "slug": "criminal-law" },
+  { "id": "dispute-resolution-law", "name": "Dispute Resolution Law", "slug": "dispute-resolution-law" },
+  { "id": "divorce-law", "name": "Divorce Law", "slug": "divorce-law" },
+  { "id": "energy-law", "name": "Energy Law", "slug": "energy-law" },
+  { "id": "family-law", "name": "Family Law", "slug": "family-law" },
+  { "id": "fintech", "name": "FinTech", "slug": "fintech" },
+  { "id": "immigration-law", "name": "Immigration Law", "slug": "immigration-law" },
+  { "id": "injury-law", "name": "Injury Law", "slug": "injury-law" },
+  { "id": "litigation-law", "name": "Litigation Law", "slug": "litigation-law" },
+  { "id": "mediation-and-arbitration", "name": "Mediation and Arbitration", "slug": "mediation-and-arbitration" },
+  { "id": "privacy-and-data-protection", "name": "Privacy and Data Protection", "slug": "privacy-and-data-protection" },
+  { "id": "project-finance", "name": "Project Finance", "slug": "project-finance" },
+  { "id": "real-estate-law", "name": "Real Estate Law", "slug": "real-estate-law" },
+  { "id": "regulatory-compliance", "name": "Regulatory Compliance", "slug": "regulatory-compliance" },
+  { "id": "commercial-law", "name": "Commercial Law", "slug": "commercial-law" }
+]

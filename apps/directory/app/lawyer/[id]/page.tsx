@@ -3,13 +3,39 @@ import Link from "next/link";
 import { getLawyerById, getArticles, getPodcasts } from "../../../lib/api";
 import { notFound } from "next/navigation";
 
+interface Article {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+}
+
+interface Podcast {
+  id: string;
+  slug: string;
+  media_type: string;
+  title: string;
+  description: string;
+}
+
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [lawyer, articles, podcasts] = await Promise.all([
-    getLawyerById(id),
-    getArticles({ authorId: id }),
-    getPodcasts({ authorId: id })
-  ]);
+  let lawyer = null;
+  let articles: Article[] = [];
+  let podcasts: Podcast[] = [];
+
+  try {
+    const results = await Promise.all([
+      getLawyerById(id),
+      getArticles({ authorId: id }),
+      getPodcasts({ authorId: id })
+    ]);
+    lawyer = results[0];
+    articles = results[1] as Article[];
+    podcasts = results[2] as Podcast[];
+  } catch (error) {
+    console.error('Error fetching lawyer profile:', error);
+  }
 
   if (!lawyer) {
     notFound();
@@ -33,7 +59,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                 {lawyer.verified && <span className={styles.verifiedBadge}>VERIFIED</span>}
               </div>
               <p className={styles.role}>{lawyer.role}</p>
-              <p className={styles.specialty}>{lawyer.specialty}</p>
+              <div className={styles.specialtiesList}>
+                {lawyer.specialties.map((s: string) => (
+                  <span key={s} className={styles.specialtyTag}>{s}</span>
+                ))}
+              </div>
               <div className={styles.quickStats}>
                 <span>⭐ {lawyer.rating} ({lawyer.reviews} Reviews)</span>
                 <span>📍 {lawyer.location}</span>
@@ -49,7 +79,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           <section className={styles.achievements}>
             <h2>Key <span className="gradient-text">Achievements</span></h2>
             <ul>
-              {lawyer.achievements.map((a, i) => (
+              {lawyer.achievements.map((a: string, i: number) => (
                 <li key={i}>{a}</li>
               ))}
             </ul>
@@ -60,14 +90,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             <section className={styles.insights}>
               <h2>Published <span className="gradient-text">Insights</span></h2>
               <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
-                {articles.map((article: any) => (
+                {(articles as unknown as Article[]).map((article) => (
                   <Link href={`/knowledge/${article.slug}`} key={article.id} className="premium-card" style={{ padding: '1.5rem' }}>
                     <div className={styles.insightTag}>ARTICLE</div>
                     <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{article.title}</h4>
                     <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{article.excerpt}</p>
                   </Link>
                 ))}
-                {podcasts.map((podcast: any) => (
+                {(podcasts as unknown as Podcast[]).map((podcast) => (
                   <Link href={`/knowledge/${podcast.slug}`} key={podcast.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--gold)' }}>
                     <div className={styles.insightTag}>{podcast.media_type.toUpperCase()} PODCAST</div>
                     <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{podcast.title}</h4>

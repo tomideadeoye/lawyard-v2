@@ -1,41 +1,62 @@
 import { createClient } from './supabase/server';
+import specialtiesData from '../data/specialties.json';
+import { Lawyer, Chamber, Specialty } from '@repo/api';
 
-export interface Lawyer {
-  id: string;
-  name: string;
-  role: string;
-  specialty: string;
-  image: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  experience: string;
-  priceRange: string;
-  bio: string;
-  achievements: string[];
-  verified: boolean;
-  featured: boolean;
+const slugToName = new Map(specialtiesData.map(s => [s.slug, s.name]));
+
+interface RawSpecialtyRelation {
+  specialty?: { name?: string } | null;
+  name?: string;
 }
 
-export interface Chamber {
-  id: string;
-  name: string;
-  type: string;
-  focus: string;
-  location: string;
-  rating: number;
-  image: string;
-  featured: boolean;
+function parseSpecialtyNames(raw: unknown): string[] {
+  if (!raw || !Array.isArray(raw)) return ['General Practice'];
+  const names = (raw as RawSpecialtyRelation[])
+    .map((s) => s.specialty?.name || s.name)
+    .filter(Boolean) as string[];
+  return names.length > 0 ? names : ['General Practice'];
 }
 
-export interface Specialty {
+interface RawSpecialty {
   id: string;
   name: string;
-  count: number;
+  slug: string;
+  lawyer_count?: { count: number }[] | { count: number } | number | null;
 }
 
-export async function getLawyers(options: { 
-  featured?: boolean; 
+export async function getSpecialties(): Promise<Specialty[]> {
+  const supabase = await createClient();
+
+  const { data: specialties, error } = await supabase
+    .from('specialties')
+    .select(`
+      id,
+      name,
+      slug,
+      lawyer_count:lawyer_specialties(count)
+    `);
+
+  if (error) {
+    console.error('Error fetching specialties:', error);
+    return [];
+  }
+
+  return (specialties as unknown as RawSpecialty[]).map((s) => {
+    const countValue = Array.isArray(s.lawyer_count)
+      ? s.lawyer_count[0]?.count
+      : (typeof s.lawyer_count === 'object' && s.lawyer_count !== null ? (s.lawyer_count as { count: number }).count : (s.lawyer_count || 0));
+
+    return {
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      count: Number(countValue) || 0,
+    };
+  });
+}
+
+export async function getLawyers(options: {
+  featured?: boolean;
   specialty?: string;
   location?: string;
   query?: string;
@@ -44,7 +65,7 @@ export async function getLawyers(options: {
   experience?: string;
 } = {}): Promise<Lawyer[]> {
   const supabase = await createClient();
-  
+
   let query = supabase
     .from('lawyers')
     .select(`
@@ -71,34 +92,36 @@ export async function getLawyers(options: {
       message: error.message,
       details: error.details,
       hint: error.hint,
-      code: error.code
+      code: error.code,
     });
     return [];
   }
 
-  let formattedData = lawyers.map((l: any) => {
-    let specialtyName = 'General Practice';
-    if (l.specialties && Array.isArray(l.specialties) && l.specialties.length > 0) {
-      const firstSpec = l.specialties[0];
-      specialtyName = firstSpec.specialty?.name || firstSpec.name || specialtyName;
-    }
+  let formattedData = (lawyers as Record<string, unknown>[]).map((l) => {
+    const allSpecs = parseSpecialtyNames(l.specialties);
 
     return {
       ...l,
-      image: l.image_url || '',
-      featured: l.is_featured || false,
-      specialty: specialtyName,
-      reviews: l.reviews_count || 0,
+      id: l.id as string,
+      name: l.name as string,
+      role: l.role as string,
+      location: l.location as string,
+      experience: Array.isArray(l.experience) ? ((l.experience as string[])[0] || '10+ years') : ((l.experience as string) || '10+ years'),
+      priceRange: (l.price_range as string) || '₦₦₦',
+      image: (l.image_url as string) || '',
+      featured: (l.is_featured as boolean) || false,
+      specialty: allSpecs[0],
+      specialties: allSpecs,
+      reviews: (l.reviews_count as number) || 0,
       rating: Number(l.rating) || 0,
-      experience: Array.isArray(l.experience) ? (l.experience[0] || '10+ years') : (l.experience || '10+ years'),
-      priceRange: l.price_range || '₦₦₦',
-      verified: true,
-    };
+      verified: (l.verification_status as string) === 'verified',
+    } as Lawyer;
   });
 
   if (options.specialty && options.specialty !== 'all') {
-    formattedData = formattedData.filter((l: any) => 
-      l.specialty.toLowerCase().includes(options.specialty!.toLowerCase())
+    const targetName = slugToName.get(options.specialty.toLowerCase()) || options.specialty;
+    formattedData = formattedData.filter((l) =>
+      l.specialties.some((s: string) => s.toLowerCase().includes(targetName.toLowerCase()))
     );
   }
 
@@ -124,29 +147,25 @@ export async function getLawyerById(id: string): Promise<Lawyer | null> {
     return null;
   }
 
-  // Handle different possible structures for the specialty join
-  let specialtyName = 'General Practice';
-  if (lawyer.specialties && Array.isArray(lawyer.specialties) && lawyer.specialties.length > 0) {
-    const firstSpec = lawyer.specialties[0];
-    specialtyName = firstSpec.specialty?.name || firstSpec.name || specialtyName;
-  }
+  const allSpecs = parseSpecialtyNames(lawyer.specialties);
 
   return {
     ...lawyer,
     image: lawyer.image_url || '',
     featured: lawyer.is_featured || false,
-    specialty: specialtyName,
+    specialty: allSpecs[0],
+    specialties: allSpecs,
     reviews: lawyer.reviews_count || 0,
     rating: Number(lawyer.rating) || 0,
     experience: Array.isArray(lawyer.experience) ? (lawyer.experience[0] || '10+ years') : (lawyer.experience || '10+ years'),
     priceRange: '₦₦₦',
-    verified: true,
-  };
+    verified: (lawyer.verification_status as string) === 'verified',
+  } as Lawyer;
 }
 
 export async function getChambers(options: { featured?: boolean } = {}): Promise<Chamber[]> {
   const supabase = await createClient();
-  
+
   const query = supabase.from('chambers').select('*');
 
   const { data: chambers, error } = await query;
@@ -156,13 +175,15 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
     return [];
   }
 
-  const formattedData = chambers.map((c: any) => ({
+  const formattedData = (chambers as Record<string, unknown>[]).map((c) => ({
     ...c,
-    image: c.image_url || '',
-    featured: false,
+    id: c.id as string,
+    name: c.name as string,
+    image: (c.image_url as string) || '',
+    featured: (c.is_featured as boolean) ?? (c.focus ? true : false),
     rating: 4.8,
     type: 'Law Practice',
-  }));
+  } as Chamber));
 
   if (options.featured) {
     return formattedData.filter(c => c.featured);
@@ -187,35 +208,4 @@ export async function getPodcasts(options: { authorId?: string; limit?: number }
   if (options.limit) query = query.limit(options.limit);
   const { data } = await query;
   return data || [];
-}
-
-export async function getSpecialties(): Promise<Specialty[]> {
-  const supabase = await createClient();
-
-  const { data: specialties, error } = await supabase
-    .from('specialties')
-    .select(`
-      id,
-      name,
-      slug,
-      lawyer_count:lawyer_specialties(count)
-    `);
-
-  if (error) {
-    console.error('Error fetching specialties:', error);
-    return [];
-  }
-
-  return specialties.map((s: any) => {
-    // Supabase count query can return different structures depending on the join
-    const countValue = Array.isArray(s.lawyer_count) 
-      ? s.lawyer_count[0]?.count 
-      : (s.lawyer_count?.count || s.lawyer_count || 0);
-      
-    return {
-      id: s.id,
-      name: s.name,
-      count: Number(countValue) || 0,
-    };
-  });
 }

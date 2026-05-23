@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from '../../app/search/search.module.css';
-import { Specialty } from '../../lib/api';
-import { Button } from '../ui/button';
+import { Specialty } from '@repo/api';
+import { Button } from "@repo/ui/components/button";
 
 interface SearchFiltersProps {
   specialties: Specialty[];
@@ -58,7 +58,7 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
         >
           <option value="all">All Specialties</option>
           {specialties.map(s => (
-            <option key={s.id} value={s.name}>{s.name}</option>
+            <option key={s.id} value={s.slug || s.name}>{s.name}</option>
           ))}
         </select>
       </div>
