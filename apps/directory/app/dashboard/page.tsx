@@ -103,7 +103,7 @@ export default async function DashboardPage({
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full mt-4">
-              <Link href="/add-listing" className="flex-1">
+              <Link href="/dashboard/add-listing" className="flex-1">
                 <Button className="w-full glow-primary">
                   Configure Practice Listing
                 </Button>
@@ -119,7 +119,7 @@ export default async function DashboardPage({
       )}
 
       {/* Main Dashboard Layout */}
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
@@ -128,7 +128,7 @@ export default async function DashboardPage({
             <p className="text-muted-foreground text-sm">Manage your profile, credentials, and directories.</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/add-listing">
+            <Link href="/dashboard/add-listing">
               <Button variant="outline" size="sm">
                 Add Listing
               </Button>
@@ -149,17 +149,24 @@ export default async function DashboardPage({
             {/* Avatar block overlaying banner */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end -mt-12 mb-6 gap-4">
               <div className="flex items-end gap-4">
-                <div className="w-24 h-24 rounded-full bg-background border-4 border-card flex items-center justify-center text-4xl font-extrabold shadow-md shrink-0">
-                  {initial}
+                <div className="w-24 h-24 rounded-full bg-background border-4 border-card flex items-center justify-center text-4xl font-extrabold shadow-md shrink-0 overflow-hidden relative">
+                  {profile?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    initial
+                  )}
                 </div>
                 <div className="pb-1">
                   <h2 className="text-2xl font-bold tracking-tight">{profile?.full_name || 'Anonymous User'}</h2>
                   <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">{profile?.role || 'client'} profile</p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" className="text-xs">
-                Edit Profile
-              </Button>
+              <Link href="/dashboard/settings">
+                <Button size="sm" variant="outline" className="text-xs">
+                  Edit Profile
+                </Button>
+              </Link>
             </div>
 
             {/* User Account Info Info Grid */}
@@ -244,7 +251,7 @@ export default async function DashboardPage({
                     <h4 className="font-semibold text-base">No active directory listing</h4>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">Create a profile to index your credentials, specialties, and location in the Lawyard network.</p>
                   </div>
-                  <Link href="/add-listing" className="inline-block mt-2">
+                  <Link href="/dashboard/add-listing" className="inline-block mt-2">
                     <Button size="sm" className="glow-primary">
                       Initialize Listing Path
                     </Button>

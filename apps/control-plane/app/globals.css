@@ -2,15 +2,8 @@
 @import "../../../packages/ui/src/styles/globals.css";
 
 /* Scan all local files and shared packages for Tailwind classes */
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
-@source "../components/**/*.{ts,tsx}";
-@source "../app/**/*.{ts,tsx}";
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+@source "../../../packages/ui/src";
+@source "../app";
 
 body {
   background: var(--background);

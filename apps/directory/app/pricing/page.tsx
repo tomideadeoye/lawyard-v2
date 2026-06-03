@@ -1,144 +1,129 @@
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/components/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@repo/ui/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
-import { CheckCircle2, Zap, Crown, Shield, Gem, ArrowRight, Scale } from "lucide-react";
+import { Check, X, Shield, Users, Landmark } from "lucide-react";
+import pricingData from "../../config/pricing.json";
+import { DirectoryRole } from "@repo/api";
 
-const tiers = [
-  {
-    name: "Discovery",
-    price: "$0",
-    period: "/ Lifetime",
-    desc: "Essential presence for emerging professionals seeking initial visibility within the network.",
-    features: ["Standard Directory Listing", "Social Link Integration", "3 High-Res Portfolios", "Contact Intermediary", "Basic Booking Module"],
-    icon: Zap,
-    accent: false,
-    cta: "Begin Journey",
-    variant: "outline" as const,
-  },
-  {
-    name: "Sovereign",
-    price: "$2",
-    period: "/ Year",
-    desc: "Priority placement for established practitioners demanding elite presence and direct engagement.",
-    features: ["Featured Priority Placement", "HD Professional Video Intro", "Unlimited Portfolio Access", "Custom Link Architecture", "Live Terminal Interaction", "Protocol Verification Badge"],
-    icon: Crown,
-    accent: true,
-    cta: "Initialize Premium",
-    variant: "default" as const,
-  },
-  {
-    name: "Institutional",
-    price: "$20",
-    period: "/ Year",
-    desc: "Unrivaled scale for chambers and legal institutions seeking to dominate regional visibility.",
-    features: ["15+ Featured Professional Slots", "Institutional Verification", "Advanced Strategic Analytics", "24/7 Protocol Support", "Custom Media Production"],
-    icon: Gem,
-    accent: false,
-    cta: "Enterprise Access",
-    variant: "outline" as const,
-  },
+type Feature = {
+  name: string;
+  included: boolean;
+};
+
+const roles = [
+  { label: "Lawyers", value: DirectoryRole.LAWYER, icon: Shield },
+  { label: "Clients", value: DirectoryRole.CLIENT, icon: Users },
+  { label: "Chambers", value: DirectoryRole.CHAMBER, icon: Landmark },
 ];
 
-function PricingCard({ tier }: { tier: typeof tiers[number] }) {
-  const Icon = tier.icon;
-
+function PricingCard({ tier }: { tier: any }) {
   return (
-      <Card className={`group/card relative flex flex-col overflow-hidden ${tier.accent ? "border-accent/40 ring-4 ring-accent/5 scale-[1.02] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.2)] z-20" : ""}`}>
-      {tier.accent && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground px-5 py-1.5 rounded-full text-[10px] font-black tracking-[0.25em] shadow-2xl glow-accent z-10">
-          RECOMMENDED
+    <Card className={`relative flex flex-col bg-white border-border/50 overflow-hidden ${tier.recommended ? 'ring-2 ring-orange-500 shadow-xl z-10 scale-[1.02] rounded-xl' : 'shadow-sm rounded-lg hover:shadow-md transition-shadow'}`}>
+      {tier.recommended && (
+        <div className="bg-orange-500 text-white text-center py-2 text-sm font-bold tracking-wide">
+          Recommended
         </div>
       )}
-      <div className="absolute top-0 right-0 p-6 opacity-[0.04] group-hover/card:opacity-10 transition-opacity pointer-events-none">
-        <Icon className="w-24 h-24" />
-      </div>
-      <CardHeader>
-        <CardTitle className="text-2xl font-black">{tier.name}</CardTitle>
-        <div className="flex items-baseline gap-1 mt-2">
-          <span className={`text-5xl font-black ${tier.accent ? "text-accent" : "text-primary"}`}>{tier.price}</span>
-          <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{tier.period}</span>
+      <CardHeader className="text-center pt-8 pb-6 border-b border-border/40">
+        <CardTitle className="text-xl font-medium text-slate-800 mb-6">{tier.name}</CardTitle>
+        <div className="flex items-start justify-center gap-1 mb-6">
+          <span className="text-xl font-medium text-slate-400 mt-1">$</span>
+          <span className="text-6xl font-semibold text-slate-800">{tier.price.replace('$', '')}</span>
+          <span className="text-sm font-medium text-slate-500 mt-auto mb-2 ml-1">{tier.period}</span>
         </div>
+        <p className="text-sm text-slate-500 max-w-[250px] mx-auto min-h-[40px]">
+          {tier.desc}
+        </p>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <CardDescription className="text-sm mb-6 leading-relaxed">{tier.desc}</CardDescription>
-        <ul className="space-y-3 flex-1">
-          {tier.features.map((f) => (
-            <li key={f} className={`flex items-center text-sm gap-3 ${tier.accent ? "font-bold" : "font-medium text-foreground/80"}`}>
-              <CheckCircle2 className={`w-4 h-4 shrink-0 ${tier.accent ? "text-accent" : "text-primary/60"}`} />
-              {f}
+      
+      <CardContent className="flex-1 px-6 py-8">
+        <ul className="space-y-4">
+          {tier.features.map((feature: Feature, i: number) => (
+            <li key={i} className="flex items-start gap-3 text-sm">
+              {feature.included ? (
+                <Check className="w-5 h-5 shrink-0 text-emerald-500" strokeWidth={2.5} />
+              ) : (
+                <X className="w-5 h-5 shrink-0 text-red-500" strokeWidth={2.5} />
+              )}
+              <span className={`${feature.included ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                {feature.name}
+              </span>
             </li>
           ))}
         </ul>
       </CardContent>
-      <CardFooter>
-        <Button
-          variant={tier.variant}
-          className={`w-full py-6 rounded-2xl font-black transition-all ${
-            tier.accent
-              ? "bg-accent text-accent-foreground hover:scale-[1.02] active:scale-[0.98] shadow-2xl glow-accent border-none text-lg"
-              : "border-2 border-primary/20 hover:border-primary hover:bg-primary/5"
+      
+      <CardFooter className="px-6 pb-8 pt-0">
+        <Button 
+          variant={tier.recommended ? "default" : "outline"} 
+          className={`w-full py-6 text-base font-semibold transition-all ${
+            tier.recommended 
+              ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-md' 
+              : 'bg-transparent border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm'
           }`}
         >
-          {tier.cta}
-          {tier.accent && <ArrowRight className="w-5 h-5" />}
+          Continue
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-const roles = [
-  { value: "lawyers", label: "Lawyers", icon: Scale },
-  { value: "clients", label: "Clients", icon: Shield },
-  { value: "chambers", label: "Chambers", icon: Gem },
-];
+
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen mesh-gradient px-6 py-24 relative overflow-hidden">
-      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px] -z-10"></div>
+    <div className="min-h-screen bg-slate-50 pb-24">
+      {/* Dark Navy Hero Section */}
+      <div className="bg-slate-900 py-20 text-center">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white">
+          Select Your Plan
+        </h1>
+      </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border-accent/20 text-accent text-[10px] font-black tracking-[0.3em] uppercase glow-accent">
-            <Shield className="w-3 h-3" />
-            Membership Protocol
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter">
-            Select Your <span className="gradient-text">Tier</span>
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-            Strategic visibility and elite authorization for Africa&apos;s premier legal professionals and institutions.
-          </p>
+      <div className="max-w-5xl mx-auto px-6 -mt-8 relative z-10">
+        {/* Notes Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-border/50 p-8 mb-12 mt-20">
+          <h3 className="text-xl font-semibold text-slate-800 mb-4">Note:</h3>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-slate-600 font-medium">
+            <li><strong className="text-slate-800">Clients:</strong> listing plans for people in search of lawyers</li>
+            <li><strong className="text-slate-800">Lawyers:</strong> listing plans for lawyer/law professionals</li>
+            <li><strong className="text-slate-800">Chambers:</strong> listing plans for law chambers</li>
+            <li>Paid listing plans secure <strong className="text-slate-800">featured listings</strong> that receive the most user views, appear first, and rank higher in search results.</li>
+          </ol>
         </div>
 
-        <Tabs defaultValue="lawyers" className="mb-12">
-          <TabsList className="mx-auto w-fit h-auto p-1.5 rounded-2xl bg-muted/50 backdrop-blur-sm mb-12">
+        <Tabs defaultValue="lawyers" className="w-full">
+          <TabsList variant="line" className="w-full max-w-md mx-auto flex h-auto mb-12 border-b border-border/40 pb-0">
             {roles.map((r) => {
               const Icon = r.icon;
               return (
                 <TabsTrigger
                   key={r.value}
                   value={r.value}
-                  className="px-8 py-3.5 rounded-xl text-sm font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 gap-2"
+                  className="flex-1 flex-col gap-2 py-4 px-2 text-slate-500 data-[state=active]:text-slate-900 font-semibold"
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-5 h-5" />
                   {r.label}
                 </TabsTrigger>
               );
             })}
           </TabsList>
 
-          {roles.map((r) => (
-            <TabsContent key={r.value} value={r.value} className="mt-0">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                {tiers.map((tier) => (
+          {roles.map((r) => {
+            const tiers = (pricingData as Record<string, any[]>)[r.value] || [];
+            const gridClass = tiers.length === 1 ? "md:grid-cols-1 max-w-sm mx-auto" : tiers.length === 2 ? "md:grid-cols-2 max-w-3xl mx-auto" : "md:grid-cols-3";
+
+            return (
+            <TabsContent key={r.value} value={r.value} className="mt-0 outline-none">
+              <div className={`grid grid-cols-1 ${gridClass} gap-8 items-start`}>
+                {tiers.map((tier: any) => (
                   <PricingCard key={tier.name} tier={tier} />
                 ))}
               </div>
             </TabsContent>
-          ))}
+            );
+          })}
         </Tabs>
       </div>
     </div>

@@ -1,15 +1,21 @@
 @import "tailwindcss";
 @import "../../../packages/ui/src/styles/globals.css";
 
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
-@source "../components/**/*.{ts,tsx}";
-@source "../app/**/*.{ts,tsx}";
+/* Scan all local files and shared packages for Tailwind classes */
+@source "../../../packages/ui/src";
+@source "../components";
+@source "../app";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@theme {
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-serif: "Georgia", "Times New Roman", "Cambria", serif;
 }
+
+
+
+
+
+
 
 html, body {
   min-height: 100vh;
@@ -18,4 +24,15 @@ html, body {
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

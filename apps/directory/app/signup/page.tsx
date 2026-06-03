@@ -35,7 +35,7 @@ export default function SignupPage() {
               <input 
                 name="fullName" 
                 type="text" 
-                placeholder="Tomide Adeoye" 
+                placeholder="John Doe" 
                 className="input-premium"
                 required 
               />
@@ -49,7 +49,7 @@ export default function SignupPage() {
               <input 
                 name="email" 
                 type="email" 
-                placeholder="tomide@lawyard.org" 
+                placeholder="john@doe.com" 
                 className="input-premium"
                 required 
               />

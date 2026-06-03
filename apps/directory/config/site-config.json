@@ -9,6 +9,14 @@
   "navigation": {
     "header": [
       {
+        "name": "Type Of Lawyers",
+        "href": "#",
+        "children": [
+          { "name": "Commercial Law", "href": "/search?type=commercial" },
+          { "name": "Dispute Resolution Law", "href": "/search?type=dispute-resolution" }
+        ]
+      },
+      {
         "name": "Areas Of Specialty",
         "href": "#",
         "dataSource": "specialties"

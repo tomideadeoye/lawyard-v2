@@ -39,8 +39,12 @@
 
 ## 5. Deployment & Infrastructure
 - **Vercel**: Automated CI/CD pipelines connected to GitHub.
-  - **Deployment URL**: https://vercel.com/tomideadeoyes-projects/lawyard-v2
+  - **Vercel Dashboard**: https://vercel.com/tomideadeoyes-projects/lawyard-v2
+  - **Live (Vercel)**: https://lawyard-v2.vercel.app
+  - **Live (Custom Domain)**: https://directory.lawyard.org / https://www.lawyard.org
 - **Supabase**: Hosted PostgreSQL, Edge Functions for CRON-job based Newsletter distribution, and Storage (buckets for media).
+  - **Dashboard**: https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp
+  - **API Endpoint**: https://jayjejqjswxtksvwoqxp.supabase.co
 - **Database Management**: Migrations are handled via `supabase db push` / `query` for ad-hoc schema patches.
 
 ## 6. Configuration & Maintenance

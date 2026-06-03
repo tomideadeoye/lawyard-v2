@@ -99,6 +99,8 @@ export async function getLawyers(options: {
 
   let formattedData = (lawyers as Record<string, unknown>[]).map((l) => {
     const allSpecs = parseSpecialtyNames(l.specialties);
+    const rawImage = (l.image_url as string) || '';
+    const image = rawImage.replace(/\.jpg$/i, '.svg');
 
     return {
       ...l,
@@ -108,7 +110,7 @@ export async function getLawyers(options: {
       location: l.location as string,
       experience: Array.isArray(l.experience) ? ((l.experience as string[])[0] || '10+ years') : ((l.experience as string) || '10+ years'),
       priceRange: (l.price_range as string) || '₦₦₦',
-      image: (l.image_url as string) || '',
+      image,
       featured: (l.is_featured as boolean) || false,
       specialty: allSpecs[0],
       specialties: allSpecs,
@@ -166,7 +168,9 @@ export async function getLawyerById(id: string): Promise<Lawyer | null> {
 export async function getChambers(options: { featured?: boolean } = {}): Promise<Chamber[]> {
   const supabase = await createClient();
 
-  const query = supabase.from('chambers').select('*');
+  let query = supabase.from('chambers').select('*');
+
+  if (options.featured) query = query.eq('is_featured', true);
 
   const { data: chambers, error } = await query;
 
@@ -175,15 +179,18 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
     return [];
   }
 
-  const formattedData = (chambers as Record<string, unknown>[]).map((c) => ({
-    ...c,
-    id: c.id as string,
-    name: c.name as string,
-    image: (c.image_url as string) || '',
-    featured: (c.is_featured as boolean) ?? (c.focus ? true : false),
-    rating: 4.8,
-    type: 'Law Practice',
-  } as Chamber));
+  const formattedData = (chambers as Record<string, unknown>[]).map((c) => {
+    const rawImage = (c.image_url as string) || '';
+    return {
+      ...c,
+      id: c.id as string,
+      name: c.name as string,
+      image: rawImage.replace(/\.jpg$/i, '.svg'),
+      featured: (c.is_featured as boolean) || false,
+      rating: 4.8,
+      type: 'Law Practice',
+    } as Chamber;
+  });
 
   if (options.featured) {
     return formattedData.filter(c => c.featured);

@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export enum DirectoryRole {
+  LAWYER = "lawyer",
+  CLIENT = "client",
+  CHAMBER = "chamber",
+}
+
 export const SpecialtySchema = z.object({
   id: z.string(),
   name: z.string(),

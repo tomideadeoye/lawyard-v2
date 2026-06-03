@@ -305,7 +305,7 @@ export async function verifyLawyerAction(id: string) {
   const supabase = createAdminClient();
   const { error } = await supabase
     .from('lawyers')
-    .update({ 
+    .update({
       verification_status: 'verified',
       verified_at: new Date().toISOString()
     })

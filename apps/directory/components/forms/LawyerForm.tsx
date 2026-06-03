@@ -130,7 +130,7 @@ export default function LawyerForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Field>
           <FieldLabel htmlFor="name" className="text-xs uppercase tracking-wider text-accent font-bold">Full Name</FieldLabel>
-          <Input name="name" id="name" placeholder="e.g. Olumide Akpata" required />
+          <Input name="name" id="name" placeholder="e.g. John Doe" required />
         </Field>
         <Field>
           <FieldLabel htmlFor="role" className="text-xs uppercase tracking-wider text-accent font-bold">Professional Role / Title</FieldLabel>
@@ -141,7 +141,7 @@ export default function LawyerForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Field>
           <FieldLabel htmlFor="email" className="text-xs uppercase tracking-wider text-accent font-bold">Public Contact Email</FieldLabel>
-          <Input type="email" name="email" id="email" placeholder="olumide@lawyard.org" required />
+          <Input type="email" name="email" id="email" placeholder="john@doe.com" required />
         </Field>
         <Field>
           <FieldLabel htmlFor="phone" className="text-xs uppercase tracking-wider text-accent font-bold">Phone Number</FieldLabel>
@@ -156,7 +156,7 @@ export default function LawyerForm() {
         </Field>
         <Field>
           <FieldLabel htmlFor="website" className="text-xs uppercase tracking-wider text-accent font-bold">Website / Portfolio Link</FieldLabel>
-          <Input type="url" name="website" id="website" placeholder="e.g. https://akpata-chambers.com" />
+          <Input type="url" name="website" id="website" placeholder="e.g. https://john-doe-law.com" />
         </Field>
       </div>
 
@@ -196,7 +196,7 @@ export default function LawyerForm() {
 
       <Field>
         <FieldLabel htmlFor="experience" className="text-xs uppercase tracking-wider text-accent font-bold">Notable Experience (Separate with semicolons)</FieldLabel>
-        <Input name="experience" id="experience" placeholder="e.g. Partner at Templars (2018-Present); Associate at Banwo & Ighodalo (2014-2018)" />
+        <Input name="experience" id="experience" placeholder="e.g. Partner at Elite Law Firm (2018-Present); Associate at Doe & Partners (2014-2018)" />
       </Field>
 
       <Field>

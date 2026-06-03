@@ -1,236 +1,350 @@
-import styles from "./page.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { getLawyers, getChambers, getSpecialties, getArticles, getPodcasts } from "../lib/api";
+import { getLawyers, getChambers, getSpecialties } from "../lib/api";
+import { Lawyer, Chamber, Specialty } from "@repo/api";
 import { HeroSearchBar } from "../components/HeroSearchBar";
-import { Lawyer, Chamber, Specialty } from '@repo/api';
+import { Building2 } from "lucide-react";
+import { ListingAvatar } from "../components/ListingAvatar";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let specialties: Specialty[] = [];
   let lawyers: Lawyer[] = [];
   let chambers: Chamber[] = [];
-  let articles: any[] = [];
-  let podcasts: any[] = [];
 
   try {
-    [specialties, lawyers, chambers, articles, podcasts] = await Promise.all([
+    [specialties, lawyers, chambers] = await Promise.all([
       getSpecialties(),
       getLawyers({ featured: true }),
       getChambers({ featured: true }),
-      getArticles({ limit: 3 }),
-      getPodcasts({ limit: 3 }),
     ]);
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
+    console.error("Error fetching dashboard data:", error);
   }
 
   return (
-    <>
-      {/* --- HERO SECTION --- */}
-      <section className={styles.hero}>
-        <div className={styles.heroOverlay} />
+    <div className="min-h-screen bg-background text-foreground">
+      {/* ============== HERO ============== */}
+      <section className="relative w-full min-h-[760px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/55 to-slate-950/70 z-10" />
+
+        {/* Ambient glow accents */}
+        <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-primary/15 rounded-full blur-[140px] pointer-events-none z-10" />
+        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-[140px] pointer-events-none z-10" />
+
         <Image
           src="/hero-bg.jpg"
           alt="Legal gavel on law books"
           fill
           priority
-          className={styles.heroBgImage}
+          className="object-cover object-center z-0 select-none pointer-events-none"
           sizes="100vw"
         />
-        <div className={styles.heroContent}>
-          <h1>
-            Experienced Lawyers Are<br />
-            Ready To Help
+
+        <div className="relative z-20 text-center px-6 max-w-5xl w-full flex flex-col items-center gap-8">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif italic font-bold text-white tracking-tight leading-[1.05] [text-shadow:0_4px_24px_rgba(0,0,0,0.45)]">
+            Experienced Lawyers Are
+            <br />
+            <span className="text-accent">Ready To Help</span>
           </h1>
 
+          <p className="text-base md:text-lg text-white/80 max-w-2xl leading-relaxed">
+            Nigeria's premier legal directory. Find verified lawyers, distinguished chambers, and trusted counsel across every practice area.
+          </p>
+
           {/* Search Tabs */}
-          <div className={styles.searchTabs}>
-            <Link href="/search?type=chambers" className={styles.tab}>
-              <Image src="/icon-chambers.png" alt="" width={28} height={28} />
-              <span>Chambers</span>
+          <div className="flex items-center justify-center gap-8 md:gap-12 mt-2">
+            <Link
+              href="/search?type=chambers"
+              className="group flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3 21V9L12 4L21 9V21H14V14H10V21H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
+              <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
+                Chambers
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-accent group-hover:w-full transition-all duration-300" />
+              </span>
             </Link>
-            <Link href="/search?type=clients" className={styles.tab}>
-              <Image src="/icon-clients.png" alt="" width={28} height={28} />
-              <span>Clients</span>
+            <Link
+              href="/search?type=clients"
+              className="group flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="17" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M14 14.5c2 .5 4 2 4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
+                Clients
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-accent group-hover:w-full transition-all duration-300" />
+              </span>
             </Link>
-            <Link href="/search?type=lawyers" className={`${styles.tab} ${styles.tabActive}`}>
-              <Image src="/icon-lawyers.png" alt="" width={28} height={28} />
-              <span>Lawyers</span>
+            <Link
+              href="/search?type=lawyers"
+              className="group flex flex-col items-center gap-2 text-white transition-all"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3v18M5 7h14M5 7l-2 2v8a2 2 0 002 2h14a2 2 0 002-2V9l-2-2" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                <path d="M9 7l3-4 3 4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
+              <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
+                Lawyers
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-full bg-accent" />
+              </span>
             </Link>
           </div>
 
-          <HeroSearchBar specialties={specialties} />
+          {/* Hero Search Bar */}
+          <div className="w-full max-w-4xl mt-2">
+            <HeroSearchBar specialties={specialties} />
+          </div>
 
           {/* Quick Specialty Links */}
-          <div className={styles.quickLinks}>
-            <Link href="/search?specialty=dispute-resolution-law" className={styles.quickLink}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L10 5.5H15L11 8.5L12.5 13L8 10L3.5 13L5 8.5L1 5.5H6L8 1Z" stroke="white" strokeWidth="1" fill="none"/></svg>
+          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 mt-2 text-sm text-white/80">
+            <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1L10 5.5H15L11 8.5L12.5 13L8 10L3.5 13L5 8.5L1 5.5H6L8 1Z" stroke="currentColor" strokeWidth="1.2" fill="none" />
+              </svg>
               Dispute Resolution Law
-            </Link>
-            <Link href="/search?specialty=commercial-law" className={styles.quickLink}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 13h12M4 13V7h2v6M7 13V5h2v8M10 13V3h2v10" stroke="white" strokeWidth="1" strokeLinecap="round"/></svg>
+            </span>
+            <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M2 13h12M4 13V7h2v6M7 13V5h2v8M10 13V3h2v10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
               Commercial Law
-            </Link>
+            </span>
           </div>
         </div>
       </section>
 
-      {/* --- FEATURED LAWYER LISTINGS --- */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>Featured Lawyer Listings</h2>
-          
+      {/* ============== TRUST METRICS BAR ============== */}
+      <section className="relative -mt-16 z-30">
+        <div className="max-w-7xl w-full mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/30 rounded-2xl overflow-hidden shadow-2xl border border-border/40 bg-card">
+            {[
+              { value: "2,500+", label: "Verified Lawyers" },
+              { value: "180+", label: "Chambers" },
+              { value: "24", label: "Practice Areas" },
+              { value: "6", label: "Cities Covered" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-card px-6 py-7 text-center hover:bg-accent/5 transition-colors"
+              >
+                <div className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                  {stat.value}
+                </div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mt-1">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============== FEATURED LAWYER LISTINGS ============== */}
+      <section className="py-24 md:py-28 bg-background">
+        <div className="max-w-7xl w-full mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-serif italic text-foreground">
+              Featured Lawyer Listings
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
+              Hand-picked practitioners with proven track records across Nigeria.
+            </p>
+          </div>
+
           {lawyers.length > 0 ? (
-            <div className={styles.listingsGrid}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {lawyers.map((l) => (
-                <Link key={l.id} href={`/lawyer/${l.id}`} className={styles.listingCard}>
-                  <div className={styles.listingAvatar}>
-                    {l.image ? (
-                      <Image src={l.image} alt={l.name} width={80} height={80} className={styles.avatarImg} />
-                    ) : (
-                      <span className={styles.avatarFallback}>{l.name[0]}</span>
-                    )}
-                  </div>
-                  <div className={styles.listingInfo}>
-                    <h3>{l.name}</h3>
-                    <p className={styles.listingRole}>{l.role}</p>
-                    <p className={styles.listingSpecialty}>{l.specialties.slice(0, 2).join(', ')}{l.specialties.length > 2 ? '...' : ''}</p>
-                    <div className={styles.listingMeta}>
-                      <span className={styles.listingRating}>⭐ {l.rating}</span>
-                      <span className={styles.listingLocation}>📍 {l.location}</span>
+                <Link
+                  key={l.id}
+                  href={`/lawyer/${l.id}`}
+                  className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                      <ListingAvatar src={l.image} name={l.name} type="lawyer" />
                     </div>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                        {l.name}
+                      </h3>
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
+                        {l.role}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
+                    {l.specialties.join(" · ")}
+                  </p>
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5 font-semibold">
+                      <span className="text-amber-500 text-base">★</span>
+                      <span className="text-foreground">{l.rating}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5 truncate ml-2">
+                      <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
+                      </svg>
+                      <span className="truncate">{l.location}</span>
+                    </span>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className={styles.emptyMessage}>No listings found.</p>
+            <div className="text-center py-16 text-muted-foreground text-sm">
+              No listings found.
+            </div>
           )}
         </div>
       </section>
 
-      {/* --- FEATURED CHAMBER LISTINGS --- */}
-      <section className={`${styles.section} ${styles.sectionAlt}`}>
-        <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>Featured Chamber Listings</h2>
-          
+      {/* ============== FEATURED CHAMBER LISTINGS ============== */}
+      <section className="py-24 md:py-28 bg-muted/40 border-y border-border/40">
+        <div className="max-w-7xl w-full mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-serif italic text-foreground">
+              Featured Chamber Listings
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
+              Distinguished legal practices with deep institutional expertise.
+            </p>
+          </div>
+
           {chambers.length > 0 ? (
-            <div className={styles.listingsGrid}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {chambers.map((c) => (
-                <div key={c.id} className={styles.listingCard}>
-                  <div className={styles.listingAvatar}>
-                    {c.image ? (
-                      <Image src={c.image} alt={c.name} width={80} height={80} className={styles.avatarImg} />
-                    ) : (
-                      <span className={styles.avatarFallback}>🏛️</span>
-                    )}
-                  </div>
-                  <div className={styles.listingInfo}>
-                    <h3>{c.name}</h3>
-                    <p className={styles.listingRole}>{c.type}</p>
-                    <p className={styles.listingSpecialty}>{c.focus}</p>
-                    <div className={styles.listingMeta}>
-                      <span className={styles.listingRating}>⭐ {c.rating}</span>
-                      <span className={styles.listingLocation}>📍 {c.location}</span>
+                <div
+                  key={c.id}
+                  className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                      <ListingAvatar src={c.image} name={c.name} type="chamber" />
                     </div>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                        {c.name}
+                      </h3>
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
+                        {c.type}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
+                    {c.focus}
+                  </p>
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5 font-semibold">
+                      <span className="text-amber-500 text-base">★</span>
+                      <span className="text-foreground">{c.rating}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5 truncate ml-2">
+                      <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
+                      </svg>
+                      <span className="truncate">{c.location}</span>
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className={styles.emptyMessage}>No listings found.</p>
+            <div className="text-center py-16 text-muted-foreground text-sm">
+              No listings found.
+            </div>
           )}
         </div>
       </section>
 
-      {/* --- LATEST LEGAL INSIGHTS & MEDIA --- */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>Latest Legal Insights & Media</h2>
-          
-          {(articles.length > 0 || podcasts.length > 0) ? (
-            <div className={styles.listingsGrid}>
-              {articles.map((article: any) => (
-                <Link key={article.id} href={`/knowledge/${article.slug}`} className={styles.listingCard}>
-                  <div className={styles.listingAvatar} style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ✍️
-                  </div>
-                  <div className={styles.listingInfo}>
-                    <h3>{article.title}</h3>
-                    <p className={styles.listingRole}>ARTICLE</p>
-                    <p className={styles.listingSpecialty}>{article.excerpt}</p>
-                    <div className={styles.listingMeta}>
-                      <span>By {article.author?.full_name || 'Anonymous'}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              {podcasts.map((podcast: any) => (
-                <a key={podcast.id} href={podcast.media_url} target="_blank" rel="noopener noreferrer" className={styles.listingCard}>
-                  <div className={styles.listingAvatar} style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {podcast.media_type === 'video' ? '📺' : '🎙️'}
-                  </div>
-                  <div className={styles.listingInfo}>
-                    <h3>{podcast.title}</h3>
-                    <p className={styles.listingRole}>{podcast.media_type.toUpperCase()} PODCAST</p>
-                    <p className={styles.listingSpecialty}>{podcast.description || 'No description available'}</p>
-                    <div className={styles.listingMeta}>
-                      <span>By {podcast.author?.full_name || 'Anonymous'}</span>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className={styles.emptyMessage}>No recent insights published yet.</p>
-          )}
-        </div>
-      </section>
+      {/* ============== LISTING TYPES ============== */}
+      <section className="py-24 md:py-28 bg-background">
+        <div className="max-w-7xl w-full mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-serif italic text-foreground">
+              How Lawyard Works
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
+              Three ways to connect with the right legal professional.
+            </p>
+          </div>
 
-      {/* --- OUR LISTING TYPES --- */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>Our Listing Types</h2>
-          
-          <div className={styles.typesGrid}>
-            <div className={styles.typeCard}>
-              <div className={styles.typeIcon}>👥</div>
-              <h3>Client listings</h3>
-              <p>Get a convenient way to find your closest law service provider that will help you in court</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="group p-8 rounded-xl bg-card border border-border/60 shadow-sm hover:border-accent/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-3">For Clients</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Find the right legal counsel for any matter, from corporate disputes to family law, with verified reviews and transparent pricing.
+              </p>
             </div>
-            <div className={styles.typeCard}>
-              <div className={styles.typeIcon}>⚖️</div>
-              <h3>Lawyer listings</h3>
-              <p>Contact with lawyers and experts listed in the Lawyer Directory out of the listing of all lawyers across.</p>
+
+            <div className="group p-8 rounded-xl bg-card border border-border/60 shadow-sm hover:border-accent/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3v18M5 7h14M5 7l-2 2v8a2 2 0 002 2h14a2 2 0 002-2V9l-2-2" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-3">For Lawyers</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Build your professional presence. Get discovered by clients actively seeking your expertise and grow your practice.
+              </p>
             </div>
-            <div className={styles.typeCard}>
-              <div className={styles.typeIcon}>🏛️</div>
-              <h3>Chamber listings</h3>
-              <p>Have a sophisticated way to complete the case filing process to get things done effortlessly!</p>
+
+            <div className="group p-8 rounded-xl bg-card border border-border/60 shadow-sm hover:border-accent/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="w-14 h-14 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 21V9L12 4L21 9V21H14V14H10V21H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-3">For Chambers</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Showcase your firm's collective expertise, manage member profiles, and attract institutional clients at scale.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* --- CLIENT NEED LISTINGS --- */}
-      <section className={`${styles.section} ${styles.sectionAlt}`}>
-        <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>Client Need Listings</h2>
-          <p className={styles.emptyMessage}>No listings found.</p>
-        </div>
-      </section>
-
-      {/* --- CTA BANNER --- */}
-      <section className={styles.ctaBanner}>
-        <div className={styles.ctaContent}>
-          <p>
-            This platform exists to provide you access to justices in Africa, lawyers of different practices and pay grade. 
-            Choose of the ones you can afford that suit your need. This directory is part of the Lawyard brand.
+      {/* ============== CTA ============== */}
+      <section className="py-20 md:py-24 bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-foreground/5 via-transparent to-primary-foreground/5 pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-6 text-center relative space-y-6">
+          <h2 className="text-4xl md:text-5xl font-serif italic font-bold">
+            Ready to Join Nigeria's Premier Legal Network?
+          </h2>
+          <p className="text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+            Whether you're seeking counsel or building your practice, Lawyard connects you to the right people.
           </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-6">
+            <Link
+              href="/add-listing"
+              className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-bold text-base hover:bg-accent/90 transition-all shadow-xl hover:shadow-accent/20 hover:-translate-y-0.5"
+            >
+              Add Your Listing
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+            <Link
+              href="/search"
+              className="inline-flex items-center gap-2 bg-white/10 text-white backdrop-blur-md border border-white/20 px-8 py-4 rounded-xl font-bold text-base hover:bg-white/20 transition-all hover:-translate-y-0.5"
+            >
+              Browse Directory
+            </Link>
+          </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

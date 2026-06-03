@@ -25,7 +25,7 @@ export default function AboutPage() {
           <div className={styles.contentBlock}>
             <h2>Technology First</h2>
             <p>
-              Built by the Google Deepmind team and powered by the Orion system, 
+              Built by an elite engineering team and powered by advanced systems, 
               we are integrating state-of-the-art automation and AI into the legal workflow, 
               starting with high-fidelity discovery.
             </p>
@@ -36,12 +36,12 @@ export default function AboutPage() {
           <h2>The <span className="gradient-text">Architects</span></h2>
           <div className={styles.teamGrid}>
              <div className={styles.teamMember}>
-               <h3>Adeoye Tomide</h3>
+               <h3>John Doe</h3>
                <p>Chief Legal Engineer</p>
              </div>
              <div className={styles.teamMember}>
-               <h3>Google Deepmind</h3>
-               <p>AI Infrastructure</p>
+               <h3>Technology Partner</h3>
+               <p>Infrastructure & Architecture</p>
              </div>
           </div>
         </section>
