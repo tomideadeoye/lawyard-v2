@@ -66,7 +66,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
       <AvatarUpload 
         initialAvatarUrl={initialData.avatar_url} 
-        initials={initialData.full_name ? initialData.full_name?.[0].toUpperCase() : 'U'} 
+        initials={initialData.full_name?.[0]?.toUpperCase() ?? 'U'} 
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
