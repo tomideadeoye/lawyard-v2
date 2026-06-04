@@ -27,7 +27,7 @@ function LoginForm() {
               <FieldLabel>Password</FieldLabel>
               <Input name="password" type="password" required />
             </Field>
-            <SubmitButton className="w-full glow-primary">Sign In</SubmitButton>
+            <SubmitButton>Sign In</SubmitButton>
           </form>
         </CardContent>
       </Card>
