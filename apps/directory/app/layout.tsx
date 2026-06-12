@@ -59,6 +59,9 @@ export const metadata: Metadata = {
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import CookieConsent from "@repo/ui/components/cookie-consent";
+import NewsletterPopup from "@repo/ui/components/newsletter-popup";
+import { subscribeToNewsletter } from "@/app/actions/newsletter";
 
 export default function RootLayout({
   children,
@@ -80,6 +83,8 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <CookieConsent />
+            <NewsletterPopup onSubscribe={subscribeToNewsletter} />
           </div>
         </ThemeProvider>
       </body>

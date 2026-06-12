@@ -43,14 +43,14 @@
 
 ---
 
-### TASK-04: Update Control Plane Metadata
-**File**: `apps/control-plane/app/layout.tsx`
+### TASK-04: Update Admin Metadata
+**File**: `apps/admin/app/layout.tsx`
 **Problem**: Still says "Create Next App" from Next.js boilerplate.
 **Action**:
-- Change title to `"Lawyard Control Plane | Admin Portal"`
+- Change title to `"Lawyard Admin | Admin Portal"`
 - Change description to `"Administrative dashboard for Lawyard v2 — lawyer verification, content management, and system monitoring."`
 - Add proper `metadataBase`, OpenGraph, and favicon references matching the directory app's pattern
-**Acceptance**: Browser tab shows "Lawyard Control Plane" and OG tags are correct.
+**Acceptance**: Browser tab shows "Lawyard Admin" and OG tags are correct.
 
 ---
 
@@ -68,14 +68,14 @@
 
 ## Tier 2: Feature Builds (Self-Contained)
 
-### TASK-06: Add Admin Auth Guard to Control Plane
+### TASK-06: Add Admin Auth Guard to Admin
 **Files**:
-- Create `apps/control-plane/middleware.ts`
-- Create `apps/control-plane/lib/supabase/server.ts` (copy pattern from directory app)
-- Create `apps/control-plane/app/login/page.tsx`
-**Problem**: Control Plane has zero auth — anyone on port 3000 sees admin data.
+- Create `apps/admin/middleware.ts`
+- Create `apps/admin/lib/supabase/server.ts` (copy pattern from directory app)
+- Create `apps/admin/app/login/page.tsx`
+**Problem**: Admin has zero auth — anyone on port 3000 sees admin data.
 **Action**:
-- Create Supabase server client in control-plane (copy pattern from `apps/directory/lib/supabase/server.ts`)
+- Create Supabase server client in admin (copy pattern from `apps/directory/lib/supabase/server.ts`)
 - Create Next.js middleware that checks `auth.getUser()` and redirects to `/login` if not authenticated or not admin role
 - Build a minimal login page (Supabase magic link, reuse the directory auth pattern)
 - Add an admin check: `profiles.role === 'admin'` — non-admins get redirected out
@@ -84,8 +84,8 @@
 
 ---
 
-### TASK-07: Build Control Plane — Lawyers Directory Page
-**Files**: Create `apps/control-plane/app/lawyers/page.tsx`
+### TASK-07: Build Admin — Lawyers Directory Page
+**Files**: Create `apps/admin/app/lawyers/page.tsx`
 **Problem**: Sidebar link "Lawyers Directory" goes to `href="#"`.
 **Action**:
 - Build a full CRUD page: table of all lawyers with columns (Name, Role, Location, Verification Status, Rating, Actions)
@@ -98,8 +98,8 @@
 
 ---
 
-### TASK-08: Build Control Plane — Subscribers Page
-**Files**: Create `apps/control-plane/app/subscribers/page.tsx`
+### TASK-08: Build Admin — Subscribers Page
+**Files**: Create `apps/admin/app/subscribers/page.tsx`
 **Problem**: Sidebar link "Subscribers" goes to `href="#"`.
 **Action**:
 - Build a page listing all `newsletter_subscribers` with columns (Email, Subscribed Date, Active Status)
@@ -112,8 +112,8 @@
 
 ---
 
-### TASK-09: Build Control Plane — Content Manager Page
-**Files**: Create `apps/control-plane/app/content/page.tsx`
+### TASK-09: Build Admin — Content Manager Page
+**Files**: Create `apps/admin/app/content/page.tsx`
 **Problem**: Sidebar link "Content Manager" goes to `href="#"`.
 **Action**:
 - Build a page with tabs: Articles | Podcasts
@@ -121,5 +121,5 @@
 - Podcasts tab: table with Title, Media Type, Author, Status, Actions
 - Add a "Create New" button that links to a simple creation form (or modal)
 - Update sidebar `href="#"` → `href="/content"`
-**Acceptance**: Admin can view and manage all articles and podcasts from the Control Plane.
+**Acceptance**: Admin can view and manage all articles and podcasts from the Admin.
 **⚠️ Depends on: TASK-06**

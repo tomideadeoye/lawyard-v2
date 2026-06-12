@@ -1,9 +1,11 @@
-import { Button } from "@repo/ui/components/button";
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@repo/ui/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
 import { Check, X, Shield, Users, Landmark } from "lucide-react";
 import pricingData from "../../config/pricing.json";
 import { DirectoryRole } from "@repo/api";
+import { PaystackButton } from "../../components/paystack-button";
+import { PaymentMessage } from "./payment-message";
 
 type Feature = {
   name: string;
@@ -16,7 +18,20 @@ const roles = [
   { label: "Chambers", value: DirectoryRole.CHAMBER, icon: Landmark },
 ];
 
-function PricingCard({ tier }: { tier: any }) {
+function Price({ price }: { price: string }) {
+  const numeric = price.replace('$', '')
+  return (
+    <div className="flex items-start justify-center gap-1 mb-6">
+      <span className="text-xl font-medium text-slate-400 mt-1">$</span>
+      <span className="text-6xl font-semibold text-slate-800">{numeric}</span>
+    </div>
+  )
+}
+
+function PricingCard({ tier, role }: { tier: any; role: string }) {
+  const amount = parseFloat(tier.price.replace('$', ''))
+  const isPaid = amount > 0
+
   return (
     <Card className={`relative flex flex-col bg-white border-border/50 overflow-hidden ${tier.recommended ? 'ring-2 ring-orange-500 shadow-xl z-10 scale-[1.02] rounded-xl' : 'shadow-sm rounded-lg hover:shadow-md transition-shadow'}`}>
       {tier.recommended && (
@@ -26,16 +41,12 @@ function PricingCard({ tier }: { tier: any }) {
       )}
       <CardHeader className="text-center pt-8 pb-6 border-b border-border/40">
         <CardTitle className="text-xl font-medium text-slate-800 mb-6">{tier.name}</CardTitle>
-        <div className="flex items-start justify-center gap-1 mb-6">
-          <span className="text-xl font-medium text-slate-400 mt-1">$</span>
-          <span className="text-6xl font-semibold text-slate-800">{tier.price.replace('$', '')}</span>
-          <span className="text-sm font-medium text-slate-500 mt-auto mb-2 ml-1">{tier.period}</span>
-        </div>
+        <Price price={tier.price} />
         <p className="text-sm text-slate-500 max-w-[250px] mx-auto min-h-[40px]">
           {tier.desc}
         </p>
       </CardHeader>
-      
+
       <CardContent className="flex-1 px-6 py-8">
         <ul className="space-y-4">
           {tier.features.map((feature: Feature, i: number) => (
@@ -52,29 +63,28 @@ function PricingCard({ tier }: { tier: any }) {
           ))}
         </ul>
       </CardContent>
-      
+
       <CardFooter className="px-6 pb-8 pt-0">
-        <Button 
-          variant={tier.recommended ? "default" : "outline"} 
-          className={`w-full py-6 text-base font-semibold transition-all ${
-            tier.recommended 
-              ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-md' 
-              : 'bg-transparent border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm'
-          }`}
-        >
-          Continue
-        </Button>
+        {isPaid ? (
+          <PaystackButton
+            amount={amount}
+            planName={tier.name}
+            planRole={role}
+            recommended={tier.recommended}
+          />
+        ) : (
+          <div className="w-full text-center text-sm text-slate-400 font-medium py-3">
+            Free
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
 }
 
-
-
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
-      {/* Dark Navy Hero Section */}
       <div className="bg-slate-900 py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-semibold text-white">
           Select Your Plan
@@ -82,8 +92,11 @@ export default function PricingPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 -mt-8 relative z-10">
-        {/* Notes Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-border/50 p-8 mb-12 mt-20">
+        <Suspense fallback={null}>
+          <PaymentMessage />
+        </Suspense>
+
+        <div className="bg-white rounded-lg shadow-sm border border-border/50 p-8 mb-12 mt-4">
           <h3 className="text-xl font-semibold text-slate-800 mb-4">Note:</h3>
           <ol className="list-decimal list-inside space-y-2 text-sm text-slate-600 font-medium">
             <li><strong className="text-slate-800">Clients:</strong> listing plans for people in search of lawyers</li>
@@ -118,7 +131,7 @@ export default function PricingPage() {
             <TabsContent key={r.value} value={r.value} className="mt-0 outline-none">
               <div className={`grid grid-cols-1 ${gridClass} gap-8 items-start`}>
                 {tiers.map((tier: any) => (
-                  <PricingCard key={tier.name} tier={tier} />
+                  <PricingCard key={tier.name} tier={tier} role={r.value} />
                 ))}
               </div>
             </TabsContent>

@@ -11,6 +11,7 @@ interface SearchPageProps {
     specialty?: string;
     location?: string;
     query?: string;
+    q?: string;
     rating?: string;
     priceRange?: string;
     experience?: string;
@@ -28,7 +29,7 @@ export default async function SearchPage(props: SearchPageProps) {
       getLawyers({
         specialty: searchParams.specialty,
         location: searchParams.location,
-        query: searchParams.query,
+        query: searchParams.q || searchParams.query,
         rating: searchParams.rating ? Number(searchParams.rating) : undefined,
         priceRange: searchParams.priceRange,
         experience: searchParams.experience

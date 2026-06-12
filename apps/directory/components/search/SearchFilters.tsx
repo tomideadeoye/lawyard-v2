@@ -30,8 +30,8 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
     if (rating) params.set('rating', rating);
     
     // Preserve search query if exists
-    const q = searchParams.get('query');
-    if (q) params.set('query', q);
+    const q = searchParams.get('q') || searchParams.get('query');
+    if (q) params.set('q', q);
 
     router.push(`/search?${params.toString()}`);
   };

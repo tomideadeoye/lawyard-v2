@@ -1,0 +1,47 @@
+{
+  "tiers": [
+    {
+      "id": "basic",
+      "name": "Basic",
+      "price": 175000,
+      "formatted_price": "₦175,000",
+      "recommended": false,
+      "description": "Get your announcement published on lawyard.org",
+      "features": [
+        "Published on lawyard.org",
+        "Included in Brand Press category",
+        "No homepage placement",
+        "No social media distribution"
+      ]
+    },
+    {
+      "id": "core",
+      "name": "Core",
+      "price": 250000,
+      "formatted_price": "₦250,000",
+      "recommended": true,
+      "description": "Homepage placement with social media distribution",
+      "features": [
+        "Published on lawyard.org",
+        "Homepage placement (middle section)",
+        "Social media distribution",
+        "Brand attribution"
+      ]
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "price": 400000,
+      "formatted_price": "₦400,000",
+      "recommended": false,
+      "description": "Priority homepage placement with maximum exposure",
+      "features": [
+        "Priority homepage placement (featured top)",
+        "Social media distribution",
+        "Brand attribution",
+        "Premium positioning",
+        "Newsletter feature"
+      ]
+    }
+  ]
+}
