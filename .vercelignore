@@ -5,7 +5,7 @@
 **/build
 apps/admin
 apps/directory
-supabase
+/supabase
 *.md
 .DS_Store
 .env*
