@@ -2,12 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
-import { CartProvider } from "../components/CartContext";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import CookieConsent from "@repo/ui/components/cookie-consent";
-import NewsletterPopup from "@repo/ui/components/newsletter-popup";
-import { subscribeToNewsletter } from "@/app/actions/newsletter";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -89,15 +83,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider defaultTheme="system">
-          <CartProvider>
-            <div className="flex flex-col min-h-screen w-full">
-              <Header />
-              <main className="flex-1 w-full">{children}</main>
-              <Footer />
-              <CookieConsent />
-              <NewsletterPopup onSubscribe={subscribeToNewsletter} />
-            </div>
-          </CartProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -1,11 +1,11 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { initializeTransaction } from '@repo/api/paystack'
+import { initializeTransaction } from '@/lib/api/paystack'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
 import brandPressConfig from '@/lib/brand-press.json'
-import { sendBrandPressReceived, sendAdminNewSubmission } from '@repo/api/email'
+import { sendBrandPressReceived, sendAdminNewSubmission } from '@/lib/api/email'
 
 function generateReference(): string {
   return `BP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`

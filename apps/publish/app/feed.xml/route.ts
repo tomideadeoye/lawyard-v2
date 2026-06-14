@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getPublishedArticles, getPublishedPodcasts } from '@repo/api/articles'
+import { getPublishedArticles, getPublishedPodcasts } from '@/lib/api/articles'
 
 export const dynamic = 'force-dynamic'
 

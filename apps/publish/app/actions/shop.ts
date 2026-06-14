@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { initializeTransaction } from '@repo/api/paystack'
+import { initializeTransaction } from '@/lib/api/paystack'
 import crypto from 'crypto'
 
 export interface BillingDetails {

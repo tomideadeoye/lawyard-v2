@@ -1,0 +1,52 @@
+{
+  "socialLinks": [
+    { "name": "Facebook", "url": "https://facebook.com/lawyardNG", "icon": "facebook" },
+    { "name": "Twitter", "url": "https://twitter.com/lawyardOrg", "icon": "twitter" },
+    { "name": "LinkedIn", "url": "https://www.linkedin.com/company/lawyard-nigeria/", "icon": "linkedin" },
+    { "name": "Instagram", "url": "https://instagram.com/lawyardorg", "icon": "instagram" },
+    { "name": "YouTube", "url": "https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos", "icon": "youtube" }
+  ],
+  "navigation": {
+    "header": [
+      {
+        "name": "Type Of Lawyers",
+        "href": "#",
+        "children": [
+          { "name": "Commercial Law", "href": "/directory/search?type=commercial" },
+          { "name": "Dispute Resolution Law", "href": "/directory/search?type=dispute-resolution" }
+        ]
+      },
+      {
+        "name": "Areas Of Specialty",
+        "href": "#",
+        "dataSource": "specialties"
+      },
+      { "name": "Pricing", "href": "/directory/pricing" },
+      { "name": "Help", "href": "/directory/help" }
+    ],
+    "footer": {
+      "directory": [
+        { "name": "Find a Lawyer", "href": "/directory/search" },
+        { "name": "Legal Chambers", "href": "/directory/search" },
+        { "name": "Corporate Counsel", "href": "/directory/search" },
+        { "name": "Register Listing", "href": "/directory/add-listing" }
+      ],
+      "resources": [
+        { "name": "How it works", "href": "/directory/about" },
+        { "name": "Legal Insights", "href": "/directory/insights" },
+        { "name": "Legislations", "href": "/directory/legislations" },
+        { "name": "Knowledge Base", "href": "/directory/knowledge" },
+        { "name": "Privacy Policy", "href": "/directory/privacy" },
+        { "name": "Terms & Conditions", "href": "/directory/terms" }
+      ]
+    }
+  },
+  "brand": {
+    "name": "Lawyard",
+    "description": "Lawyard is Nigeria's premier legal media and services platform. This directory exists to provide access to legal professionals across Africa, bridging the gap between experts and those needing legal assistance. Part of the Lawyard institutional brand.",
+    "seo": {
+      "title": "Lawyard | Nigeria's Premier Legal Media and Services Platform",
+      "description": "Access expert legal articles, industry news, legislative updates, and connect with legal professionals in our elite lawyer directory."
+    }
+  }
+}
