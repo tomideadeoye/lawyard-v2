@@ -102,8 +102,7 @@ publish/
 │   │   └── [slug]/page.tsx     # Category archive page
 │   ├── checkout/
 │   │   └── page.tsx            # Checkout page
-│   ├── contact/
-│   │   └── page.tsx            # Contact page
+│   ├── contact/                 # (empty — not yet built)
 │   ├── feed.xml/
 │   │   └── route.ts            # RSS feed (last 50 articles + podcasts)
 │   ├── fonts/
@@ -294,10 +293,28 @@ await sendBrandPressApproved({ to, brandName, articleTitle, articleUrl })
 
 ### Component Directory (`packages/ui/src/components/`)
 Shared presentation elements used across apps:
+* **`article-card.tsx`**: ArticleCard component with `grid` and `list` variants, brand/tier/category badges, author avatar/name, formatted dates.
+* **`podcast-card.tsx`**: PodcastCard component with audio/video type badges, duration display, featured image.
 * **`cookie-consent.tsx`**: Global Cookie consent slide-in banner component with custom analytical and marketing preference selection.
 * **`newsletter-popup.tsx`**: Global newsletter signup modal triggering after 7s delay or 30% scroll depth. Decoupled using an `onSubscribe` action prop callback.
 * **`not-found-layout.tsx`**: Standalone premium 404 page layout component with configurable text, paths, and default configurations.
-* Shared layout components: `button.tsx`, `card.tsx`, `checkbox.tsx`, `field.tsx`, `input.tsx`, `label.tsx`, `separator.tsx`, `tabs.tsx`.
+* Shared shadcn components: `button.tsx`, `card.tsx`, `checkbox.tsx`, `field.tsx`, `input.tsx`, `label.tsx`, `separator.tsx`, `tabs.tsx`.
+
+### ArticleCard Props
+```typescript
+<ArticleCard
+  title={article.title}
+  slug={article.slug}
+  excerpt={article.excerpt}
+  featured_image={article.featured_image}
+  category={article.category}
+  created_at={article.created_at}
+  article_type={article.article_type}  // 'article' | 'brand_press'
+  tier={article.tier}                  // 'basic' | 'core' | 'pro' (brand press only)
+  authorName={article.author?.[0]?.full_name}
+  variant="grid"                        // 'grid' | 'list'
+/>
+```
 
 ---
 
@@ -341,7 +358,24 @@ The database contains 9 main tables configured with Row-Level Security (RLS) pol
 * `newsletter_subscribers` (Public insert, admin-only read)
 * `client_needs` (Client service-needs listings)
 
+#### Brand Press Columns (added via migration `20260612000002_add_brand_press.sql`)
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `brand_name` | `text` | Brand/publisher name for Brand Press submissions |
+| `tier` | `text` | 'basic', 'core', or 'pro' |
+| `payment_status` | `text` | 'pending', 'paid', or 'failed' |
+| `scheduled_date` | `timestamptz` | Optional scheduled publish date |
+| `article_type` | `text` | 'article' or 'brand_press' |
+| `status` | `text` | 'draft', 'pending_review', 'published', 'archived' |
+
 A database trigger `handle_new_user()` is registered on auth signups to automatically provision new `profiles` rows linked to the user's `auth.users` ID.
+
+### Supabase Edge Functions
+* **`publish-scheduled`** (`supabase/functions/publish-scheduled/index.ts`):
+  * Queries articles where `status='pending_review'` AND `payment_status='paid'` AND `scheduled_date <= now()`
+  * Publishes them and sends approval email via Resend
+  * Intended to run on an hourly cron trigger
+  * Requires `RESEND_API_KEY` in Function secrets
 
 ### Local Development CLI Config
 * **Location:** `supabase/config.toml`

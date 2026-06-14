@@ -1,0 +1,12 @@
+**/node_modules
+**/.git
+**/.next
+**/dist
+**/build
+apps/admin
+apps/directory
+supabase
+*.md
+.DS_Store
+.env*
+.vercel

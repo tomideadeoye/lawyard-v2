@@ -1,159 +1,170 @@
-# Turborepo starter
+# Lawyard v2 — Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+Legal media platform + legal directory + admin dashboard — built on Next.js 16, Supabase, Resend, and Paystack.
 
-## Using this example
+## Architecture
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```text
+lawyard-v2/
+├── apps/
+│   ├── publish/      # lawyard.org — Media platform (articles, podcasts, TV, Brand Press)
+│   ├── directory/    # directory.lawyard.org — Legal marketplace (lawyers, chambers, search)
+│   └── admin/        # Admin dashboard (lawyer verification, content management, subscribers)
+├── packages/
+│   ├── api/          # @repo/api — Shared queries, types, Paystack helpers, Resend emails
+│   └── ui/           # @repo/ui — Shared components (ArticleCard, PodcastCard, CookieConsent, etc.)
+├── supabase/         # Schema, migrations, edge functions
+└── schema.sql        # Full database schema
 ```
 
-## What's inside?
+## Quick Start
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm install
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+| App | Port | URL |
+|-----|------|-----|
+| Publish (Media) | 3002 | http://localhost:3002 |
+| Admin | 3001 | http://localhost:3001 |
+| Directory | 3000 | http://localhost:3000 |
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+## Apps
+
+### Publish (`apps/publish`)
+The main Lawyard website — articles, podcasts, TV, Brand Press, RSS feed, shop.
+
+- **14 routes**: Homepage, insights (index + detail), podcasts (index + detail), TV (index + detail), category archive, RSS feed, Brand Press (listing + submit + payment + success), About, contact, cart, checkout, shop
+- **Brand Press**: Paid submission engine with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, admin review, scheduled publishing
+- **Stack**: Next.js 16, Tailwind CSS v4, Supabase, Paystack, Resend
+
+### Admin (`apps/admin`)
+Admin dashboard for managing lawyers, content, and subscribers.
+
+- **Lawyers Directory**: View, search, verify/reject lawyers
+- **Content Manager**: Tabs for Articles, Podcasts, and Brand Press with approve/reject
+- **Subscribers**: View, search, export, and broadcast newsletters
+- **Auth**: Supabase Auth with admin role enforcement
+
+### Directory (`apps/directory`)
+Public-facing legal marketplace with lawyer/chamber search and profiles.
+
+- **Search**: Filter by specialty, location, rating, price
+- **Profiles**: Lawyer and chamber profile pages with published content
+- **Content Studio**: Dashboard for subscribers to publish articles and podcasts
+
+## Key Flows
+
+### Brand Press
+1. User submits at `/brand-press/submit` → selects tier
+2. Article created with `status='pending_review'`, `payment_status='pending'`
+3. Paystack payment → callback verifies → `payment_status='paid'`
+4. Admin approves/rejects at `/content?tab=brand-press`
+5. Email notifications at every step via Resend
+6. Optional: scheduled date passes → edge function auto-publishes
+
+### Newsletter
+- Users subscribe via footer form or popup modal
+- Admin broadcasts from subscribers page
+- Powered by Resend (free tier: 100/day, 3,000/month)
+
+## Environment Variables
+
+Each app needs its own `.env.local`:
+
+```ini
+# Supabase (all apps)
+NEXT_PUBLIC_SUPABASE_URL=https://jayjejqjswxtksvwoqxp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+
+# Publish app
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=...
+PAYSTACK_SECRET_KEY=...
+NEXT_PUBLIC_SITE_URL=http://localhost:3002
+RESEND_API_KEY=...
+ADMIN_EMAIL=admin@lawyard.org
+
+# Admin app
+RESEND_API_KEY=...
+ADMIN_EMAIL=admin@lawyard.org
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Deployment
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+### Supabase
+```bash
+supabase db push                          # Run pending migrations
+supabase functions deploy publish-scheduled --no-verify-jwt
+supabase functions cron create "0 * * * *" --function publish-scheduled
 ```
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+### Vercel
+Each app deploys independently:
+```bash
+vercel --cwd apps/publish
+vercel --cwd apps/admin
+vercel --cwd apps/directory
 ```
 
-### Develop
+Domain routing: `lawyard.org` → publish, `directory.lawyard.org` → directory, `admin.lawyard.org` → admin
 
-To develop all apps and packages, run the following command:
+## Auth
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+All three apps share one Supabase project with cookie-based auth on `.lawyard.org` domain.
 
-```sh
-cd my-turborepo
-turbo dev
-```
+| Email | Role |
+|-------|------|
+| lawyardmtc@gmail.com | admin |
+| tomideadeoye@gmail.com | client |
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
+## Not Done / Coming Soon
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 🚨 Must Do Before Launch
+- [ ] Run `supabase db push` — Brand Press migrations not yet applied to remote DB
+- [ ] Set `RESEND_API_KEY` and `ADMIN_EMAIL` in both publish and admin apps
+- [ ] Set Paystack keys (`NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`, `PAYSTACK_SECRET_KEY`) in publish app
+- [ ] Deploy edge function: `supabase functions deploy publish-scheduled --no-verify-jwt`
+- [ ] Wire cron: `supabase functions cron create "0 * * * *" --function publish-scheduled`
+- [ ] Deploy all three apps to Vercel with correct domain routing
+- [ ] Migrate WordPress content to Supabase (articles, podcasts, categories, users)
+- [ ] Set up 301 redirects from old WordPress URLs
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### 📄 Publish App
+- [ ] Article search (keyword search across articles)
+- [ ] Real comment system (current is placeholder)
+- [ ] Author profile pages (`/authors/[slug]`)
+- [ ] Pagination/infinite scroll on article/podcast/TV lists
+- [ ] Mobile hamburger menu
+- [ ] Loading skeletons for dynamic pages
+- [ ] Error boundaries on all routes
+- [ ] Sitemap, JSON-LD structured data, dynamic OG images
+- [ ] Brand Press rate limiting, receipts, media upload, edit/resubmit
 
-```sh
-turbo dev --filter=web
-```
+### 🛠️ Admin App
+- [ ] Lawyer directory CRUD page (sidebar link is still `href="#"`)
+- [ ] Subscriber CSV export and growth charts
+- [ ] Multiple admin user management + role-based access
+- [ ] Audit log for admin actions
+- [ ] Brand Press analytics (revenue, tier breakdown, approval rate)
+- [ ] WYSIWYG content editor and media library
 
-Without global `turbo`:
+### 📋 Directory App
+- [ ] Content Studio form binding (publish form can't submit yet)
+- [ ] Chambers featured flag bug (hardcoded `false`)
+- [ ] Lawyers verified badge bug (hardcoded `true`)
+- [ ] Search filter refinement (Location, Budget, Rating)
+- [ ] Newsletter digest auto-delivery + email template
+- [ ] Error boundaries for Supabase fetch failures
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+### 🧪 Testing & Infra
+- [ ] Unit tests and E2E tests (zero coverage)
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Monitoring and alerting
+- [ ] Supabase backup strategy
+- [ ] Local Supabase Docker setup with seed.sql
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Full gap list: see `SESSION_CHECKPOINT.md` → "Not Done / Known Gaps"

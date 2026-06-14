@@ -78,9 +78,31 @@ We will implement a relational structure to ensure data integrity and powerful s
 3. [x] Decouple Site Configuration (`site-config.json`).
 4. [x] Deploy Client Needs broadcast system.
 
+## Phase 3: Brand Press & Media Platform
+
+### Migration: `20260612000002_add_brand_press.sql`
+Adds Brand Press columns to the `articles` table:
+- `brand_name TEXT` — Brand/publisher name
+- `tier TEXT CHECK (tier IN ('basic', 'core', 'pro'))` — Submission tier
+- `payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed'))`
+- `scheduled_date TIMESTAMPTZ` — Optional scheduled publish date
+- `article_type TEXT DEFAULT 'article' CHECK (article_type IN ('article', 'brand_press'))`
+
+### Migration: `20260612000003_fix_brand_press_flow.sql`
+Fixes article status and category constraints:
+- Adds `'pending_review'` to `articles.status` CHECK constraint
+- Removes `articles.category` CHECK constraint (allows free-text categories)
+- Existing values: `'draft'`, `'pending_review'`, `'published'`, `'archived'`
+
+### Edge Function: `supabase/functions/publish-scheduled/`
+Hourly cron job that:
+1. Queries articles where `status='pending_review' AND payment_status='paid' AND scheduled_date <= now()`
+2. Updates status to `'published'`
+3. Sends approval email via Resend
+
 ---
 
-## 3. SQL Initialization Script (v2 - Final)
+## 4. SQL Initialization Script (v2 - Final)
 
 ```sql
 -- Core Directory Tables

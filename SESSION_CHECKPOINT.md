@@ -89,3 +89,115 @@ Today we built the entire Lawyard media platform (`apps/publish`) from the groun
 - Newsletter broadcast sends individually via Resend API (free-tier compatible, no batch paywall)
 - Articles queried with `author:profiles(full_name, avatar_url)` join — access via `article.author[0]`
 - Brand Press config is ONLY in `apps/publish/lib/brand-press.json` — no duplication between action and form
+- **Vercel deployment URL `https://lawyard-v2.vercel.app`** used as metadataBase + OG url + Paystack fallback in directory app
+
+---
+
+## Not Done / Known Gaps
+
+### 🚨 Critical — Deploy & Operations
+| # | Item | Impact |
+|---|------|--------|
+| 1 | Run pending migrations (`supabase db push`) | Brand Press columns don't exist in remote DB |
+| 2 | Set env vars: `RESEND_API_KEY`, `ADMIN_EMAIL`, Paystack keys | Emails fail silently, payments won't process |
+| 3 | Deploy edge function: `supabase functions deploy publish-scheduled` | Scheduled publishing won't work |
+| 4 | Wire cron trigger for edge function | No auto-publication of scheduled articles |
+| 5 | Deploy `apps/publish` to Vercel | Media platform not live |
+| 6 | Deploy `apps/admin` to Vercel with auth | Admin not accessible |
+| 7 | Set up domain routing (`lawyard.org` → publish, `directory.lawyard.org` → directory) | Wrong app serves wrong domain |
+| 8 | Vercel production build verification | Unknown deployment issues |
+| 9 | Local Supabase Docker + `seed.sql` for reproducible dev | Devs can't replicate DB locally |
+
+### 📄 Content Migration
+| # | Item | Notes |
+|---|------|-------|
+| 10 | WordPress → Supabase migration script (WP REST API → articles/podcasts) | All existing lawyard.org content is still in WordPress |
+| 11 | Map WordPress categories to article categories, preserve slugs | SEO impact if slugs change |
+| 12 | Migrate WordPress users to Supabase auth | Existing commenters/authors lose access |
+| 13 | Set up 301 redirects from old WordPress URLs | Broken links from Google |
+
+### 🎨 Publish App Gaps
+| # | Item | Notes |
+|---|------|-------|
+| 14 | Article search functionality | No way to search articles by keyword |
+| 15 | Real article comments system | Current `ArticleComments` is placeholder/mock |
+| 16 | Author profile pages | No `/authors/[slug]` route |
+| 17 | Contact page (`/contact`) | Route directory exists but empty |
+| 18 | Tag-based filtering/navigation | Only category filtering exists |
+| 18 | Pagination/infinite scroll on lists | All pages limited to `limit: 50` |
+| 19 | Featured/trending articles on homepage | Hero section is basic |
+| 20 | Mobile hamburger menu | Header nav breaks on small screens |
+| 21 | Loading states / skeletons for dynamic pages | Pages flash-empty before data loads |
+| 22 | Error boundaries for all routes | Unhandled Supabase errors show white screen |
+| 23 | Image optimization (`next/image`) | Images use raw `<img>` tags |
+| 24 | SEO structured data (JSON-LD, breadcrumbs) | Missing from article/podcast pages |
+| 25 | Dynamic OpenGraph image generation | Articles use a single static OG image |
+| 26 | Sitemap generation (`/sitemap.xml`) | No sitemap for search engines |
+| 27 | Analytics integration | No tracking at all |
+| 28 | PWA / service worker | No offline support |
+| 29 | Rate limiting / spam protection on Brand Press | Anyone can submit unlimited times |
+| 30 | Payment receipts / invoices for Brand Press | No post-payment documentation |
+| 31 | Brand Press media upload (featured image from submitter) | Currently URL-only |
+| 32 | Brand Press edit/resubmit after rejection | Rejected submissions dead-end |
+| 33 | Discount / coupon codes for Brand Press | Fixed pricing only |
+
+### 🛠️ Admin App Gaps
+| # | Item | Notes |
+|---|------|-------|
+| 34 | Lawyer directory CRUD page (TASK-07) | Sidebar link still `href="#"` |
+| 35 | Subscriber export (CSV) | No way to export email list |
+| 36 | Subscriber growth chart | No visualization |
+| 37 | Multiple admin user management | Only one admin account exists |
+| 38 | Audit log (who approved/rejected what & when) | No history of admin actions |
+| 39 | Brand Press analytics (revenue, tier breakdown, approval rate) | No metrics dashboard |
+| 40 | Bulk approve/reject for Brand Press | Must click each one individually |
+| 41 | WYSIWYG content editor for articles | Plain text only |
+| 42 | Media library for image uploads | No central image management |
+| 43 | Role-based access (super admin vs moderator) | All-or-nothing admin role |
+| 44 | Password reset flow | No "forgot password" on admin login |
+
+### 📋 Directory App Gaps
+| # | Item | Notes |
+|---|------|-------|
+| 45 | Content Studio form binding to server actions (TASK-02) | Publish form exists but doesn't submit |
+| 46 | Chambers featured bug (TASK-01) | `featured` hardcoded to `false` |
+| 47 | Lawyers verified badge fix (TASK-03) | `verified` hardcoded to `true` |
+| 48 | Admin metadata update (TASK-04) | Still says "Create Next App" |
+| 49 | Error boundaries for Supabase failures (TASK-05) | Crash on paused Supabase |
+| 50 | Search filter refinement (Location, Budget, Rating) | Basic search only |
+| 51 | Listing approval workflow for expert applications | No admin verification UI for listings |
+| 52 | User avatar upload to Supabase Storage | Avatars are Gravatar-only |
+| 53 | Newsletter digest auto-delivery via Resend | `generate-digest.ts` runs but doesn't send |
+| 54 | "In Case You Missed This" digest email template | Template is placeholder |
+
+### 🧪 Testing & Quality
+| # | Item | Notes |
+|---|------|-------|
+| 55 | Unit tests | Zero tests across all apps |
+| 56 | E2E tests (Playwright/Cypress) | Zero E2E coverage |
+| 57 | CI/CD pipeline (GitHub Actions) | No automated checks on push |
+| 58 | Monitoring / alerting | No uptime or error monitoring |
+| 59 | Supabase backup strategy | No automated backups configured |
+
+### 🚀 Future Features (Not Scoped)
+| # | Item | Notes |
+|---|------|-------|
+| 60 | LawyardAI Engine (Shefiu's AI module) | Directory AI integration |
+| 61 | Partnership API (Hubtal Pilot) | External lawyer search API |
+| 62 | Paystack webhook handler for recurring/subscriptions | No webhook endpoint |
+| 63 | Mobile app (React Native) | Not planned yet |
+| 64 | In-app notification system | No notification infrastructure |
+| 65 | Multi-language support | English only |
+| 66 | Push notifications for new articles | No push infrastructure |
+| 67 | Article bookmarking / reading list | No user save feature |
+| 68 | User follows / favorites | No social features |
+| 69 | Event listings and registration | No events module |
+| 70 | Job board | No jobs module |
+| 71 | Forum / discussion boards | No community features |
+| 72 | Premium subscription tiers for readers | No paywalled content
+
+## Session — June 13, 2026 (External Reference)
+- **Logo used** by merislabs-official site: `lawyard-v2/apps/directory/public/lawyard-logo.png` copied to `public/clients/lawyard-logo.png`
+- **Vercel deployment**: `https://lawyard-v2.vercel.app` (documented in metadataBase of both directory & admin apps)
+- **Vercel dashboard**: `https://vercel.com/tomideadeoyes-projects/lawyard-v2`
+- **Tech stack captured by merislabs**: Next.js 16, Supabase, Paystack, Resend, Turborepo, Tailwind CSS

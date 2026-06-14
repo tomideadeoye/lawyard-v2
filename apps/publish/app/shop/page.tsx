@@ -3,82 +3,17 @@
 import * as React from "react"
 import Link from "next/link"
 import { useCart } from "@/components/CartContext"
+import { LEGISLATIONS } from "@/lib/legislations"
+import type { Legislation } from "@/lib/legislations"
 
-interface Product {
-  id: string
-  title: string
-  coverTitle: string
-  price: number
+function coverTitle(title: string): string {
+  const words = title.split(" ")
+  if (words.length <= 4) return title
+  const mid = Math.ceil(words.length / 2)
+  return words.slice(0, mid).join(" ") + "\n" + words.slice(mid).join(" ")
 }
 
-const SHOP_PRODUCTS: Product[] = [
-  {
-    id: "armed-forces-disciplinary-proceedings-act",
-    title: "ARMED FORCES DISCIPLINARY PROCEEDINGS ACT",
-    coverTitle: "ARMED FORCES\n(DISCIPLINARY PROCEEDINGS)\n(SPECIAL PROVISIONS)\nACT",
-    price: 500,
-  },
-  {
-    id: "asset-management-corporation-of-nigeria-act",
-    title: "ASSET MANAGEMENT CORPORATION OF NIGERIA ACT",
-    coverTitle: "ASSET MANAGEMENT\nCORPORATION OF\nNIGERIA ACT",
-    price: 500,
-  },
-  {
-    id: "bank-employees-act",
-    title: "BANK EMPLOYEES ACT",
-    coverTitle: "BANK EMPLOYEES\nACT",
-    price: 500,
-  },
-  {
-    id: "bayero-university-act",
-    title: "BAYERO UNIVERSITY ACT",
-    coverTitle: "BAYERO\nUNIVERSITY ACT",
-    price: 500,
-  },
-  {
-    id: "bills-of-exchange-act",
-    title: "BILLS OF EXCHANGE ACT",
-    coverTitle: "BILLS OF\nEXCHANGE",
-    price: 500,
-  },
-  {
-    id: "border-communities-development-agency-amendment-act",
-    title: "BORDER COMMUNITIES DEVELOPMENT AGENCY AMENDMENT ACT",
-    coverTitle: "BORDER COMMUNITIES\nDEVELOPMENT AGENCY\nAMENDMENT ACT",
-    price: 500,
-  },
-  {
-    id: "borstal-institutions-and-remand-centres-act",
-    title: "BORSTAL INSTITUTIONS AND REMAND CENTRES ACT",
-    coverTitle: "BORSTAL INSTITUTIONS\nAND REMAND CENTRES\nACT",
-    price: 500,
-  },
-  {
-    id: "boys-scout-act",
-    title: "BOYS SCOUT ACT",
-    coverTitle: "BOYS SCOUT\nACT",
-    price: 500,
-  },
-  {
-    id: "builders-registration-act",
-    title: "BUILDERS REGISTRATION ACT",
-    coverTitle: "BUILDERS\nREGISTRATION ACT",
-    price: 500,
-  },
-  {
-    id: "building-lines-federal-trunk-roads-act",
-    title: "BUILDING LINES FEDERAL TRUNK ROADS ACT",
-    coverTitle: "BUILDING LINES\nFEDERAL TRUNK\nROADS ACT",
-    price: 500,
-  },
-  {
-    id: "capital-gains-tax-act",
-    title: "CAPITAL GAINS TAX ACT",
-    coverTitle: "CAPITAL GAINS\nTAX ACT",
-    price: 500,
-  },
-]
+const SHOP_PRODUCTS = LEGISLATIONS
 
 function GavelIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -116,7 +51,7 @@ export default function ShopPage() {
   // Sorting States
   const [sortBy, setSortBy] = React.useState<string>("default")
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: Legislation) => {
     addToCart({
       id: product.id,
       title: product.title,
@@ -211,7 +146,7 @@ export default function ShopPage() {
 
                   {/* Title of Act at Center-Middle */}
                   <h3 className="text-sm font-serif font-bold uppercase tracking-wide leading-snug text-white/90 text-center w-full px-2 whitespace-pre-line my-auto">
-                    {product.coverTitle}
+                    {coverTitle(product.title)}
                   </h3>
 
                   {/* Gavel & Scroll Icons at Center-Bottom */}
