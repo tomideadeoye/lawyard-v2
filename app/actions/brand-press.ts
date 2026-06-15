@@ -1,20 +1,20 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import { initializeTransaction } from '@/lib/api/paystack'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
 import brandPressConfig from '@/lib/brand-press.json'
 import { sendBrandPressReceived, sendAdminNewSubmission } from '@/lib/api/email'
 
+const GUEST_USER_ID = '6b80d2f0-31b6-4239-81ec-889c3fa0c4b0'
+
 function generateReference(): string {
   return `BP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
 }
 
 export async function submitBrandPress(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'You must be logged in' }
+  const sbAdmin = createServiceRoleClient()
 
   const title = formData.get('title') as string
   const excerpt = formData.get('excerpt') as string
@@ -23,13 +23,20 @@ export async function submitBrandPress(formData: FormData) {
   const tierId = formData.get('tier') as string
   const featuredImage = formData.get('featured_image') as string
   const scheduledDate = formData.get('scheduled_date') as string
+  const couponCode = formData.get('coupon_code') as string
+  const finalPriceStr = formData.get('final_price') as string
+  const discountAmountStr = formData.get('discount_amount') as string
+  const email = formData.get('email') as string
+  const contactName = formData.get('contact_name') as string
 
-  if (!title || !content || !brandName || !tierId) {
+  if (!title || !content || !brandName || !tierId || !email) {
     return { error: 'Missing required fields' }
   }
 
   const tier = brandPressConfig.tiers.find(t => t.id === tierId)
   if (!tier) return { error: 'Invalid tier' }
+
+  const amount = finalPriceStr ? parseInt(finalPriceStr) : tier.price
 
   const slug = title
     .toLowerCase().trim()
@@ -39,7 +46,7 @@ export async function submitBrandPress(formData: FormData) {
 
   const reference = generateReference()
 
-  const { data: article, error: articleError } = await supabase
+  const { data: article, error: articleError } = await sbAdmin
     .from('articles')
     .insert({
       title,
@@ -47,7 +54,7 @@ export async function submitBrandPress(formData: FormData) {
       content,
       excerpt: excerpt || content.substring(0, 160),
       featured_image: featuredImage || null,
-      author_id: user.id,
+      author_id: GUEST_USER_ID,
       brand_name: brandName,
       tier: tier.id,
       article_type: 'brand_press',
@@ -63,53 +70,72 @@ export async function submitBrandPress(formData: FormData) {
     return { error: 'Failed to create article' }
   }
 
-  const { error: txError } = await supabase.from('transactions').insert({
-    user_id: user.id,
+  const txMetadata: Record<string, any> = {
+    article_id: article.id,
+    tier: tier.id,
+    brand_name: brandName,
+    type: 'brand_press',
+    contact_email: email,
+    contact_name: contactName || brandName,
+  }
+
+  if (couponCode) {
+    txMetadata.coupon_code = couponCode
+  }
+  if (discountAmountStr) {
+    txMetadata.discount_amount = parseInt(discountAmountStr)
+  }
+
+  const { error: txError } = await sbAdmin.from('transactions').insert({
+    user_id: GUEST_USER_ID,
     reference,
-    amount: tier.price,
+    amount,
     plan_name: `Brand Press ${tier.name}`,
     plan_role: `brand_press_${tier.id}`,
     status: 'pending',
-    metadata: {
-      article_id: article.id,
-      tier: tier.id,
-      brand_name: brandName,
-      type: 'brand_press',
-    },
+    metadata: txMetadata,
   })
 
   if (txError) return { error: 'Failed to record transaction' }
 
-  sendBrandPressReceived(user.email!, brandName, tier.name).catch(() => {})
+  sendBrandPressReceived(email, brandName, tier.name).catch(() => {})
   sendAdminNewSubmission(brandName, title).catch(() => {})
 
+  const paymentMethod = formData.get('payment_method') as string
+  if (paymentMethod === 'transfer' || paymentMethod === 'invoice') {
+    revalidatePath('/brand-press')
+    return {
+      success: true,
+      message: paymentMethod === 'transfer'
+        ? 'Your submission has been received. Please complete your bank transfer to activate your order.'
+        : 'Your submission has been received. An invoice will be sent to your email.',
+    }
+  }
+
   const init = await initializeTransaction({
-    email: user.email!,
-    amount: tier.price,
+    email,
+    amount,
     reference,
     callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002'}/brand-press/payment?reference=${reference}`,
-    metadata: {
-      user_id: user.id,
-      article_id: article.id,
-      tier: tier.id,
-      brand_name: brandName,
-      type: 'brand_press',
-    },
+    metadata: txMetadata,
   })
 
   if (!init.status || !init.data) {
     return { error: init.message || 'Failed to initialize payment' }
   }
 
-  await supabase.from('transactions').update({
+  await sbAdmin.from('transactions').update({
     metadata: {
-      article_id: article.id,
-      tier: tier.id,
-      brand_name: brandName,
-      type: 'brand_press',
+      ...txMetadata,
       authorization_url: init.data.authorization_url,
     },
   }).eq('reference', reference)
 
-  return { authorization_url: init.data.authorization_url, reference }
+  return {
+    access_code: init.data.access_code,
+    authorization_url: init.data.authorization_url,
+    reference,
+    email,
+    amount,
+  }
 }
