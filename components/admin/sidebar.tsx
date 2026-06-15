@@ -4,11 +4,11 @@ import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/admin/login/actions'
 
 const navItems = [
-  { href: '/', label: 'Dashboard' },
-  { href: '/lawyers', label: 'Lawyers Directory' },
-  { href: '/subscribers', label: 'Subscribers' },
-  { href: '/content', label: 'Content Manager' },
-  { href: '#', label: 'Portal Settings' },
+  { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/lawyers', label: 'Lawyers Directory' },
+  { href: '/admin/subscribers', label: 'Subscribers' },
+  { href: '/admin/content', label: 'Content Manager' },
+  { href: '/admin/transactions', label: 'Transactions' },
 ]
 
 export function Sidebar() {
@@ -24,8 +24,8 @@ export function Sidebar() {
         {navItems.map((item) => {
           const isActive = item.href === '#'
             ? false
-            : item.href === '/'
-              ? pathname === '/'
+            : item.href === '/admin'
+              ? pathname === '/admin'
               : pathname.startsWith(item.href)
 
           return (

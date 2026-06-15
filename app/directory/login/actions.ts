@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/server'
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = (formData.get('email') as string).trim()
+  const password = (formData.get('password') as string).trim()
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -26,7 +26,7 @@ export async function login(formData: FormData) {
 export async function loginWithMagicLink(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string).trim()
   const redirectTo = formData.get('redirectTo') as string
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -46,8 +46,8 @@ export async function loginWithMagicLink(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = (formData.get('email') as string).trim()
+  const password = (formData.get('password') as string).trim()
   const fullName = formData.get('fullName') as string
   const role = formData.get('role') as string || 'client'
 

@@ -2,15 +2,17 @@ import { getAllArticles, getAllPodcasts, getBrandPressArticles } from '@/lib/adm
 import { toggleArticleStatus, deleteArticle, togglePodcastStatus, deletePodcast, approveBrandPress, rejectBrandPress } from '../actions';
 import { CreateContentDialog } from './create-dialog';
 import { ContentFilter } from './content-filter';
+import { DeleteButton } from './delete-button';
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; color: string; border: string }> = {
     published: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10B981', border: 'rgba(16, 185, 129, 0.2)' },
     draft: { bg: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', border: 'rgba(245, 158, 11, 0.2)' },
     archived: { bg: 'rgba(100, 116, 139, 0.1)', color: '#64748B', border: 'rgba(100, 116, 139, 0.2)' },
+    pending_review: { bg: 'rgba(234, 179, 8, 0.1)', color: '#EAB308', border: 'rgba(234, 179, 8, 0.2)' },
   };
-  if (!['published', 'draft', 'archived'].includes(status)) return <span style={{ color: '#64748B', fontSize: '0.75rem' }}>{status}</span>;
-  const s = map[status as keyof typeof map]!;
+  if (!map[status]) return <span style={{ color: '#64748B', fontSize: '0.75rem' }}>{status}</span>;
+  const s = map[status]!;
   return (
     <span style={{
       background: s.bg, color: s.color, border: `1px solid ${s.border}`,
@@ -79,7 +81,7 @@ export default async function ContentPage(props: {
         {/* Tabs + Filter */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '4px' }}>
-            <a href="/content?tab=articles"
+            <a href="/admin/content?tab=articles"
               style={{
                 padding: '8px 20px', borderRadius: '8px', textDecoration: 'none',
                 fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.15s',
@@ -90,7 +92,7 @@ export default async function ContentPage(props: {
             >
               📄 Articles
             </a>
-            <a href="/content?tab=podcasts"
+            <a href="/admin/content?tab=podcasts"
               style={{
                 padding: '8px 20px', borderRadius: '8px', textDecoration: 'none',
                 fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.15s',
@@ -101,7 +103,7 @@ export default async function ContentPage(props: {
             >
               🎙️ Podcasts
             </a>
-            <a href="/content?tab=brand-press"
+            <a href="/admin/content?tab=brand-press"
               style={{
                 padding: '8px 20px', borderRadius: '8px', textDecoration: 'none',
                 fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.15s',
@@ -127,16 +129,18 @@ export default async function ContentPage(props: {
                     <th style={thStyle}>Title</th>
                     <th style={thStyle}>Brand</th>
                     <th style={thStyle}>Tier</th>
+                    <th style={thStyle}>Amount</th>
                     <th style={thStyle}>Payment</th>
+                    <th style={thStyle}>Contact</th>
                     <th style={thStyle}>Schedule</th>
                     <th style={thStyle}>Status</th>
-                    <th style={thStyle}>Created</th>
+                    <th style={thStyle}>Date</th>
                     <th style={thStyle}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {brandPressArticles.length === 0 ? (
-                    <tr><td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>No Brand Press submissions.</td></tr>
+                    {brandPressArticles.length === 0 ? (
+                      <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>No Brand Press submissions.</td></tr>
                   ) : (
                     brandPressArticles.map((bp, i) => (
                       <tr key={bp.id} style={{ borderBottom: '1px solid var(--card-border)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
@@ -151,6 +155,9 @@ export default async function ContentPage(props: {
                             {bp.tier || '—'}
                           </span>
                         </td>
+                        <td style={{ ...tdStyle, color: '#94A3B8' }}>
+                          {bp.amount ? `₦${Number(bp.amount).toLocaleString()}` : '—'}
+                        </td>
                         <td style={tdStyle}>
                           <span style={{
                             background: bp.payment_status === 'paid' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
@@ -159,6 +166,9 @@ export default async function ContentPage(props: {
                           }}>
                             {bp.payment_status}
                           </span>
+                        </td>
+                        <td style={{ ...tdStyle, color: '#94A3B8', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {bp.contact_email || '—'}
                         </td>
                         <td style={{ ...tdStyle, color: '#94A3B8' }}>{bp.scheduled_date ? new Date(bp.scheduled_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
                         <td style={tdStyle}><StatusBadge status={bp.status} /></td>
@@ -238,14 +248,7 @@ export default async function ContentPage(props: {
                                 <button type="submit" className="btn btn-ghost" style={{ padding: '5px 10px', fontSize: '0.7rem', color: '#F59E0B' }}>Archive</button>
                               </form>
                             )}
-                            <form action={deleteArticle} style={{ display: 'inline' }}>
-                              <input type="hidden" name="id" value={a.id} />
-                              <button type="submit" className="btn btn-reject" style={{ padding: '5px 10px', fontSize: '0.7rem' }}
-                                onClick={(e) => { if (!confirm('Delete this article?')) e.preventDefault(); }}
-                              >
-                                Delete
-                              </button>
-                            </form>
+                            <DeleteButton action={deleteArticle} id={a.id} label="Delete" confirmMessage="Delete this article?" />
                           </div>
                         </td>
                       </tr>
@@ -294,14 +297,7 @@ export default async function ContentPage(props: {
                                 <button type="submit" className="btn btn-ghost" style={{ padding: '5px 10px', fontSize: '0.7rem', color: '#F59E0B' }}>Archive</button>
                               </form>
                             )}
-                            <form action={deletePodcast} style={{ display: 'inline' }}>
-                              <input type="hidden" name="id" value={p.id} />
-                              <button type="submit" className="btn btn-reject" style={{ padding: '5px 10px', fontSize: '0.7rem' }}
-                                onClick={(e) => { if (!confirm('Delete this podcast?')) e.preventDefault(); }}
-                              >
-                                Delete
-                              </button>
-                            </form>
+                            <DeleteButton action={deletePodcast} id={p.id} label="Delete" confirmMessage="Delete this podcast?" />
                           </div>
                         </td>
                       </tr>

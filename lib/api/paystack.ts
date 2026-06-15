@@ -21,6 +21,7 @@ export interface PaystackVerifyResponse {
     currency: string
     paid_at: string
     metadata: any
+    customer?: { email?: string }
   }
 }
 

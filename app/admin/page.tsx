@@ -41,11 +41,16 @@ export default async function AdminDashboard() {
         {statsError && <ErrorBanner message={statsError.message} source="Stats" />}
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-1.5 shadow-sm hover:shadow-md transition relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-[#1E3A5F] before:to-[#C5A059] before:opacity-60">
             <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Experts</span>
             <span className="text-3xl font-bold text-slate-900">{stats.totalLawyers}</span>
-            <span className="text-xs text-emerald-500">Verified lawyers and scholars</span>
+            <span className="text-xs text-slate-500">Directory listings</span>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-1.5 shadow-sm hover:shadow-md transition relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-[#1E3A5F] before:to-[#C5A059] before:opacity-60">
+            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Verified</span>
+            <span className="text-3xl font-bold text-emerald-600">{stats.verifiedLawyers}</span>
+            <span className="text-xs text-emerald-500">Approved & active</span>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-1.5 shadow-sm hover:shadow-md transition relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-[#1E3A5F] before:to-[#C5A059] before:opacity-60">
             <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Pending Review</span>
@@ -183,22 +188,7 @@ export default async function AdminDashboard() {
               )}
             </section>
 
-            {/* Quick Actions / Integration */}
-            <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h2 className="mb-4 text-lg">System Integration</h2>
-              <p className="text-slate-400 text-sm mb-5">
-                Quick controls for syncing content engines and publishing pipelines.
-              </p>
-              
-              <div className="flex flex-col gap-3">
-                <button className="btn btn-ghost justify-start w-full">
-                  🔄 Sync LawyardAI Engine
-                </button>
-                <button className="btn btn-ghost justify-start w-full">
-                  📨 Broadcast Weekly Digest
-                </button>
-              </div>
-            </section>
+
           </div>
           
         </div>

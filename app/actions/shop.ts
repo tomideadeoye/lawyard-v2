@@ -1,8 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { initializeTransaction } from '@/lib/api/paystack'
-import crypto from 'crypto'
+import { LEGISLATIONS } from '@/lib/legislations'
+import { generatePaymentReference, getSiteUrl } from '@/lib/utils/payment'
 
 export interface BillingDetails {
   firstName: string
@@ -20,10 +21,6 @@ export interface PurchaseItem {
   quantity: number
 }
 
-function generateReference(): string {
-  return `SH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
-}
-
 export async function initializeShopPayment(
   billingDetails: BillingDetails,
   cartItems: PurchaseItem[]
@@ -38,17 +35,27 @@ export async function initializeShopPayment(
     return { error: 'You must be logged in to complete checkout.' }
   }
 
-  // Calculate total price
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  // Calculate total price based on server config to prevent client-side manipulation
+  let totalAmount = 0
+  for (const item of cartItems) {
+    const dbItem = LEGISLATIONS.find((l) => l.id === item.id)
+    if (!dbItem) {
+      return { error: `Invalid item: ${item.title}` }
+    }
+    totalAmount += dbItem.price * item.quantity
+  }
+
   if (totalAmount <= 0) {
     return { error: 'Invalid order amount.' }
   }
 
-  const reference = generateReference()
+  const reference = generatePaymentReference('SH')
   const planName = cartItems.map((item) => `${item.title} x ${item.quantity}`).join(", ").substring(0, 250)
 
-  // Insert transaction as pending in Supabase
-  const { error: dbError } = await supabase.from('transactions').insert({
+  const sbAdmin = createServiceRoleClient()
+
+  // Insert transaction as pending in Supabase (using service role to bypass RLS restrictions)
+  const { error: dbError } = await sbAdmin.from('transactions').insert({
     user_id: user.id,
     reference,
     amount: totalAmount,
@@ -69,7 +76,7 @@ export async function initializeShopPayment(
   }
 
   // Initialize Paystack transaction
-  const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002'}/shop/payment?reference=${reference}`
+  const callbackUrl = `${getSiteUrl()}/shop/payment`
   
   try {
     const paystackResponse = await initializeTransaction({
@@ -92,7 +99,7 @@ export async function initializeShopPayment(
     }
 
     // Update transaction metadata with the authorization URL
-    await supabase.from('transactions').update({
+    await sbAdmin.from('transactions').update({
       metadata: {
         type: 'shop_purchase',
         items: cartItems,

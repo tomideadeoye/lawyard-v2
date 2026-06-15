@@ -1,13 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { initializeTransaction, verifyTransaction } from '@/lib/api/paystack'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
-
-function generateReference(): string {
-  return `LWY-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
-}
+import pricingData from '@/config/pricing.json'
+import { generatePaymentReference, getSiteUrl } from '@/lib/utils/payment'
 
 export async function createPayment(formData: FormData) {
   const supabase = await createClient()
@@ -16,13 +13,27 @@ export async function createPayment(formData: FormData) {
 
   const planName = formData.get('plan_name') as string
   const planRole = formData.get('plan_role') as string
-  const amount = parseFloat(formData.get('amount') as string)
 
-  if (!planName || !planRole || isNaN(amount) || amount <= 0) {
+  if (!planName || !planRole) {
     return { error: 'Invalid plan details' }
   }
 
-  const reference = generateReference()
+  // Resolve plan price on the server side using the JSON config to prevent client-side manipulation
+  let foundPrice = -1
+  for (const category of Object.values(pricingData)) {
+    const matchedPlan = category.find((p: any) => p.name === planName)
+    if (matchedPlan) {
+      foundPrice = parseFloat(matchedPlan.price.replace('$', ''))
+      break
+    }
+  }
+
+  if (foundPrice <= 0) {
+    return { error: 'Invalid plan selected or free tier cannot be paid' }
+  }
+
+  const amount = foundPrice
+  const reference = generatePaymentReference('LWY')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -34,7 +45,7 @@ export async function createPayment(formData: FormData) {
     email: user.email!,
     amount,
     reference,
-    callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/pricing?payment=completed`,
+    callback_url: `${getSiteUrl()}/pricing?payment=completed`,
     metadata: {
       user_id: user.id,
       plan_name: planName,
@@ -47,7 +58,9 @@ export async function createPayment(formData: FormData) {
     return { error: init.message || 'Failed to initialize payment' }
   }
 
-  const { error: dbError } = await supabase.from('transactions').insert({
+  const sbAdmin = createServiceRoleClient()
+
+  const { error: dbError } = await sbAdmin.from('transactions').insert({
     user_id: user.id,
     reference,
     amount,
@@ -72,7 +85,9 @@ export async function verifyPayment(reference: string) {
     return { error: 'Payment verification failed' }
   }
 
-  const { data: tx } = await supabase
+  const sbAdmin = createServiceRoleClient()
+
+  const { data: tx } = await sbAdmin
     .from('transactions')
     .select('*')
     .eq('reference', reference)
@@ -82,7 +97,7 @@ export async function verifyPayment(reference: string) {
 
   const isSuccess = verification.data.status === 'success'
 
-  await supabase.from('transactions').update({
+  await sbAdmin.from('transactions').update({
     status: isSuccess ? 'completed' : 'failed',
     metadata: { ...tx.metadata, verification: verification.data },
     updated_at: new Date().toISOString(),

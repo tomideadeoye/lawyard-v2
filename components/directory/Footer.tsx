@@ -3,7 +3,7 @@ import Link from "next/link";
 import siteConfig from "@/config/site-config.json";
 
 export default function Footer() {
-  const { socialLinks, navigation, brand } = siteConfig;
+  const { socialLinks, navigation, brand, contact } = siteConfig;
 
   return (
     <footer className="px-6 pt-24 pb-12 bg-background border-t border-border mt-auto">
@@ -44,7 +44,7 @@ export default function Footer() {
               {link.name}
             </a>
           ))}
-          <a href="mailto:support@lawyard.org" className="no-underline text-muted-foreground hover:text-primary text-sm transition-colors">Contact Us</a>
+          <a href={`mailto:${contact.email}`} className="no-underline text-muted-foreground hover:text-primary text-sm transition-colors">Contact Us</a>
         </div>
       </div>
       <div className="max-w-6xl mx-auto pt-8 border-t border-border/60 text-center text-xs opacity-50">

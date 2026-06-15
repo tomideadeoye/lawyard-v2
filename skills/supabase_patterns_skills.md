@@ -19,10 +19,52 @@ const supabase = createClient()
 // Used in: client components (rare)
 ```
 
-### Admin Auth (`admin-auth.ts`)
+### Admin Auth (`admin-auth.ts`) + JWT Role Claims
+
+**Pattern**: Store `role` in `auth.users.raw_app_meta_data` so the JWT carries it. Proxy reads from token directly — no DB round-trip on every request.
+
+#### Migration `20260615000004_sync_role_to_jwt.sql`:
+```sql
+-- Trigger syncs profiles.role → auth.users.raw_app_meta_data
+CREATE OR REPLACE FUNCTION public.sync_role_to_app_metadata()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = auth, public
+AS $$
+BEGIN
+  UPDATE auth.users
+  SET raw_app_meta_data = 
+    COALESCE(raw_app_meta_data, '{}'::jsonb) || 
+    jsonb_build_object('role', NEW.role)
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER sync_role_to_app_metadata_trigger
+AFTER INSERT OR UPDATE OF role ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_role_to_app_metadata();
+```
+
+#### Proxy (`proxy.ts`) — reads from JWT:
 ```typescript
-// Checks auth.getUser() + profiles.role === 'admin'
-// Redirects on failure
+if (user.app_metadata?.role !== 'admin') {
+  // redirect to /admin/login
+}
+```
+
+**Note**: `middleware.ts` was renamed to `proxy.ts` in Next.js 16 (file convention changed). Run `supabase db push` to apply the migration.
+
+### Service Role Client (`server.ts`)
+```typescript
+import { createServiceRoleClient } from '@/lib/supabase/server'
+const sbAdmin = createServiceRoleClient()
+// Uses SUPABASE_SERVICE_ROLE_KEY from env
+// Bypasses RLS — for server-side writes only (not exposed to client)
+// Used in: brand-press submission, admin operations
+// Never use in: client components, API routes called by browsers
 ```
 
 ## Storage
@@ -97,9 +139,29 @@ Location: `supabase/migrations/`
 
 Naming: `YYYYMMDDHHMMSS_description.sql`
 
+### Making Columns Nullable
+```sql
+ALTER TABLE articles ALTER COLUMN author_id DROP NOT NULL;
+ALTER TABLE transactions ALTER COLUMN user_id DROP NOT NULL;
+```
+
+### Adding Check Constraints
+```sql
+ALTER TABLE articles
+ADD COLUMN IF NOT EXISTS tier TEXT CHECK (tier IN ('basic', 'core', 'pro'));
+```
+
+### Unique Constraints
+```sql
+-- transactions.reference has UNIQUE constraint to prevent duplicate payment refs
+CREATE TABLE transactions (
+  reference TEXT UNIQUE NOT NULL,
+  ...
+);
+```
+
 Pattern:
 ```sql
 ALTER TABLE articles
-ADD COLUMN IF NOT EXISTS brand_name TEXT,
-ADD COLUMN IF NOT EXISTS tier TEXT CHECK (tier IN ('basic', 'core', 'pro'));
+ADD COLUMN IF NOT EXISTS brand_name TEXT;
 ```

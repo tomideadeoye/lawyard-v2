@@ -8,7 +8,7 @@ export default function ClearCart() {
 
   React.useEffect(() => {
     clearCart()
-  }, [clearCart])
+  }, [])
 
   return null
 }

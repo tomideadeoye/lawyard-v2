@@ -2,6 +2,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getPublishedArticles } from "@/lib/api/articles"
 import NewsletterBanner from "@/components/NewsletterBanner"
+import LegislationsCarousel from "@/components/LegislationsCarousel"
 
 export const dynamic = "force-dynamic"
 
@@ -725,26 +726,9 @@ export default async function HomePage() {
           <div className="h-px bg-border flex-1 hidden sm:block" />
         </div>
 
-        {/* 5-Column Legislations Card Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-20">
-          {LEGISLATIONS_LIST.map((item) => (
-            <Link 
-              key={item.id} 
-              href={`/shop`} 
-              className="bg-[#12102b] text-white border border-white/5 rounded-lg p-5 flex flex-col justify-between items-center text-center aspect-[3/3.8] shadow-sm hover:scale-[1.01] hover:border-white/10 transition-all duration-300 no-underline"
-            >
-              <div className="flex flex-col items-center gap-2 text-white/35 my-auto">
-                <div className="border border-white/25 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold font-serif leading-none">
-                  L
-                </div>
-                <span className="font-serif font-black tracking-widest text-[9px] leading-none">LAWYARD</span>
-              </div>
-
-              <h3 className="text-[9px] sm:text-[10px] font-serif font-bold uppercase tracking-wide leading-tight text-white/90 text-center w-full line-clamp-3 mt-auto pt-4 border-t border-white/5">
-                {item.title}
-              </h3>
-            </Link>
-          ))}
+        {/* Legislations Carousel with Fading Transition */}
+        <div className="mb-20">
+          <LegislationsCarousel />
         </div>
 
         {/* SECTION 9: Newsletter subscription banner */}

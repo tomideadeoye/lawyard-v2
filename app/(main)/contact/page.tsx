@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { submitContact } from './actions'
+import { CONTACT_INFO } from '@/lib/constants'
 
 function MailIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -153,17 +154,17 @@ export default function ContactPage() {
                 <MailIcon className="h-5 w-5 text-[#a77c5c] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold">Email</p>
-                  <a href="mailto:info@lawyard.ng" className="text-sm text-muted-foreground hover:text-foreground transition-colors no-underline">
-                    info@lawyard.ng
+                  <a href={`mailto:${CONTACT_INFO.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors no-underline">
+                    {CONTACT_INFO.email}
                   </a>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <PhoneIcon className="h-5 w-5 text-[#a77c5c] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold">Phone</p>
-                  <a href="tel:+2348123456789" className="text-sm text-muted-foreground hover:text-foreground transition-colors no-underline">
-                    +234 (0) 812 345 6789
+                  <p className="text-sm font-bold">Phone / WhatsApp</p>
+                  <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors no-underline">
+                    {CONTACT_INFO.phone}
                   </a>
                 </div>
               </div>
@@ -172,7 +173,7 @@ export default function ContactPage() {
                 <div>
                   <p className="text-sm font-bold">Location</p>
                   <p className="text-sm text-muted-foreground">
-                    Lagos, Nigeria
+                    {CONTACT_INFO.location}
                   </p>
                 </div>
               </div>

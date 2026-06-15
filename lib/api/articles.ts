@@ -30,7 +30,7 @@ export interface PodcastWithAuthor {
 
 const articleFields = 'id, title, slug, excerpt, featured_image, category, article_type, brand_name, tier, created_at, author:profiles(full_name, avatar_url)'
 const articleDetailFields = '*, author:profiles(full_name, avatar_url)'
-const podcastFields = 'id, title, slug, description, media_url, media_type, duration, featured_image, created_at, author:profiles(full_name)'
+const podcastFields = 'id, title, slug, description, media_url, media_type, duration, created_at, author:profiles(full_name)'
 
 export function formatDate(date: string, style: 'full' | 'short' = 'full'): string {
   const opts: Intl.DateTimeFormatOptions = style === 'full'

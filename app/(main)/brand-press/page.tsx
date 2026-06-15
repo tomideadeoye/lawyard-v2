@@ -44,7 +44,7 @@ export default async function BrandPressPage() {
           <p className="text-lg mb-4">No Brand Press articles yet.</p>
           <Link
             href="/brand-press/submit"
-            className="text-accent font-bold hover:underline"
+            className="text-[#a77c5c] font-bold hover:underline"
           >
             Be the first to submit →
           </Link>

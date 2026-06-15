@@ -1,23 +1,16 @@
 'use server'
 
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { initializeTransaction } from '@/lib/api/paystack'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
 import brandPressConfig from '@/lib/brand-press.json'
-import { sendBrandPressReceived, sendAdminNewSubmission } from '@/lib/api/email'
+import { sendBrandPressReceived, sendAdminNewSubmission, sendBrandPressInvoice } from '@/lib/api/email'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import { brandPressSchema } from '@/lib/validations/brand-press'
-
-const GUEST_USER_ID = '6b80d2f0-31b6-4239-81ec-889c3fa0c4b0'
-
-function generateReference(): string {
-  return `BP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
-}
+import { generatePaymentReference } from '@/lib/utils/payment'
 
 export async function submitBrandPress(formData: FormData) {
   const raw: Record<string, unknown> = Object.fromEntries(formData.entries())
-  raw.accepted_terms = raw.accepted_terms === 'on' || raw.accepted_terms === 'true' ? true : undefined
+  raw.accepted_terms = raw.accepted_terms === 'true'
 
   const parsed = brandPressSchema.safeParse(raw)
   if (!parsed.success) {
@@ -49,7 +42,7 @@ export async function submitBrandPress(formData: FormData) {
     .replace(/^-+|-+$/g, '')
     .concat('-', crypto.randomUUID().slice(0, 6))
 
-  const reference = generateReference()
+  const reference = generatePaymentReference('BP')
   const sbAdmin = createServiceRoleClient()
 
   const { data: article, error: articleError } = await sbAdmin
@@ -60,7 +53,7 @@ export async function submitBrandPress(formData: FormData) {
       content: data.content,
       excerpt: data.excerpt || data.content.substring(0, 160),
       featured_image: data.featured_image || null,
-      author_id: GUEST_USER_ID,
+      author_id: null,
       brand_name: data.brand_name,
       tier: tier.id,
       article_type: 'brand_press',
@@ -92,7 +85,7 @@ export async function submitBrandPress(formData: FormData) {
   }
 
   const { error: txError } = await sbAdmin.from('transactions').insert({
-    user_id: GUEST_USER_ID,
+    user_id: null,
     reference,
     amount,
     plan_name: `Brand Press ${tier.name}`,
@@ -110,6 +103,15 @@ export async function submitBrandPress(formData: FormData) {
   sendAdminNewSubmission(data.brand_name, data.title).catch(() => {})
 
   if (data.payment_method === 'transfer' || data.payment_method === 'invoice') {
+    if (data.payment_method === 'invoice') {
+      sendBrandPressInvoice(data.email, {
+        brandName: data.brand_name,
+        contactName: data.contact_name || data.brand_name,
+        tierName: tier.name,
+        amount,
+        reference,
+      }).catch(() => {})
+    }
     revalidatePath('/brand-press')
     return {
       success: true,
@@ -119,30 +121,5 @@ export async function submitBrandPress(formData: FormData) {
     }
   }
 
-  const init = await initializeTransaction({
-    email: data.email,
-    amount,
-    reference,
-    callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002'}/brand-press/payment?reference=${reference}`,
-    metadata: txMetadata,
-  })
-
-  if (!init.status || !init.data) {
-    return { error: init.message || 'Failed to initialize payment' }
-  }
-
-  await sbAdmin.from('transactions').update({
-    metadata: {
-      ...txMetadata,
-      authorization_url: init.data.authorization_url,
-    },
-  }).eq('reference', reference)
-
-  return {
-    access_code: init.data.access_code,
-    authorization_url: init.data.authorization_url,
-    reference,
-    email: data.email,
-    amount,
-  }
+  return { reference, email: data.email, amount }
 }

@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { getAdminClient } from '@/lib/supabase/admin-auth';
 import { verifyLawyerAction, rejectLawyerAction, updateLawyerAction, updateArticleAction, deleteArticleAction, updatePodcastAction, deletePodcastAction } from '@/lib/admin/api';
 
@@ -54,13 +55,13 @@ export async function toggleArticleStatus(formData: FormData) {
 
 export async function deleteArticle(formData: FormData) {
   const id = formData.get('id') as string;
-  if (!id) return;
+  if (!id) return redirect('/admin/content');
   try {
     await deleteArticleAction(id);
-    revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to delete article:', error);
   }
+  redirect('/admin/content');
 }
 
 export async function togglePodcastStatus(formData: FormData) {
@@ -77,13 +78,13 @@ export async function togglePodcastStatus(formData: FormData) {
 
 export async function deletePodcast(formData: FormData) {
   const id = formData.get('id') as string;
-  if (!id) return;
+  if (!id) return redirect('/admin/content?tab=podcasts');
   try {
     await deletePodcastAction(id);
-    revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to delete podcast:', error);
   }
+  redirect('/admin/content?tab=podcasts');
 }
 
 export async function approveBrandPress(formData: FormData) {

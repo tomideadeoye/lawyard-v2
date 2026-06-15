@@ -74,6 +74,7 @@ function SubmitForm() {
     defaultValues: {
       tier: 'core',
       payment_method: 'card',
+      accepted_terms: false,
     },
   })
 
@@ -117,6 +118,7 @@ function SubmitForm() {
       const offset = timezone === 'Africa/Lagos' ? '+01:00' : '+00:00'
       formData.set('scheduled_date', `${formatDate(withTime)}T${format(withTime, 'HH:mm:ss')}${offset}`)
     }
+    formData.set('accepted_terms', String(data.accepted_terms))
     if (couponResult) {
       formData.set('coupon_code', couponResult.code)
     }
@@ -133,11 +135,11 @@ function SubmitForm() {
       return
     }
 
-    if ('access_code' in result && result.access_code) {
+    if ('reference' in result && result.reference) {
       const handler = window.PaystackPop.setup({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
         email: result.email,
-        amount: result.amount,
+        amount: result.amount * 100,
         ref: result.reference,
         metadata: {
           custom_fields: [
@@ -149,7 +151,7 @@ function SubmitForm() {
           ],
         },
         callback: function () {
-          window.location.href = `/brand-press/success?reference=${result.reference}`
+          window.location.href = `/brand-press/payment?reference=${result.reference}`
         },
         onClose: function () {
           window.location.href = '/brand-press/submit?cancelled=true'
@@ -273,7 +275,7 @@ function SubmitForm() {
                   <button
                     type="button"
                     onClick={() => setShowComparison(true)}
-                    className="text-xs font-bold text-accent hover:underline"
+                    className="text-xs font-bold text-[#a77c5c] hover:underline"
                   >
                     See comparison table
                   </button>
@@ -336,8 +338,8 @@ function SubmitForm() {
                           isDisabled
                             ? 'border-border/30 bg-muted/20 opacity-50 cursor-not-allowed'
                             : paymentMethod === method.id
-                              ? 'border-accent bg-accent/[0.12] ring-2 ring-accent/25'
-                              : 'border-border bg-card hover:border-accent/50'
+                              ? 'border-[#a77c5c] bg-[#a77c5c]/[0.08] ring-2 ring-[#a77c5c]/20'
+                              : 'border-border bg-card hover:border-[#a77c5c]/50'
                         }`}
                       >
                         {isDisabled && (
@@ -345,8 +347,8 @@ function SubmitForm() {
                             Soon
                           </span>
                         )}
-                        <method.icon className={`h-5 w-5 ${isDisabled ? 'text-muted-foreground/50' : paymentMethod === method.id ? 'text-accent' : 'text-muted-foreground'}`} />
-                        <span className={`text-xs font-bold ${paymentMethod === method.id && !isDisabled ? 'text-accent' : ''}`}>{method.label}</span>
+                        <method.icon className={`h-5 w-5 ${isDisabled ? 'text-muted-foreground/50' : paymentMethod === method.id ? 'text-[#a77c5c]' : 'text-muted-foreground'}`} />
+                        <span className={`text-xs font-bold ${paymentMethod === method.id && !isDisabled ? 'text-[#a77c5c]' : ''}`}>{method.label}</span>
                         <span className="text-[10px] text-muted-foreground">{method.desc}</span>
                       </button>
                     )})}
@@ -395,12 +397,13 @@ function SubmitForm() {
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
+                    checked={watch('accepted_terms') === true}
+                    onChange={(e) => setValue('accepted_terms', e.target.checked, { shouldValidate: true })}
                     className="mt-0.5 h-4 w-4 rounded border-border accent-accent"
-                    {...register('accepted_terms')}
                   />
                   <span className="text-xs text-muted-foreground leading-relaxed">
                     I accept{' '}
-                    <a href="#" className="text-accent font-bold hover:underline">
+                    <a href="#" className="text-[#a77c5c] font-bold hover:underline">
                       Lawyard&apos;s Brand Press Content Policy
                     </a>
                     . By submitting, you confirm that you have the necessary rights to all content and images.

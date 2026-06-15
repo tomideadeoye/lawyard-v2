@@ -40,8 +40,9 @@ export default async function PaymentCallbackPage({
     }
 
     if (tx?.metadata?.brand_name) {
+      const customerEmail = verify.data?.customer?.email || ''
       sendPaymentConfirmation(
-        verify.data?.metadata?.email || '',
+        customerEmail,
         tx.metadata.brand_name,
         tx.metadata.tier || ''
       ).catch(() => {})
@@ -60,10 +61,10 @@ export default async function PaymentCallbackPage({
             Your Brand Press has been submitted. We will review and publish it shortly.
           </p>
           <Link
-            href="/brand-press"
-            className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold hover:bg-primary/90"
+            href="/"
+            className="inline-block bg-accent text-accent-foreground px-8 py-3 rounded-xl font-bold hover:bg-accent/90"
           >
-            View Brand Press
+            Go to Lawyard
           </Link>
         </>
       ) : (

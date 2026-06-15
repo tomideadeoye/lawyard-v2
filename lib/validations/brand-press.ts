@@ -12,8 +12,8 @@ export const brandPressSchema = z.object({
   scheduled_date: z.string().optional(),
   payment_method: z.enum(['card', 'transfer', 'invoice']),
   coupon_code: z.string().optional(),
-  accepted_terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the Terms & Conditions' }),
+  accepted_terms: z.boolean().refine((v) => v === true, {
+    message: 'You must accept the Terms & Conditions',
   }),
 })
 

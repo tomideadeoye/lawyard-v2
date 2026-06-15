@@ -48,5 +48,12 @@
       "title": "Lawyard | Nigeria's Premier Legal Media and Services Platform",
       "description": "Access expert legal articles, industry news, legislative updates, and connect with legal professionals in our elite lawyer directory."
     }
+  },
+  "contact": {
+    "email": "contact@lawyard.org",
+    "phone": "+234 (0) 708 420 4715",
+    "phoneRaw": "+2347084204715",
+    "whatsapp": "+2347084204715",
+    "location": "Lagos, Nigeria"
   }
 }

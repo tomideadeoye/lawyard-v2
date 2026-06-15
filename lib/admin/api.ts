@@ -39,6 +39,16 @@ export interface ApiResult<T> {
   error: ApiError | null;
 }
 
+async function safeCount(builder: any): Promise<{ count: number | null; error?: any }> {
+  try {
+    const { count, error } = await builder;
+    if (error) return { count: null, error };
+    return { count };
+  } catch (err: any) {
+    return { count: null, error: { message: err?.message || String(err), code: 'UNCAUGHT' } };
+  }
+}
+
 async function safeQuery<T>(
   label: string,
   builder: any
@@ -59,16 +69,14 @@ async function safeQuery<T>(
 export async function getAdminStats(): Promise<ApiResult<AdminStats>> {
   const { supabase } = await getAdminClient();
 
-  type CountResult = { count: number | null } | null;
-
-  const queries: Promise<ApiResult<CountResult>>[] = [
-    safeQuery('lawyers count', supabase.from('lawyers').select('*', { count: 'exact', head: true })),
-    safeQuery('verified lawyers count', supabase.from('lawyers').select('*', { count: 'exact', head: true }).eq('verification_status', 'verified')),
-    safeQuery('pending lawyers count', supabase.from('lawyers').select('*', { count: 'exact', head: true }).eq('verification_status', 'pending')),
-    safeQuery('chambers count', supabase.from('chambers').select('*', { count: 'exact', head: true })),
-    safeQuery('subscribers count', supabase.from('newsletter_subscribers').select('*', { count: 'exact', head: true })),
-    safeQuery('articles count', supabase.from('articles').select('*', { count: 'exact', head: true })),
-    safeQuery('podcasts count', supabase.from('podcasts').select('*', { count: 'exact', head: true })),
+  const queries: Promise<{ count: number | null; error?: any }>[] = [
+    safeCount(supabase.from('lawyers').select('*', { count: 'exact', head: true })),
+    safeCount(supabase.from('lawyers').select('*', { count: 'exact', head: true }).eq('verification_status', 'verified')),
+    safeCount(supabase.from('lawyers').select('*', { count: 'exact', head: true }).eq('verification_status', 'pending')),
+    safeCount(supabase.from('chambers').select('*', { count: 'exact', head: true })),
+    safeCount(supabase.from('newsletter_subscribers').select('*', { count: 'exact', head: true })),
+    safeCount(supabase.from('articles').select('*', { count: 'exact', head: true })),
+    safeCount(supabase.from('podcasts').select('*', { count: 'exact', head: true })),
   ];
 
   const keys: (keyof AdminStats)[] = ['totalLawyers', 'verifiedLawyers', 'pendingLawyers', 'totalChambers', 'totalSubscribers', 'totalArticles', 'totalPodcasts'];
@@ -77,12 +85,12 @@ export async function getAdminStats(): Promise<ApiResult<AdminStats>> {
 
   const results = await Promise.allSettled(queries);
   results.forEach((r, i) => {
-    if (r.status === 'fulfilled' && r.value.data) {
-      const key = keys[i] as keyof AdminStats;
-      stats[key] = (r.value.data as { count: number | null }).count ?? 0;
-    }
-    if (r.status === 'fulfilled' && r.value.error && !firstError) {
-      firstError = r.value.error;
+    if (r.status === 'fulfilled') {
+      if (r.value.error && !firstError) firstError = r.value.error;
+      if (r.value.count != null) {
+        const key = keys[i] as keyof AdminStats;
+        stats[key] = r.value.count;
+      }
     }
   });
 
@@ -278,17 +286,82 @@ export interface BrandPressItem {
   status: string;
   created_at: string;
   author: { full_name?: string } | { full_name?: string }[] | null;
+  amount?: number | null;
+  contact_email?: string | null;
+  tx_reference?: string | null;
 }
 
 export async function getBrandPressArticles(): Promise<ApiResult<BrandPressItem[]>> {
   const { supabase } = await getAdminClient();
-  return safeQuery('brand press articles',
+
+  const [articleResult, txResult] = await Promise.all([
+    safeQuery('brand press articles',
+      supabase
+        .from('articles')
+        .select('*, author:profiles(full_name)')
+        .eq('article_type', 'brand_press')
+        .in('status', ['pending_review', 'published', 'draft', 'archived'])
+        .order('created_at', { ascending: false })
+    ),
+    safeQuery('brand press transactions',
+      supabase
+        .from('transactions')
+        .select('reference, amount, metadata')
+        .like('plan_role', 'brand_press_%')
+        .order('created_at', { ascending: false })
+    ),
+  ])
+
+  const articles = (articleResult?.data ?? []) as BrandPressItem[]
+  const transactions = (txResult?.data ?? []) as { reference: string; amount: number; metadata: Record<string, any> }[]
+
+  const txByArticle = new Map<string, { amount: number; contact_email: string; reference: string }>()
+  for (const tx of transactions) {
+    const articleId = tx.metadata?.article_id
+    if (articleId) {
+      txByArticle.set(articleId, {
+        amount: tx.amount,
+        contact_email: tx.metadata?.contact_email || '',
+        reference: tx.reference,
+      })
+    }
+  }
+
+  const enriched = articles.map(a => {
+    const tx = txByArticle.get(a.id)
+    return {
+      ...a,
+      amount: tx?.amount ?? null,
+      contact_email: tx?.contact_email ?? null,
+      tx_reference: tx?.reference ?? null,
+    }
+  })
+
+  return { data: enriched, error: null };
+}
+
+export interface TransactionItem {
+  id: string
+  reference: string
+  amount: number
+  currency: string
+  status: string
+  plan_name: string
+  plan_role: string
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+  user_id: string | null
+}
+
+export async function getTransactions(): Promise<ApiResult<TransactionItem[]>> {
+  const { supabase } = await getAdminClient();
+  return safeQuery('transactions',
     supabase
-      .from('articles')
-      .select('*, author:profiles(full_name)')
-      .eq('article_type', 'brand_press')
-      .in('status', ['pending_review', 'published', 'draft', 'archived'])
+      .from('transactions')
+      .select('*')
       .order('created_at', { ascending: false })
+      .limit(100)
   );
 }
 

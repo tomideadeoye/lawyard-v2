@@ -9,9 +9,12 @@ export const dynamic = "force-dynamic"
 export default async function ShopPaymentCallbackPage({
   searchParams,
 }: {
-  searchParams: Promise<{ reference?: string }>
+  searchParams: Promise<{ reference?: string | string[] }>
 }) {
-  const { reference } = await searchParams
+  let { reference } = await searchParams
+  if (Array.isArray(reference)) {
+    reference = reference[0]
+  }
   if (!reference) redirect('/shop')
 
   const supabase = await createClient()
