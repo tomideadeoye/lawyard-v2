@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { submitBrandPress } from '@/app/actions/brand-press'
 import { validateCoupon } from '@/app/actions/validate-coupon'
+import { brandPressSchema, type BrandPressFormValues } from '@/lib/validations/brand-press'
 import config from '@/lib/brand-press.json'
 import { PricingCard } from '@/components/PricingCard'
 import dynamic from 'next/dynamic'
@@ -39,20 +39,7 @@ declare global {
   }
 }
 
-const brandPressSchema = z.object({
-  email: z.string().email('Enter a valid email address'),
-  contact_name: z.string().optional(),
-  title: z.string().min(1, 'Post title is required'),
-  excerpt: z.string().max(160).optional(),
-  brand_name: z.string().min(1, 'Brand name is required'),
-  tier: z.enum(['basic', 'core', 'pro']),
-  payment_method: z.enum(['card', 'transfer', 'invoice']),
-  accepted_terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the Terms & Conditions' }),
-  }),
-})
-
-type FormValues = z.infer<typeof brandPressSchema>
+// Schema imported from lib/validations/brand-press.ts
 
 export default function SubmitBrandPressPage() {
   return (
@@ -64,8 +51,6 @@ export default function SubmitBrandPressPage() {
 
 function SubmitForm() {
   const router = useRouter()
-  const [content, setContent] = useState('')
-  const [featuredImage, setFeaturedImage] = useState('')
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>()
   const [timezone, setTimezone] = useState('Africa/Lagos')
   const [scheduleHour, setScheduleHour] = useState(10)
@@ -84,7 +69,7 @@ function SubmitForm() {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
+  } = useForm<BrandPressFormValues>({
     resolver: zodResolver(brandPressSchema),
     defaultValues: {
       tier: 'core',
@@ -94,6 +79,8 @@ function SubmitForm() {
 
   const selectedTier = watch('tier')
   const paymentMethod = watch('payment_method')
+  const content = watch('content')
+  const featuredImage = watch('featured_image')
 
   async function handleApplyCoupon() {
     if (!couponCode.trim()) return
@@ -113,7 +100,7 @@ function SubmitForm() {
     setApplyingCoupon(false)
   }
 
-  async function onSubmit(data: FormValues) {
+  async function onSubmit(data: BrandPressFormValues) {
     const formData = new FormData()
     formData.set('email', data.email)
     formData.set('contact_name', data.contact_name || '')
@@ -122,8 +109,8 @@ function SubmitForm() {
     formData.set('brand_name', data.brand_name)
     formData.set('tier', data.tier)
     formData.set('payment_method', data.payment_method)
-    formData.set('content', content)
-    formData.set('featured_image', featuredImage)
+    formData.set('content', data.content)
+    if (data.featured_image) formData.set('featured_image', data.featured_image)
     if (scheduledDate) {
       const hour24 = schedulePM ? (scheduleHour === 12 ? 12 : scheduleHour + 12) : (scheduleHour === 12 ? 0 : scheduleHour)
       const withTime = setMinutes(setHours(scheduledDate, hour24), scheduleMinute)
@@ -255,11 +242,11 @@ function SubmitForm() {
                   </p>
                 </div>
 
-                <ImageUpload onUpload={setFeaturedImage} />
+                <ImageUpload onUpload={(url) => setValue('featured_image', url)} />
 
                 <div>
                   <label className="block text-sm font-bold mb-1.5">Post Body *</label>
-                  <RichTextEditor content={content} onChange={setContent} />
+                  <RichTextEditor content={content} onChange={(value) => setValue('content', value)} />
                 </div>
               </section>
 

@@ -36,7 +36,14 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Lawyard", url: "https://www.lawyard.org" }],
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-300x300.png", sizes: "300x300", type: "image/png" },
+    ],
+    apple: [
+      { url: "/favicon-180x180.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "Lawyard | Legal News, Opinions & Media Platform",

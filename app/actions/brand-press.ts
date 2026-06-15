@@ -7,6 +7,7 @@ import crypto from 'crypto'
 import brandPressConfig from '@/lib/brand-press.json'
 import { sendBrandPressReceived, sendAdminNewSubmission } from '@/lib/api/email'
 import { validateCoupon } from '@/app/actions/validate-coupon'
+import { brandPressSchema } from '@/lib/validations/brand-press'
 
 const GUEST_USER_ID = '6b80d2f0-31b6-4239-81ec-889c3fa0c4b0'
 
@@ -15,31 +16,23 @@ function generateReference(): string {
 }
 
 export async function submitBrandPress(formData: FormData) {
-  const sbAdmin = createServiceRoleClient()
+  const raw: Record<string, unknown> = Object.fromEntries(formData.entries())
+  raw.accepted_terms = raw.accepted_terms === 'on' || raw.accepted_terms === 'true' ? true : undefined
 
-  const title = formData.get('title') as string
-  const excerpt = formData.get('excerpt') as string
-  const content = formData.get('content') as string
-  const brandName = formData.get('brand_name') as string
-  const tierId = formData.get('tier') as string
-  const featuredImage = formData.get('featured_image') as string
-  const scheduledDate = formData.get('scheduled_date') as string
-  const couponCode = formData.get('coupon_code') as string
-  const email = formData.get('email') as string
-  const contactName = formData.get('contact_name') as string
-
-  if (!title || !content || !brandName || !tierId || !email) {
-    return { error: 'Missing required fields' }
+  const parsed = brandPressSchema.safeParse(raw)
+  if (!parsed.success) {
+    const first = parsed.error.errors[0]
+    return { error: first?.message || 'Validation failed' }
   }
 
-  const tier = brandPressConfig.tiers.find(t => t.id === tierId)
+  const data = parsed.data
+  const tier = brandPressConfig.tiers.find(t => t.id === data.tier)
   if (!tier) return { error: 'Invalid tier' }
 
-  // Server-side price computation — never trust client-sent prices
   let amount = tier.price
   let appliedCoupon: { code: string; discountPercent: number; discountAmount: number } | null = null
-  if (couponCode) {
-    const validation = await validateCoupon(couponCode, tier.price)
+  if (data.coupon_code) {
+    const validation = await validateCoupon(data.coupon_code, tier.price)
     if (validation.valid) {
       appliedCoupon = {
         code: validation.code,
@@ -50,28 +43,29 @@ export async function submitBrandPress(formData: FormData) {
     }
   }
 
-  const slug = title
+  const slug = data.title
     .toLowerCase().trim()
     .replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .concat('-', crypto.randomUUID().slice(0, 6))
 
   const reference = generateReference()
+  const sbAdmin = createServiceRoleClient()
 
   const { data: article, error: articleError } = await sbAdmin
     .from('articles')
     .insert({
-      title,
+      title: data.title,
       slug,
-      content,
-      excerpt: excerpt || content.substring(0, 160),
-      featured_image: featuredImage || null,
+      content: data.content,
+      excerpt: data.excerpt || data.content.substring(0, 160),
+      featured_image: data.featured_image || null,
       author_id: GUEST_USER_ID,
-      brand_name: brandName,
+      brand_name: data.brand_name,
       tier: tier.id,
       article_type: 'brand_press',
       payment_status: 'pending',
-      scheduled_date: scheduledDate || null,
+      scheduled_date: data.scheduled_date || null,
       status: 'pending_review',
       category: 'Brand Press',
     })
@@ -85,10 +79,10 @@ export async function submitBrandPress(formData: FormData) {
   const txMetadata: Record<string, any> = {
     article_id: article.id,
     tier: tier.id,
-    brand_name: brandName,
+    brand_name: data.brand_name,
     type: 'brand_press',
-    contact_email: email,
-    contact_name: contactName || brandName,
+    contact_email: data.email,
+    contact_name: data.contact_name || data.brand_name,
   }
 
   if (appliedCoupon) {
@@ -107,24 +101,26 @@ export async function submitBrandPress(formData: FormData) {
     metadata: txMetadata,
   })
 
-  if (txError) return { error: 'Failed to record transaction' }
+  if (txError) {
+    await sbAdmin.from('articles').delete().eq('id', article.id)
+    return { error: 'Failed to record transaction' }
+  }
 
-  sendBrandPressReceived(email, brandName, tier.name).catch(() => {})
-  sendAdminNewSubmission(brandName, title).catch(() => {})
+  sendBrandPressReceived(data.email, data.brand_name, tier.name).catch(() => {})
+  sendAdminNewSubmission(data.brand_name, data.title).catch(() => {})
 
-  const paymentMethod = formData.get('payment_method') as string
-  if (paymentMethod === 'transfer' || paymentMethod === 'invoice') {
+  if (data.payment_method === 'transfer' || data.payment_method === 'invoice') {
     revalidatePath('/brand-press')
     return {
       success: true,
-      message: paymentMethod === 'transfer'
+      message: data.payment_method === 'transfer'
         ? 'Your submission has been received. Please complete your bank transfer to activate your order.'
         : 'Your submission has been received. An invoice will be sent to your email.',
     }
   }
 
   const init = await initializeTransaction({
-    email,
+    email: data.email,
     amount,
     reference,
     callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002'}/brand-press/payment?reference=${reference}`,
@@ -146,7 +142,7 @@ export async function submitBrandPress(formData: FormData) {
     access_code: init.data.access_code,
     authorization_url: init.data.authorization_url,
     reference,
-    email,
+    email: data.email,
     amount,
   }
 }
