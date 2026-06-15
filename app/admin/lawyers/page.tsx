@@ -3,8 +3,6 @@ import { verifyLawyer, rejectLawyer, updateLawyer } from '../actions';
 import { EditLawyerDialog } from './edit-dialog';
 import { LawyersFilters } from './lawyers-filters';
 
-export const dynamic = 'force-dynamic';
-
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, { bg: string; color: string; border: string }> = {
     verified: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10B981', border: 'rgba(16, 185, 129, 0.2)' },

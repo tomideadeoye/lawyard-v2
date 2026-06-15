@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache';
+import { getAdminClient } from '@/lib/supabase/admin-auth';
 import { verifyLawyerAction, rejectLawyerAction, updateLawyerAction, updateArticleAction, deleteArticleAction, updatePodcastAction, deletePodcastAction } from '@/lib/admin/api';
 
 export async function verifyLawyer(formData: FormData) {
@@ -95,7 +96,7 @@ export async function approveBrandPress(formData: FormData) {
     await updateArticleAction(id, updates);
 
     const { sendBrandPressApproved } = await import('@/lib/api/email');
-    const supabase = (await import('@/lib/supabase/admin')).createAdminClient();
+    const { supabase } = await getAdminClient();
     const { data } = await supabase.from('articles').select('brand_name, profiles!inner(email)').eq('id', id).single();
     if (data) {
       const email = Array.isArray(data.profiles) ? data.profiles[0]?.email : (data.profiles as any)?.email;
@@ -115,7 +116,7 @@ export async function rejectBrandPress(formData: FormData) {
     await updateArticleAction(id, { status: 'archived' });
 
     const { sendBrandPressRejected } = await import('@/lib/api/email');
-    const supabase = (await import('@/lib/supabase/admin')).createAdminClient();
+    const { supabase } = await getAdminClient();
     const { data } = await supabase.from('articles').select('brand_name, profiles!inner(email)').eq('id', id).single();
     if (data) {
       const email = Array.isArray(data.profiles) ? data.profiles[0]?.email : (data.profiles as any)?.email;
@@ -133,12 +134,12 @@ export async function createArticle(formData: FormData) {
   const slug = formData.get('slug') as string;
   const content = formData.get('content') as string;
   if (!title || !slug || !content) return;
-  const supabase = (await import('@/lib/supabase/admin')).createAdminClient();
+  const { supabase, user } = await getAdminClient();
   const { error } = await supabase.from('articles').insert([{
     title, slug,
     content,
     excerpt: content.substring(0, 160) + '...',
-    author_id: '00000000-0000-0000-0000-000000000000',
+    author_id: user.id,
     status: 'draft',
   }]);
   if (error) console.error('Failed to create article:', error);
@@ -151,14 +152,14 @@ export async function createPodcast(formData: FormData) {
   const media_type = formData.get('media_type') as string || 'audio';
   const description = formData.get('description') as string || '';
   if (!title || !media_url) return;
-  const supabase = (await import('@/lib/supabase/admin')).createAdminClient();
+  const { supabase, user } = await getAdminClient();
   const { error } = await supabase.from('podcasts').insert([{
     title,
     slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     media_url,
     media_type,
     description,
-    author_id: '00000000-0000-0000-0000-000000000000',
+    author_id: user.id,
     status: 'draft',
   }]);
   if (error) console.error('Failed to create podcast:', error);

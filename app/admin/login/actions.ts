@@ -13,18 +13,18 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return redirect('/login?message=Invalid email or password')
+    return redirect('/admin/login?message=Invalid email or password')
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/admin')
 }
 
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/login')
+  redirect('/admin/login')
 }
 
 export async function loginWithMagicLink(formData: FormData) {
@@ -40,7 +40,7 @@ export async function loginWithMagicLink(formData: FormData) {
   });
 
   if (error) {
-    return redirect(`/login?message=${encodeURIComponent(error.message)}`);
+    return redirect(`/admin/login?message=${encodeURIComponent(error.message)}`);
   }
 
   return { success: true };

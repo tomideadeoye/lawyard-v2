@@ -162,6 +162,7 @@ export default function Footer() {
             <Link href="/tv" className="hover:text-white transition-colors no-underline">TV</Link>
             <Link href="/podcasts" className="hover:text-white transition-colors no-underline">Podcasts</Link>
             <Link href="/shop" className="hover:text-white transition-colors no-underline">Shop</Link>
+            <Link href="/brand-press/submit" className="hover:text-white transition-colors no-underline">Brand Press</Link>
             <Link href="/about" className="hover:text-white transition-colors no-underline">About</Link>
             <Link href="/contact" className="hover:text-white transition-colors no-underline">Contact</Link>
           </div>

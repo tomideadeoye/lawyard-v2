@@ -70,7 +70,7 @@ We will implement a relational structure to ensure data integrity and powerful s
 ### Phase 4: API Refactoring
 1. [x] Update `lib/api.ts` to use the Supabase client instead of `fetch('/api/...')`.
 2. [x] Update API routes (`app/api/*/route.ts`) to serve as light wrappers.
-3. [x] Deprecate local JSON data (`apps/directory/data/`).
+3. [x] Deprecate local JSON data (`data/`).
 
 ### Phase 5: Advanced Features & Identity
 1. [x] Implement Secure Dashboard (`/dashboard`).

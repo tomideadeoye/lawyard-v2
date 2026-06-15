@@ -3,8 +3,6 @@ import { toggleArticleStatus, deleteArticle, togglePodcastStatus, deletePodcast,
 import { CreateContentDialog } from './create-dialog';
 import { ContentFilter } from './content-filter';
 
-export const dynamic = 'force-dynamic';
-
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; color: string; border: string }> = {
     published: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10B981', border: 'rgba(16, 185, 129, 0.2)' },

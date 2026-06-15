@@ -1,8 +1,6 @@
 import { getAdminStats, getPendingLawyers, getRecentSubscribers } from '@/lib/admin/api';
 import { verifyLawyer, rejectLawyer } from './actions';
 
-export const dynamic = 'force-dynamic';
-
 function ErrorBanner({ message, source }: { message: string; source: string }) {
   return (
     <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm mb-4">

@@ -27,7 +27,7 @@ function MoonIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function ModeToggle() {
+export function ModeToggle({ scrolled }: { scrolled?: boolean }) {
   const { theme, setTheme } = useTheme()
 
   const toggleTheme = () => {
@@ -42,7 +42,7 @@ export function ModeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted hover:text-foreground transition-all border border-border/20"
+      className={`flex items-center justify-center w-8 h-8 rounded-full transition-all ${scrolled ? 'hover:bg-white/10 hover:text-white border border-white/20' : 'hover:bg-muted hover:text-foreground border border-border/20'}`}
       aria-label="Toggle theme"
     >
       <SunIcon className="h-[16px] w-[16px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

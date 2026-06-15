@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient } from '@/lib/supabase/admin-auth';
 
 export interface Subscriber {
   id: string;
@@ -8,7 +8,7 @@ export interface Subscriber {
 }
 
 export async function getSubscribers() {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { data, error } = await supabase
     .from('newsletter_subscribers')
     .select('*')
@@ -22,7 +22,7 @@ export async function getSubscribers() {
 }
 
 export async function toggleSubscriberStatus(id: string, active: boolean) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase
     .from('newsletter_subscribers')
     .update({ active })

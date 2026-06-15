@@ -1,5 +1,5 @@
 # LAWYARD v2 SYSTEM ARCHITECTURE (Zero-Dependency Protocol)
-**Status**: ACTIVE | **Phase**: 3 (Media Platform + Brand Press) | **Architecture**: Monorepo (Supabase-Native)
+**Status**: ACTIVE | **Phase**: 3 (Media Platform + Brand Press) | **Architecture**: Single Next.js App (Supabase-Native)
 
 ## 👤 KEY CONTACTS
 - **Tobi Adebowale**: Primary Client / Decision Maker (+234 706 100 3969)
@@ -15,28 +15,28 @@
 ## 1. Stack Foundation
 - **Framework**: Next.js 16 (App Router), Tailwind CSS v4.
 - **Database/Auth**: Supabase (PostgreSQL + RLS).
-- **UI System**: Tailwind CSS v4 + Custom Components (publish), Shadcn UI (directory/admin).
+- **UI System**: Tailwind CSS v4 + Custom Components + Shadcn UI.
 - **Email**: Resend for transactional emails (brand press lifecycle) and newsletter broadcasts.
 - **Payments**: Paystack for Brand Press paid submissions.
-- **Monorepo**: pnpm workspaces + Turborepo + Next.js 16.
+- **Package Manager**: pnpm (no workspaces, single app).
 
-## 2. Core Modules
-- **/apps/directory**: Public-facing legal marketplace & discovery engine (port 3000).
-- **/apps/admin**: Admin management & governance portal for directory + publish (port 3001).
-- **/apps/publish**: Media platform — Lawyard's main site (lawyard.org) with articles, podcasts, TV, Brand Press (port 3002).
-- **/packages/api**: Shared business logic
-  - `src/articles.ts` — Query helpers: `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate`
-  - `src/paystack.ts` — Paystack init/verify helpers (shared by publish + directory)
-  - `src/email.ts` — Resend email module: 6 send functions for Brand Press lifecycle + newsletter
-  - `src/index.ts` (legacy) — Zod schemas (ArticleSchema, PodcastSchema, NewsletterSubscriptionSchema)
-- **/packages/ui**: Shared design system (Tailwind CSS v4)
-  - `src/components/article-card.tsx` — ArticleCard with grid + list variants, brand/tier/category badges
-  - `src/components/podcast-card.tsx` — PodcastCard with audio/video badges, duration, featured image
-  - `src/components/cookie-consent.tsx` — Global cookie consent banner
-  - `src/components/newsletter-popup.tsx` — Timed/scroll-triggered newsletter modal
-  - `src/components/` — Shadcn components (button, card, tabs, checkbox, input, label, separator)
-  - `src/lib/utils.ts` — Shared `cn()` utility
-  - `src/styles/globals.css` — Single source of truth for `@theme {}` tokens, CSS custom properties, premium utilities
+## 2. Core Modules (Flat Structure — Single App)
+- **app/(main)/**: Media platform — Lawyard's main site (lawyard.org) with articles, podcasts, TV, Brand Press.
+- **app/admin/**: Admin dashboard — lawyer verification, content management, subscribers.
+- **app/directory/**: Legal marketplace — lawyers, chambers, search, content studio.
+- **lib/api/**: Shared business logic
+  - `articles.ts` — Query helpers: `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate`
+  - `paystack.ts` — Paystack init/verify helpers (shared by main + directory)
+  - `email.ts` — Resend email module: 6 send functions for Brand Press lifecycle + newsletter
+  - `index.ts` — Zod schemas (ArticleSchema, PodcastSchema, NewsletterSubscriptionSchema)
+- **components/ui/**: Shared design system (Tailwind CSS v4)
+  - `article-card.tsx` — ArticleCard with grid + list variants, brand/tier/category badges
+  - `podcast-card.tsx` — PodcastCard with audio/video badges, duration, featured image
+  - `cookie-consent.tsx` — Global cookie consent banner
+  - `newsletter-popup.tsx` — Timed/scroll-triggered newsletter modal
+  - Shadcn components: button, card, tabs, checkbox, input, label, separator
+  - `lib/utils.ts` — Shared `cn()` utility
+- **lib/supabase/**: Unified Supabase clients (server, client, admin, middleware)
 
 ## 3. Data Flow (The Protocol)
 - **Native Content Engine**: Replaced legacy WordPress with native `articles` and `podcasts` tables across publish + directory apps.
@@ -63,26 +63,22 @@
 - **Database Management**: Migrations are handled via `supabase db push` / `query` for ad-hoc schema patches.
 
 ## 6. Configuration & Maintenance
-- **Turbopack Workspace Root**: Explicitly configured in `apps/directory/next.config.js` and `apps/admin/next.config.js` via `experimental.turbopack.root` to prevent Next.js from resolving stray lockfiles outside the monorepo.
-- **Tailwind v4 Monorepo Setup**:
-  - Theme tokens (`@theme {}`, HSL variables, custom utilities) live once in `packages/ui/src/styles/globals.css`.
-  - Each app's `globals.css` imports the shared CSS and uses `@source` to scan both local components and the shared UI package — ensuring Tailwind generates utility classes for all files regardless of which workspace they're in.
+- **Tailwind v4 Setup**:
+  - Theme tokens (`@theme {}`, CSS custom properties) defined in `app/globals.css`.
+  - `@source "../components"` and `@source "../app"` scan all source files.
   - No `tailwind.config.*` files; all configuration is CSS-first via `@theme` and `@source` directives.
-- **Proxy Routing**: Middleware via `proxy.ts` (Next.js 16 convention — exports a `proxy` function and `config.matcher`) in both `apps/directory/proxy.ts` and `apps/admin/proxy.ts`. If middleware stops working, ensure the file is named `middleware.ts` (Next.js standard).
+- **Route Groups**: Three route groups under `app/` — `(main)` for media platform, `admin` for dashboard, `directory` for marketplace.
 - **Zero-Dependency**: Do not re-introduce external CMS (WordPress). All content is internal.
-- **Theming**: Use `--primary` (Royal Blue) and `--accent` (Gold) for brand consistency. Never hardcode colors.
-- **Authentication**: Always require `await` on Next.js 15 `searchParams` and `params`.
-- **Ports**: 
-    - Directory: 3000
-    - Admin: 3001
-    - Publish (Media Platform): 3002
+- **Theming**: CSS custom properties (`--primary`, `--background`, `--foreground`, etc.) with light/dark modes via `.dark` class.
+- **Authentication**: Always require `await` on Next.js 15+ `searchParams` and `params`.
+- **Deployment**: Single Vercel project. Subdomain rewrites via middleware.
 
 ## 7. Brand Press / Media Platform Additions (Phase 3 — 2026-06-12)
-1. **Shared `@repo/api/articles.ts`**: Extracted `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate` — framework-agnostic helpers accepting SupabaseClient as first arg.
-2. **Shared `@repo/api/paystack.ts`**: Extracted Paystack initialization and verification helpers used by both publish and directory apps.
-3. **Shared `@repo/api/email.ts`**: Resend email module with 6 send functions for Brand Press lifecycle (received, payment confirmed, approved, rejected, admin alert) and newsletter broadcast.
-4. **Shared `ArticleCard` + `PodcastCard`**: Reusable components in `@repo/ui` with grid/list variants, brand/tier/category badges, audio/video type badges.
-5. **`apps/publish` (Media Platform)**: 14 routes — homepage, insights index/detail, podcasts index/detail, TV index/detail, category archive, RSS feed, Brand Press (submit, payment, success, listing), About page.
+1. **Shared `lib/api/articles.ts`**: Extracted `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate` — framework-agnostic helpers accepting SupabaseClient as first arg.
+2. **Shared `lib/api/paystack.ts`**: Extracted Paystack initialization and verification helpers used by both main and directory apps.
+3. **Shared `lib/api/email.ts`**: Resend email module with 6 send functions for Brand Press lifecycle (received, payment confirmed, approved, rejected, admin alert) and newsletter broadcast.
+4. **Shared `ArticleCard` + `PodcastCard`**: Reusable components in `components/ui/` with grid/list variants, brand/tier/category badges.
+5. **`app/(main)/` (Media Platform)**: Routes — homepage, insights index/detail, podcasts index/detail, TV index/detail, category archive, RSS feed, Brand Press (submit, payment, success, listing), About page.
 6. **Brand Press Engine**: Paid submission flow with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, admin review for ALL tiers (no auto-publish), transaction tracking.
 7. **Admin Review UI**: Brand Press tab in admin content manager with approve/reject actions, tier/payment/status badges.
 8. **Scheduled Publishing**: Supabase edge function (`publish-scheduled`) for cron-based publication of approved/pending articles.
@@ -179,8 +175,8 @@
    - Securely expose vetted lawyer search endpoints for external integration to monetize the legal intelligence directory.
 
 ## 10. Troubleshooting
-- **Port Conflicts**: Use `lsof -i :3000` to find hanging processes and `kill -9 <PID>` to clear. Ports: directory=3000, admin=3001, publish=3002.
-- **Workspace Root Warning**: If Next.js warns about lockfile resolution, ensure `experimental.turbopack.root` is set in both `next.config.js` files to the monorepo root.
+- **Single App**: All routes run on one port (default 3000). No port conflicts between apps anymore.
+- **Tailwind Theme Issues**: If `bg-background`/`text-foreground` classes don't render, check `app/globals.css` for CSS custom properties (`--background`, `--foreground`). They must be valid color values (e.g., `hsl(0 0% 100%)`), not raw numbers.
 - **Supabase Fetch Errors (ENOTFOUND)**:
   - **Symptom**: `TypeError: fetch failed` with `getaddrinfo ENOTFOUND <project-id>.supabase.co`.
   - **Cause**: Remote Supabase project is paused (free tier auto-pauses after inactivity) or removed.
@@ -188,12 +184,12 @@
   - **Local Fix**: Start Docker daemon, run `pnpm supabase start`, and update `.env.local` to point to `http://127.0.0.1:54321`.
 - **Migrations**: Always run `sed` filters to isolate schema changes when the remote DB is already populated.
 - **Brand Press Payment Flow Not Working**:
-  - Ensure `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` and `PAYSTACK_SECRET_KEY` are set in `apps/publish/.env.local`
+  - Ensure `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` and `PAYSTACK_SECRET_KEY` are set in `.env.local`
   - Check Paystack callback URL: `${NEXT_PUBLIC_SITE_URL}/brand-press/payment?reference=BP-XXXX`
   - Verify the transaction row was created in the `transactions` table
   - If Paystack modal doesn't open, check browser console for JS errors
 - **Transactional Emails Not Sending**:
-  - Ensure `RESEND_API_KEY` is set in both `apps/publish/.env.local` and `apps/admin/.env.local`
+  - Ensure `RESEND_API_KEY` is set in `.env.local` (single env file for all routes)
   - Check `ADMIN_EMAIL` is set correctly
   - Emails silently fail on `.catch(() => {})` — check Resend dashboard for delivery status
   - Resend free tier: 100 emails/day, 3,000 emails/month limit
@@ -203,42 +199,42 @@
   - Verify cron trigger: `supabase functions cron list`
   - Edge function queries: `status='pending_review' AND payment_status='paid' AND scheduled_date <= now()`
 - **Admin Dashboard Login**:
-  - **URL**: `http://localhost:3001/login`
+  - **URL**: `http://localhost:3000/admin/login`
   - **Credentials**: The admin uses Supabase Auth. No default password exists — admins are managed in the `profiles` table.
   - **Existing Users** (from Supabase Auth):
     - `lawyardmtc@gmail.com` → profile role: `admin` (password set via Supabase Auth)
     - `tomideadeoye@gmail.com` → profile role: `client`
   - **To make a user admin**: Update the `profiles` table — `UPDATE profiles SET role = 'admin' WHERE id = '<user-uuid>';`
   - **To reset a password**: Use the Supabase dashboard Auth > Users > select user > Update Password, or use the service_role API via `supabase.auth.admin.updateUserById()`
-  - **Role check**: The `proxy.ts` middleware enforces `profiles.role === 'admin'`. Non-admins are signed out and redirected.
+  - **Role check**: Admin login page checks `profiles.role === 'admin'`.
 - **Login Button Not Working**:
-  - The `SubmitButton` component (`apps/admin/app/login/submit-button.tsx`) uses `className="btn btn-primary"` with inline styles instead of the `Button` component from `@repo/ui/components/button`. This is okay for now but inconsistent with the rest of the UI.
+  - The `SubmitButton` component (`app/admin/login/submit-button.tsx`) uses `className="btn btn-primary"` with inline styles. This is okay for now but inconsistent with the rest of the UI.
   - If the button doesn't respond, check the browser console for JS/hydration errors. The form uses a Next.js Server Action (`login` from `./actions.ts`).
 - **Supabase Auth Users** (as of 2026-06-12):
   | Email | ID | Profile Role |
   |-------|-----|--------------|
   | lawyardmtc@gmail.com | `8251d905-...` | admin |
   | tomideadeoye@gmail.com | `db5eeb97-...` | client |
-- **Publish App Dev Server**: `cd apps/publish && pnpm dev` — runs on port 3002
-  - Edit page at `http://localhost:3002` and changes hot-reload
-  - Build: `pnpm build --filter=publish` (all 14 routes build clean)
-  - Tailwind v4 classes only — no shadcn UI in publish app (custom components)
+- **Publish App Dev Server**: `pnpm dev` — runs on port 3000
+  - Edit pages at `http://localhost:3000` and changes hot-reload
+  - Build: `pnpm build` (all routes build clean)
+  - Tailwind CSS v4 with CSS custom properties
 - **Remote Supabase Instance**:
   - **URL**: `https://jayjejqjswxtksvwoqxp.supabase.co`
   - **Dashboard**: https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp
-  - **Service role key**: stored in `apps/admin/.env.local` and `apps/directory/.env.local`
-  - **Anon key**: stored in both `.env.local` files (safe for client-side use)
+  - **Service role key**: stored in `.env.local`
+  - **Anon key**: stored in `.env.local` (safe for client-side use)
 - **Local Supabase Setup**:
   - CLI is installed (v2.93.0 via pnpm) and `supabase/config.toml` is pre-configured.
   - Requires Docker. Run `pnpm supabase start` to spin up local Postgres + Auth + Storage + Studio.
   - Update both `.env.local` files to point to `http://127.0.0.1:54321` instead of the remote URL.
   - **No seed.sql exists** — local DB starts empty. Dump remote data first or run migrations.
 
-*Document last updated by Orion Sovereign AI on 2026-06-12.*
+*Document last updated by Orion Sovereign AI on 2026-06-15.*
 
 # Lawyard v2 — Master Checklist
 
-> **Context**: This monorepo builds three apps — `publish` (lawyard.org media platform), `directory` (directory.lawyard.org), `admin` (admin dashboard) — sharing one Supabase project. WordPress is the legacy platform at lawyard.org. 
+> **Context**: Single Next.js app with three route groups — `(main)` (lawyard.org media platform), `admin` (admin dashboard), `directory` (directory.lawyard.org) — sharing one Supabase project. WordPress is the legacy platform at lawyard.org. 
 > 
 > **External systems**: 
 > - **Newsletter Render app** at `newsletter-my9b.onrender.com` — standalone web app that fetches articles from WordPress, provides a web editor for curating newsletters, previews, approves, and sends via Brevo. Uses signed tokens (`v1.{base64_date}.{hmac}`) for edition access.

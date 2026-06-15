@@ -11,7 +11,12 @@ import { submitBrandPress } from '@/app/actions/brand-press'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import config from '@/lib/brand-press.json'
 import { PricingCard } from '@/components/PricingCard'
-import { RichTextEditor } from '@/components/brand-press/rich-text-editor'
+import dynamic from 'next/dynamic'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/brand-press/rich-text-editor').then(m => m.RichTextEditor),
+  { ssr: false }
+)
 import { ImageUpload } from '@/components/brand-press/image-upload'
 import { DatePicker } from '@/components/brand-press/date-picker'
 import { TierComparisonModal } from '@/components/brand-press/tier-comparison-modal'
@@ -127,8 +132,6 @@ function SubmitForm() {
     }
     if (couponResult) {
       formData.set('coupon_code', couponResult.code)
-      formData.set('final_price', String(couponResult.finalPrice))
-      formData.set('discount_amount', String(couponResult.discountAmount))
     }
 
     const result = await submitBrandPress(formData)

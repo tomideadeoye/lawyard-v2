@@ -7,7 +7,7 @@
 ## Tier 1: Quick Wins (No Blockers)
 
 ### TASK-01: Fix Chambers Featured Bug
-**File**: `apps/directory/lib/api.ts`
+**File**: `lib/directory/api.ts`
 **Problem**: `getChambers()` hardcodes `featured: false` in the mapping, then filters by featured — so the "Featured Chambers" section on homepage is always empty.
 **Action**:
 - Change `featured: false` → `featured: (c.is_featured as boolean) || false` in the chamber mapping
@@ -19,8 +19,8 @@
 
 ### TASK-02: Wire Content Studio to Server Actions
 **Files**:
-- `apps/directory/app/dashboard/publish/page.tsx`
-- `apps/directory/app/actions/content.ts`
+- `app/directory/dashboard/publish/page.tsx`
+- `app/directory/actions/content.ts`
 **Problem**: Publish form exists but doesn't call the server actions.
 **Action**:
 - Bind the article form to `publishArticle` action (FormData fields must match: `title`, `slug`, `content`)
@@ -33,7 +33,7 @@
 ---
 
 ### TASK-03: Fix `verified: true` Hardcode
-**File**: `apps/directory/lib/api.ts`
+**File**: `lib/directory/api.ts`
 **Problem**: Both `getLawyers()` and `getLawyerById()` hardcode `verified: true` regardless of the actual `verification_status` from DB.
 **Action**:
 - Change `verified: true` → `verified: l.verification_status === 'verified'` in both functions
@@ -44,7 +44,7 @@
 ---
 
 ### TASK-04: Update Admin Metadata
-**File**: `apps/admin/app/layout.tsx`
+**File**: `app/admin/layout.tsx`
 **Problem**: Still says "Create Next App" from Next.js boilerplate.
 **Action**:
 - Change title to `"Lawyard Admin | Admin Portal"`
@@ -55,7 +55,7 @@
 ---
 
 ### TASK-05: Add Error Boundaries for Supabase Failures
-**Files**: Create new files in `apps/directory/app/`
+**Files**: Create new files in `app/directory/`
 **Problem**: If Supabase is paused or unreachable, pages crash with raw `ENOTFOUND` errors.
 **Action**:
 - Create `error.tsx` at the app root level that catches runtime errors and shows a graceful "Service temporarily unavailable" message with retry button
@@ -70,12 +70,12 @@
 
 ### TASK-06: Add Admin Auth Guard to Admin
 **Files**:
-- Create `apps/admin/middleware.ts`
-- Create `apps/admin/lib/supabase/server.ts` (copy pattern from directory app)
-- Create `apps/admin/app/login/page.tsx`
-**Problem**: Admin has zero auth — anyone on port 3000 sees admin data.
+- Create `app/admin/middleware.ts`
+- Create `lib/admin/supabase/server.ts` (copy pattern from directory app already exists)
+- Create `app/admin/login/page.tsx`
+**Problem**: Admin has no auth middleware — anyone can access admin routes.
 **Action**:
-- Create Supabase server client in admin (copy pattern from `apps/directory/lib/supabase/server.ts`)
+- Create Next.js middleware that checks auth (copy pattern from `lib/directory/supabase/server.ts`)
 - Create Next.js middleware that checks `auth.getUser()` and redirects to `/login` if not authenticated or not admin role
 - Build a minimal login page (Supabase magic link, reuse the directory auth pattern)
 - Add an admin check: `profiles.role === 'admin'` — non-admins get redirected out
@@ -85,7 +85,7 @@
 ---
 
 ### TASK-07: Build Admin — Lawyers Directory Page
-**Files**: Create `apps/admin/app/lawyers/page.tsx`
+**Files**: Create `app/admin/lawyers/page.tsx`
 **Problem**: Sidebar link "Lawyers Directory" goes to `href="#"`.
 **Action**:
 - Build a full CRUD page: table of all lawyers with columns (Name, Role, Location, Verification Status, Rating, Actions)
@@ -99,7 +99,7 @@
 ---
 
 ### TASK-08: Build Admin — Subscribers Page
-**Files**: Create `apps/admin/app/subscribers/page.tsx`
+**Files**: Create `app/admin/subscribers/page.tsx`
 **Problem**: Sidebar link "Subscribers" goes to `href="#"`.
 **Action**:
 - Build a page listing all `newsletter_subscribers` with columns (Email, Subscribed Date, Active Status)
@@ -113,7 +113,7 @@
 ---
 
 ### TASK-09: Build Admin — Content Manager Page
-**Files**: Create `apps/admin/app/content/page.tsx`
+**Files**: Create `app/admin/content/page.tsx`
 **Problem**: Sidebar link "Content Manager" goes to `href="#"`.
 **Action**:
 - Build a page with tabs: Articles | Podcasts

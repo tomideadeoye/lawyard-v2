@@ -100,9 +100,12 @@ export default function Header() {
   const { getCartCount, cart, getCartTotal, removeFromCart } = useCart()
   const pathname = usePathname()
   const [readingTitle, setReadingTitle] = useState<string | null>(null)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+
       if (pathname.startsWith('/insights/') && window.scrollY > 150) {
         const titleEl = document.querySelector('h1')
         if (titleEl) {
@@ -119,34 +122,34 @@ export default function Header() {
   }, [pathname])
 
   return (
-    <header className="w-full bg-background border-b border-border/50 sticky top-0 z-50 shadow-sm">
+    <header className={`w-full sticky top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-[#111129] border-b border-white/10 shadow-lg' : 'bg-background border-b border-border/50 shadow-sm'}`}>
       {/* Row 1: Logo & Utilities */}
-      <div className="w-full border-b border-border/40 py-4 px-6">
+      <div className={`w-full py-4 px-6 transition-colors duration-300 ${scrolled ? 'border-b border-white/10' : 'border-b border-border/40'}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Left Block: Hamburger & Social Icons */}
           <div className="flex items-center gap-4 sm:gap-6 flex-1 justify-start">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-foreground hover:opacity-80 transition-opacity p-1"
+              className={`hover:opacity-80 transition-opacity p-1 ${scrolled ? 'text-white' : 'text-foreground'}`}
               aria-label="Toggle Menu"
             >
               <MenuIcon className="h-5 w-5" />
             </button>
             
-            <div className="hidden md:flex items-center gap-3.5 text-muted-foreground">
-              <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Facebook">
+            <div className={`hidden md:flex items-center gap-3.5 ${scrolled ? 'text-white/70' : 'text-muted-foreground'}`}>
+              <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Facebook">
                 <FacebookIcon className="h-4 w-4" />
               </a>
-              <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Twitter">
+              <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Twitter">
                 <TwitterIcon className="h-4 w-4" />
               </a>
-              <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
+              <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Instagram">
                 <InstagramIcon className="h-4 w-4" />
               </a>
-              <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="YouTube">
+              <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="YouTube">
                 <YoutubeIcon className="h-4 w-4" />
               </a>
-              <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="LinkedIn">
                 <LinkedinIcon className="h-4 w-4" />
               </a>
             </div>
@@ -159,42 +162,42 @@ export default function Header() {
               <img 
                 src="/logo-blue.png" 
                 alt="Lawyard Logo" 
-                className="h-10 w-auto object-contain block dark:hidden group-hover:scale-[1.01] transition-transform duration-300"
+                className={`h-10 w-auto object-contain group-hover:scale-[1.01] transition-transform duration-300 ${scrolled ? 'hidden' : 'block dark:hidden'}`}
               />
-              {/* Dark Mode Logo (White) */}
+              {/* Dark Mode / Scrolled Logo (White) */}
               <img 
                 src="/logo-white.png" 
                 alt="Lawyard Logo" 
-                className="h-10 w-auto object-contain hidden dark:block group-hover:scale-[1.01] transition-transform duration-300"
+                className={`h-10 w-auto object-contain group-hover:scale-[1.01] transition-transform duration-300 ${scrolled ? 'block' : 'hidden dark:block'}`}
               />
             </Link>
           </div>
 
           {/* Right Block: Follow, Cart, Search, Theme Toggle */}
-          <div className="flex items-center gap-4 sm:gap-5 flex-1 justify-end text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <div className={`flex items-center gap-4 sm:gap-5 flex-1 justify-end text-xs font-bold uppercase tracking-wider ${scrolled ? 'text-white/70' : 'text-muted-foreground'}`}>
             {/* Follow Dropdown */}
-            <div className="relative group cursor-pointer hidden sm:flex items-center gap-1 hover:text-foreground transition-colors py-1">
+            <div className={`relative group cursor-pointer hidden sm:flex items-center gap-1 transition-colors py-1 ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               <span>FOLLOW</span>
               <ChevronDownIcon className="h-3 w-3" />
               <div className="absolute top-full right-0 pt-2 hidden group-hover:block z-50">
-                <div className="bg-background border border-border shadow-xl rounded-lg p-3 min-w-[150px] flex flex-col gap-2 font-semibold">
-                  <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 block">Facebook</a>
-                  <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 block">Twitter</a>
-                  <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 block">Instagram</a>
-                  <a href="https://youtube.com/... " target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 block">YouTube</a>
-                  <a href="https://www.linkedin.com/..." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 block">LinkedIn</a>
+                <div className={`border shadow-xl rounded-lg p-3 min-w-[150px] flex flex-col gap-2 font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
+                  <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className={`transition-colors py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Facebook</a>
+                  <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className={`transition-colors py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Twitter</a>
+                  <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className={`transition-colors py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Instagram</a>
+                  <a href="https://youtube.com/... " target="_blank" rel="noopener noreferrer" className={`transition-colors py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>YouTube</a>
+                  <a href="https://www.linkedin.com/..." target="_blank" rel="noopener noreferrer" className={`transition-colors py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>LinkedIn</a>
                 </div>
               </div>
             </div>
 
             {/* Lightning bolt / Trending Icon */}
-            <div className="relative group cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors p-1">
+            <div className={`relative group cursor-pointer flex items-center justify-center transition-colors p-1 ${scrolled ? 'text-white/70 hover:text-white' : 'text-muted-foreground hover:text-foreground'}`}>
               <TrendingIcon className="h-4 w-4" />
             </div>
 
              {/* Shopping Bag Icon with badge & hover dropdown */}
             <div className="relative group py-1">
-              <Link href="/cart" className="relative flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors p-1" aria-label="Cart">
+              <Link href="/cart" className={`relative flex items-center justify-center transition-colors p-1 ${scrolled ? 'text-white/70 hover:text-white' : 'text-muted-foreground hover:text-foreground'}`} aria-label="Cart">
                 <CartIcon className="h-4 w-4" />
                 {getCartCount() > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 bg-accent text-accent-foreground text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border border-background">
@@ -205,9 +208,9 @@ export default function Header() {
 
               {/* Cart Dropdown Menu on hover */}
               <div className="absolute top-full right-0 pt-2 hidden group-hover:block z-50">
-                <div className="bg-background border border-border shadow-xl rounded-lg p-5 w-[320px] flex flex-col gap-4 text-xs font-semibold text-foreground">
+                <div className={`border shadow-xl rounded-lg p-5 w-[320px] flex flex-col gap-4 text-xs font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
                   {cart.length === 0 ? (
-                    <div className="text-center py-4 text-muted-foreground text-xs">
+                    <div className={`text-center py-4 text-xs ${scrolled ? 'text-white/60' : 'text-muted-foreground'}`}>
                       Your cart is empty.
                     </div>
                   ) : (
@@ -225,10 +228,10 @@ export default function Header() {
 
                             {/* Details */}
                             <div className="flex-1 min-w-0 px-1 text-left">
-                              <h5 className="text-[10px] font-bold text-foreground font-serif leading-tight uppercase tracking-wide line-clamp-2">
+                              <h5 className={`text-[10px] font-bold font-serif leading-tight uppercase tracking-wide line-clamp-2 ${scrolled ? 'text-white' : 'text-foreground'}`}>
                                 {item.title}
                               </h5>
-                              <span className="text-[9px] text-muted-foreground/80 block mt-1">
+                              <span className={`text-[9px] block mt-1 ${scrolled ? 'text-white/60' : 'text-muted-foreground/80'}`}>
                                 {item.quantity} × ₦{item.price}
                               </span>
                             </div>
@@ -236,7 +239,7 @@ export default function Header() {
                             {/* Remove button */}
                             <button
                               onClick={() => removeFromCart(item.id)}
-                              className="text-muted-foreground hover:text-destructive text-sm font-bold p-1 transition-colors shrink-0"
+                              className={`text-sm font-bold p-1 transition-colors shrink-0 ${scrolled ? 'text-white/60 hover:text-red-400' : 'text-muted-foreground hover:text-destructive'}`}
                               aria-label="Remove item"
                             >
                               ×
@@ -246,9 +249,9 @@ export default function Header() {
                       </div>
 
                       {/* Subtotal */}
-                      <div className="flex justify-between items-center border-t border-border/20 pt-3 text-xs font-bold uppercase tracking-wider">
-                        <span className="text-muted-foreground">Subtotal:</span>
-                        <span className="text-foreground">₦{getCartTotal()}</span>
+                      <div className={`flex justify-between items-center border-t pt-3 text-xs font-bold uppercase tracking-wider ${scrolled ? 'border-white/10' : 'border-border/20'}`}>
+                        <span className={scrolled ? 'text-white/60' : 'text-muted-foreground'}>Subtotal:</span>
+                        <span className={scrolled ? 'text-white' : 'text-foreground'}>₦{getCartTotal()}</span>
                       </div>
 
                       {/* Action buttons */}
@@ -273,87 +276,87 @@ export default function Header() {
             </div>
 
             {/* Search Icon */}
-            <Link href="/search" className="text-muted-foreground hover:text-foreground transition-colors p-1" aria-label="Search">
+            <Link href="/search" className={`transition-colors p-1 ${scrolled ? 'text-white/70 hover:text-white' : 'text-muted-foreground hover:text-foreground'}`} aria-label="Search">
               <SearchIcon className="h-4 w-4" />
             </Link>
 
             {/* Dark Mode Toggle */}
-            <div className="h-4 w-px bg-border/60 mx-0.5 hidden sm:block" />
-            <ModeToggle />
+            <div className={`h-4 w-px mx-0.5 hidden sm:block ${scrolled ? 'bg-white/20' : 'bg-border/60'}`} />
+            <ModeToggle scrolled={scrolled} />
           </div>
         </div>
       </div>
 
       {/* Row 2: Main Navigation Menu or NOW READING bar */}
-      <div className="w-full py-3.5 px-6 hidden md:block border-t border-border/20 transition-all duration-300">
+      <div className={`w-full py-3.5 px-6 hidden md:block border-t transition-all duration-300 ${scrolled ? 'border-white/10' : 'border-border/20'}`}>
         {readingTitle ? (
           <div className="max-w-7xl mx-auto flex justify-between items-center text-xs font-bold uppercase tracking-wider animate-in fade-in slide-in-from-top-1 duration-200">
-            <div className="text-foreground/90 font-serif font-bold text-sm tracking-wide truncate max-w-xl">
+            <div className={`font-serif font-bold text-sm tracking-wide truncate max-w-xl ${scrolled ? 'text-white/90' : 'text-foreground/90'}`}>
               <span className="text-[#a77c5c] font-sans font-black text-xs mr-2 uppercase tracking-widest">Now Reading</span>
               | {readingTitle}
             </div>
             
             {/* Sharing / Comments counts */}
-            <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+            <div className={`flex items-center gap-4 text-[10px] ${scrolled ? 'text-white/60' : 'text-muted-foreground'}`}>
               <span>0 SHARES</span>
               <span>•</span>
-              <a href="#comments" className="hover:text-foreground transition-colors no-underline">
+              <a href="#comments" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
                 0 COMMENTS
               </a>
             </div>
           </div>
         ) : (
-          <nav className="max-w-7xl mx-auto flex justify-center items-center gap-x-8 text-xs font-bold uppercase tracking-widest text-muted-foreground/80">
-            <Link href="/about" className="hover:text-foreground transition-colors no-underline">
+          <nav className={`max-w-7xl mx-auto flex justify-center items-center gap-x-8 text-xs font-bold uppercase tracking-widest ${scrolled ? 'text-white/70' : 'text-muted-foreground/80'}`}>
+            <Link href="/about" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               About
             </Link>
             
-            <div className="relative group cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
+            <div className={`relative group cursor-pointer flex items-center gap-1 transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               <span>Categories</span>
               <ChevronDownIcon className="h-3 w-3" />
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-50">
-                <div className="bg-background border border-border shadow-xl rounded-lg p-3 min-w-[160px] flex flex-col gap-2 font-semibold">
-                  <Link href="/category/news" className="hover:text-primary transition-colors no-underline py-1 block">News</Link>
-                  <Link href="/category/opinions" className="hover:text-primary transition-colors no-underline py-1 block">Opinions</Link>
-                  <Link href="/category/lawyard-spotlight" className="hover:text-primary transition-colors no-underline py-1 block">Spotlight</Link>
-                  <Link href="/category/sports-law" className="hover:text-primary transition-colors no-underline py-1 block">Sports Law</Link>
-                  <Link href="/category/judgements" className="hover:text-primary transition-colors no-underline py-1 block">Judgements</Link>
+                <div className={`border shadow-xl rounded-lg p-3 min-w-[160px] flex flex-col gap-2 font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
+                  <Link href="/category/news" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>News</Link>
+                  <Link href="/category/opinions" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Opinions</Link>
+                  <Link href="/category/lawyard-spotlight" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Spotlight</Link>
+                  <Link href="/category/sports-law" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Sports Law</Link>
+                  <Link href="/category/judgements" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Judgements</Link>
                 </div>
               </div>
             </div>
 
-            <div className="relative group cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
+            <div className={`relative group cursor-pointer flex items-center gap-1 transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               <span>Media</span>
               <ChevronDownIcon className="h-3 w-3" />
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-50">
-                <div className="bg-background border border-border shadow-xl rounded-lg p-3 min-w-[140px] flex flex-col gap-2 font-semibold">
-                  <Link href="/podcasts" className="hover:text-primary transition-colors no-underline py-1 block">Podcasts</Link>
-                  <Link href="/tv" className="hover:text-primary transition-colors no-underline py-1 block">Lawyard TV</Link>
+                <div className={`border shadow-xl rounded-lg p-3 min-w-[140px] flex flex-col gap-2 font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
+                  <Link href="/podcasts" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Podcasts</Link>
+                  <Link href="/tv" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard TV</Link>
                 </div>
               </div>
             </div>
 
-            <div className="relative group cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
+            <div className={`relative group cursor-pointer flex items-center gap-1 transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               <span>Features</span>
               <ChevronDownIcon className="h-3 w-3" />
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-50">
-                <div className="bg-background border border-border shadow-xl rounded-lg p-3 min-w-[170px] flex flex-col gap-2 font-semibold">
-                  <Link href="/legislations" className="hover:text-primary transition-colors no-underline py-1 block">Legislations</Link>
-                  <a href="https://directory.lawyard.ng" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors no-underline py-1 block">Lawyard Directory</a>
-                  <a href="https://job.lawyard.ng" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors no-underline py-1 block">Lawyard Jobs</a>
+                <div className={`border shadow-xl rounded-lg p-3 min-w-[170px] flex flex-col gap-2 font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
+                  <Link href="/legislations" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Legislations</Link>
+                  <a href="https://directory.lawyard.ng" target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Directory</a>
+                  <a href="https://job.lawyard.ng" target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Jobs</a>
                 </div>
               </div>
             </div>
 
-            <Link href="/shop" className="hover:text-foreground transition-colors no-underline">
+            <Link href="/shop" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               Shop
             </Link>
 
-            <a href="https://directory.lawyard.ng/login" className="hover:text-foreground transition-colors no-underline">
+            <a href="https://directory.lawyard.ng/login" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               My Account
             </a>
 
-            <Link href="/contact" className="hover:text-foreground transition-colors no-underline">
+            <Link href="/contact" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
               Contact
             </Link>
           </nav>
@@ -362,58 +365,58 @@ export default function Header() {
 
       {/* Mobile Drawer menu (simple expandable list) */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/40 bg-muted/30 px-6 py-4 flex flex-col gap-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors py-1 block no-underline">
+        <div className={`md:hidden border-t px-6 py-4 flex flex-col gap-4 text-sm font-semibold uppercase tracking-wider ${scrolled ? 'border-white/10 bg-[#1e1e4a] text-white/70' : 'border-border/40 bg-muted/30 text-muted-foreground'}`}>
+          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`transition-colors py-1 block no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
             About
           </Link>
-          <div className="border-t border-border/20 my-1" />
-          <span className="text-xs text-foreground/45 tracking-widest font-extrabold mb-1">Categories</span>
+          <div className={`border-t my-1 ${scrolled ? 'border-white/10' : 'border-border/20'}`} />
+          <span className={`text-xs tracking-widest font-extrabold mb-1 ${scrolled ? 'text-white/45' : 'text-foreground/45'}`}>Categories</span>
           <div className="pl-4 flex flex-col gap-2 normal-case">
-            <Link href="/category/news" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">News</Link>
-            <Link href="/category/opinions" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Opinions</Link>
-            <Link href="/category/lawyard-spotlight" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Spotlight</Link>
-            <Link href="/category/sports-law" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Sports Law</Link>
-            <Link href="/category/judgements" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Judgements</Link>
+            <Link href="/category/news" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>News</Link>
+            <Link href="/category/opinions" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Opinions</Link>
+            <Link href="/category/lawyard-spotlight" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Spotlight</Link>
+            <Link href="/category/sports-law" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Sports Law</Link>
+            <Link href="/category/judgements" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Judgements</Link>
           </div>
-          <div className="border-t border-border/20 my-1" />
-          <span className="text-xs text-foreground/45 tracking-widest font-extrabold mb-1">Media</span>
+          <div className={`border-t my-1 ${scrolled ? 'border-white/10' : 'border-border/20'}`} />
+          <span className={`text-xs tracking-widest font-extrabold mb-1 ${scrolled ? 'text-white/45' : 'text-foreground/45'}`}>Media</span>
           <div className="pl-4 flex flex-col gap-2 normal-case">
-            <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Podcasts</Link>
-            <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard TV</Link>
+            <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Podcasts</Link>
+            <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Lawyard TV</Link>
           </div>
-          <div className="border-t border-border/20 my-1" />
-          <span className="text-xs text-foreground/45 tracking-widest font-extrabold mb-1">Features</span>
+          <div className={`border-t my-1 ${scrolled ? 'border-white/10' : 'border-border/20'}`} />
+          <span className={`text-xs tracking-widest font-extrabold mb-1 ${scrolled ? 'text-white/45' : 'text-foreground/45'}`}>Features</span>
           <div className="pl-4 flex flex-col gap-2 normal-case">
-            <Link href="/legislations" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Legislations</Link>
-            <a href="https://directory.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Directory</a>
-            <a href="https://job.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Jobs</a>
+            <Link href="/legislations" onClick={() => setMobileMenuOpen(false)} className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Legislations</Link>
+            <a href="https://directory.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Lawyard Directory</a>
+            <a href="https://job.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>Lawyard Jobs</a>
           </div>
-          <div className="border-t border-border/20 my-1" />
-          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors py-1 block no-underline">
+          <div className={`border-t my-1 ${scrolled ? 'border-white/10' : 'border-border/20'}`} />
+          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className={`transition-colors py-1 block no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
             Shop
           </Link>
-          <a href="https://directory.lawyard.ng/login" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors py-1 block no-underline">
+          <a href="https://directory.lawyard.ng/login" onClick={() => setMobileMenuOpen(false)} className={`transition-colors py-1 block no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
             My Account
           </a>
-          <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors py-1 block no-underline">
+          <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className={`transition-colors py-1 block no-underline ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`}>
             Contact
           </Link>
           
-          <div className="border-t border-border/20 my-2" />
-          <div className="flex items-center gap-4 justify-center py-2">
-            <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Facebook">
+          <div className={`border-t my-2 ${scrolled ? 'border-white/10' : 'border-border/20'}`} />
+          <div className={`flex items-center gap-4 justify-center py-2 ${scrolled ? 'text-white/70' : ''}`}>
+            <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Facebook">
               <FacebookIcon className="h-5 w-5" />
             </a>
-            <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Twitter">
+            <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Twitter">
               <TwitterIcon className="h-5 w-5" />
             </a>
-            <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
+            <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="Instagram">
               <InstagramIcon className="h-5 w-5" />
             </a>
-            <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="YouTube">
+            <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="YouTube">
               <YoutubeIcon className="h-5 w-5" />
             </a>
-            <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className={`transition-colors ${scrolled ? 'hover:text-white' : 'hover:text-foreground'}`} aria-label="LinkedIn">
               <LinkedinIcon className="h-5 w-5" />
             </a>
           </div>

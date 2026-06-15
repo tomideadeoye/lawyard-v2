@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient } from '@/lib/supabase/admin-auth';
 
 export interface AdminStats {
   totalLawyers: number;
@@ -57,7 +57,7 @@ async function safeQuery<T>(
 }
 
 export async function getAdminStats(): Promise<ApiResult<AdminStats>> {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
 
   type CountResult = { count: number | null } | null;
 
@@ -111,7 +111,7 @@ export async function getAllLawyers(options: {
   page?: number;
   pageSize?: number;
 } = {}): Promise<ApiResult<{ lawyers: LawyerFull[]; total: number }>> {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const page = options.page ?? 1;
   const pageSize = options.pageSize ?? 50;
 
@@ -157,8 +157,9 @@ export async function getAllLawyers(options: {
 }
 
 export async function getPendingLawyers(): Promise<ApiResult<Lawyer[]>> {
+  const { supabase } = await getAdminClient();
   return safeQuery('pending lawyers',
-    createAdminClient()
+    supabase
       .from('lawyers')
       .select('id, name, role, location, email, phone, verification_status, created_at')
       .eq('verification_status', 'pending')
@@ -167,8 +168,9 @@ export async function getPendingLawyers(): Promise<ApiResult<Lawyer[]>> {
 }
 
 export async function getRecentSubscribers(): Promise<ApiResult<Subscriber[]>> {
+  const { supabase } = await getAdminClient();
   return safeQuery('recent subscribers',
-    createAdminClient()
+    supabase
       .from('newsletter_subscribers')
       .select('*')
       .order('created_at', { ascending: false })
@@ -201,7 +203,7 @@ export async function getAllArticles(options: {
   page?: number;
   pageSize?: number;
 } = {}): Promise<ApiResult<{ articles: ArticleItem[]; total: number }>> {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const page = options.page ?? 1;
   const pageSize = options.pageSize ?? 50;
 
@@ -234,7 +236,7 @@ export async function getAllPodcasts(options: {
   page?: number;
   pageSize?: number;
 } = {}): Promise<ApiResult<{ podcasts: PodcastItem[]; total: number }>> {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const page = options.page ?? 1;
   const pageSize = options.pageSize ?? 50;
 
@@ -279,8 +281,9 @@ export interface BrandPressItem {
 }
 
 export async function getBrandPressArticles(): Promise<ApiResult<BrandPressItem[]>> {
+  const { supabase } = await getAdminClient();
   return safeQuery('brand press articles',
-    createAdminClient()
+    supabase
       .from('articles')
       .select('*, author:profiles(full_name)')
       .eq('article_type', 'brand_press')
@@ -290,35 +293,35 @@ export async function getBrandPressArticles(): Promise<ApiResult<BrandPressItem[
 }
 
 export async function updateArticleAction(id: string, updates: Record<string, any>) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase.from('articles').update(updates).eq('id', id);
   if (error) throw new Error(error.message);
   return { success: true };
 }
 
 export async function deleteArticleAction(id: string) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase.from('articles').delete().eq('id', id);
   if (error) throw new Error(error.message);
   return { success: true };
 }
 
 export async function updatePodcastAction(id: string, updates: Record<string, any>) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase.from('podcasts').update(updates).eq('id', id);
   if (error) throw new Error(error.message);
   return { success: true };
 }
 
 export async function deletePodcastAction(id: string) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase.from('podcasts').delete().eq('id', id);
   if (error) throw new Error(error.message);
   return { success: true };
 }
 
 export async function updateLawyerAction(id: string, updates: Record<string, any>) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase
     .from('lawyers')
     .update(updates)
@@ -329,7 +332,7 @@ export async function updateLawyerAction(id: string, updates: Record<string, any
 }
 
 export async function verifyLawyerAction(id: string) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase
     .from('lawyers')
     .update({
@@ -343,7 +346,7 @@ export async function verifyLawyerAction(id: string) {
 }
 
 export async function rejectLawyerAction(id: string) {
-  const supabase = createAdminClient();
+  const { supabase } = await getAdminClient();
   const { error } = await supabase
     .from('lawyers')
     .update({ verification_status: 'rejected' })

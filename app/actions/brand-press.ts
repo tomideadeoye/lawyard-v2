@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
 import brandPressConfig from '@/lib/brand-press.json'
 import { sendBrandPressReceived, sendAdminNewSubmission } from '@/lib/api/email'
+import { validateCoupon } from '@/app/actions/validate-coupon'
 
 const GUEST_USER_ID = '6b80d2f0-31b6-4239-81ec-889c3fa0c4b0'
 
@@ -24,8 +25,6 @@ export async function submitBrandPress(formData: FormData) {
   const featuredImage = formData.get('featured_image') as string
   const scheduledDate = formData.get('scheduled_date') as string
   const couponCode = formData.get('coupon_code') as string
-  const finalPriceStr = formData.get('final_price') as string
-  const discountAmountStr = formData.get('discount_amount') as string
   const email = formData.get('email') as string
   const contactName = formData.get('contact_name') as string
 
@@ -36,7 +35,20 @@ export async function submitBrandPress(formData: FormData) {
   const tier = brandPressConfig.tiers.find(t => t.id === tierId)
   if (!tier) return { error: 'Invalid tier' }
 
-  const amount = finalPriceStr ? parseInt(finalPriceStr) : tier.price
+  // Server-side price computation — never trust client-sent prices
+  let amount = tier.price
+  let appliedCoupon: { code: string; discountPercent: number; discountAmount: number } | null = null
+  if (couponCode) {
+    const validation = await validateCoupon(couponCode, tier.price)
+    if (validation.valid) {
+      appliedCoupon = {
+        code: validation.code,
+        discountPercent: validation.discountPercent,
+        discountAmount: validation.discountAmount,
+      }
+      amount = validation.finalPrice
+    }
+  }
 
   const slug = title
     .toLowerCase().trim()
@@ -79,11 +91,10 @@ export async function submitBrandPress(formData: FormData) {
     contact_name: contactName || brandName,
   }
 
-  if (couponCode) {
-    txMetadata.coupon_code = couponCode
-  }
-  if (discountAmountStr) {
-    txMetadata.discount_amount = parseInt(discountAmountStr)
+  if (appliedCoupon) {
+    txMetadata.coupon_code = appliedCoupon.code
+    txMetadata.discount_amount = appliedCoupon.discountAmount
+    txMetadata.discount_percent = appliedCoupon.discountPercent
   }
 
   const { error: txError } = await sbAdmin.from('transactions').insert({
