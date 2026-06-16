@@ -24,7 +24,7 @@
 - Handles `charge.success` events for `brand_press` and `shop_purchase` types (dispatched via `metadata.type`)
 - Idempotent: skips if transaction already `success`
 - Updates transaction + article status, sends confirmation email
-- **Not active until deployed to Vercel** — add URL to Paystack dashboard after deploy
+- **Active and Configured**: Webhook URL configured in Paystack dashboard settings (pointing to `https://lawyard.org/api/webhooks/paystack`).
 
 ### Config Fixes
 - `middleware.ts` → `proxy.ts` (Next.js 16 convention, was showing deprecation warning)
@@ -48,8 +48,6 @@
 
 | Priority | Task | Notes |
 |----------|------|-------|
-| **Low** | **Configure webhook URL in Paystack** | Add `https://lawyard.org/api/webhooks/paystack` after deploy |
-| **Low** | **Navigation link** | `/brand-press` not in header/footer |
 | **Low** | **Rate limiting + CAPTCHA** | Cloudflare Turnstile + Upstash Redis for production |
 | **Low** | **pg_cron cleanup** | Stuck `pending_payment` articles older than 24h |
 | **Low** | **PDF download infrastructure** | Build actual legislation PDF generation/storage/streaming; replace `href="#"` mock links on receipt page |
