@@ -1,180 +1,432 @@
-import styles from "./profile.module.css";
-import Link from "next/link";
-import { getLawyerById, getArticles, getPodcasts } from "@/lib/directory/api";
-import BookmarkButton from "@/components/directory/BookmarkButton";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { notFound } from "next/navigation";
+import { getArticles, getPodcasts } from '@/lib/directory/api';
+import specialtiesData from '@/data/specialties.json';
+import BookmarkButton from '@/components/directory/BookmarkButton';
+import InquiryForm from './inquiry-form';
 
-interface Article {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
+interface Specialist {
+  specialty?: { name: string } | null;
+  name?: string;
 }
 
-interface Podcast {
+interface LawyerRow {
   id: string;
-  slug: string;
-  media_type: string;
-  title: string;
-  description: string;
+  name: string;
+  role: string | null;
+  location: string | null;
+  bio: string | null;
+  brief_bio: string | null;
+  image_url: string | null;
+  rating: number;
+  reviews_count: number;
+  email: string | null;
+  phone: string | null;
+  website: string | null;
+  education: string[] | null;
+  awards: string[] | null;
+  volunteer_pro_bono: string[] | null;
+  faqs: { question: string; answer: string }[] | null;
+  social_links: { platform: string; url: string }[] | null;
+  working_hours: { day: string; hours: string }[] | null;
+  gallery_images: string[] | null;
+  intro_video_url: string | null;
+  hide_contact_form: boolean;
+  verification_status: string;
+  price_range: string | null;
+  address: string | null;
+  enrollment_number: string | null;
+  gender: string | null;
+  age: number | null;
+  specialties: Specialist[];
+  chambers?: { name: string; location: string | null } | null;
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  let lawyer = null;
-  let articles: Article[] = [];
-  let podcasts: Podcast[] = [];
+  const supabase = await createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: lawyer, error } = await supabase
+    .from('lawyers')
+    .select(`
+      *,
+      specialties:lawyer_specialties(
+        specialty:specialties(name)
+      ),
+      chambers(name, location)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error || !lawyer) notFound();
+
+  const row = lawyer as unknown as LawyerRow;
+
+  const specialtyNames = (row.specialties ?? [])
+    .map((s: Specialist) => s.specialty?.name || s.name)
+    .filter((n): n is string => !!n);
+
+  const [articles, podcasts] = await Promise.all([
+    getArticles({ authorId: id }),
+    getPodcasts({ authorId: id }),
+  ]);
+
+  let isBookmarked = false;
+  let bookmarkCount = 0;
   try {
-    const results = await Promise.all([
-      getLawyerById(id),
-      getArticles({ authorId: id }),
-      getPodcasts({ authorId: id })
-    ]);
-    lawyer = results[0];
-    articles = results[1] as Article[];
-    podcasts = results[2] as Podcast[];
-  } catch (error) {
-    console.error('Error fetching lawyer profile:', error);
-  }
-
-  if (!lawyer) {
-    notFound();
-  }
-
-  let isBookmarked = false
-  let bookmarkCount = 0
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { data } = await supabase
+      const { data: bm } = await supabase
         .from('bookmarks')
         .select('id')
         .eq('user_id', user.id)
         .eq('lawyer_id', id)
-        .maybeSingle()
-      isBookmarked = !!data
+        .maybeSingle();
+      isBookmarked = !!bm;
     }
     const { count } = await supabase
       .from('bookmarks')
       .select('*', { count: 'exact', head: true })
-      .eq('lawyer_id', id)
-    bookmarkCount = count ?? 0
-  } catch (e) {
-    console.error('Failed to fetch bookmark state:', e)
+      .eq('lawyer_id', id);
+    bookmarkCount = count ?? 0;
+  } catch {}
+
+  const init = row.name.charAt(0).toUpperCase();
+  const verified = row.verification_status === 'verified';
+
+  const priceLabels: Record<string, string> = {
+    cheap: 'Cheap ($)',
+    economy: 'Economy ($$)',
+    moderate: 'Moderate ($$$)',
+    ultra_high: 'Ultra High ($$$$)',
+  };
+
+  function SocialIcon({ platform }: { platform: string }) {
+    const p = platform.toLowerCase();
+    if (p.includes('linkedin')) return <span>in</span>;
+    if (p.includes('twitter') || p.includes('x')) return <span>𝕏</span>;
+    if (p.includes('instagram')) return <span>📷</span>;
+    if (p.includes('facebook')) return <span>f</span>;
+    if (p.includes('youtube')) return <span>▶</span>;
+    if (p.includes('github')) return <span>&lt;/&gt;</span>;
+    return <span>🔗</span>;
   }
 
   return (
-    <>
-      <div className={styles.topBar}>
-        <Link href="/search" className={styles.backBtn}>← Back to Results</Link>
+    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+      {/* Top bar */}
+      <div className="flex items-center gap-3 mb-6 text-sm">
+        <Link href="/directory/search" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+          ← Back to Directory
+        </Link>
+        <span className="text-muted-foreground/30">/</span>
+        <span className="text-foreground/80 truncate">{row.name}</span>
       </div>
 
-      <div className={styles.layout}>
-        <main className={styles.content}>
-          <section className={styles.profileHero}>
-            <div className={styles.avatarLarge}>
-               <span>{lawyer.name[0]}</span>
-            </div>
-            <div className={styles.heroInfo}>
-              <div className={styles.nameHeader}>
-                <h1>{lawyer.name}</h1>
-                <BookmarkButton lawyerId={id} initialBookmarked={isBookmarked} className="relative top-0.5" />
-                {lawyer.verified && <span className={styles.verifiedBadge}>VERIFIED</span>}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+        {/* Main content */}
+        <div className="space-y-8">
+          {/* Hero card */}
+          <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md overflow-hidden">
+            <div className="h-40 bg-gradient-to-r from-[#a77c5c]/20 to-primary/10 relative" />
+            <div className="px-6 pb-6 -mt-14">
+              <div className="flex items-end justify-between mb-4">
+                <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#a77c5c] to-[#906b4e] flex items-center justify-center text-5xl font-black text-white shadow-lg border-4 border-card shrink-0">
+                  {row.image_url ? (
+                    <img src={row.image_url} alt="" className="w-full h-full object-cover rounded-[10px]" />
+                  ) : init}
+                </div>
+                <div className="flex items-center gap-2 pb-2">
+                  {verified && (
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+                      Verified
+                    </span>
+                  )}
+                  <BookmarkButton lawyerId={id} initialBookmarked={isBookmarked} />
+                </div>
               </div>
-              <p className={styles.role}>{lawyer.role}</p>
-              <div className={styles.specialtiesList}>
-                {lawyer.specialties.map((s: string) => (
-                  <span key={s} className={styles.specialtyTag}>{s}</span>
-                ))}
+
+              <div className="space-y-1 mb-4">
+                <h1 className="text-3xl font-black tracking-tight">{row.name}</h1>
+                <p className="text-base text-muted-foreground/80">{row.role || 'Legal Practitioner'}</p>
+                {row.brief_bio && (
+                  <p className="text-sm text-muted-foreground/60 mt-2 max-w-xl">{row.brief_bio}</p>
+                )}
               </div>
-              <div className={styles.quickStats}>
-                <span>⭐ {lawyer.rating} ({lawyer.reviews} Reviews)</span>
-                <span>📍 {lawyer.location}</span>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                {row.location && <span>📍 {row.location}</span>}
+                {row.price_range && <span>💰 {priceLabels[row.price_range] || row.price_range}</span>}
+                <span>⭐ {row.rating || '—'} ({row.reviews_count || 0} reviews)</span>
                 <span>🔖 {bookmarkCount}</span>
               </div>
+
+              {specialtyNames.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-4">
+                  {specialtyNames.map((s: string) => (
+                    <span key={s} className="px-2.5 py-1 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[10px] font-bold uppercase tracking-wider border border-[#a77c5c]/20">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Professional Bio */}
+          {row.bio && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-3">Professional Biography</h2>
+              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{row.bio}</p>
+            </section>
+          )}
+
+          {/* Contact info row */}
+          <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+            <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Contact & Location</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              {row.email && (
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Email</span>
+                  <p className="font-medium mt-0.5">
+                    <a href={`mailto:${row.email}`} className="text-primary hover:underline">{row.email}</a>
+                  </p>
+                </div>
+              )}
+              {row.phone && (
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Phone</span>
+                  <p className="font-medium mt-0.5">
+                    <a href={`tel:${row.phone}`} className="hover:text-primary transition-colors">{row.phone}</a>
+                  </p>
+                </div>
+              )}
+              {row.website && (
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Website</span>
+                  <p className="font-medium mt-0.5 truncate">
+                    <a href={row.website} target="_blank" rel="noreferrer" className="text-primary hover:underline">{row.website}</a>
+                  </p>
+                </div>
+              )}
+              {row.address && (
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Address</span>
+                  <p className="font-medium mt-0.5">{row.address}</p>
+                </div>
+              )}
             </div>
           </section>
 
-          <section className={styles.about}>
-            <h2>Professional <span className="gradient-text">Biography</span></h2>
-            <p>{lawyer.bio}</p>
-          </section>
+          {/* Two column: Education + Awards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {row.education && row.education.length > 0 && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-3">Education</h2>
+                <ul className="space-y-2">
+                  {row.education.map((item, i) => (
+                    <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                      <span className="text-[#a77c5c] mt-0.5 shrink-0">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {row.awards && row.awards.length > 0 && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-3">Awards & Recognition</h2>
+                <ul className="space-y-2">
+                  {row.awards.map((item, i) => (
+                    <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                      <span className="text-[#a77c5c] mt-0.5 shrink-0">🏆</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
 
-          <section className={styles.achievements}>
-            <h2>Key <span className="gradient-text">Achievements</span></h2>
-            <ul>
-              {lawyer.achievements.map((a: string, i: number) => (
-                <li key={i}>{a}</li>
-              ))}
-            </ul>
-          </section>
+          {/* Volunteer / Pro Bono */}
+          {row.volunteer_pro_bono && row.volunteer_pro_bono.length > 0 && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-3">Volunteer & Pro Bono</h2>
+              <ul className="space-y-2">
+                {row.volunteer_pro_bono.map((item, i) => (
+                  <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                    <span className="text-[#a77c5c] mt-0.5 shrink-0">🤝</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-          {/* PUBLISHED CONTENT SECTION */}
+          {/* FAQ */}
+          {row.faqs && row.faqs.length > 0 && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Frequently Asked Questions</h2>
+              <div className="space-y-4">
+                {row.faqs.map((faq, i) => (
+                  <div key={i} className="pb-4 border-b border-border/20 last:border-0 last:pb-0">
+                    <h3 className="text-sm font-semibold text-foreground mb-1">{faq.question}</h3>
+                    <p className="text-sm text-muted-foreground/80 leading-relaxed">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Working Hours */}
+          {row.working_hours && row.working_hours.length > 0 && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Working Hours</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                {row.working_hours.map((wh, i) => (
+                  <div key={i} className="flex justify-between py-1.5 px-3 rounded-lg bg-muted/20 border border-border/20">
+                    <span className="font-medium">{wh.day}</span>
+                    <span className="text-muted-foreground">{wh.hours}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Gallery */}
+          {row.gallery_images && row.gallery_images.length > 0 && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Gallery</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {row.gallery_images.map((url, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden aspect-[4/3] bg-muted/20 border border-border/20">
+                    <img src={url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Intro Video */}
+          {row.intro_video_url && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Introductory Video</h2>
+              <div className="aspect-video rounded-xl overflow-hidden bg-muted/20">
+                <iframe
+                  src={row.intro_video_url.replace('watch?v=', 'embed/')}
+                  className="w-full h-full"
+                  allowFullScreen
+                />
+              </div>
+            </section>
+          )}
+
+          {/* Published Content */}
           {(articles.length > 0 || podcasts.length > 0) && (
-            <section className={styles.insights}>
-              <h2>Published <span className="gradient-text">Insights</span></h2>
-              <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
-                {(articles as unknown as Article[]).map((article) => (
-                  <Link href={`/knowledge/${article.slug}`} key={article.id} className="premium-card" style={{ padding: '1.5rem' }}>
-                    <div className={styles.insightTag}>ARTICLE</div>
-                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{article.title}</h4>
-                    <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{article.excerpt}</p>
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Published Insights</h2>
+              <div className="space-y-4">
+                {(articles as { id: string; slug: string; title: string; excerpt: string | null }[]).map((article) => (
+                  <Link key={`a-${article.id}`} href={`/knowledge/${article.slug}`} className="block p-4 rounded-xl border border-border/30 bg-muted/10 hover:bg-muted/20 hover:border-[#a77c5c]/30 transition-all">
+                    <span className="text-[10px] uppercase font-bold text-[#a77c5c] tracking-wider">Article</span>
+                    <h3 className="text-sm font-semibold mt-1">{article.title}</h3>
+                    {article.excerpt && <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2">{article.excerpt}</p>}
                   </Link>
                 ))}
-                {(podcasts as unknown as Podcast[]).map((podcast) => (
-                  <Link href={`/knowledge/${podcast.slug}`} key={podcast.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--gold)' }}>
-                    <div className={styles.insightTag}>{podcast.media_type.toUpperCase()} PODCAST</div>
-                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{podcast.title}</h4>
-                    <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{podcast.description}</p>
+                {(podcasts as { id: string; slug: string; title: string; description: string | null; media_type: string }[]).map((podcast) => (
+                  <Link key={`p-${podcast.id}`} href={`/knowledge/${podcast.slug}`} className="block p-4 rounded-xl border border-border/30 bg-muted/10 hover:bg-muted/20 hover:border-[#a77c5c]/30 transition-all border-l-4 border-l-[#a77c5c]/40">
+                    <span className="text-[10px] uppercase font-bold text-[#a77c5c] tracking-wider">{podcast.media_type.toUpperCase()} Podcast</span>
+                    <h3 className="text-sm font-semibold mt-1">{podcast.title}</h3>
+                    {podcast.description && <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2">{podcast.description}</p>}
                   </Link>
                 ))}
               </div>
             </section>
           )}
-        </main>
 
-        <aside className={styles.sidebar}>
-          <div className={styles.bookingCard}>
-            <h3>Request Consultation</h3>
-            <p>Direct response within 24 hours.</p>
-            
-            <form className={styles.contactForm}>
-              <div className={styles.formGroup}>
-                <label>Your Name</label>
-                <input type="text" placeholder="John Doe" />
+          {/* Social Links */}
+          {row.social_links && row.social_links.length > 0 && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Social Links</h2>
+              <div className="flex flex-wrap gap-3">
+                {row.social_links.map((sl, i) => (
+                  <a
+                    key={i}
+                    href={sl.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border/30 bg-muted/10 hover:bg-[#a77c5c]/5 hover:border-[#a77c5c]/30 transition-all text-sm font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <SocialIcon platform={sl.platform} />
+                    {sl.platform}
+                  </a>
+                ))}
               </div>
-              <div className={styles.formGroup}>
-                <label>Email Address</label>
-                <input type="email" placeholder="john@example.com" />
-              </div>
-              <div className={styles.formGroup}>
-                <label>Nature of Inquiry</label>
-                <select>
-                  <option>Commercial Advisory</option>
-                  <option>Legal Engineering</option>
-                  <option>Litigation Support</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <button className="btn-primary" style={{ width: '100%' }}>
-                Send Secure Message
-              </button>
-            </form>
-            
-            <div className={styles.disclaimer}>
-              By clicking send, you agree to our Privacy Policy.
+            </section>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <aside className="space-y-6">
+          {/* Inquiry Form */}
+          {!row.hide_contact_form && (
+            <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
+              <h3 className="text-sm font-bold mb-1">Request Consultation</h3>
+              <p className="text-xs text-muted-foreground/70 mb-4">Send a direct message. Lawyers respond within 24 hours.</p>
+              {user ? (
+                <InquiryForm lawyerId={id} />
+              ) : (
+                <div className="text-center py-6 space-y-3">
+                  <p className="text-sm text-muted-foreground">Sign in to send a message</p>
+                  <Link href="/directory/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#a77c5c] text-white text-sm font-bold hover:bg-[#906b4e] transition-colors">
+                    Sign In
+                  </Link>
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground/50 mt-4 text-center">By sending, you agree to our Privacy Policy.</p>
             </div>
-          </div>
+          )}
 
-          <div className={styles.shareProfile}>
-            <button>Share Profile</button>
-            <button>Download CV</button>
+          {/* Quick Info Card */}
+          <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+            <h3 className="text-sm font-bold mb-3">Quick Info</h3>
+            <div className="space-y-3 text-sm">
+              {row.gender && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Gender</span>
+                  <span className="font-medium">{row.gender}</span>
+                </div>
+              )}
+              {row.age && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Age</span>
+                  <span className="font-medium">{row.age}</span>
+                </div>
+              )}
+              {row.enrollment_number && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Enrollment No.</span>
+                  <span className="font-medium">{row.enrollment_number}</span>
+                </div>
+              )}
+              {row.price_range && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Price Range</span>
+                  <span className="font-medium">{priceLabels[row.price_range] || row.price_range}</span>
+                </div>
+              )}
+              {row.chambers?.name && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Chambers</span>
+                  <span className="font-medium text-right">{row.chambers.name}</span>
+                </div>
+              )}
+            </div>
           </div>
         </aside>
       </div>
-    </>
+    </div>
   );
 }

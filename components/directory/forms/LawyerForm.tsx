@@ -34,6 +34,16 @@ const PRICE_OPTIONS = [
   { value: 'moderate', label: 'Moderate ($$$)' },
   { value: 'ultra_high', label: 'Ultra High ($$$$)' },
 ];
+const SENIORITY_OPTIONS = [
+  { value: '', label: 'Select Seniority' },
+  { value: 'junior_associate', label: 'Junior Associate' },
+  { value: 'associate', label: 'Associate' },
+  { value: 'senior_associate', label: 'Senior Associate' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'managing_partner', label: 'Managing Partner' },
+  { value: 'of_counsel', label: 'Of Counsel' },
+  { value: 'san', label: 'Senior Advocate of Nigeria (SAN)' },
+];
 const LISTING_TYPE_OPTIONS = [
   { value: 'general', label: 'General' },
   { value: 'featured', label: 'Featured' },

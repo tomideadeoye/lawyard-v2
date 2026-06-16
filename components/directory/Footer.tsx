@@ -1,5 +1,11 @@
 import Link from "next/link";
 import siteConfig from "@/config/site-config.json";
+import specialtiesData from "@/data/specialties.json";
+
+const FOOTER_SPECIALTIES = [
+  "Corporate Law", "Criminal Law", "Divorce Law", "Family Law",
+  "FinTech", "Immigration Law", "Real Estate Law", "Regulatory Compliance"
+];
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -55,7 +61,28 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 };
 
 export default function Footer() {
-  const { socialLinks, navigation, brand, contact } = siteConfig;
+  const { socialLinks, brand, contact } = siteConfig;
+
+  const importantLinks = [
+    { name: "How It Works", href: "/about" },
+    { name: "Legal Insights", href: "/insights" },
+    { name: "Add Listing", href: "/directory/add-listing" },
+    { name: "User Dashboard", href: "/directory/dashboard" },
+    { name: "Compare Listings", href: "/directory/search" },
+    { name: "Contact Us", href: `mailto:${contact.email}` },
+    { name: "Legislations", href: "/legislations" },
+    { name: "Privacy Policy", href: "/directory/privacy" },
+    { name: "Terms & Conditions", href: "/directory/terms" },
+    { name: "Knowledge Base", href: "/directory/knowledge" },
+  ];
+
+  const specialtyLinks = FOOTER_SPECIALTIES.map(name => {
+    const match = specialtiesData.find(s => s.name === name);
+    return {
+      name,
+      href: match ? `/directory/search?specialty=${match.slug}` : `/directory/search?q=${encodeURIComponent(name)}`,
+    };
+  });
 
   return (
     <footer className="w-full bg-background border-t border-border mt-auto">
@@ -63,24 +90,22 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-12 gap-10">
         
         {/* Column 1: Brand details */}
-        <div className="md:col-span-5 space-y-6">
+        <div className="md:col-span-4 space-y-6">
           <h4 className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-border/30 pb-2">
             Directory Services
           </h4>
           <div className="flex items-center">
-            {/* Light Mode Logo */}
             <img 
               src="/logo-blue.png" 
               alt="Lawyard Logo" 
               className="h-9 w-auto object-contain block dark:hidden"
             />
-            {/* Dark Mode Logo */}
             <img 
               src="/logo-white.png" 
               alt="Lawyard Logo" 
               className="h-9 w-auto object-contain hidden dark:block"
             />
-            <span className="text-accent font-bold text-[10px] tracking-widest ml-2.5 pl-3 border-l border-border/60 uppercase">
+            <span className="text-[#a77c5c] font-bold text-[10px] tracking-widest ml-2.5 pl-3 border-l border-border/60 uppercase">
               Directory
             </span>
           </div>
@@ -89,13 +114,13 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Column 2: Directory Specific Navigation */}
+        {/* Column 2: Important Links */}
         <div className="md:col-span-3 space-y-4">
           <h4 className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-border/30 pb-2">
-            Explore Directory
+            Important Links
           </h4>
           <div className="grid grid-cols-1 gap-2.5 text-xs font-semibold">
-            {navigation.footer.directory.map(link => (
+            {importantLinks.map(link => (
               <Link 
                 key={link.name} 
                 href={link.href} 
@@ -107,13 +132,13 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Column 3: Resource Links */}
-        <div className="md:col-span-4 space-y-4">
+        {/* Column 3: Areas of Specialty */}
+        <div className="md:col-span-3 space-y-4">
           <h4 className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-border/30 pb-2">
-            Resources
+            Areas of Specialty
           </h4>
           <div className="grid grid-cols-1 gap-2.5 text-xs font-semibold">
-            {navigation.footer.resources.map(link => (
+            {specialtyLinks.map(link => (
               <Link 
                 key={link.name} 
                 href={link.href} 
@@ -122,15 +147,40 @@ export default function Footer() {
                 {link.name}
               </Link>
             ))}
-            <a 
-              href={`mailto:${contact.email}`} 
-              className="no-underline text-muted-foreground hover:text-primary transition-colors py-0.5"
-            >
-              Contact Us
-            </a>
           </div>
         </div>
 
+      </div>
+
+      {/* Newsletter Section */}
+      <div className="w-full border-t border-border/40 bg-muted/20">
+        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-md">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-foreground">
+              Subscribe to Newsletter
+            </h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              Subscribe to get updates and information. Don&apos;t worry, we won&apos;t send spam!
+            </p>
+          </div>
+          <form
+            onSubmit={(e) => { e.preventDefault(); }}
+            className="flex gap-2 w-full md:w-auto"
+          >
+            <input
+              type="email"
+              placeholder="Enter your email"
+              required
+              className="w-full md:w-72 px-4 py-2.5 rounded-lg bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-[#a77c5c]"
+            />
+            <button
+              type="submit"
+              className="shrink-0 px-5 py-2.5 rounded-lg bg-[#a77c5c] hover:bg-[#906b4e] text-white text-sm font-bold transition-colors"
+            >
+              Subscribe →
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Lower Footer: Dark Bottom Utility Bar */}
@@ -139,7 +189,7 @@ export default function Footer() {
           
           {/* Left Block: Nav Links */}
           <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-white/90 justify-center md:justify-start">
-            <Link href="/" className="hover:text-white transition-colors no-underline">Portal Home</Link>
+            <Link href="/directory" className="hover:text-white transition-colors no-underline">Home</Link>
             <Link href="/directory/search" className="hover:text-white transition-colors no-underline">Find Counsel</Link>
             <Link href="/directory/add-listing" className="hover:text-white transition-colors no-underline">Register Profile</Link>
             <Link href="/directory/dashboard" className="hover:text-white transition-colors no-underline">Dashboard</Link>

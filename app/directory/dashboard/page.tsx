@@ -15,7 +15,7 @@ export default async function DirectoryDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/directory/login')
 
-  const [profileResult, lawyerResult, articlesResult, podcastsResult, txResult, bookmarksResult] = await Promise.all([
+  const [profileResult, lawyerResult, articlesResult, podcastsResult, txResult, bookmarksResult, inquiriesResult] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
     supabase.from('lawyers').select(`*, chambers(name, location, focus, image_url)`).eq('id', user.id).maybeSingle(),
     supabase.from('articles').select('id, title, status, created_at').eq('author_id', user.id).order('created_at', { ascending: false }).limit(5),
@@ -25,6 +25,7 @@ export default async function DirectoryDashboardPage() {
       created_at,
       lawyer:lawyers(id, name, role, location, image_url, rating, reviews_count, verification_status)
     `).eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+    supabase.from('lawyer_inquiries').select('id, read').eq('lawyer_id', user.id),
   ])
 
   const profile = profileResult.data
@@ -33,6 +34,8 @@ export default async function DirectoryDashboardPage() {
   const podcasts = podcastsResult.data ?? []
   const transactions = txResult.data ?? []
   const bookmarks = bookmarksResult.data ?? []
+  const inquiries = inquiriesResult.data ?? []
+  const unreadInquiries = inquiries.filter(i => !i.read).length
 
   const isLawyer = profile?.role === 'lawyer' || profile?.role === 'chamber'
 
@@ -129,13 +132,17 @@ export default async function DirectoryDashboardPage() {
                 <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
               </CardContent>
             </Card>
-            <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Inquiries</p>
-                <p className="text-2xl font-bold mt-1">—</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
-              </CardContent>
-            </Card>
+            <Link href="/directory/dashboard/inquiries" className="no-underline">
+              <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all cursor-pointer">
+                <CardContent className="p-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Inquiries</p>
+                  <p className="text-2xl font-bold mt-1">{inquiries.length}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {unreadInquiries > 0 ? `${unreadInquiries} unread` : 'All read'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
             <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Articles</p>
@@ -180,6 +187,15 @@ export default async function DirectoryDashboardPage() {
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">▶</div>
                     <h4 className="font-semibold text-sm mb-1">New Podcast</h4>
                     <p className="text-xs text-muted-foreground">Upload audio or video discussions</p>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/directory/dashboard/inquiries" className="no-underline group">
+                <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
+                  <CardContent className="p-5">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">📬</div>
+                    <h4 className="font-semibold text-sm mb-1">Inquiries {unreadInquiries > 0 && <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[9px] font-bold">{unreadInquiries}</span>}</h4>
+                    <p className="text-xs text-muted-foreground">View and respond to client messages</p>
                   </CardContent>
                 </Card>
               </Link>

@@ -11,6 +11,7 @@ const clientLinks = [
 const lawyerLinks = [
   { label: 'Dashboard', href: '/directory/dashboard', icon: '◈' },
   { label: 'My Listing', href: '/directory/dashboard/add-listing', icon: '◆' },
+  { label: 'Inbox', href: '/directory/dashboard/inquiries', icon: '📬' },
   { label: 'Content Studio', href: '/directory/dashboard/publish', icon: '✎' },
   { label: 'Subscription', href: '/directory/pricing', icon: '⚙' },
   { label: 'Settings', href: '/directory/dashboard/settings', icon: '⚯' },

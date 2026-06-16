@@ -101,12 +101,7 @@ export default function Header() {
                 scrolled ? "block" : "hidden dark:block"
               )}
             />
-            <span className={cn(
-              "font-bold text-[10px] tracking-widest ml-2 pl-3 border-l uppercase transition-colors duration-300",
-              scrolled 
-                ? "text-[#a77c5c] border-white/20" 
-                : "text-accent border-border/60"
-            )}>
+            <span className="font-bold text-[10px] tracking-widest ml-2 pl-3 border-l border-white/20 uppercase text-[#a77c5c]">
               Directory
             </span>
           </Link>
@@ -128,7 +123,7 @@ export default function Header() {
             <ModeToggle scrolled={scrolled} />
             
             <Link 
-              href="/directory/search" 
+              href="/search" 
               className={cn(
                 "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
                 scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
@@ -142,18 +137,22 @@ export default function Header() {
             </Link>
 
             {user ? (
-              <Link 
-                href="/directory/dashboard" 
+              <Link
+                href="/directory/dashboard"
                 className={cn(
-                  "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
-                  scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
-                )} 
+                  "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all overflow-hidden",
+                  scrolled ? "hover:ring-2 hover:ring-white/30" : "hover:ring-2 hover:ring-accent/30"
+                )}
                 aria-label="Dashboard"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
+                {user.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                )}
               </Link>
             ) : (
               <Link 
@@ -176,9 +175,7 @@ export default function Header() {
             href="/directory/add-listing" 
             className={cn(
               "no-underline px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-md active:scale-95 cursor-pointer text-white",
-              scrolled 
-                ? "bg-[#a77c5c] hover:bg-[#906b4e] hover:shadow-lg" 
-                : "bg-accent hover:bg-accent/90 hover:shadow-lg"
+              "bg-[#a77c5c] hover:bg-[#906b4e] hover:shadow-lg"
             )}
           >
             + Add Listing
