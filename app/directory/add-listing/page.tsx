@@ -1,15 +1,37 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ClientNeedForm from "@/components/directory/forms/ClientNeedForm";
 import LawyerForm from "@/components/directory/forms/LawyerForm";
 import ChamberForm from "@/components/directory/forms/ChamberForm";
 import CorporateForm from "@/components/directory/forms/CorporateForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AddListingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile) {
+          setUserRole(profile.role);
+        }
+      }
+    };
+    checkUser();
+  }, []);
+
+  const isLawyer = userRole === 'lawyer';
 
   return (
     <main className="max-w-4xl mx-auto py-10 px-4 md:px-6 space-y-8 text-foreground animate-fade-in">
@@ -71,17 +93,23 @@ export default function AddListingPage() {
                   </Button>
                 </CardFooter>
               </Card>
- 
+  
               {/* Post Client Need Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🎯</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Post Client Need</CardTitle>
-                  <CardDescription className="text-sm">For individuals, startups, or corporate groups seeking to broadcast a specific brief or query.</CardDescription>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+                    {isLawyer ? 'Refer a Brief / Find Agent' : 'Post Client Need'}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {isLawyer 
+                      ? 'For lawyers seeking to delegate briefs, collaborate with specialists, or hire local correspondent counsel.'
+                      : 'For individuals, startups, or corporate groups seeking to broadcast a specific brief or query.'}
+                  </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
                   <Button className="w-full max-w-[200px]" onClick={() => setSelectedCategory('need')}>
-                    Post Brief
+                    {isLawyer ? 'Select Referral' : 'Post Brief'}
                   </Button>
                 </CardFooter>
               </Card>
@@ -95,12 +123,16 @@ export default function AddListingPage() {
             
             <div className="space-y-1 mb-6">
               <h2 className="text-2xl font-bold tracking-tight">
-                {selectedCategory === 'need' ? 'Tell us what you need' : 'Complete your listing details'}
+                {selectedCategory === 'need' 
+                  ? (isLawyer ? 'Post a Referral or Seek Correspondent Counsel' : 'Tell us what you need') 
+                  : 'Complete your listing details'}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {selectedCategory === 'need' ? 
-                  'Describe your situation so our vetted experts can contact you.' : 
-                  'Our verification team will review your details once submitted.'}
+                {selectedCategory === 'need' 
+                  ? (isLawyer 
+                      ? 'Describe the brief or agency requirement so other vetted practitioners can contact you.' 
+                      : 'Describe your situation so our vetted experts can contact you.')
+                  : 'Our verification team will review your details once submitted.'}
               </p>
             </div>
 
