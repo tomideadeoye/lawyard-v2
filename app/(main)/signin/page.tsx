@@ -160,7 +160,7 @@ function SignInContent() {
                 <input
                   name="email"
                   type="email"
-                  placeholder="john@lawyard.ng"
+                  placeholder="john@lawyard.org"
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
                   required
                 />
@@ -233,7 +233,7 @@ function SignInContent() {
                     <input
                       name="email"
                       type="email"
-                      placeholder="john@lawyard.ng"
+                      placeholder="john@lawyard.org"
                       className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
                       required
                     />

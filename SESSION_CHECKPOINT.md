@@ -29,7 +29,7 @@ The monorepo has been collapsed into a single Next.js app at repo root. Three ro
 ### Docs Updated
 - README.md — flat structure, single app commands
 - project_structure.md — full rewrite
-- SYSTEM_ARCHITECTURE.md — updated stack, modules, config, troubleshooting
+- system_architecture_read_me_reference_patterns_start_here.md — updated stack, modules, config, troubleshooting
 - AGENT_TASKS.md — fixed file paths
 - SESSION_CHECKPOINT.md — this file
 
@@ -82,7 +82,7 @@ The monorepo has been collapsed into a single Next.js app at repo root. Three ro
 
 1. Wait for Vercel build to complete from git push
 2. Verify /, /admin, /directory on live site
-3. Add middleware for subdomain rewrites (admin.lawyard.ng → /admin, lawyers.lawyard.ng → /directory)
+3. Add middleware for subdomain rewrites (admin.lawyard.org → /admin, directory.lawyard.org → /directory)
 4. Set missing env vars on Vercel project
 5. Push Supabase migrations
 6. Deploy edge function

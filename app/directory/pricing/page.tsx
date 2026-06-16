@@ -106,7 +106,7 @@ export default function PricingPage() {
           </ol>
         </div>
 
-        <Tabs defaultValue="lawyers" className="w-full">
+        <Tabs defaultValue="lawyer" className="w-full">
           <TabsList variant="line" className="w-full max-w-md mx-auto flex h-auto mb-12 border-b border-border/40 pb-0">
             {roles.map((r) => {
               const Icon = r.icon;

@@ -356,8 +356,8 @@ export default function Header() {
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover:block z-50">
                 <div className={`border shadow-xl rounded-lg p-3 min-w-[170px] flex flex-col gap-2 font-semibold ${scrolled ? 'bg-[#1e1e4a] border-white/10 text-white' : 'bg-white dark:bg-[#111129] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white'}`}>
                   <Link href="/legislations" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Legislations</Link>
-                  <a href="https://directory.lawyard.ng" target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Directory</a>
-                  <a href="https://job.lawyard.ng" target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Jobs</a>
+                  <Link href="/directory" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Directory</Link>
+                  <a href="https://job.lawyard.org" target="_blank" rel="noopener noreferrer" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Lawyard Jobs</a>
                 </div>
               </div>
             </div>
@@ -456,8 +456,8 @@ export default function Header() {
               </button>
               <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${featuresOpen ? 'max-h-40 mt-3.5' : 'max-h-0'}`}>
                 <Link href="/legislations" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Legislations</Link>
-                <a href="https://directory.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Directory</a>
-                <a href="https://job.lawyard.ng" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Jobs</a>
+                <Link href="/directory" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard Directory</Link>
+                <a href="https://job.lawyard.org" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Jobs</a>
               </div>
             </div>
 

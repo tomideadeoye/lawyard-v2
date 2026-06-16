@@ -36,7 +36,7 @@ export function PaystackButton({
   if (amount === 0) return null
 
   return (
-    <form
+    <form className="w-full"
       action={async (formData: FormData) => {
         const result = await createPayment(formData)
         if (result.authorization_url) {

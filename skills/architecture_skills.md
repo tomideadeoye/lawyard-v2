@@ -9,7 +9,7 @@
 app/
   (main)/        → lawyard.org (Media Platform)
   admin/         → admin.lawyard.org (Admin Dashboard)
-  directory/     → directory.lawyard.ng (Legal Marketplace)
+  directory/     → lawyard.org/directory (Legal Marketplace)
   api/           → Shared API routes
   actions/       → Shared server actions
 ```
@@ -85,6 +85,36 @@ export async function POST(req: NextRequest) {
 // lib/{feature}.json — JSON config for pricing, tiers, etc.
 // lib/{feature}.ts — TypeScript utilities
 ```
+
+### Email Infrastructure
+
+**Provider**: Resend (`resend` npm package). API key in `RESEND_API_KEY` env var.
+
+**Email functions** in `lib/api/email.ts`:
+
+| Function | Trigger |
+|----------|---------|
+| `sendBrandPressReceived` | Brand press form submitted |
+| `sendPaymentConfirmation` | Payment verified (webhook or callback) |
+| `sendBrandPressApproved` | Admin publishes article |
+| `sendBrandPressRejected` | Admin rejects / requests revisions |
+| `sendAdminNewSubmission` | New submission (to admin) |
+| `sendBrandPressInvoice` | Invoice payment method chosen |
+| `sendNewsletter` | Bulk newsletter send |
+| `sendShopOrderConfirmation` | Shop purchase payment verified |
+
+**Resend pattern**: `getResend()` dynamically imports Resend via `require()` — avoids bundling in client code. Returns `null` if `RESEND_API_KEY` is missing (no-op in dev). All sends are fire-and-forget with `.catch(() => {})`.
+
+**When emails are triggered**:
+- Brand press submission → `sendBrandPressReceived()` (immediate), `sendPaymentConfirmation()` (after payment)
+- Admin approval/rejection → `sendBrandPressApproved()` / `sendBrandPressRejected()`
+- Invoice payment → `sendBrandPressInvoice()` (with optional PDF attachment via dynamic `import('@/lib/api/invoice-pdf')`)
+- Shop purchase → `sendShopOrderConfirmation()` sent from both webhook (`handleShopPurchase`) and callback page
+- Webhook dispatches by `metadata.type`: `brand_press` → `handleBrandPress()`, `shop_purchase` → `handleShopPurchase()`
+
+**Fire-and-forget**: `.catch(() => {})` on every send — email must never block the primary response.
+
+**Dashboard link pattern**: Transactional emails link to `/dashboard/orders` for downloads. PDF download infrastructure is not yet built.
 
 ### Component File Pattern
 - Client components: `'use client'` at top

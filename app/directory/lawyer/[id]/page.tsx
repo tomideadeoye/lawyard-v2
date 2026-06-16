@@ -1,6 +1,8 @@
 import styles from "./profile.module.css";
 import Link from "next/link";
 import { getLawyerById, getArticles, getPodcasts } from "@/lib/directory/api";
+import BookmarkButton from "@/components/directory/BookmarkButton";
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from "next/navigation";
 
 interface Article {
@@ -41,6 +43,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
+  let isBookmarked = false
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data } = await supabase
+        .from('bookmarks')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('lawyer_id', id)
+        .maybeSingle()
+      isBookmarked = !!data
+    }
+  } catch {}
+
   return (
     <>
       <div className={styles.topBar}>
@@ -56,6 +73,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             <div className={styles.heroInfo}>
               <div className={styles.nameHeader}>
                 <h1>{lawyer.name}</h1>
+                <BookmarkButton lawyerId={id} initialBookmarked={isBookmarked} className="relative top-0.5" />
                 {lawyer.verified && <span className={styles.verifiedBadge}>VERIFIED</span>}
               </div>
               <p className={styles.role}>{lawyer.role}</p>

@@ -23,7 +23,11 @@
 ## 2. Core Modules (Flat Structure — Single App)
 - **app/(main)/**: Media platform — Lawyard's main site (lawyard.org) with articles, podcasts, TV, Brand Press.
 - **app/admin/**: Admin dashboard — lawyer verification, content management, subscribers.
-- **app/directory/**: Legal marketplace — lawyers, chambers, search, content studio.
+- **app/directory/**: Legal marketplace — lawyers, chambers, search, content studio, dashboard.
+  - `app/directory/actions/bookmarks.ts` — Server actions: `toggleBookmark(lawyerId)` (upsert/delete for saves).
+  - `app/directory/dashboard/page.tsx` — Unified dashboard with client/lawyer role-aware views, bookmark listing.
+- **components/directory/**:
+  - `BookmarkButton.tsx` — Client component: instant toggle heart icon, optimistic updates via server action.
 - **lib/api/**: Shared business logic
   - `articles.ts` — Query helpers: `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate`
   - `paystack.ts` — Paystack init/verify helpers (shared by main + directory)

@@ -210,3 +210,76 @@ export async function sendAdminNewSubmission(brandName: string, title: string) {
     `,
   })
 }
+
+export async function sendShopOrderConfirmation(params: {
+  email: string
+  reference: string
+  amount: number
+  items: { id: string; title: string; quantity: number }[]
+  billingDetails?: { firstName?: string } | null
+}) {
+  const resend = getResend()
+  if (!resend) return
+
+  const { getSiteUrl } = await import('@/lib/utils/payment')
+  const date = new Date().toLocaleDateString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric',
+  })
+  const fmtAmount = `₦${params.amount.toLocaleString()}`
+  const itemsHtml = params.items.map(item =>
+    `<tr>
+      <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 13px;">${item.title}</td>
+      <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center;">${item.quantity}</td>
+      <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right;">₦${(item.quantity * 500).toLocaleString()}</td>
+    </tr>`
+  ).join('')
+
+  return resend.emails.send({
+    from: FROM,
+    to: params.email,
+    subject: `Order Confirmed — ${params.reference}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background: #a77c5c; padding: 32px 36px;">
+          <h1 style="color: #fff; margin: 0; font-size: 22px; font-weight: 800;">Order Confirmed</h1>
+          <p style="color: rgba(255,255,255,0.8); margin: 4px 0 0; font-size: 13px;">${params.reference}</p>
+        </div>
+
+        <div style="padding: 32px 36px;">
+          <p style="font-size: 14px; margin: 0 0 20px;">
+            ${params.billingDetails?.firstName ? `Hi ${params.billingDetails.firstName},` : 'Thanks for your purchase!'}
+          </p>
+          <p style="font-size: 13px; color: #475569; margin: 0 0 20px;">
+            Your payment of <strong>${fmtAmount}</strong> was successful. Here's a summary of your order:
+          </p>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+              <tr style="background: #f8fafc;">
+                <th style="text-align: left; padding: 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #64748B;">Item</th>
+                <th style="text-align: center; padding: 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #64748B;">Qty</th>
+                <th style="text-align: right; padding: 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: #64748B;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div style="text-align: right; font-size: 16px; font-weight: 800; padding: 12px 0 0; margin-top: 8px; border-top: 2px solid #1e293b;">
+            Total: ${fmtAmount}
+          </div>
+
+          <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 13px; color: #475569;">
+            <p style="margin: 0 0 8px; font-weight: 600;">Download Your Legislations</p>
+            <p style="margin: 0;">Visit your <a href="${getSiteUrl()}/dashboard/orders" style="color: #a77c5c; font-weight: 600;">Orders Dashboard</a> to download the PDF files for each purchased legislation.</p>
+          </div>
+
+          <p style="color: #94A3B8; font-size: 12px; margin-top: 24px; text-align: center;">
+            Lawyard.org — Legal news and insights for Africa
+          </p>
+        </div>
+      </div>
+    `,
+  })
+}

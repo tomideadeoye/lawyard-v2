@@ -44,7 +44,7 @@ export default async function Header() {
     <header className="sticky top-0 w-full z-[100] bg-background/90 backdrop-blur-md border-b border-border/60 py-4">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center gap-8">
         <div className="shrink-0">
-          <Link href="/" className="flex items-center gap-3 no-underline cursor-pointer group">
+          <Link href="/directory" className="flex items-center gap-3 no-underline cursor-pointer group">
             <Image 
               src="/lawyard-logo.png" 
               alt={`${siteConfig.brand.name} Logo`} 

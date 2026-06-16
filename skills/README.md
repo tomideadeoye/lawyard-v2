@@ -13,3 +13,4 @@ Compounding knowledge base of implementation patterns used across this project. 
 | UI Components | `ui_skills.md` | shadcn/ui integration, custom components, modals, form patterns |
 | Supabase Patterns | `supabase_patterns_skills.md` | Client factories, storage buckets, service role, JWT role claims, proxy.ts, migrations, RLS |
 | Brand Press Critique | `brand_press_critique.md` | Senior engineer review findings: security, atomicity, React patterns |
+| Email Infrastructure | `email_skills.md` | Resend provider, getResend() lazy import, all email functions, invoice PDF dynamic import, webhook dispatcher, callback page pattern |

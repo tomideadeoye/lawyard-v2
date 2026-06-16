@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { verifyTransaction } from '@/lib/api/paystack'
-import { sendPaymentConfirmation } from '@/lib/api/email'
+import { sendPaymentConfirmation, sendShopOrderConfirmation } from '@/lib/api/email'
 
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!
 
@@ -15,53 +15,7 @@ function verifySignature(body: string, signature: string): boolean {
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))
 }
 
-export async function POST(request: NextRequest) {
-  const body = await request.text()
-  const signature = request.headers.get('x-paystack-signature') || ''
-
-  if (!verifySignature(body, signature)) {
-    return Response.json({ error: 'Invalid signature' }, { status: 401 })
-  }
-
-  let event: { event: string; data: any }
-  try {
-    event = JSON.parse(body)
-  } catch {
-    return Response.json({ error: 'Invalid JSON' }, { status: 400 })
-  }
-
-  if (event.event !== 'charge.success') {
-    return Response.json({ status: 'ignored' })
-  }
-
-  const reference = event.data?.reference
-  const metadata = event.data?.metadata
-
-  if (!reference || metadata?.type !== 'brand_press') {
-    return Response.json({ status: 'ignored' })
-  }
-
-  const verify = await verifyTransaction(reference)
-  if (!verify.status || verify.data?.status !== 'success') {
-    return Response.json({ error: 'Verification failed' }, { status: 400 })
-  }
-
-  const sbAdmin = createServiceRoleClient()
-
-  const { data: existing } = await sbAdmin
-    .from('transactions')
-    .select('status')
-    .eq('reference', reference)
-    .single()
-
-  if (!existing) {
-    return Response.json({ error: 'Transaction not found' }, { status: 404 })
-  }
-
-  if (existing.status === 'success') {
-    return Response.json({ status: 'already_processed' })
-  }
-
+async function handleBrandPress(sbAdmin: ReturnType<typeof createServiceRoleClient>, reference: string, metadata: any, verify: any) {
   const { error: txError } = await sbAdmin
     .from('transactions')
     .update({ status: 'success' })
@@ -91,4 +45,101 @@ export async function POST(request: NextRequest) {
   }
 
   return Response.json({ status: 'success' })
+}
+
+async function handleShopPurchase(sbAdmin: ReturnType<typeof createServiceRoleClient>, reference: string, _metadata: any, verify: any) {
+  const { data: tx } = await sbAdmin
+    .from('transactions')
+    .select('id, metadata')
+    .eq('reference', reference)
+    .single()
+
+  if (!tx) {
+    return Response.json({ error: 'Transaction not found' }, { status: 404 })
+  }
+
+  const { error: txError } = await sbAdmin
+    .from('transactions')
+    .update({ status: 'success' })
+    .eq('reference', reference)
+
+  if (txError) {
+    return Response.json({ error: 'Failed to update transaction' }, { status: 500 })
+  }
+
+  const meta = tx.metadata || {}
+  const items = meta.items || []
+  const billing = meta.billing_details || {}
+  const customerEmail = verify.data?.customer?.email || billing.email
+
+  if (customerEmail && items.length > 0) {
+    sendShopOrderConfirmation({
+      email: customerEmail,
+      reference,
+      amount: verify.data?.amount ? verify.data.amount / 100 : 0,
+      items,
+      billingDetails: billing,
+    }).catch(() => {})
+  }
+
+  return Response.json({ status: 'success' })
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.text()
+  const signature = request.headers.get('x-paystack-signature') || ''
+
+  if (!verifySignature(body, signature)) {
+    return Response.json({ error: 'Invalid signature' }, { status: 401 })
+  }
+
+  let event: { event: string; data: any }
+  try {
+    event = JSON.parse(body)
+  } catch {
+    return Response.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  if (event.event !== 'charge.success') {
+    return Response.json({ status: 'ignored' })
+  }
+
+  const reference = event.data?.reference
+  const metadata = event.data?.metadata
+  if (!reference) {
+    return Response.json({ error: 'Missing reference' }, { status: 400 })
+  }
+
+  const verify = await verifyTransaction(reference)
+  if (!verify.status || verify.data?.status !== 'success') {
+    return Response.json({ error: 'Verification failed' }, { status: 400 })
+  }
+
+  const sbAdmin = createServiceRoleClient()
+
+  const { data: existing } = await sbAdmin
+    .from('transactions')
+    .select('status')
+    .eq('reference', reference)
+    .single()
+
+  if (!existing) {
+    return Response.json({ error: 'Transaction not found' }, { status: 404 })
+  }
+
+  if (existing.status === 'success') {
+    return Response.json({ status: 'already_processed' })
+  }
+
+  const type = metadata?.type || ''
+
+  if (type === 'brand_press') {
+    return handleBrandPress(sbAdmin, reference, metadata, verify)
+  }
+
+  if (type === 'shop_purchase') {
+    return handleShopPurchase(sbAdmin, reference, metadata, verify)
+  }
+
+  return Response.json({ status: 'ignored' })
 }

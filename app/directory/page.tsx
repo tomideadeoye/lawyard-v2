@@ -27,11 +27,7 @@ export default async function Home() {
     <div className="min-h-screen bg-background text-foreground">
       {/* ============== HERO ============== */}
       <section className="relative w-full min-h-[760px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/55 to-slate-950/70 z-10" />
-
-        {/* Ambient glow accents */}
-        <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-primary/15 rounded-full blur-[140px] pointer-events-none z-10" />
-        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-[140px] pointer-events-none z-10" />
+        <div className="absolute inset-0 bg-slate-950 z-0" />
 
         <Image
           src="/hero-bg.jpg"
@@ -41,6 +37,12 @@ export default async function Home() {
           className="object-cover object-center z-0 select-none pointer-events-none"
           sizes="100vw"
         />
+
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/55 to-slate-950/70 z-10" />
+
+        {/* Ambient glow accents */}
+        <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-primary/15 rounded-full blur-[140px] pointer-events-none z-10" />
+        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-[140px] pointer-events-none z-10" />
 
         <div className="relative z-20 text-center px-6 max-w-5xl w-full flex flex-col items-center gap-8">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif italic font-bold text-white tracking-tight leading-[1.05] [text-shadow:0_4px_24px_rgba(0,0,0,0.45)]">

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifyTransaction } from '@/lib/api/paystack'
+import { sendShopOrderConfirmation } from '@/lib/api/email'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ClearCart from '@/components/ClearCart'
@@ -50,6 +51,18 @@ export default async function ShopPaymentCallbackPage({
       .from('transactions')
       .update({ status: 'success' })
       .eq('reference', reference)
+
+    // Send confirmation email
+    const customerEmail = verify.data?.customer?.email || billingDetails?.email
+    if (customerEmail && items.length > 0) {
+      sendShopOrderConfirmation({
+        email: customerEmail,
+        reference,
+        amount,
+        items,
+        billingDetails,
+      }).catch(() => {})
+    }
   }
 
   // Format Date (e.g. June 12, 2026)

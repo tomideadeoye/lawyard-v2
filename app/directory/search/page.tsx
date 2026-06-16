@@ -2,7 +2,9 @@ import styles from "./search.module.css";
 import Link from "next/link";
 import { getLawyers, getSpecialties } from "@/lib/directory/api";
 import SearchFilters from "@/components/directory/search/SearchFilters";
+import BookmarkButton from "@/components/directory/BookmarkButton";
 import { Lawyer, Specialty } from '@/lib/api';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +24,20 @@ export default async function SearchPage(props: SearchPageProps) {
   const searchParams = await props.searchParams;
   let specialties: Specialty[] = [];
   let lawyers: Lawyer[] = [];
+
+  let bookmarkedIds: string[] = []
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: bookmarks } = await supabase
+        .from('bookmarks')
+        .select('lawyer_id')
+        .eq('user_id', user.id)
+      bookmarkedIds = bookmarks?.map(b => b.lawyer_id) ?? []
+    }
+  } catch {}
 
   try {
     [specialties, lawyers] = await Promise.all([
@@ -69,7 +85,7 @@ export default async function SearchPage(props: SearchPageProps) {
                 <div className={styles.cardContent}>
                   <div className={styles.flexTitle}>
                     <h3>{res.name}</h3>
-                    <button className={styles.saveBtn} title="Save to Shortlist">🔖</button>
+                    <BookmarkButton lawyerId={res.id} initialBookmarked={bookmarkedIds.includes(res.id)} />
                   </div>
                   <p className={styles.resRole}>{res.role}</p>
                   <div className={styles.resSpecs}>

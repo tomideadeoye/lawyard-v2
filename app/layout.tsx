@@ -18,7 +18,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lawyard.ng"),
+  metadataBase: new URL("https://lawyard.org"),
   title: "Lawyard | Legal News, Opinions & Media Platform",
   description:
     "Nigeria's premier legal media platform. Legal news, opinions, analysis, Lawyard Spotlight, Lawyard TV, Podcasts, and comprehensive coverage of the legal landscape in Africa.",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     description:
       "Nigeria's premier legal media platform. Legal news, opinions, analysis, and comprehensive coverage of the legal landscape in Africa.",
     type: "website",
-    url: "https://lawyard.ng",
+    url: "https://lawyard.org",
     siteName: "Lawyard",
     images: [
       {

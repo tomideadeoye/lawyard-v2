@@ -132,7 +132,7 @@ Shared Supabase project with cookie-based auth on `.lawyard.org` domain.
 - [ ] Set `RESEND_API_KEY`, `ADMIN_EMAIL`, Paystack keys on Vercel project
 - [ ] Deploy edge function: `supabase functions deploy publish-scheduled --no-verify-jwt`
 - [ ] Wire cron: `supabase functions cron create "0 * * * *" --function publish-scheduled`
-- [ ] Add middleware for subdomain rewrites (admin.lawyard.ng, lawyers.lawyard.ng)
+- [ ] Add middleware for subdomain rewrites (admin.lawyard.org, directory.lawyard.org)
 - [ ] Migrate WordPress content to Supabase (articles, podcasts, categories, users)
 - [ ] Set up 301 redirects from old WordPress URLs
 
