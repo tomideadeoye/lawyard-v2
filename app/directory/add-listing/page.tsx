@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ClientNeedForm from "@/components/directory/forms/ClientNeedForm";
 import LawyerForm from "@/components/directory/forms/LawyerForm";
 import ChamberForm from "@/components/directory/forms/ChamberForm";
@@ -8,28 +8,26 @@ import CorporateForm from "@/components/directory/forms/CorporateForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function AddListingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkUser = async () => {
+  const { data: userRole } = useQuery({
+    queryKey: ['userRole'],
+    queryFn: async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        if (profile) {
-          setUserRole(profile.role);
-        }
-      }
-    };
-    checkUser();
-  }, []);
+      if (!user) return null;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      return profile?.role ?? null;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
   const isLawyer = userRole === 'lawyer';
 
