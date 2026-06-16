@@ -44,6 +44,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   }
 
   let isBookmarked = false
+  let bookmarkCount = 0
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -56,6 +57,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
         .maybeSingle()
       isBookmarked = !!data
     }
+    const { count } = await supabase
+      .from('bookmarks')
+      .select('*', { count: 'exact', head: true })
+      .eq('lawyer_id', id)
+    bookmarkCount = count ?? 0
   } catch {}
 
   return (
@@ -85,6 +91,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               <div className={styles.quickStats}>
                 <span>⭐ {lawyer.rating} ({lawyer.reviews} Reviews)</span>
                 <span>📍 {lawyer.location}</span>
+                <span>🔖 {bookmarkCount}</span>
               </div>
             </div>
           </section>

@@ -333,6 +333,70 @@ export default async function DirectoryDashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Bookmarked Directory */}
+          <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="text-lg">Bookmarked Directory</CardTitle>
+              <CardDescription>Lawyers and chambers you&rsquo;ve saved for later.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {bookmarks.length === 0 ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="text-4xl">🔖</div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-base">No bookmarks yet</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      Browse the directory and bookmark profiles you&rsquo;re interested in.
+                    </p>
+                  </div>
+                  <Link href="/directory/search"><Button size="sm">Browse Directory</Button></Link>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/40">
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Name</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden sm:table-cell">Role</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden md:table-cell">Location</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Saved</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookmarks.map((bm: Record<string, unknown>) => {
+                      const bl = bm.lawyer as Record<string, unknown> | null
+                      if (!bl) return null
+                      return (
+                        <tr key={bm.id as string} className="border-b border-border/20 last:border-0">
+                          <td className="p-3">
+                            <Link
+                              href={`/directory/lawyer/${bl.id}`}
+                              className="font-semibold text-sm hover:text-primary transition-colors"
+                            >
+                              {bl.name as string}
+                            </Link>
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs hidden sm:table-cell">
+                            {(bl.role as string) || 'Legal Practitioner'}
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs hidden md:table-cell">
+                            {(bl.location as string) || '—'}
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs">
+                            {new Date(bm.created_at as string).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </CardContent>
+          </Card>
         </>
       ) : (
         <>
@@ -340,9 +404,9 @@ export default async function DirectoryDashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Saved Lawyers</p>
-                <p className="text-2xl font-bold mt-1">—</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Coming soon</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Bookmarked</p>
+                <p className="text-2xl font-bold mt-1">{bookmarks.length}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">lawyers & chambers</p>
               </CardContent>
             </Card>
           </div>
@@ -378,6 +442,70 @@ export default async function DirectoryDashboardPage() {
             </Link>
 
           </div>
+
+          {/* Bookmarked Directory */}
+          <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="text-lg">Bookmarked Directory</CardTitle>
+              <CardDescription>Lawyers and chambers you&rsquo;ve saved for later.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {bookmarks.length === 0 ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="text-4xl">🔖</div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-base">No bookmarks yet</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      Browse the directory and bookmark profiles you&rsquo;re interested in.
+                    </p>
+                  </div>
+                  <Link href="/directory/search"><Button size="sm">Browse Directory</Button></Link>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/40">
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Name</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden sm:table-cell">Role</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden md:table-cell">Location</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Saved</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookmarks.map((bm: Record<string, unknown>) => {
+                      const lawyer = bm.lawyer as Record<string, unknown> | null
+                      if (!lawyer) return null
+                      return (
+                        <tr key={bm.id as string} className="border-b border-border/20 last:border-0">
+                          <td className="p-3">
+                            <Link
+                              href={`/directory/lawyer/${lawyer.id}`}
+                              className="font-semibold text-sm hover:text-primary transition-colors"
+                            >
+                              {lawyer.name as string}
+                            </Link>
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs hidden sm:table-cell">
+                            {(lawyer.role as string) || 'Legal Practitioner'}
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs hidden md:table-cell">
+                            {(lawyer.location as string) || '—'}
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs">
+                            {new Date(bm.created_at as string).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Recent Orders */}
           <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
