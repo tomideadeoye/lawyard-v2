@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
 
 export async function toggleBookmark(lawyerId: string) {
   const supabase = await createClient()
@@ -21,7 +20,6 @@ export async function toggleBookmark(lawyerId: string) {
       .delete()
       .eq('id', existing.id)
     if (error) return { error: error.message }
-    revalidatePath('/directory', 'layout')
     return { bookmarked: false }
   }
 
@@ -29,6 +27,22 @@ export async function toggleBookmark(lawyerId: string) {
     .from('bookmarks')
     .insert({ user_id: user.id, lawyer_id: lawyerId })
   if (error) return { error: error.message }
-  revalidatePath('/directory', 'layout')
   return { bookmarked: true }
+}
+
+export async function getBookmarkedLawyerIds() {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return []
+
+  const { data, error } = await supabase
+    .from('bookmarks')
+    .select('lawyer_id')
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error("Failed to fetch bookmarks:", error.message)
+    return []
+  }
+  return data.map(b => b.lawyer_id)
 }

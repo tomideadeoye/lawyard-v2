@@ -26,10 +26,12 @@ export default async function SearchPage(props: SearchPageProps) {
   let lawyers: Lawyer[] = [];
 
   let bookmarkedIds: string[] = []
+  let isAuthenticated = false
 
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    isAuthenticated = !!user
     if (user) {
       const { data: bookmarks } = await supabase
         .from('bookmarks')
@@ -37,7 +39,9 @@ export default async function SearchPage(props: SearchPageProps) {
         .eq('user_id', user.id)
       bookmarkedIds = bookmarks?.map(b => b.lawyer_id) ?? []
     }
-  } catch {}
+  } catch (e) {
+    console.error('Failed to fetch bookmarks:', e)
+  }
 
   try {
     [specialties, lawyers] = await Promise.all([
@@ -85,7 +89,9 @@ export default async function SearchPage(props: SearchPageProps) {
                 <div className={styles.cardContent}>
                   <div className={styles.flexTitle}>
                     <h3>{res.name}</h3>
-                    <BookmarkButton lawyerId={res.id} initialBookmarked={bookmarkedIds.includes(res.id)} />
+                    {isAuthenticated && (
+                      <BookmarkButton lawyerId={res.id} initialBookmarked={bookmarkedIds.includes(res.id)} />
+                    )}
                   </div>
                   <p className={styles.resRole}>{res.role}</p>
                   <div className={styles.resSpecs}>

@@ -3,6 +3,9 @@
 
 ## 👤 KEY CONTACTS
 - **Tobi Adebowale**: Primary Client / Decision Maker (+234 706 100 3969)
+- The Beeper ID for the group chat Lawyard Feature Updates is:
+
+!tVr4nUDpuRPXX1nt1jzw:beeper.local
 - **Shefiu**: AI Integration Lead (LawyardAI)
 - **Tomide Adeoye**: Lead Architect & Senior Engineer (Legal Engineering)
 

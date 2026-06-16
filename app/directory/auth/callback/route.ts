@@ -15,15 +15,16 @@ export async function GET(request: Request) {
       let redirectTo = next
 
       if (user) {
-        const createdAt = new Date(user.created_at).getTime()
-        const lastSignInAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : createdAt
-        
-        // A user is considered "new" if they signed up within the last 10 minutes
-        // or if their last sign-in is extremely close to creation time (OAuth/immediate verification)
-        const isNewUser = (Date.now() - createdAt < 600000) || (Math.abs(lastSignInAt - createdAt) < 15000)
-        
-        if (isNewUser && next === '/dashboard') {
-          redirectTo = '/directory/dashboard?welcome=true'
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.role === 'client') {
+          redirectTo = '/directory/search'
+        } else if (profile?.role === 'lawyer' || profile?.role === 'chamber') {
+          redirectTo = '/directory/dashboard'
         }
       }
 

@@ -62,7 +62,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       .select('*', { count: 'exact', head: true })
       .eq('lawyer_id', id)
     bookmarkCount = count ?? 0
-  } catch {}
+  } catch (e) {
+    console.error('Failed to fetch bookmark state:', e)
+  }
 
   return (
     <>

@@ -24,7 +24,7 @@ export default async function DirectoryDashboardPage() {
     supabase.from('bookmarks').select(`
       created_at,
       lawyer:lawyers(id, name, role, location, image_url, rating, reviews_count, verification_status)
-    `).eq('user_id', user.id).order('created_at', { ascending: false }),
+    `).eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
   ])
 
   const profile = profileResult.data
@@ -395,6 +395,13 @@ export default async function DirectoryDashboardPage() {
                   </tbody>
                 </table>
               )}
+              {bookmarks.length > 0 && (
+                <div className="mt-4 text-center">
+                  <Link href="/directory/search" className="text-xs font-semibold text-primary hover:underline">
+                    View all in directory &rarr;
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
         </>
@@ -503,6 +510,13 @@ export default async function DirectoryDashboardPage() {
                     })}
                   </tbody>
                 </table>
+              )}
+              {bookmarks.length > 0 && (
+                <div className="mt-4 text-center">
+                  <Link href="/directory/search" className="text-xs font-semibold text-primary hover:underline">
+                    View all in directory &rarr;
+                  </Link>
+                </div>
               )}
             </CardContent>
           </Card>
