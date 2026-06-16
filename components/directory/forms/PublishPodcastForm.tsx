@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { FormSelect } from '@/components/ui/form-select';
+import { Textarea } from '@/components/ui/textarea';
 import { publishPodcast } from '@/app/directory/actions/content';
 
 export default function PublishPodcastForm() {
@@ -45,24 +47,23 @@ export default function PublishPodcastForm() {
       
       <Field>
         <FieldLabel htmlFor="media_type" className="text-xs uppercase tracking-wider text-accent font-bold">Format Type</FieldLabel>
-        <select
+        <FormSelect
           name="media_type"
           id="media_type"
-          className="input-premium"
           defaultValue="audio"
         >
           <option value="audio">Audio Podcast</option>
           <option value="video">Video Podcast</option>
-        </select>
+        </FormSelect>
       </Field>
       
       <Field>
         <FieldLabel htmlFor="description" className="text-xs uppercase tracking-wider text-accent font-bold">Description</FieldLabel>
-        <textarea
+        <Textarea
           name="description"
           id="description"
           placeholder="Short summary of discussion..."
-          className="input-premium min-h-[100px] resize-y"
+          className="min-h-[100px] resize-y"
         />
       </Field>
 

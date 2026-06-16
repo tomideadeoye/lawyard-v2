@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { Textarea } from '@/components/ui/textarea';
 import { publishArticle } from '@/app/directory/actions/content';
 
 export default function PublishArticleForm() {
@@ -85,11 +86,11 @@ export default function PublishArticleForm() {
       
       <Field>
         <FieldLabel htmlFor="content" className="text-xs uppercase tracking-wider text-accent font-bold">Article Content</FieldLabel>
-        <textarea
+        <Textarea
           name="content"
           id="content"
           placeholder="Write your content here..."
-          className="input-premium min-h-[200px] resize-y"
+          className="min-h-[200px] resize-y"
           required
         />
       </Field>

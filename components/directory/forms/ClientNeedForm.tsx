@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { FormSelect } from '@/components/ui/form-select';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ClientNeedForm() {
   const [loading, setLoading] = useState(false);
@@ -79,13 +81,12 @@ export default function ClientNeedForm() {
         <FieldLabel htmlFor="description" className="text-xs uppercase tracking-wider text-accent font-bold">
           Detailed Description
         </FieldLabel>
-        <textarea 
+        <Textarea 
           name="description" 
           id="description" 
           rows={5} 
           placeholder="Describe your legal situation in detail..." 
           required 
-          className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
       </Field>
 
@@ -100,17 +101,16 @@ export default function ClientNeedForm() {
           <FieldLabel htmlFor="budget" className="text-xs uppercase tracking-wider text-accent font-bold">
             Budget Range
           </FieldLabel>
-          <select 
+          <FormSelect 
             name="budget" 
             id="budget"
-            className="flex h-9 w-full rounded-md border border-input bg-background/50 px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <option value="flexible" className="bg-background text-foreground">Flexible / Negotiable</option>
             <option value="low" className="bg-background text-foreground">Under $500</option>
             <option value="medium" className="bg-background text-foreground">$500 - $2,500</option>
             <option value="high" className="bg-background text-foreground">$2,500 - $10,000</option>
             <option value="premium" className="bg-background text-foreground">$10,000+</option>
-          </select>
+          </FormSelect>
         </Field>
       </div>
 

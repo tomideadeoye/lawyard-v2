@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface NavChild {
   name: string;
@@ -14,7 +15,7 @@ interface NavItem {
   children?: NavChild[];
 }
 
-export function NavDropdown({ item }: { item: NavItem }) {
+export function NavDropdown({ item, scrolled }: { item: NavItem; scrolled?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -28,8 +29,15 @@ export function NavDropdown({ item }: { item: NavItem }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const linkClass = cn(
+    "no-underline font-bold transition-all text-xs uppercase tracking-widest bg-transparent border-none cursor-pointer p-0 flex items-center gap-1.5",
+    scrolled
+      ? "text-white/70 hover:text-white"
+      : "text-muted-foreground hover:text-foreground"
+  );
+
   if (!item.children || item.children.length === 0) {
-    return <Link href={item.href} className="no-underline font-medium text-foreground/70 hover:text-foreground transition-opacity text-[0.95rem] bg-transparent border-none cursor-pointer font-[inherit] p-0 flex items-center gap-1">{item.name}</Link>;
+    return <Link href={item.href} className={linkClass}>{item.name}</Link>;
   }
 
   return (
@@ -40,7 +48,7 @@ export function NavDropdown({ item }: { item: NavItem }) {
       onMouseLeave={() => setOpen(false)}
     >
       <button
-        className="no-underline font-medium text-foreground/70 hover:text-foreground transition-opacity text-[0.95rem] bg-transparent border-none cursor-pointer font-[inherit] p-0 flex items-center gap-1"
+        className={linkClass}
         onClick={() => setOpen(prev => !prev)}
         aria-expanded={open}
       >

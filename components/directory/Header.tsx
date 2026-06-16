@@ -1,10 +1,14 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 import siteConfig from "@/config/site-config.json";
 import specialtiesData from "@/data/specialties.json";
-import { ModeToggle } from "./mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 import { NavDropdown } from "./NavDropdown";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   name: string;
@@ -27,7 +31,7 @@ function buildNavItems(): NavItem[] {
         href: item.href,
         children: specialtiesData.map(s => ({
           name: s.name,
-          href: `/search?specialty=${s.slug}`,
+          href: `/directory/search?specialty=${s.slug}`,
         })),
       };
     }
@@ -35,52 +39,148 @@ function buildNavItems(): NavItem[] {
   });
 }
 
-export default async function Header() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default function Header() {
+  const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navItems = buildNavItems();
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 w-full z-[100] bg-background/90 backdrop-blur-md border-b border-border/60 py-4">
+    <header className={cn(
+      "w-full sticky top-0 z-50 transition-all duration-300",
+      scrolled 
+        ? "bg-[#111129] border-b border-white/10 shadow-lg py-3" 
+        : "bg-background border-b border-border/50 shadow-sm py-4"
+    )}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center gap-8">
-        <div className="shrink-0">
-          <Link href="/directory" className="flex items-center gap-3 no-underline cursor-pointer group">
-            <Image 
-              src="/lawyard-logo.png" 
-              alt={`${siteConfig.brand.name} Logo`} 
-              width={160} 
-              height={40} 
-              priority
-              style={{ objectFit: 'contain' }}
-              className="group-hover:scale-[1.02] transition-transform duration-300"
+        
+        {/* Left Block: Logo & Badge */}
+        <div className="shrink-0 flex items-center">
+          <Link href="/directory" className="flex items-center gap-2.5 no-underline cursor-pointer group">
+            {/* Light Mode Logo (Blue) */}
+            <img 
+              src="/logo-blue.png" 
+              alt="Lawyard Logo" 
+              className={cn(
+                "h-9 w-auto object-contain group-hover:scale-[1.01] transition-transform duration-300",
+                scrolled ? "hidden" : "block dark:hidden"
+              )}
             />
-            <span className="text-accent font-bold text-xs tracking-widest ml-2 pl-3 border-l border-border/60 uppercase">Directory</span>
+            {/* Dark Mode / Scrolled Logo (White) */}
+            <img 
+              src="/logo-white.png" 
+              alt="Lawyard Logo" 
+              className={cn(
+                "h-9 w-auto object-contain group-hover:scale-[1.01] transition-transform duration-300",
+                scrolled ? "block" : "hidden dark:block"
+              )}
+            />
+            <span className={cn(
+              "font-bold text-[10px] tracking-widest ml-2 pl-3 border-l uppercase transition-colors duration-300",
+              scrolled 
+                ? "text-[#a77c5c] border-white/20" 
+                : "text-accent border-border/60"
+            )}>
+              Directory
+            </span>
           </Link>
         </div>
         
-        <nav className="hidden lg:flex items-center gap-10">
+        {/* Center Block: Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-8">
           {navItems.map(item => (
-             <NavDropdown key={item.name} item={item} />
+             <NavDropdown key={item.name} item={item} scrolled={scrolled} />
           ))}
         </nav>
         
+        {/* Right Block: Utilities & Action Button */}
         <div className="flex items-center gap-5">
-          <div className="flex items-center gap-4 text-foreground/60">
-            <ModeToggle />
-            <Link href="/directory/search" className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-foreground no-underline transition-all" aria-label="Search">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M13 13L16.5 16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+          <div className={cn(
+            "flex items-center gap-4 transition-colors duration-300",
+            scrolled ? "text-white/70" : "text-muted-foreground"
+          )}>
+            <ModeToggle scrolled={scrolled} />
+            
+            <Link 
+              href="/directory/search" 
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
+                scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
+              )} 
+              aria-label="Search"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M13 13L16.5 16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Link>
+
             {user ? (
-              <Link href="/directory/dashboard" className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-foreground no-underline transition-all" aria-label="Dashboard">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <Link 
+                href="/directory/dashboard" 
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
+                  scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
+                )} 
+                aria-label="Dashboard"
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </Link>
             ) : (
-              <Link href="/directory/login" className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted hover:text-foreground no-underline transition-all" aria-label="Login">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <Link 
+                href="/directory/login" 
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
+                  scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
+                )} 
+                aria-label="Login"
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M2.5 16.5c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </Link>
             )}
           </div>
-          <Link href="/directory/add-listing" className="bg-accent text-foreground no-underline px-6 py-2.5 rounded-full font-bold text-sm hover:bg-accent/90 transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer">
+
+          <Link 
+            href="/directory/add-listing" 
+            className={cn(
+              "no-underline px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-md active:scale-95 cursor-pointer text-white",
+              scrolled 
+                ? "bg-[#a77c5c] hover:bg-[#906b4e] hover:shadow-lg" 
+                : "bg-accent hover:bg-accent/90 hover:shadow-lg"
+            )}
+          >
             + Add Listing
           </Link>
         </div>
