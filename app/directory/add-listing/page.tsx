@@ -34,7 +34,7 @@ export default function AddListingPage() {
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🎓</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-accent">Individual Lawyer</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Individual Lawyer</CardTitle>
                   <CardDescription className="text-sm">For independent practitioners, specialized solicitors, and legal engineers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
@@ -43,12 +43,12 @@ export default function AddListingPage() {
                   </Button>
                 </CardFooter>
               </Card>
-
+ 
               {/* Law Chamber Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🏛️</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-accent">Law Chamber / Firm</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Law Chamber / Firm</CardTitle>
                   <CardDescription className="text-sm">For established law firms, multi-partner practices, and specialized chambers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
@@ -57,12 +57,12 @@ export default function AddListingPage() {
                   </Button>
                 </CardFooter>
               </Card>
-
+ 
               {/* Corporate Legal Dept Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">💼</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-accent">Corporate Legal Dept</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Corporate Legal Dept</CardTitle>
                   <CardDescription className="text-sm">For in-house legal departments, compliance units, and legal counsels hiring external experts.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
@@ -71,12 +71,12 @@ export default function AddListingPage() {
                   </Button>
                 </CardFooter>
               </Card>
-
+ 
               {/* Post Client Need Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🎯</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-accent">Post Client Need</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Post Client Need</CardTitle>
                   <CardDescription className="text-sm">For individuals, startups, or corporate groups seeking to broadcast a specific brief or query.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
