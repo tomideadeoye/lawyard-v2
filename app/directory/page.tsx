@@ -30,7 +30,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-slate-950 z-0" />
 
         <Image
-          src="/hero-bg.jpg?v=2"
+          src="/hero-bg-v2.jpg"
           alt="Legal gavel on law books"
           fill
           priority
