@@ -229,7 +229,7 @@ export default function Footer() {
 
         {/* Lower Row: Copyright Notice */}
         <div className="max-w-7xl mx-auto pt-6 mt-6 border-t border-white/5 text-center text-[8.5px] font-bold uppercase tracking-widest text-white/40">
-          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | DESIGNED BY RENIX CONSULTING | ARCHITECTURE BY ORION HORIZON</p>
+          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY <a href="https://www.merislabs.com" target="_blank" rel="noopener noreferrer" className="hover:underline">MERISLABS</a></p>
         </div>
       </div>
     </footer>

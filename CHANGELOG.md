@@ -3,16 +3,20 @@
 ## [Unreleased]
 
 ### Added
-- **CategoryMultiselect**: Replaced hardcoded preset categories with specialties from `specialties.json` (practice areas)
-- **PublishArticleForm**: Converted to `useMutation` (TanStack Query) with controlled state; category multiselect now uses practice areas
-- **PublishPodcastForm**: Converted to `useMutation` (TanStack Query) with controlled state; category multiselect uses practice areas
-- **Migration**: Changed article/podcast category default from `'documentation'` to `'general-practice'` in `20260616000004_multiselect_categories.sql`
-- **Lawyer inquiries**: New `lawyer_inquiries` table with RLS — anyone can submit, lawyers see their own, admins see all (`20260616000005_create_lawyer_inquiries.sql`)
-- **Inquiry server actions**: `submitInquiry`, `getInquiries`, `getInquiryStats`, `markInquiryRead`, `getAllInquiriesAdmin` (`app/directory/actions/inquiries.ts`)
-- **Listing detail page**: Fully rewritten with Tailwind — shows all extended fields (education, awards, FAQs, working hours, social links, gallery, video, contact info, volunteer/pro bono) with live contact form (`app/directory/lawyer/[id]/page.tsx`)
-- **Inquiry inbox**: New `/directory/dashboard/inquiries` page with sidebar nav entry — split layout with inbox list + detail view, marks as read on selection
-- **Dashboard**: Inquiries stat card now live (shows count + unread), Quick Actions includes Inquiries card with badge
+- **Subscription expiry**: `subscription_expires_at` column on profiles, set on payment (both webhook + verifyPayment), expired listings filtered from featured sections (`supabase/migrations/20260616000007_subscription_expiry.sql`)
+- **Enterprise tier label**: Added to dashboard tier badge map
+- **Chamber subscription model**: Migration adds `user_id`, `subscription_tier`, `subscription_status`, `subscription_expires_at`, contact fields to chambers (`supabase/migrations/20260622000001_extend_chambers.sql`)
+- **Chamber detail page**: `/directory/chamber/[id]` — shows name, focus, description, contact, member lawyers
+- **Chamber management**: `/directory/dashboard/chamber/` — create/edit chamber, view subscription status, upgrade link
 
 ### Changed
-- **Category taxonomy**: Articles and podcasts now categorised by legal practice areas (from `specialties.json`) instead of internal content types (`documentation`, `clients`, `lawyers`, `chambers`)
-- **Lawyer profile**: Converted from CSS modules to Tailwind, removed `profile.module.css`
+- **Subscription expiry**: Featured lawyers filtered by `subscription_expires_at` — expired/seed listings excluded; null-expiry requires non-free tier (`lib/directory/api.ts`)
+- **Chamber featured filtering**: `getChambers()` now checks `subscription_status = 'active'` and `subscription_expires_at` (null ok, expired excluded) — seed data excluded (`lib/directory/api.ts`)
+- **Inbox read state**: Fixed desync bug — replaced query key invalidation with local state update (`app/directory/dashboard/inquiries/inbox-client.tsx`)
+- **Inquiry error handling**: `submitInquiry`/`markInquiryRead` now throw on DB failure so TanStack Query catches errors (`app/directory/actions/inquiries.ts`)
+- **Webhook safety**: Null guard on `metadata` in `handleBrandPress`/`handleSubscription`/`handleChamberSubscription` to prevent TypeError crash (`app/api/webhooks/paystack/route.ts`)
+- **Redirect in mutations**: Server actions return `{ success: true }` instead of `redirect()`; client forms use `useRouter().push()` in `onSuccess` — prevents TanStack Query catching redirect errors (`app/directory/actions/content.ts`, `PublishArticleForm`, `PublishPodcastForm`)
+- **Category taxonomy**: Articles and podcasts now categorised by legal practice areas (from `specialties.json`) instead of internal content types
+
+### Blocked
+- Content pipeline (Slack bot) integration — waiting on Shefiu to clarify endpoint, payload, auth, and data flow for directory + brand press posts

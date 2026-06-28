@@ -8,6 +8,7 @@ const tierLabels: Record<string, { label: string; color: string }> = {
   free: { label: 'Free', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
   premium_single: { label: 'Premium Single', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
   premium_package: { label: 'Premium Package', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  enterprise: { label: 'Enterprise', color: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
 }
 
 export default async function DirectoryDashboardPage() {
@@ -15,7 +16,7 @@ export default async function DirectoryDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/directory/login')
 
-  const [profileResult, lawyerResult, articlesResult, podcastsResult, txResult, bookmarksResult, inquiriesResult] = await Promise.all([
+  const [profileResult, lawyerResult, articlesResult, podcastsResult, txResult, bookmarksResult, inquiriesResult, verificationResult] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
     supabase.from('lawyers').select(`*, chambers(name, location, focus, image_url)`).eq('id', user.id).maybeSingle(),
     supabase.from('articles').select('id, title, status, created_at').eq('author_id', user.id).order('created_at', { ascending: false }).limit(5),
@@ -26,6 +27,7 @@ export default async function DirectoryDashboardPage() {
       lawyer:lawyers(id, name, role, location, image_url, rating, reviews_count, verification_status)
     `).eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('lawyer_inquiries').select('id, read').eq('lawyer_id', user.id),
+    supabase.from('lawyer_verifications').select('id, status').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ])
 
   const profile = profileResult.data
@@ -36,14 +38,20 @@ export default async function DirectoryDashboardPage() {
   const bookmarks = bookmarksResult.data ?? []
   const inquiries = inquiriesResult.data ?? []
   const unreadInquiries = inquiries.filter(i => !i.read).length
+  const verification = verificationResult.data
+  const isRoleClient = profile?.role === 'client' || !profile?.role
 
   const isLawyer = profile?.role === 'lawyer' || profile?.role === 'chamber'
 
   const tier = profile?.subscription_tier || 'free'
   const tierInfo = tierLabels[tier] || tierLabels.free
+  const expiresAt = profile?.subscription_expires_at as string | null
+  const isExpired = expiresAt ? new Date(expiresAt) <= new Date() : false
+  const expiresSoon = expiresAt && !isExpired
+    ? (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24) <= 30
+    : false
 
   const totalSpent = transactions.filter(t => t.status === 'success').reduce((sum, t) => sum + Number(t.amount), 0)
-  const pendingOrders = transactions.filter(t => t.status === 'pending').length
   const publishedArticles = articles.filter(a => a.status === 'published').length
 
   let initial = 'U'
@@ -56,23 +64,10 @@ export default async function DirectoryDashboardPage() {
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">
-            {isLawyer ? 'Manage your directory presence, content, and subscription.' : 'Track your orders, purchases, and account.'}
-          </p>
-        </div>
-        {isLawyer && (
-          <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider border ${tierInfo.color}`}>
-              {tierInfo.label}
-            </span>
-          </div>
-        )}
-      </div>
+    <div className="space-y-8 animate-fade-in px-4 sm:px-6">
+      <p className="text-muted-foreground text-sm">
+        {isLawyer ? 'Manage your directory presence, content, and subscription.' : 'Track your orders, purchases, and account.'}
+      </p>
 
       {/* Profile Card */}
       <Card className="overflow-hidden border border-border/40 shadow-lg bg-card/40 backdrop-blur-md">
@@ -98,14 +93,10 @@ export default async function DirectoryDashboardPage() {
               <Button size="sm" variant="outline" className="text-xs">Edit Profile</Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-t border-border/40">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4 border-t border-border/40">
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Email</span>
               <p className="text-sm font-semibold truncate">{user.email}</p>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Orders</span>
-              <p className="text-sm font-semibold">{transactions.length}</p>
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{isLawyer ? 'Verification' : 'Spent'}</span>
@@ -150,13 +141,6 @@ export default async function DirectoryDashboardPage() {
                 <p className="text-[10px] text-muted-foreground mt-1">{articles.length - publishedArticles} drafts</p>
               </CardContent>
             </Card>
-            <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Orders</p>
-                <p className="text-2xl font-bold mt-1">{transactions.length}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">{pendingOrders} pending</p>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Quick Actions */}
@@ -196,15 +180,6 @@ export default async function DirectoryDashboardPage() {
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">📬</div>
                     <h4 className="font-semibold text-sm mb-1">Inquiries {unreadInquiries > 0 && <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[9px] font-bold">{unreadInquiries}</span>}</h4>
                     <p className="text-xs text-muted-foreground">View and respond to client messages</p>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link href="/directory/pricing" className="no-underline group">
-                <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
-                  <CardContent className="p-5">
-                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 mb-3 group-hover:scale-110 transition-transform">⚙</div>
-                    <h4 className="font-semibold text-sm mb-1">Upgrade Plan</h4>
-                    <p className="text-xs text-muted-foreground">Unlock featured listings and premium features</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -334,17 +309,23 @@ export default async function DirectoryDashboardPage() {
               <CardDescription>Your current plan and available upgrades.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-muted/30 rounded-lg border border-border/30">
+              <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-lg border ${isExpired ? 'bg-rose-500/10 border-rose-500/30' : 'bg-muted/30 border-border/30'}`}>
                 <div>
                   <p className="text-sm font-semibold">Current Plan: <span className="text-primary">{tierInfo.label}</span></p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {tier === 'free'
                       ? 'Upgrade to Premium for featured listings, enhanced visibility, and priority support.'
-                      : 'Your premium features are active.'}
+                      : isExpired
+                      ? 'Your subscription has expired. Renew to reactivate featured listing benefits.'
+                      : expiresSoon
+                      ? `Expires ${new Date(expiresAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} — renew soon to maintain featured status.`
+                      : `Active until ${new Date(expiresAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`}
                   </p>
                 </div>
                 <Link href="/directory/pricing">
-                  <Button size="sm" className="shrink-0">{tier === 'free' ? 'Upgrade Now' : 'Manage Plan'}</Button>
+                  <Button size="sm" className="shrink-0">
+                    {tier === 'free' || isExpired ? 'Upgrade Now' : 'Manage Plan'}
+                  </Button>
                 </Link>
               </div>
             </CardContent>
@@ -537,59 +518,73 @@ export default async function DirectoryDashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Recent Orders */}
-          <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Orders</CardTitle>
-              <CardDescription>Your brand press and legislation purchases.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {transactions.length === 0 ? (
-                <div className="text-center py-8 space-y-4">
-                  <div className="text-4xl">🛒</div>
-                  <div className="space-y-1">
-                    <h4 className="font-semibold text-base">No orders yet</h4>
-                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">Browse the shop or submit a brand press article to get started.</p>
+          {/* Lawyer Verification Prompt */}
+          {isRoleClient && !verification && (
+            <Card className="border border-[#a77c5c]/20 bg-[#a77c5c]/5">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[#a77c5c]/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">⚖️</span>
                   </div>
-                  <div className="flex gap-3 justify-center">
-                    <Link href="/shop"><Button size="sm">Visit Shop</Button></Link>
-                    <Link href="/brand-press/submit"><Button size="sm" variant="outline">Brand Press</Button></Link>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold">Are you a lawyer?</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Get verified to access lawyer features — listings, chamber profiles, content
+                      studio, and client inquiries.
+                    </p>
+                  </div>
+                  <Link href="/directory/dashboard/settings?tab=verification">
+                    <Button size="sm" className="shrink-0 bg-[#a77c5c] hover:bg-[#906b4e] text-white">
+                      Get Verified
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {verification?.status === 'pending' && (
+            <Card className="border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+                    <span className="text-lg">⏳</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">Verification Pending</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Your lawyer verification request is being reviewed. We&apos;ll update your
+                      status once the admin team completes the review.
+                    </p>
                   </div>
                 </div>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/40">
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Reference</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden sm:table-cell">Plan</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Amount</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Status</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wide hidden md:table-cell">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.slice(0, 10).map((tx) => (
-                      <tr key={tx.id} className="border-b border-border/20 last:border-0">
-                        <td className="p-3 font-mono text-xs">{tx.reference.slice(0, 12)}&hellip;</td>
-                        <td className="p-3 text-muted-foreground text-xs hidden sm:table-cell truncate max-w-[140px]">{tx.plan_name}</td>
-                        <td className="p-3 font-medium">₦{Number(tx.amount).toLocaleString()}</td>
-                        <td className="p-3">
-                          <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded-full border ${
-                            tx.status === 'success' ? 'text-emerald-600 bg-emerald-50 border-emerald-200' :
-                            tx.status === 'pending' ? 'text-amber-600 bg-amber-50 border-amber-200' :
-                            'text-red-600 bg-red-50 border-red-200'
-                          }`}>{tx.status}</span>
-                        </td>
-                        <td className="p-3 text-muted-foreground text-xs hidden md:table-cell">
-                          {new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {verification?.status === 'rejected' && (
+            <Card className="border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0">
+                    <span className="text-lg">❌</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">Verification Declined</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Your previous verification request was not approved. You can submit a new
+                      request with corrected information.
+                    </p>
+                  </div>
+                  <Link href="/directory/dashboard/settings?tab=verification">
+                    <Button size="sm" variant="outline" className="shrink-0">
+                      Try Again
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Directory Onboarding */}
           <Card className="border border-border/40 bg-card/45 backdrop-blur-md">

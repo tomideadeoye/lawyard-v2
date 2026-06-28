@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,11 +12,13 @@ import CategoryMultiselect from './CategoryMultiselect';
 import { publishPodcast } from '@/app/directory/actions/content';
 
 export default function PublishPodcastForm() {
+  const router = useRouter();
   const [title, setTitle] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('audio');
   const [description, setDescription] = useState('');
   const [categories, setCategories] = useState<string[]>(['general-practice']);
+  const [scheduledDate, setScheduledDate] = useState('');
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -25,7 +28,13 @@ export default function PublishPodcastForm() {
       formData.set('media_type', mediaType);
       formData.set('description', description);
       formData.set('category', JSON.stringify(categories));
-      return publishPodcast(formData);
+      if (scheduledDate) formData.set('scheduled_date', scheduledDate);
+      const result = await publishPodcast(formData);
+      if ('error' in result) throw new Error(result.error as string);
+      return result;
+    },
+    onSuccess: () => {
+      router.push('/directory/dashboard');
     },
   });
 
@@ -96,6 +105,21 @@ export default function PublishPodcastForm() {
         <CategoryMultiselect value={categories} onChange={setCategories} />
       </div>
 
+      <Field>
+        <FieldLabel htmlFor="scheduled_date" className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
+          Schedule Date (optional)
+        </FieldLabel>
+        <Input
+          id="scheduled_date"
+          type="date"
+          value={scheduledDate}
+          onChange={(e) => setScheduledDate(e.target.value)}
+        />
+        <p className="text-[10px] text-muted-foreground/60 mt-1">
+          Leave empty to publish immediately after editorial approval.
+        </p>
+      </Field>
+
       {mutation.isError && (
         <p className="text-sm text-destructive font-medium bg-destructive/10 p-2.5 rounded border border-destructive/20">
           {mutation.error instanceof Error ? mutation.error.message : 'An error occurred while publishing.'}
@@ -103,7 +127,7 @@ export default function PublishPodcastForm() {
       )}
 
       <Button type="submit" disabled={mutation.isPending} className="w-full glow-primary mt-2">
-        {mutation.isPending ? 'Going Live...' : 'Go Live on Homepage'}
+        {mutation.isPending ? 'Submitting for Review...' : 'Submit for Editorial Review'}
       </Button>
     </form>
   );

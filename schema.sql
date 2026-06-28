@@ -63,6 +63,11 @@ CREATE TABLE profiles (
   subscription_tier TEXT CHECK (subscription_tier IN ('free', 'premium_single', 'premium_package')) DEFAULT 'free',
   subscription_status TEXT CHECK (subscription_status IN ('active', 'past_due', 'canceled')) DEFAULT 'active',
   
+  -- Notification & display preferences
+  hide_contact_form BOOLEAN DEFAULT false,
+  display_email TEXT DEFAULT 'everyone' CHECK (display_email IN ('everyone', 'logged_in_only', 'dont_display')),
+  contact_form_recipient TEXT DEFAULT 'author_email' CHECK (contact_form_recipient IN ('author_email', 'listing_email')),
+  
   CONSTRAINT full_name_length CHECK (char_length(full_name) >= 3)
 );
 

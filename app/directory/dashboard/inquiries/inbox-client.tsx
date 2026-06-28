@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { markInquiryRead } from '@/app/directory/actions/inquiries';
 
 interface Inquiry {
@@ -16,22 +16,24 @@ interface Inquiry {
 
 export default function InboxClient({ inquiries: initial }: { inquiries: Inquiry[] }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const queryClient = useQueryClient();
+  const [inquiries, setInquiries] = useState(initial);
 
   const markRead = useMutation({
     mutationFn: markInquiryRead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inquiries'] });
+    onSuccess: (_data, inquiryId) => {
+      setInquiries((prev) =>
+        prev.map((i) => (i.id === inquiryId ? { ...i, read: true } : i))
+      );
     },
   });
 
-  const active = selected ? initial.find((i) => i.id === selected) : null;
+  const active = selected ? inquiries.find((i) => i.id === selected) : null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6">
       {/* List */}
       <div className="space-y-2">
-        {initial.map((inq) => (
+        {inquiries.map((inq) => (
           <button
             key={inq.id}
             onClick={() => {

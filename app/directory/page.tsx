@@ -48,7 +48,7 @@ export default async function Home() {
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif italic font-bold text-white tracking-tight leading-[1.05] [text-shadow:0_4px_24px_rgba(0,0,0,0.45)]">
             Experienced Lawyers Are
             <br />
-            <span className="text-accent">Ready To Help</span>
+            <span className="text-accent dark:text-[#a77c5c]">Ready To Help</span>
           </h1>
 
           <p className="text-base md:text-lg text-white/80 max-w-2xl leading-relaxed">
@@ -148,7 +148,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============== FEATURED LAWYER LISTINGS ============== */}
+      {lawyers.length > 0 && (
       <section className="py-24 md:py-28 bg-background">
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="text-center mb-14">
@@ -160,54 +160,49 @@ export default async function Home() {
             </p>
           </div>
 
-          {lawyers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lawyers.map((l) => (
-                <Link
-                  key={l.id}
-                  href={`/lawyer/${l.id}`}
-                  className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                      <ListingAvatar src={l.image} name={l.name} type="lawyer" />
-                    </div>
-                    <div className="min-w-0 flex-1 pt-0.5">
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                        {l.name}
-                      </h3>
-                      <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
-                        {l.role}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {lawyers.map((l) => (
+              <Link
+                key={l.id}
+                href={`/lawyer/${l.id}`}
+                className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                    <ListingAvatar src={l.image} name={l.name} type="lawyer" />
                   </div>
-                  <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
-                    {l.specialties.join(" · ")}
-                  </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <span className="text-amber-500 text-base">★</span>
-                      <span className="text-foreground">{l.rating}</span>
-                    </span>
-                    <span className="flex items-center gap-1.5 truncate ml-2">
-                      <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
-                        <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
-                      </svg>
-                      <span className="truncate">{l.location}</span>
-                    </span>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                      {l.name}
+                    </h3>
+                    <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
+                      {l.role}
+                    </p>
                   </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground text-sm">
-              No listings found.
-            </div>
-          )}
+                </div>
+                <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
+                  {l.specialties.join(" · ")}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <span className="text-amber-500 text-base">★</span>
+                    <span className="text-foreground">{l.rating}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 truncate ml-2">
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
+                    </svg>
+                    <span className="truncate">{l.location}</span>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
+      )}
 
-      {/* ============== FEATURED CHAMBER LISTINGS ============== */}
+      {chambers.length > 0 && (
       <section className="py-24 md:py-28 bg-muted/40 border-y border-border/40">
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="text-center mb-14">
@@ -219,51 +214,47 @@ export default async function Home() {
             </p>
           </div>
 
-          {chambers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {chambers.map((c) => (
-                <div
-                  key={c.id}
-                  className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                      <ListingAvatar src={c.image} name={c.name} type="chamber" />
-                    </div>
-                    <div className="min-w-0 flex-1 pt-0.5">
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                        {c.name}
-                      </h3>
-                      <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
-                        {c.type}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {chambers.map((c) => (
+              <Link
+                key={c.id}
+                href={`/directory/chamber/${c.id}`}
+                className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                    <ListingAvatar src={c.image} name={c.name} type="chamber" />
                   </div>
-                  <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
-                    {c.focus}
-                  </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <span className="text-amber-500 text-base">★</span>
-                      <span className="text-foreground">{c.rating}</span>
-                    </span>
-                    <span className="flex items-center gap-1.5 truncate ml-2">
-                      <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
-                        <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
-                      </svg>
-                      <span className="truncate">{c.location}</span>
-                    </span>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                      {c.name}
+                    </h3>
+                    <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
+                      {c.type}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground text-sm">
-              No listings found.
-            </div>
-          )}
+                <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
+                  {c.focus}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <span className="text-amber-500 text-base">★</span>
+                    <span className="text-foreground">{c.rating}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 truncate ml-2">
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
+                    </svg>
+                    <span className="truncate">{c.location}</span>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
+      )}
 
       {/* ============== LISTING TYPES ============== */}
       <section className="py-24 md:py-28 bg-background">
@@ -310,9 +301,9 @@ export default async function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-foreground mb-3">For Chambers</h3>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Showcase your firm's collective expertise, manage member profiles, and attract institutional clients at scale.
-              </p>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Showcase your firm's collective expertise, manage member profiles, and attract institutional clients at scale.
+                </p>
             </div>
           </div>
         </div>

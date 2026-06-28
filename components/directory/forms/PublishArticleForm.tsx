@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,52 +12,78 @@ import CategoryMultiselect from './CategoryMultiselect';
 import { publishArticle } from '@/app/directory/actions/content';
 import { uploadArticleImage } from '@/app/directory/actions/upload-article-image';
 
+interface FormState {
+  title: string;
+  slug: string;
+  isCustomSlug: boolean;
+  content: string;
+  excerpt: string;
+  headerImage: string | null;
+  categories: string[];
+  scheduledDate: string;
+}
+
+const INITIAL_STATE: FormState = {
+  title: '',
+  slug: '',
+  isCustomSlug: false,
+  content: '',
+  excerpt: '',
+  headerImage: null,
+  categories: ['general-practice'],
+  scheduledDate: '',
+};
+
+function generateSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export default function PublishArticleForm() {
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [isCustomSlug, setIsCustomSlug] = useState(false);
-  const [content, setContent] = useState('');
-  const [excerpt, setExcerpt] = useState('');
-  const [headerImage, setHeaderImage] = useState<string | null>(null);
-  const [headerFile, setHeaderFile] = useState<File | null>(null);
-  const [categories, setCategories] = useState<string[]>(['general-practice']);
+  const router = useRouter();
+  const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+  };
+
   const mutation = useMutation({
     mutationFn: async () => {
       const formData = new FormData();
-      formData.set('title', title);
-      formData.set('slug', slug);
-      formData.set('content', content);
-      formData.set('excerpt', excerpt || content.substring(0, 160).replace(/<[^>]*>/g, '') + '...');
-      formData.set('category', JSON.stringify(categories));
-      if (headerImage) formData.set('featured_image', headerImage);
-      return publishArticle(formData);
+      formData.set('title', form.title);
+      formData.set('slug', form.slug);
+      formData.set('content', form.content);
+      formData.set('excerpt', form.excerpt || form.content.substring(0, 160).replace(/<[^>]*>/g, '') + '...');
+      formData.set('category', JSON.stringify(form.categories));
+      if (form.scheduledDate) formData.set('scheduled_date', form.scheduledDate);
+      if (form.headerImage) formData.set('featured_image', form.headerImage);
+      const result = await publishArticle(formData);
+      if ('error' in result) throw new Error(result.error as string);
+      return result;
+    },
+    onSuccess: () => {
+      router.push('/directory/dashboard');
     },
   });
 
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setTitle(val);
-    if (!isCustomSlug) {
-      setSlug(generateSlug(val));
+    update('title', val);
+    if (!form.isCustomSlug) {
+      update('slug', generateSlug(val));
     }
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSlug(e.target.value);
-    setIsCustomSlug(true);
+    update('slug', e.target.value);
+    update('isCustomSlug', true);
   };
 
   const handleHeaderImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +100,6 @@ export default function PublishArticleForm() {
       return;
     }
 
-    setHeaderFile(file);
     setUploading(true);
     setError(null);
 
@@ -83,9 +109,8 @@ export default function PublishArticleForm() {
     const res = await uploadArticleImage(formData);
     if (res.error) {
       setError(res.error);
-      setHeaderFile(null);
     } else if (res.imageUrl) {
-      setHeaderImage(res.imageUrl);
+      update('headerImage', res.imageUrl);
     }
     setUploading(false);
   };
@@ -94,7 +119,7 @@ export default function PublishArticleForm() {
     e.preventDefault();
     setError(null);
 
-    if (!content.trim()) {
+    if (!form.content.trim()) {
       setError('Article content is required');
       return;
     }
@@ -113,12 +138,12 @@ export default function PublishArticleForm() {
           onClick={() => fileInputRef.current?.click()}
           className="relative rounded-xl border-2 border-dashed border-border/60 hover:border-[#a77c5c]/40 transition-colors cursor-pointer overflow-hidden bg-muted/20 min-h-[160px] flex items-center justify-center group"
         >
-          {headerImage ? (
+          {form.headerImage ? (
             <>
-              <img src={headerImage} alt="Header" className="w-full h-full object-cover absolute inset-0" />
+              <img src={form.headerImage} alt="Header" className="w-full h-full object-cover absolute inset-0" />
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); setHeaderImage(null); setHeaderFile(null); }}
+                onClick={(e) => { e.stopPropagation(); update('headerImage', null); }}
                 className="relative z-10 px-3 py-1.5 rounded-lg bg-black/60 text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 Remove
@@ -145,7 +170,7 @@ export default function PublishArticleForm() {
         <Input
           id="title"
           placeholder="e.g. Legal Engineering in 2026"
-          value={title}
+          value={form.title}
           onChange={handleTitleChange}
           required
         />
@@ -159,7 +184,7 @@ export default function PublishArticleForm() {
         <Input
           id="slug"
           placeholder="e.g. legal-engineering-2026"
-          value={slug}
+          value={form.slug}
           onChange={handleSlugChange}
           required
         />
@@ -170,7 +195,7 @@ export default function PublishArticleForm() {
         <FieldLabel className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
           Practice Areas
         </FieldLabel>
-        <CategoryMultiselect value={categories} onChange={setCategories} />
+        <CategoryMultiselect value={form.categories} onChange={v => update('categories', v)} />
       </div>
 
       {/* Content */}
@@ -178,7 +203,7 @@ export default function PublishArticleForm() {
         <FieldLabel htmlFor="content" className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
           Article Content
         </FieldLabel>
-        <RichTextEditor content={content} onChange={setContent} />
+        <RichTextEditor content={form.content} onChange={v => update('content', v)} />
       </div>
 
       {/* Excerpt */}
@@ -189,12 +214,27 @@ export default function PublishArticleForm() {
         <Textarea
           id="excerpt"
           placeholder="Brief summary for previews..."
-          value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
+          value={form.excerpt}
+          onChange={e => update('excerpt', e.target.value)}
           className="min-h-[60px] resize-y"
         />
         <p className="text-[10px] text-muted-foreground/60 mt-1">
           Auto-generated from content if left empty.
+        </p>
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="scheduled_date" className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
+          Schedule Date (optional)
+        </FieldLabel>
+        <Input
+          id="scheduled_date"
+          type="date"
+          value={form.scheduledDate}
+          onChange={e => update('scheduledDate', e.target.value)}
+        />
+        <p className="text-[10px] text-muted-foreground/60 mt-1">
+          Leave empty to publish immediately after editorial approval.
         </p>
       </Field>
 
@@ -205,7 +245,7 @@ export default function PublishArticleForm() {
       )}
 
       <Button type="submit" disabled={mutation.isPending || uploading} className="w-full glow-primary mt-2">
-        {mutation.isPending ? 'Publishing...' : 'Publish to Directory'}
+        {mutation.isPending ? 'Submitting for Review...' : 'Submit for Editorial Review'}
       </Button>
     </form>
   );

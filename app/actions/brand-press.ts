@@ -22,6 +22,39 @@ export async function submitBrandPress(formData: FormData) {
   const tier = brandPressConfig.tiers.find(t => t.id === data.tier)
   if (!tier) return { error: 'Invalid tier' }
 
+  // Clash detection: enforce minimum gap between Brand Press scheduled dates
+  if (data.scheduled_date) {
+    const sbAdmin = createServiceRoleClient()
+    const { data: clashWindow } = await sbAdmin
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'brand_press_clash_window_minutes')
+      .single()
+
+    const windowMinutes = parseInt(clashWindow?.value || '60', 10)
+    const scheduledMs = new Date(data.scheduled_date).getTime()
+
+    if (!isNaN(scheduledMs)) {
+      const windowMs = windowMinutes * 60 * 1000
+      const fromTime = new Date(scheduledMs - windowMs).toISOString()
+      const toTime = new Date(scheduledMs + windowMs).toISOString()
+
+      const { count } = await sbAdmin
+        .from('articles')
+        .select('*', { count: 'exact', head: true })
+        .eq('article_type', 'brand_press')
+        .in('status', ['pending_review', 'published'])
+        .gte('scheduled_date', fromTime)
+        .lte('scheduled_date', toTime)
+
+      if (count && count > 0) {
+        return {
+          error: `Another Brand Press is scheduled within ${windowMinutes} minutes of your selected time. Please choose a different date or time.`,
+        }
+      }
+    }
+  }
+
   let amount = tier.price
   let appliedCoupon: { code: string; discountPercent: number; discountAmount: number } | null = null
   if (data.coupon_code) {

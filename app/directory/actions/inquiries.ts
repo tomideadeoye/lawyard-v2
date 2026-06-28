@@ -23,7 +23,7 @@ export async function submitInquiry(input: InquiryInput) {
       message: input.message,
     });
 
-  if (error) return { error: error.message };
+  if (error) throw new Error(error.message);
   return { success: true };
 }
 
@@ -62,7 +62,7 @@ export async function getInquiryStats() {
 export async function markInquiryRead(inquiryId: string) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return { error: 'Not authenticated' };
+  if (authError || !user) throw new Error('Not authenticated');
 
   const { error } = await supabase
     .from('lawyer_inquiries')
@@ -70,7 +70,7 @@ export async function markInquiryRead(inquiryId: string) {
     .eq('id', inquiryId)
     .eq('lawyer_id', user.id);
 
-  if (error) return { error: error.message };
+  if (error) throw new Error(error.message);
   return { success: true };
 }
 

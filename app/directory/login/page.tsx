@@ -1,7 +1,13 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import LoginForm from "@/components/directory/auth/login-form";
 import Logo from "@/components/directory/auth/logo";
 
 export default async function LoginPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) redirect('/directory/dashboard')
+
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md mx-auto space-y-8 animate-fade-in">

@@ -76,7 +76,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <head />
+      <head suppressHydrationWarning />
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: '<script src="/theme-init.js"></script>' }} />
         <ThemeProvider defaultTheme="system">

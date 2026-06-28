@@ -3,6 +3,7 @@ import { verifyTransaction } from '@/lib/api/paystack'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sendPaymentConfirmation } from '@/lib/api/email'
+import { postBrandPressToSlackWithButtons } from '@/lib/slack'
 
 export default async function PaymentCallbackPage({
   searchParams,
@@ -37,6 +38,23 @@ export default async function PaymentCallbackPage({
           status: 'pending_review',
         })
         .eq('id', tx.metadata.article_id)
+
+      const { data: article } = await supabase
+        .from('articles')
+        .select('id, title, slug, excerpt, brand_name, tier')
+        .eq('id', tx.metadata.article_id)
+        .single()
+
+      if (article) {
+        postBrandPressToSlackWithButtons({
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+          brandName: article.brand_name || 'Unknown',
+          excerpt: article.excerpt || '',
+          tier: article.tier || tx.metadata.tier || '',
+        }).catch(() => {})
+      }
     }
 
     if (tx?.metadata?.brand_name) {

@@ -65,6 +65,21 @@ function LoginFormContent() {
     })
   }
 
+  const handleLinkedInLogin = () => {
+    startTransition(async () => {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) {
+        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
+      }
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {message && (
@@ -117,6 +132,24 @@ function LoginFormContent() {
                   />
                 </svg>
                 Login with Google
+              </Button>
+            </Field>
+
+            <Field>
+              <Button
+                variant="outline"
+                type="button"
+                className="w-full py-6 text-base font-semibold gap-3"
+                onClick={handleLinkedInLogin}
+                disabled={isPending}
+              >
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+                  <rect x="1" y="1" width="22" height="22" rx="4" fill="#0A66C2" />
+                  <path d="M6.94 18.5V9.75H4.33V18.5H6.94Z" fill="white" />
+                  <path d="M5.64 8.66C6.59 8.66 7.22 8 7.22 7.17C7.2 6.32 6.59 5.68 5.66 5.68C4.72 5.68 4.07 6.32 4.07 7.17C4.07 8 4.72 8.66 5.64 8.66Z" fill="white" />
+                  <path d="M12.46 18.5V13.83C12.46 13.54 12.48 13.26 12.57 13.05C12.8 12.49 13.32 11.91 14.19 11.91C15.34 11.91 15.82 12.78 15.82 14.05V18.5H18.43V13.86C18.43 11.33 17.09 10.17 15.3 10.17C13.87 10.17 13.2 10.97 12.87 11.5V11.52H12.85L12.87 11.5V9.75H10.27C10.31 10.55 10.27 18.5 10.27 18.5H12.46Z" fill="white" />
+                </svg>
+                Login with LinkedIn
               </Button>
             </Field>
 

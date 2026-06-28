@@ -97,7 +97,29 @@ export async function getLawyers(options: {
     return [];
   }
 
-  let formattedData = (lawyers as Record<string, unknown>[]).map((l) => {
+  let rawData = (lawyers as Record<string, unknown>[])
+
+  if (options.featured) {
+    const ids = rawData.map((l) => l.id as string)
+    if (ids.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, subscription_expires_at, subscription_tier')
+        .in('id', ids)
+
+      const profileMap = new Map((profiles || []).map((p) => [p.id, p]))
+
+      rawData = rawData.filter((l) => {
+        const p = profileMap.get(l.id as string)
+        if (!p) return false
+        const expiresAt = p.subscription_expires_at as string | null
+        if (!expiresAt) return p.subscription_tier !== 'free'
+        return new Date(expiresAt) > new Date()
+      })
+    }
+  }
+
+  let formattedData = rawData.map((l) => {
     const allSpecs = parseSpecialtyNames(l.specialties);
     const rawImage = (l.image_url as string) || '';
     const image = rawImage.replace(/\.jpg$/i, '.svg');
@@ -170,7 +192,12 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
 
   let query = supabase.from('chambers').select('*');
 
-  if (options.featured) query = query.eq('is_featured', true);
+  if (options.featured) {
+    query = query
+      .eq('is_featured', true)
+      .eq('subscription_status', 'active')
+      .or('subscription_expires_at.is.null,subscription_expires_at.gt.' + new Date().toISOString());
+  }
 
   const { data: chambers, error } = await query;
 
@@ -197,6 +224,18 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
   }
 
   return formattedData;
+}
+
+export async function getChamberById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('chambers')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) return null;
+  return data;
 }
 
 export async function getArticles(options: { authorId?: string; limit?: number } = {}) {

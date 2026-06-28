@@ -428,3 +428,48 @@ export async function rejectLawyerAction(id: string) {
   if (error) throw new Error(error.message);
   return { success: true };
 }
+
+export type SettingEntry = {
+  key: string;
+  value: string;
+  description: string | null;
+  updated_at: string | null;
+};
+
+export async function getAllSettings(): Promise<SettingEntry[]> {
+  const { supabase } = await getAdminClient();
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('*')
+    .order('key');
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getSetting(key: string): Promise<string | null> {
+  const { supabase } = await getAdminClient();
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', key)
+    .single();
+
+  if (error) return null;
+  return data?.value ?? null;
+}
+
+export async function updateSetting(key: string, value: string) {
+  const { supabase, user } = await getAdminClient();
+  const { error } = await supabase
+    .from('app_settings')
+    .upsert({
+      key,
+      value,
+      updated_at: new Date().toISOString(),
+      updated_by: user.id,
+    });
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}

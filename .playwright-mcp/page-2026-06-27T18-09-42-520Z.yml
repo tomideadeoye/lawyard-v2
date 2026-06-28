@@ -1,0 +1,236 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Lawyard Logo Directory" [ref=e6] [cursor=pointer]:
+          - /url: /directory
+          - img "Lawyard Logo" [ref=e7]
+          - generic [ref=e8]: Directory
+        - navigation [ref=e9]:
+          - button "Type Of Lawyers" [ref=e11] [cursor=pointer]:
+            - text: Type Of Lawyers
+            - img [ref=e12]
+          - button "Areas Of Specialty" [ref=e15] [cursor=pointer]:
+            - text: Areas Of Specialty
+            - img [ref=e16]
+          - link "Pricing" [ref=e18] [cursor=pointer]:
+            - /url: /directory/pricing
+          - link "Help" [ref=e19] [cursor=pointer]:
+            - /url: /directory/help
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - button "Toggle theme" [ref=e22]:
+              - img [ref=e23]
+              - img
+            - link "Search" [ref=e29] [cursor=pointer]:
+              - /url: /search
+              - img [ref=e30]
+            - link "Login" [ref=e33] [cursor=pointer]:
+              - /url: /directory/login
+              - img [ref=e34]
+          - link "+ Add Listing" [ref=e37] [cursor=pointer]:
+            - /url: /directory/add-listing
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - link "Lawyard Logo Directory" [ref=e41] [cursor=pointer]:
+            - /url: /directory
+            - img "Lawyard Logo" [ref=e42]
+            - generic [ref=e43]: Directory
+          - button "Close Menu" [ref=e44]:
+            - img [ref=e45]
+        - navigation [ref=e49]:
+          - generic [ref=e50]:
+            - button "Type Of Lawyers" [ref=e51]:
+              - generic [ref=e52]: Type Of Lawyers
+              - img [ref=e53]
+            - generic:
+              - link "Commercial Law" [ref=e55] [cursor=pointer]:
+                - /url: /directory/search?type=commercial
+              - link "Dispute Resolution Law" [ref=e56] [cursor=pointer]:
+                - /url: /directory/search?type=dispute-resolution
+          - generic [ref=e57]:
+            - button "Areas Of Specialty" [ref=e58]:
+              - generic [ref=e59]: Areas Of Specialty
+              - img [ref=e60]
+            - generic:
+              - link "Banking and Finance" [ref=e62] [cursor=pointer]:
+                - /url: /directory/search?specialty=banking-and-finance
+              - link "Capital Markets" [ref=e63] [cursor=pointer]:
+                - /url: /directory/search?specialty=capital-markets
+              - link "Construction Law" [ref=e64] [cursor=pointer]:
+                - /url: /directory/search?specialty=construction-law
+              - link "Corporate Law" [ref=e65] [cursor=pointer]:
+                - /url: /directory/search?specialty=corporate-law
+              - link "Criminal Law" [ref=e66] [cursor=pointer]:
+                - /url: /directory/search?specialty=criminal-law
+              - link "Dispute Resolution Law" [ref=e67] [cursor=pointer]:
+                - /url: /directory/search?specialty=dispute-resolution-law
+              - link "Divorce Law" [ref=e68] [cursor=pointer]:
+                - /url: /directory/search?specialty=divorce-law
+              - link "Energy Law" [ref=e69] [cursor=pointer]:
+                - /url: /directory/search?specialty=energy-law
+              - link "Family Law" [ref=e70] [cursor=pointer]:
+                - /url: /directory/search?specialty=family-law
+              - link "FinTech" [ref=e71] [cursor=pointer]:
+                - /url: /directory/search?specialty=fintech
+              - link "Immigration Law" [ref=e72] [cursor=pointer]:
+                - /url: /directory/search?specialty=immigration-law
+              - link "Injury Law" [ref=e73] [cursor=pointer]:
+                - /url: /directory/search?specialty=injury-law
+              - link "Litigation Law" [ref=e74] [cursor=pointer]:
+                - /url: /directory/search?specialty=litigation-law
+              - link "Mediation and Arbitration" [ref=e75] [cursor=pointer]:
+                - /url: /directory/search?specialty=mediation-and-arbitration
+              - link "Privacy and Data Protection" [ref=e76] [cursor=pointer]:
+                - /url: /directory/search?specialty=privacy-and-data-protection
+              - link "Project Finance" [ref=e77] [cursor=pointer]:
+                - /url: /directory/search?specialty=project-finance
+              - link "Real Estate Law" [ref=e78] [cursor=pointer]:
+                - /url: /directory/search?specialty=real-estate-law
+              - link "Regulatory Compliance" [ref=e79] [cursor=pointer]:
+                - /url: /directory/search?specialty=regulatory-compliance
+              - link "Commercial Law" [ref=e80] [cursor=pointer]:
+                - /url: /directory/search?specialty=commercial-law
+          - link "Pricing" [ref=e81] [cursor=pointer]:
+            - /url: /directory/pricing
+          - link "Help" [ref=e82] [cursor=pointer]:
+            - /url: /directory/help
+        - generic [ref=e83]:
+          - link "Sign In" [ref=e84] [cursor=pointer]:
+            - /url: /directory/login
+          - link "+ Add Listing" [ref=e85] [cursor=pointer]:
+            - /url: /directory/add-listing
+    - main [ref=e86]:
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - img "Lawyard Logo" [ref=e92]
+          - paragraph [ref=e93]: Securely sign in to manage your professional legal profile.
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - generic [ref=e97]: Welcome back
+              - generic [ref=e98]: Login with your Google account
+            - generic [ref=e100]:
+              - button "Login with Google" [ref=e102]:
+                - img
+                - text: Login with Google
+              - generic [ref=e103]: Or continue with
+              - generic [ref=e104]:
+                - button "Password" [ref=e105]
+                - button "Magic Link" [ref=e106]
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: Email
+                  - textbox "Email" [ref=e111]:
+                    - /placeholder: m@example.com
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - generic [ref=e114]: Password
+                    - link "Forgot your password?" [ref=e115] [cursor=pointer]:
+                      - /url: "#"
+                  - textbox "Password" [ref=e116]
+                - button "Login" [ref=e118]:
+                  - text: Login
+                  - img
+              - paragraph [ref=e119]:
+                - text: Don't have an account?
+                - link "Sign up" [ref=e120] [cursor=pointer]:
+                  - /url: /signup
+          - paragraph [ref=e121]:
+            - text: By clicking continue, you agree to our
+            - link "Terms of Service" [ref=e122] [cursor=pointer]:
+              - /url: "#"
+            - text: and
+            - link "Privacy Policy" [ref=e123] [cursor=pointer]:
+              - /url: "#"
+            - text: .
+    - contentinfo [ref=e124]:
+      - generic [ref=e125]:
+        - generic [ref=e126]:
+          - heading "Directory Services" [level=4] [ref=e127]
+          - generic [ref=e128]:
+            - img "Lawyard Logo" [ref=e129]
+            - generic [ref=e130]: Directory
+          - paragraph [ref=e131]: Lawyard is Nigeria's premier legal media and services platform. This directory exists to provide access to legal professionals across Africa, bridging the gap between experts and those needing legal assistance. Part of the Lawyard institutional brand.
+        - generic [ref=e132]:
+          - heading "Important Links" [level=4] [ref=e133]
+          - generic [ref=e134]:
+            - link "How It Works" [ref=e135] [cursor=pointer]:
+              - /url: /about
+            - link "Legal Insights" [ref=e136] [cursor=pointer]:
+              - /url: /insights
+            - link "Add Listing" [ref=e137] [cursor=pointer]:
+              - /url: /directory/add-listing
+            - link "User Dashboard" [ref=e138] [cursor=pointer]:
+              - /url: /directory/dashboard
+            - link "Compare Listings" [ref=e139] [cursor=pointer]:
+              - /url: /directory/search
+            - link "Contact Us" [ref=e140] [cursor=pointer]:
+              - /url: mailto:contact@lawyard.org
+            - link "Legislations" [ref=e141] [cursor=pointer]:
+              - /url: /legislations
+            - link "Privacy Policy" [ref=e142] [cursor=pointer]:
+              - /url: /directory/privacy
+            - link "Terms & Conditions" [ref=e143] [cursor=pointer]:
+              - /url: /directory/terms
+            - link "Knowledge Base" [ref=e144] [cursor=pointer]:
+              - /url: /directory/knowledge
+        - generic [ref=e145]:
+          - heading "Areas of Specialty" [level=4] [ref=e146]
+          - generic [ref=e147]:
+            - link "Corporate Law" [ref=e148] [cursor=pointer]:
+              - /url: /directory/search?specialty=corporate-law
+            - link "Criminal Law" [ref=e149] [cursor=pointer]:
+              - /url: /directory/search?specialty=criminal-law
+            - link "Divorce Law" [ref=e150] [cursor=pointer]:
+              - /url: /directory/search?specialty=divorce-law
+            - link "Family Law" [ref=e151] [cursor=pointer]:
+              - /url: /directory/search?specialty=family-law
+            - link "FinTech" [ref=e152] [cursor=pointer]:
+              - /url: /directory/search?specialty=fintech
+            - link "Immigration Law" [ref=e153] [cursor=pointer]:
+              - /url: /directory/search?specialty=immigration-law
+            - link "Real Estate Law" [ref=e154] [cursor=pointer]:
+              - /url: /directory/search?specialty=real-estate-law
+            - link "Regulatory Compliance" [ref=e155] [cursor=pointer]:
+              - /url: /directory/search?specialty=regulatory-compliance
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - heading "Subscribe to Newsletter" [level=4] [ref=e159]
+          - paragraph [ref=e160]: Subscribe to get updates and information. Don't worry, we won't send spam!
+        - generic [ref=e161]:
+          - textbox "Enter your email" [ref=e162]
+          - button "Subscribe →" [ref=e163]
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - generic [ref=e166]:
+            - link "Home" [ref=e167] [cursor=pointer]:
+              - /url: /directory
+            - link "Find Counsel" [ref=e168] [cursor=pointer]:
+              - /url: /directory/search
+            - link "Register Profile" [ref=e169] [cursor=pointer]:
+              - /url: /directory/add-listing
+            - link "Dashboard" [ref=e170] [cursor=pointer]:
+              - /url: /directory/dashboard
+          - link "Lawyard Logo" [ref=e172] [cursor=pointer]:
+            - /url: /
+            - img "Lawyard Logo" [ref=e173]
+          - generic [ref=e174]:
+            - link "Facebook" [ref=e175] [cursor=pointer]:
+              - /url: https://facebook.com/lawyardNG
+              - img [ref=e176]
+            - link "Twitter" [ref=e178] [cursor=pointer]:
+              - /url: https://twitter.com/lawyardOrg
+              - img [ref=e179]
+            - link "LinkedIn" [ref=e181] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/lawyard-nigeria/
+              - img [ref=e182]
+            - link "Instagram" [ref=e186] [cursor=pointer]:
+              - /url: https://instagram.com/lawyardorg
+              - img [ref=e187]
+            - link "YouTube" [ref=e190] [cursor=pointer]:
+              - /url: https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos
+              - img [ref=e191]
+        - paragraph [ref=e195]: © COPYRIGHT 2026 ALL RIGHTS RESERVED | DESIGNED BY RENIX CONSULTING | ARCHITECTURE BY ORION HORIZON
+  - button "Open Next.js Dev Tools" [ref=e201] [cursor=pointer]:
+    - img [ref=e202]

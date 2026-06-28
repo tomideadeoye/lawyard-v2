@@ -1,3 +1,10 @@
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Lawyard Directory | Legal Marketplace",
+  description: "Nigeria's legal marketplace — find lawyers, law chambers, and legal services by specialty, location, and budget.",
+}
+
 import Header from "@/components/directory/Header";
 import FooterWrapper from "@/components/directory/dashboard/FooterWrapper";
 

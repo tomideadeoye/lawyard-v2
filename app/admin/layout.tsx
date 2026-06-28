@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import { Sidebar } from '@/components/admin/sidebar'
+
+export const metadata: Metadata = {
+  title: 'Lawyard Admin | Admin Portal',
+  description: 'Administrative dashboard for Lawyard v2 — lawyer verification, content management, and system monitoring.',
+  robots: { index: false, follow: false },
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (

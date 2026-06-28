@@ -5,10 +5,13 @@ import { signOut } from '@/app/admin/login/actions'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/pipeline', label: 'Editorial Pipeline' },
   { href: '/admin/lawyers', label: 'Lawyers Directory' },
+  { href: '/admin/verifications', label: 'Verifications' },
   { href: '/admin/subscribers', label: 'Subscribers' },
   { href: '/admin/content', label: 'Content Manager' },
   { href: '/admin/transactions', label: 'Transactions' },
+  { href: '/admin/settings', label: 'Settings' },
 ]
 
 export function Sidebar() {

@@ -8,6 +8,7 @@ import { useCart } from "./CartContext"
 import { usePathname } from "next/navigation"
 import { UserMenu } from "./dashboard/user-menu"
 import { MobileUserMenu } from "./dashboard/mobile-user-menu"
+import { MobileDrawer } from "./MobileDrawer"
 
 // Custom SVGs for social media and utility icons
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -375,146 +376,132 @@ export default function Header() {
         )}
       </div>
 
-      {/* Mobile Drawer Overlay / Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
-        onClick={() => setMobileMenuOpen(false)} 
-      />
-
-      {/* Mobile Drawer (Slide-out from Left) */}
-      <div className={`fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-background border-r border-border/50 shadow-2xl z-50 flex flex-col justify-between p-6 transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between pb-6 border-b border-border/10">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
-            {/* Choose logo color based on current active theme */}
-            <img 
-              src="/logo-blue.png" 
-              alt="Lawyard Logo" 
-              className="h-7 w-auto object-contain dark:hidden"
-            />
-            <img 
-              src="/logo-white.png" 
-              alt="Lawyard Logo" 
-              className="h-7 w-auto object-contain hidden dark:block"
-            />
-          </Link>
-          <button 
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1"
-            aria-label="Close Menu"
-          >
-            <CloseIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto py-6 space-y-6 select-none">
-          <nav className="flex flex-col gap-5 text-xs font-bold uppercase tracking-widest text-foreground">
-            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
-              About
+      <MobileDrawer open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+        <div className="flex flex-col h-full p-6">
+          {/* Logo + Close */}
+          <div className="flex items-center justify-between pb-6 border-b border-border/10 shrink-0">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
+              <img 
+                src="/logo-blue.png" 
+                alt="Lawyard Logo" 
+                className="h-7 w-auto object-contain dark:hidden"
+              />
+              <img 
+                src="/logo-white.png" 
+                alt="Lawyard Logo" 
+                className="h-7 w-auto object-contain hidden dark:block"
+              />
             </Link>
-            
-            {/* Collapsible Categories */}
-            <div className="flex flex-col">
-              <button 
-                onClick={() => setCategoriesOpen(!categoriesOpen)} 
-                className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
-              >
-                <span>Categories</span>
-                <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${categoriesOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${categoriesOpen ? 'max-h-60 mt-3.5' : 'max-h-0'}`}>
-                <Link href="/category/news" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">News</Link>
-                <Link href="/category/opinions" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Opinions</Link>
-                <Link href="/category/lawyard-spotlight" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Spotlight</Link>
-                <Link href="/category/sports-law" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Sports Law</Link>
-                <Link href="/category/judgements" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Judgements</Link>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1"
+              aria-label="Close Menu"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Nav content */}
+          <div className="flex-1 overflow-y-auto py-6 space-y-6 select-none">
+            <nav className="flex flex-col gap-5 text-xs font-bold uppercase tracking-widest text-foreground">
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
+                About
+              </Link>
+              
+              {/* Collapsible Categories */}
+              <div className="flex flex-col">
+                <button 
+                  onClick={() => setCategoriesOpen(!categoriesOpen)} 
+                  className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
+                >
+                  <span>Categories</span>
+                  <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${categoriesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${categoriesOpen ? 'max-h-60 mt-3.5' : 'max-h-0'}`}>
+                  <Link href="/category/news" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">News</Link>
+                  <Link href="/category/opinions" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Opinions</Link>
+                  <Link href="/category/lawyard-spotlight" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Spotlight</Link>
+                  <Link href="/category/sports-law" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Sports Law</Link>
+                  <Link href="/category/judgements" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Judgements</Link>
+                </div>
               </div>
-            </div>
 
-            {/* Collapsible Media */}
-            <div className="flex flex-col">
-              <button 
-                onClick={() => setMediaOpen(!mediaOpen)} 
-                className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
-              >
-                <span>Media</span>
-                <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${mediaOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${mediaOpen ? 'max-h-40 mt-3.5' : 'max-h-0'}`}>
-                <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Podcasts</Link>
-                <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard TV</Link>
+              {/* Collapsible Media */}
+              <div className="flex flex-col">
+                <button 
+                  onClick={() => setMediaOpen(!mediaOpen)} 
+                  className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
+                >
+                  <span>Media</span>
+                  <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${mediaOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${mediaOpen ? 'max-h-40 mt-3.5' : 'max-h-0'}`}>
+                  <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Podcasts</Link>
+                  <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard TV</Link>
+                </div>
               </div>
-            </div>
 
-            {/* Collapsible Features */}
-            <div className="flex flex-col">
-              <button 
-                onClick={() => setFeaturesOpen(!featuresOpen)} 
-                className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
-              >
-                <span>Features</span>
-                <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${featuresOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${featuresOpen ? 'max-h-40 mt-3.5' : 'max-h-0'}`}>
-                <Link href="/legislations" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Legislations</Link>
-                <Link href="/directory" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard Directory</Link>
-                <a href="https://job.lawyard.org" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Jobs</a>
+              {/* Collapsible Features */}
+              <div className="flex flex-col">
+                <button 
+                  onClick={() => setFeaturesOpen(!featuresOpen)} 
+                  className="flex items-center justify-between hover:text-primary transition-colors py-1 text-left w-full uppercase font-bold text-xs tracking-widest"
+                >
+                  <span>Features</span>
+                  <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${featuresOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${featuresOpen ? 'max-h-40 mt-3.5' : 'max-h-0'}`}>
+                  <Link href="/legislations" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Legislations</Link>
+                  <Link href="/directory" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Lawyard Directory</Link>
+                  <a href="https://job.lawyard.org" onClick={() => setMobileMenuOpen(false)} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors no-underline">Lawyard Jobs</a>
+                </div>
               </div>
+
+              <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
+                Shop
+              </Link>
+
+              <MobileUserMenu onClose={() => setMobileMenuOpen(false)} />
+
+              <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
+                Contact
+              </Link>
+            </nav>
+
+            <div className="border-t border-border/10 my-6" />
+
+            {/* Secondary / Accent Menu items */}
+            <nav className="flex flex-col gap-4 text-[10px] font-extrabold uppercase tracking-widest text-[#a77c5c]">
+              <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">TV</Link>
+              <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">Podcasts</Link>
+              <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">Shop</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">About</Link>
+              <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">Contact</Link>
+            </nav>
+          </div>
+
+          {/* Social footer */}
+          <div className="pt-6 border-t border-border/10 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Facebook">
+                <FacebookIcon className="h-4.5 w-4.5" />
+              </a>
+              <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Twitter">
+                <TwitterIcon className="h-4.5 w-4.5" />
+              </a>
+              <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
+                <InstagramIcon className="h-4.5 w-4.5" />
+              </a>
+              <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="YouTube">
+                <YoutubeIcon className="h-4.5 w-4.5" />
+              </a>
+              <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="LinkedIn">
+                <LinkedinIcon className="h-4.5 w-4.5" />
+              </a>
             </div>
-
-            <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
-              Shop
-            </Link>
-
-            <MobileUserMenu onClose={() => setMobileMenuOpen(false)} />
-
-            <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors py-1 no-underline">
-              Contact
-            </Link>
-          </nav>
-
-          <div className="border-t border-border/10 my-6" />
-
-          {/* Secondary / Accent Menu items */}
-          <nav className="flex flex-col gap-4 text-[10px] font-extrabold uppercase tracking-widest text-[#a77c5c]">
-            <Link href="/tv" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">
-              TV
-            </Link>
-            <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">
-              Podcasts
-            </Link>
-            <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">
-              Shop
-            </Link>
-            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">
-              About
-            </Link>
-            <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-85 transition-opacity no-underline">
-              Contact
-            </Link>
-          </nav>
-        </div>
-
-        {/* Footer block */}
-        <div className="pt-6 border-t border-border/10 flex items-center justify-between">
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <a href="https://facebook.com/lawyardNG" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Facebook">
-              <FacebookIcon className="h-4.5 w-4.5" />
-            </a>
-            <a href="https://twitter.com/lawyardOrg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Twitter">
-              <TwitterIcon className="h-4.5 w-4.5" />
-            </a>
-            <a href="https://instagram.com/lawyardorg" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
-              <InstagramIcon className="h-4.5 w-4.5" />
-            </a>
-            <a href="https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="YouTube">
-              <YoutubeIcon className="h-4.5 w-4.5" />
-            </a>
-            <a href="https://www.linkedin.com/company/lawyard-nigeria/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="LinkedIn">
-              <LinkedinIcon className="h-4.5 w-4.5" />
-            </a>
           </div>
         </div>
-      </div>
+      </MobileDrawer>
     </header>
   )
 }

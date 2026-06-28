@@ -8,82 +8,68 @@
       "recommended": false,
       "features": [
         { "name": "15 Featured Listings", "included": true },
-        { "name": "Website", "included": true },
+        { "name": "Website Link", "included": true },
         { "name": "Social Profile Links", "included": true },
         { "name": "Introductory Video", "included": true },
-        { "name": "Pricing", "included": true },
-        { "name": "Select Images (Maximum of 5)", "included": true },
-        { "name": "Link Directory (Maximum of 3)", "included": true },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": true },
-        { "name": "Booking Included", "included": true },
-        { "name": "Live Chat included", "included": true }
+        { "name": "Price Range Display", "included": true },
+        { "name": "Gallery Images (Max 5)", "included": true },
+        { "name": "Contact Owner Form", "included": true },
+        { "name": "FAQ Section", "included": true },
+        { "name": "Working Hours", "included": true },
+        { "name": "Priority in Search Results", "included": true }
       ]
     },
     {
       "name": "Premium (Single)",
       "price": "$2.00",
       "period": "/ 365 days",
-      "desc": "Best for established lawyers seeking the best online visibility.",
+      "desc": "Best for an established lawyer seeking the best online visibility.",
       "recommended": true,
       "features": [
-        { "name": "Listing on featured", "included": true },
-        { "name": "Website", "included": true },
+        { "name": "Featured Listing", "included": true },
+        { "name": "Website Link", "included": true },
         { "name": "Social Profile Links", "included": true },
         { "name": "Introductory Video", "included": true },
-        { "name": "Pricing", "included": true },
-        { "name": "Select Images (Maximum of 5)", "included": true },
-        { "name": "Link Directory (Maximum of 3)", "included": true },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": true },
-        { "name": "Booking Included", "included": true },
-        { "name": "Live Chat included", "included": true }
+        { "name": "Price Range Display", "included": true },
+        { "name": "Gallery Images (Max 5)", "included": true },
+        { "name": "Contact Owner Form", "included": true },
+        { "name": "FAQ Section", "included": true },
+        { "name": "Working Hours", "included": true },
+        { "name": "Priority in Search Results", "included": true }
       ]
     },
     {
       "name": "Free",
       "price": "$0.00",
       "period": "/ Lifetime",
-      "desc": "Plan for a lawyer just getting started with accessing online visibility.",
+      "desc": "For a lawyer just getting started with online visibility.",
       "recommended": false,
       "features": [
-        { "name": "Listing on featured", "included": false },
-        { "name": "Website", "included": false },
+        { "name": "Featured Listing", "included": false },
+        { "name": "Website Link", "included": false },
         { "name": "Social Profile Links", "included": false },
         { "name": "Introductory Video", "included": false },
-        { "name": "Pricing", "included": false },
-        { "name": "Select Images (Maximum of 5)", "included": false },
-        { "name": "Link Directory (Maximum of 3)", "included": false },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": false },
-        { "name": "Booking Included", "included": false },
-        { "name": "Live Chat included", "included": false }
+        { "name": "Price Range Display", "included": false },
+        { "name": "Gallery Images (Max 5)", "included": false },
+        { "name": "Contact Owner Form", "included": true },
+        { "name": "FAQ Section", "included": false },
+        { "name": "Working Hours", "included": false },
+        { "name": "Priority in Search Results", "included": false }
       ]
     }
   ],
   "client": [
     {
-      "name": "Standard Access",
+      "name": "Free Access",
       "price": "$0.00",
       "period": "/ Forever",
-      "desc": "Basic access for clients looking for legal professionals.",
+      "desc": "Search and contact lawyers for free.",
       "recommended": true,
       "features": [
-        { "name": "Listing on featured", "included": false },
-        { "name": "Website", "included": false },
-        { "name": "Social Profile Links", "included": false },
-        { "name": "Introductory Video", "included": false },
-        { "name": "Pricing", "included": false },
-        { "name": "Select Images (Maximum of 5)", "included": false },
-        { "name": "Link Directory (Maximum of 3)", "included": false },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": false },
-        { "name": "Booking Included", "included": false },
-        { "name": "Live Chat included", "included": false }
+        { "name": "Search Directory", "included": true },
+        { "name": "Bookmark Lawyers", "included": true },
+        { "name": "Contact Lawyers", "included": true },
+        { "name": "View Published Articles", "included": true }
       ]
     }
   ],
@@ -95,18 +81,16 @@
       "desc": "Comprehensive visibility for established law chambers.",
       "recommended": true,
       "features": [
-        { "name": "Listing on featured", "included": true },
-        { "name": "Website", "included": true },
+        { "name": "Featured Listing", "included": true },
+        { "name": "Website Link", "included": true },
         { "name": "Social Profile Links", "included": true },
         { "name": "Introductory Video", "included": true },
-        { "name": "Pricing", "included": true },
-        { "name": "Select Images (Maximum of 5)", "included": true },
-        { "name": "Link Directory (Maximum of 3)", "included": true },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": true },
-        { "name": "Booking Included", "included": true },
-        { "name": "Live Chat included", "included": true }
+        { "name": "Price Range Display", "included": true },
+        { "name": "Gallery Images (Max 5)", "included": true },
+        { "name": "Contact Owner Form", "included": true },
+        { "name": "FAQ Section", "included": true },
+        { "name": "Working Hours", "included": true },
+        { "name": "Priority in Search Results", "included": true }
       ]
     },
     {
@@ -116,18 +100,16 @@
       "desc": "Basic directory listing for law chambers.",
       "recommended": false,
       "features": [
-        { "name": "Listing on featured", "included": false },
-        { "name": "Website", "included": false },
+        { "name": "Featured Listing", "included": false },
+        { "name": "Website Link", "included": false },
         { "name": "Social Profile Links", "included": false },
         { "name": "Introductory Video", "included": false },
-        { "name": "Pricing", "included": false },
-        { "name": "Select Images (Maximum of 5)", "included": false },
-        { "name": "Link Directory (Maximum of 3)", "included": false },
-        { "name": "Contact Owner", "included": true },
-        { "name": "Allow Customer Review", "included": true },
-        { "name": "Claim Badge Included", "included": false },
-        { "name": "Booking Included", "included": false },
-        { "name": "Live Chat included", "included": false }
+        { "name": "Price Range Display", "included": false },
+        { "name": "Gallery Images (Max 5)", "included": false },
+        { "name": "Contact Owner Form", "included": true },
+        { "name": "FAQ Section", "included": false },
+        { "name": "Working Hours", "included": false },
+        { "name": "Priority in Search Results", "included": false }
       ]
     }
   ]

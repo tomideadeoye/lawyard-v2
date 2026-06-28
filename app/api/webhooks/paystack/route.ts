@@ -16,6 +16,7 @@ function verifySignature(body: string, signature: string): boolean {
 }
 
 async function handleBrandPress(sbAdmin: ReturnType<typeof createServiceRoleClient>, reference: string, metadata: any, verify: any) {
+  if (!metadata) return Response.json({ error: 'Missing metadata' }, { status: 400 })
   const { error: txError } = await sbAdmin
     .from('transactions')
     .update({ status: 'success' })
@@ -141,5 +142,101 @@ export async function POST(request: NextRequest) {
     return handleShopPurchase(sbAdmin, reference, metadata, verify)
   }
 
+  if (type === 'subscription') {
+    return handleSubscription(sbAdmin, reference, metadata)
+  }
+
+  if (type === 'chamber_subscription') {
+    return handleChamberSubscription(sbAdmin, reference, metadata)
+  }
+
   return Response.json({ status: 'ignored' })
+}
+
+async function handleSubscription(
+  sbAdmin: ReturnType<typeof createServiceRoleClient>,
+  reference: string,
+  metadata: any
+) {
+  if (!metadata) return Response.json({ error: 'Missing metadata' }, { status: 400 })
+  const { error: txError } = await sbAdmin
+    .from('transactions')
+    .update({ status: 'success' })
+    .eq('reference', reference)
+
+  if (txError) {
+    return Response.json({ error: 'Failed to update transaction' }, { status: 500 })
+  }
+
+  const userId = metadata.user_id
+  const planName = metadata.plan_name
+
+  if (!userId || !planName) {
+    return Response.json({ error: 'Missing user_id or plan_name' }, { status: 400 })
+  }
+
+  const tierMap: Record<string, string> = {
+    'Premium (Package)': 'premium_package',
+    'Premium (Single)': 'premium_single',
+    'Enterprise': 'enterprise',
+  }
+  const tier = tierMap[planName] || 'free'
+
+  const expiryMap: Record<string, number> = {
+    'Premium (Package)': 365,
+    'Premium (Single)': 365,
+    'Enterprise': 365,
+  }
+  const days = expiryMap[planName] || 365
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+
+  await sbAdmin.from('profiles').update({
+    subscription_tier: tier,
+    subscription_status: 'active',
+    subscription_expires_at: expiresAt,
+    updated_at: new Date().toISOString(),
+  }).eq('id', userId)
+
+  await sbAdmin.from('lawyers').update({
+    listing_type: 'featured',
+    is_featured: true,
+  }).eq('id', userId)
+
+  return Response.json({ status: 'success' })
+}
+
+async function handleChamberSubscription(
+  sbAdmin: ReturnType<typeof createServiceRoleClient>,
+  reference: string,
+  metadata: any
+) {
+  if (!metadata) return Response.json({ error: 'Missing metadata' }, { status: 400 })
+
+  const { error: txError } = await sbAdmin
+    .from('transactions')
+    .update({ status: 'success' })
+    .eq('reference', reference)
+
+  if (txError) {
+    return Response.json({ error: 'Failed to update transaction' }, { status: 500 })
+  }
+
+  const chamberId = metadata.chamber_id
+  const planName = metadata.plan_name
+
+  if (!chamberId || !planName) {
+    return Response.json({ error: 'Missing chamber_id or plan_name' }, { status: 400 })
+  }
+
+  const days = planName === 'Enterprise' ? 365 : 365
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+
+  await sbAdmin.from('chambers').update({
+    subscription_tier: planName === 'Enterprise' ? 'enterprise' : 'free',
+    subscription_status: 'active',
+    subscription_expires_at: expiresAt,
+    is_featured: true,
+  }).eq('id', chamberId)
+
+  return Response.json({ status: 'success' })
 }
