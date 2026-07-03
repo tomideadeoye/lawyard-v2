@@ -64,3 +64,48 @@ export async function updateProfile(data: ProfileUpdateData) {
   
   return { success: true };
 }
+
+export async function selfIdentifyAsLawyer() {
+  const supabase = await createClient();
+  
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const { error: roleError } = await supabase
+    .from('profiles')
+    .update({ role: 'lawyer' })
+    .eq('id', user.id);
+
+  if (roleError) {
+    console.error('Failed to update role:', roleError);
+    return { error: 'Failed to update role' };
+  }
+
+  const { data: existing } = await supabase
+    .from('lawyers')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
+
+    await supabase
+      .from('lawyers')
+      .insert({
+        id: user.id,
+        name: profile?.full_name || user.email || 'Anonymous Practitioner',
+      });
+  }
+
+  revalidatePath('/directory/dashboard', 'layout');
+  revalidatePath('/directory/dashboard/settings');
+  
+  return { success: true };
+}

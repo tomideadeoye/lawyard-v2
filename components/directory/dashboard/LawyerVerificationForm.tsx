@@ -70,8 +70,9 @@ export default function LawyerVerificationForm() {
           Verify as a Lawyer
         </CardTitle>
         <CardDescription>
-            Submit your Nigerian bar details for manual verification. You need your Supreme Court
-            Number (SCN).
+            Submit your Nigerian bar details to earn the verified badge on your profile. You need
+            your Supreme Court Number (SCN). This is optional — you can already use all lawyer
+            features without verification.
           </CardDescription>
       </CardHeader>
       <CardContent>

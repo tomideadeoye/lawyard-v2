@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import SwitchToLawyerButton from '@/components/directory/dashboard/SwitchToLawyerButton'
 
 const tierLabels: Record<string, { label: string; color: string }> = {
   free: { label: 'Free', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
@@ -518,7 +519,7 @@ export default async function DirectoryDashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Lawyer Verification Prompt */}
+          {/* Self-Identify as Lawyer */}
           {isRoleClient && !verification && (
             <Card className="border border-[#a77c5c]/20 bg-[#a77c5c]/5">
               <CardContent className="p-5">
@@ -527,17 +528,14 @@ export default async function DirectoryDashboardPage() {
                     <span className="text-lg">⚖️</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold">Are you a lawyer?</p>
+                    <p className="text-sm font-semibold">Practise law?</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Get verified to access lawyer features — listings, chamber profiles, content
-                      studio, and client inquiries.
+                      Switch to Lawyer Mode to access listings, chamber profiles, content studio, and
+                      client inquiries. No verification needed — you can get verified later to earn
+                      the trusted badge.
                     </p>
                   </div>
-                  <Link href="/directory/dashboard/settings?tab=verification">
-                    <Button size="sm" className="shrink-0 bg-[#a77c5c] hover:bg-[#906b4e] text-white">
-                      Get Verified
-                    </Button>
-                  </Link>
+                  <SwitchToLawyerButton />
                 </div>
               </CardContent>
             </Card>

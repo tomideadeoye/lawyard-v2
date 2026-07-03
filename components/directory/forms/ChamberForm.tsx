@@ -76,7 +76,6 @@ export default function ChamberForm() {
               id: user.id,
               name: userProfile?.full_name || user.email || 'Anonymous Practitioner',
               chamber_id: chamberData.id,
-              verification_status: 'pending',
             });
         }
 
