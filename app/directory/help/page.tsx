@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, BookOpen, HelpCircle } from "lucide-react";
@@ -198,7 +198,7 @@ function WelcomeView() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function HelpPage() {
+function HelpPageContent() {
   const searchParams = useSearchParams();
   const activeSlug = searchParams.get("article");
   const activeArticle = activeSlug && ARTICLES[activeSlug] ? activeSlug : null;
@@ -209,5 +209,13 @@ export default function HelpPage() {
       <div className="w-px bg-border/20" />
       {activeArticle ? <ArticleView slug={activeArticle} /> : <WelcomeView />}
     </div>
+  );
+}
+
+export default function HelpPage() {
+  return (
+    <Suspense fallback={<div className="flex h-[calc(100vh-4rem)] items-center justify-center"><p className="text-muted-foreground">Loading help centre…</p></div>}>
+      <HelpPageContent />
+    </Suspense>
   );
 }
