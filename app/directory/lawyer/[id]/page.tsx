@@ -5,6 +5,7 @@ import { getArticles, getPodcasts } from '@/lib/directory/api';
 import specialtiesData from '@/data/specialties.json';
 import BookmarkButton from '@/components/directory/BookmarkButton';
 import InquiryForm from './inquiry-form';
+import ReviewsSection from '@/components/directory/ReviewsSection';
 
 interface Specialist {
   specialty?: { name: string } | null;
@@ -69,9 +70,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     .map((s: Specialist) => s.specialty?.name || s.name)
     .filter((n): n is string => !!n);
 
-  const [articles, podcasts] = await Promise.all([
+  const [articles, podcasts, reviews] = await Promise.all([
     getArticles({ authorId: id }),
     getPodcasts({ authorId: id }),
+    supabase
+      .from('reviews')
+      .select('id, rating, title, content, created_at, user_id, reviewer:profiles(full_name)')
+      .eq('lawyer_id', id)
+      .order('created_at', { ascending: false }),
   ]);
 
   let isBookmarked = false;
@@ -279,6 +285,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               </div>
             </section>
           )}
+
+          {/* Reviews */}
+          <ReviewsSection
+            lawyerId={id}
+            reviews={reviews.data ?? []}
+            isAuthenticated={!!user}
+            currentUserId={user?.id ?? null}
+          />
 
           {/* Working Hours */}
           {row.working_hours && row.working_hours.length > 0 && (
