@@ -165,7 +165,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                 {row.location && <span>📍 {row.location}</span>}
                 {row.price_range && <span>💰 {priceLabels[row.price_range] || row.price_range}</span>}
-                <span>⭐ {row.rating || '—'} ({row.reviews_count || 0} reviews)</span>
+                <span>⭐ {row.reviews_count > 0 ? row.rating : '0.0'} ({row.reviews_count || 0} reviews)</span>
                 <span>🔖 {bookmarkCount}</span>
               </div>
 

@@ -3,7 +3,6 @@ const FROM = 'Lawyard <noreply@lawyard.org>'
 
 function getResend() {
   if (!RESEND_API_KEY) return null
-  // dynamic import to avoid bundling Resend where it's not used
   const { Resend } = require('resend') as typeof import('resend')
   return new Resend(RESEND_API_KEY)
 }
@@ -79,11 +78,50 @@ export async function sendBrandPressRejected(email: string, brandName: string) {
   })
 }
 
+export async function sendInquiryNotification(params: {
+  lawyerEmail: string
+  lawyerName: string
+  clientName: string
+  clientEmail: string
+  clientPhone?: string
+  message: string
+}) {
+  const resend = getResend()
+  if (!resend) return
+  return resend.emails.send({
+    from: FROM,
+    to: params.lawyerEmail,
+    subject: `New Consultation Request — ${params.clientName}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background: #a77c5c; padding: 24px 32px;">
+          <h1 style="color: #fff; margin: 0; font-size: 20px; font-weight: 800;">New Consultation Request</h1>
+        </div>
+        <div style="padding: 24px 32px; font-size: 14px; color: #1e293b;">
+          <p>Hi <strong>${params.lawyerName}</strong>,</p>
+          <p>Someone has requested a consultation through your Lawyard profile.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            <tr><td style="padding: 6px 0; color: #64748B; width: 100px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${params.clientName}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748B;">Email</td><td style="padding: 6px 0; font-weight: 600;">${params.clientEmail}</td></tr>
+            ${params.clientPhone ? `<tr><td style="padding: 6px 0; color: #64748B;">Phone</td><td style="padding: 6px 0; font-weight: 600;">${params.clientPhone}</td></tr>` : ''}
+          </table>
+          <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin: 16px 0;">
+            <p style="margin: 0 0 8px; font-weight: 600; font-size: 13px;">Message</p>
+            <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.6;">${params.message}</p>
+          </div>
+          <p style="color: #94A3B8; font-size: 12px; margin-top: 24px;">
+            Respond to the client directly at <a href="mailto:${params.clientEmail}" style="color: #a77c5c;">${params.clientEmail}</a>
+          </p>
+        </div>
+      </div>
+    `,
+  })
+}
+
 export async function sendNewsletter(emails: string[], subject: string, html: string) {
   const resend = getResend()
   if (!resend) return { error: 'Resend not configured' }
 
-  // Resend sends in batches, so we send individually for now
   const results = await Promise.allSettled(
     emails.map(email =>
       resend.emails.send({

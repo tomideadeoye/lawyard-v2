@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { sendInquiryNotification } from '@/lib/api/email';
 
 interface InquiryInput {
   lawyerId: string;
@@ -24,6 +25,29 @@ export async function submitInquiry(input: InquiryInput) {
     });
 
   if (error) throw new Error(error.message);
+
+  // Notify the lawyer via email
+  try {
+    const { data: lawyer } = await supabase
+      .from('lawyers')
+      .select('name, email')
+      .eq('id', input.lawyerId)
+      .single();
+
+    if (lawyer?.email) {
+      sendInquiryNotification({
+        lawyerEmail: lawyer.email,
+        lawyerName: lawyer.name,
+        clientName: input.name,
+        clientEmail: input.email,
+        clientPhone: input.phone,
+        message: input.message,
+      }).catch(() => {});
+    }
+  } catch {
+    // notification is best-effort
+  }
+
   return { success: true };
 }
 
