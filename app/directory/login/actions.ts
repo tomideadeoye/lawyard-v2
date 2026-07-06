@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { sendSignupVerification, addContact } from '@/lib/api/brevo'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -37,7 +38,7 @@ export async function loginWithMagicLink(formData: FormData) {
   })
 
   if (error) {
-    return redirect(`/login?message=${encodeURIComponent(error.message)}`)
+    return redirect(`/directory/login?message=${encodeURIComponent(error.message)}`)
   }
 
   return { success: true }
@@ -66,8 +67,19 @@ export async function signup(formData: FormData) {
     return redirect('/directory/login?message=Could not authenticate user')
   }
 
+  const listId = process.env.NODE_ENV === 'production'
+    ? Number(process.env.BREVO_PROD_LIST_ID)
+    : Number(process.env.BREVO_TEST_LIST_ID)
+
+  if (process.env.BREVO_API_KEY && listId) {
+    Promise.all([
+      sendSignupVerification({ email, name: fullName }),
+      addContact({ email, name: fullName, listId, attributes: { ROLE: role } }),
+    ]).catch(err => console.error('[Brevo] Signup notification failed:', err))
+  }
+
   revalidatePath('/', 'layout')
-  redirect(`/login/success?email=${encodeURIComponent(email)}`)
+  redirect(`/directory/login/success?email=${encodeURIComponent(email)}`)
 }
 
 export async function signOut() {

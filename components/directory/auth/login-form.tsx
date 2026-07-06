@@ -41,7 +41,7 @@ function LoginFormContent() {
   const handleMagicLinkSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    formData.set('redirectTo', `${window.location.origin}/auth/callback`)
+    formData.set('redirectTo', `${window.location.origin}/directory/auth/callback`)
     startTransition(async () => {
       const res = await loginWithMagicLink(formData)
       if (res?.success) {
@@ -56,11 +56,11 @@ function LoginFormContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/directory/auth/callback`,
         },
       })
       if (error) {
-        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -71,11 +71,11 @@ function LoginFormContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/directory/auth/callback`,
         },
       })
       if (error) {
-        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -264,7 +264,7 @@ function LoginFormContent() {
 
             <FieldDescription className="text-center">
               Don&apos;t have an account?{' '}
-              <a href="/signup" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
+               <a href="/directory/signup" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
                 Sign up
               </a>
             </FieldDescription>

@@ -280,7 +280,7 @@ function SignInContent() {
 
         <p className="text-center text-sm text-muted-foreground mt-8">
           Don&apos;t have an account?{' '}
-          <a href="/signup" className="text-accent font-bold hover:underline">
+           <a href="/directory/signup" className="text-accent font-bold hover:underline">
             Sign up
           </a>
         </p>
