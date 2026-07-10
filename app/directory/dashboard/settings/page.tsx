@@ -8,6 +8,8 @@ import { BillingPlanCard } from '@/components/directory/dashboard/BillingPlanCar
 import { BillingUpgradeCards } from '@/components/directory/dashboard/BillingUpgradeCards'
 import { PaymentHistoryTable } from '@/components/directory/dashboard/PaymentHistoryTable'
 import LawyerVerificationForm from '@/components/directory/dashboard/LawyerVerificationForm'
+import DeleteAccountDialog from '@/components/directory/dashboard/DeleteAccountDialog'
+import EmailChangeDialog from '@/components/directory/dashboard/EmailChangeDialog'
 import { getPreferences } from '@/app/directory/actions/preferences'
 import { getPlans } from '@/app/directory/actions/plans'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -162,6 +164,21 @@ export default async function SettingsPage({
                   </CardContent>
                 </Card>
 
+                <Card className="border border-border/40 bg-card/45 backdrop-blur-md shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Email Address</CardTitle>
+                    <CardDescription>
+                      Your email is used for login, notifications, and verification.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Current Email</label>
+                      <EmailChangeDialog currentEmail={user.email ?? ''} />
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card className="border border-rose-500/20 bg-rose-500/5 backdrop-blur-md shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-rose-600">Danger Zone</CardTitle>
@@ -170,9 +187,7 @@ export default async function SettingsPage({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button variant="destructive" disabled>
-                      Delete Account
-                    </Button>
+                    <DeleteAccountDialog />
                   </CardContent>
                 </Card>
               </>

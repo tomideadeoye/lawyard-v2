@@ -1,5 +1,5 @@
-import { getAllArticles, getAllPodcasts, getBrandPressArticles } from '@/lib/admin/api';
-import { toggleArticleStatus, deleteArticle, togglePodcastStatus, deletePodcast, approveBrandPress, rejectBrandPress } from '../actions';
+import { getAllArticles, getAllPodcasts, getCorporatePostArticles } from '@/lib/admin/api';
+import { toggleArticleStatus, deleteArticle, togglePodcastStatus, deletePodcast, approveCorporatePost, rejectCorporatePost } from '../actions';
 import { CreateContentDialog } from './create-dialog';
 import { ContentFilter } from './content-filter';
 import { DeleteButton } from './delete-button';
@@ -43,18 +43,18 @@ export default async function ContentPage(props: {
   const page = parseInt(sp?.page || '1', 10);
 
   const isArticles = tab === 'articles';
-  const isBrandPress = tab === 'brand-press';
+  const isCorporatePost = tab === 'corporate-posts';
 
   const articlesResult = isArticles ? await getAllArticles({ status, page }) : null;
   const podcastsResult = tab === 'podcasts' ? await getAllPodcasts({ status, page }) : null;
-  const brandPressResult = isBrandPress ? await getBrandPressArticles() : null;
+  const corporatePostResult = isCorporatePost ? await getCorporatePostArticles() : null;
 
   const articles = articlesResult?.data?.articles ?? [];
   const podcasts = podcastsResult?.data?.podcasts ?? [];
-  const brandPressArticles = brandPressResult?.data ?? [];
-  const error = articlesResult?.error || podcastsResult?.error || brandPressResult?.error;
+  const corporatePostArticles = corporatePostResult?.data ?? [];
+  const error = articlesResult?.error || podcastsResult?.error || corporatePostResult?.error;
 
-  const activeCount = isArticles ? (articlesResult?.data?.total ?? 0) : isBrandPress ? brandPressArticles.length : (podcastsResult?.data?.total ?? 0);
+  const activeCount = isArticles ? (articlesResult?.data?.total ?? 0) : isCorporatePost ? corporatePostArticles.length : (podcastsResult?.data?.total ?? 0);
 
   return (<>
         <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
@@ -103,24 +103,24 @@ export default async function ContentPage(props: {
             >
               🎙️ Podcasts
             </a>
-            <a href="/admin/content?tab=brand-press"
+            <a href="/admin/content?tab=corporate-posts"
               style={{
                 padding: '8px 20px', borderRadius: '8px', textDecoration: 'none',
                 fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.15s',
-                background: isBrandPress ? 'var(--card)' : 'transparent',
-                color: isBrandPress ? 'var(--foreground)' : '#94A3B8',
-                border: isBrandPress ? '1px solid var(--card-border)' : '1px solid transparent',
+                background: isCorporatePost ? 'var(--card)' : 'transparent',
+                color: isCorporatePost ? 'var(--foreground)' : '#94A3B8',
+                border: isCorporatePost ? '1px solid var(--card-border)' : '1px solid transparent',
               }}
             >
-              📢 Brand Press
+              📢 Corporate Posts
             </a>
           </div>
 
-          {!isBrandPress && <ContentFilter tab={tab} status={status} />}
+          {!isCorporatePost && <ContentFilter tab={tab} status={status} />}
         </div>
 
-        {/* Brand Press Table */}
-        {isBrandPress && (
+        {/* Corporate Posts Table */}
+        {isCorporatePost && (
           <div className="section-card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-thin">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
@@ -139,10 +139,10 @@ export default async function ContentPage(props: {
                   </tr>
                 </thead>
                 <tbody>
-                    {brandPressArticles.length === 0 ? (
-                      <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>No Brand Press submissions.</td></tr>
+                    {corporatePostArticles.length === 0 ? (
+                      <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>No Corporate Post submissions.</td></tr>
                   ) : (
-                    brandPressArticles.map((bp, i) => (
+                    corporatePostArticles.map((bp, i) => (
                       <tr key={bp.id} style={{ borderBottom: '1px solid var(--card-border)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
                         <td style={{ ...tdStyle, fontWeight: 600, maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bp.title}</td>
                         <td style={{ ...tdStyle, color: '#94A3B8' }}>{bp.brand_name || '—'}</td>
@@ -177,19 +177,19 @@ export default async function ContentPage(props: {
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                             {bp.status === 'pending_review' && (
                               <>
-                                <form action={approveBrandPress} style={{ display: 'inline' }}>
+                                <form action={approveCorporatePost} style={{ display: 'inline' }}>
                                   <input type="hidden" name="id" value={bp.id} />
                                   <input type="hidden" name="scheduled_date" value="" />
                                   <button type="submit" className="btn btn-approve" style={{ padding: '5px 10px', fontSize: '0.7rem' }}>Approve</button>
                                 </form>
-                                <form action={rejectBrandPress} style={{ display: 'inline' }}>
+                                <form action={rejectCorporatePost} style={{ display: 'inline' }}>
                                   <input type="hidden" name="id" value={bp.id} />
                                   <button type="submit" className="btn btn-reject" style={{ padding: '5px 10px', fontSize: '0.7rem' }}>Reject</button>
                                 </form>
                               </>
                             )}
                             {bp.status === 'published' && (
-                              <form action={rejectBrandPress} style={{ display: 'inline' }}>
+                              <form action={rejectCorporatePost} style={{ display: 'inline' }}>
                                 <input type="hidden" name="id" value={bp.id} />
                                 <button type="submit" className="btn btn-ghost" style={{ padding: '5px 10px', fontSize: '0.7rem', color: '#F59E0B' }}>Archive</button>
                               </form>
@@ -206,7 +206,7 @@ export default async function ContentPage(props: {
         )}
 
         {/* Articles / Podcasts Table */}
-        {!isBrandPress && (
+        {!isCorporatePost && (
         <div className="section-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-thin">
             {isArticles ? (

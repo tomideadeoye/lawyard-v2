@@ -12,6 +12,7 @@ const navItems = [
   { href: '/admin/content', label: 'Content Manager' },
   { href: '/admin/transactions', label: 'Transactions' },
   { href: '/admin/settings', label: 'Settings' },
+  { href: '/admin/coupons', label: 'Coupons' },
 ]
 
 export function Sidebar() {
