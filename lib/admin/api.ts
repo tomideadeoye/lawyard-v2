@@ -272,7 +272,7 @@ export async function getAllPodcasts(options: {
   }
 }
 
-export interface BrandPressItem {
+export interface CorporatePostItem {
   id: string;
   title: string;
   slug: string;
@@ -291,28 +291,28 @@ export interface BrandPressItem {
   tx_reference?: string | null;
 }
 
-export async function getBrandPressArticles(): Promise<ApiResult<BrandPressItem[]>> {
+export async function getCorporatePostArticles(): Promise<ApiResult<CorporatePostItem[]>> {
   const { supabase } = await getAdminClient();
 
   const [articleResult, txResult] = await Promise.all([
-    safeQuery('brand press articles',
+    safeQuery('corporate post articles',
       supabase
         .from('articles')
         .select('*, author:profiles(full_name)')
-        .eq('article_type', 'brand_press')
+        .eq('article_type', 'corporate_post')
         .in('status', ['pending_review', 'published', 'draft', 'archived'])
         .order('created_at', { ascending: false })
     ),
-    safeQuery('brand press transactions',
+    safeQuery('corporate post transactions',
       supabase
         .from('transactions')
         .select('reference, amount, metadata')
-        .like('plan_role', 'brand_press_%')
+        .like('plan_role', 'corporate_post_%')
         .order('created_at', { ascending: false })
     ),
   ])
 
-  const articles = (articleResult?.data ?? []) as BrandPressItem[]
+  const articles = (articleResult?.data ?? []) as CorporatePostItem[]
   const transactions = (txResult?.data ?? []) as { reference: string; amount: number; metadata: Record<string, any> }[]
 
   const txByArticle = new Map<string, { amount: number; contact_email: string; reference: string }>()

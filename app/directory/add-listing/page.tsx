@@ -1,19 +1,36 @@
 'use client';
 
-import { useState } from "react";
+// DELAYED AUTH GATE — Entry point for the listing submission flow.
+// Users can browse freely and select a category; only at category selection
+// do we gate on auth. Unauthenticated users are redirected to /directory/signup
+// with ?redirect=/directory/add-listing&category=X so they return here post-auth.
+//
+// Auth Chain (4 hops):
+//   1. This page → /directory/signup?redirect=...&category=...
+//   2. signup-form.tsx → forwards redirect+category to OAuth `redirectTo` (auth/callback)
+//   3. auth/callback/route.ts → exchanges OAuth code, appends `?category=X` to final URL
+//   4. This page restores category from URL params (or sessionStorage fallback)
+
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from 'next/navigation';
 import ClientNeedForm from "@/components/directory/forms/ClientNeedForm";
 import LawyerForm from "@/components/directory/forms/LawyerForm";
 import ChamberForm from "@/components/directory/forms/ChamberForm";
 import CorporateForm from "@/components/directory/forms/CorporateForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-export default function AddListingPage() {
+function AddListingContent() {
+  const searchParams = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const { data: userRole } = useQuery({
+  // Fetch the user's role (or null if not authenticated).
+  // On OAuth return (Hop 4), this resolves to a non-null value
+  // and triggers the useEffect below to restore the selected category.
+  const { data: userRole, isLoading: roleLoading } = useQuery({
     queryKey: ['userRole'],
     queryFn: async () => {
       const supabase = createClient();
@@ -26,10 +43,61 @@ export default function AddListingPage() {
         .single();
       return profile?.role ?? null;
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   const isLawyer = userRole === 'lawyer';
+
+  // Hop 1: Category card clicked but not authenticated → save to sessionStorage
+  // (belt-and-suspenders with URL params) and redirect to signup.
+  // The category is passed both ways: URL param for the OAuth round-trip
+  // and sessionStorage for browser-back or tab-restore scenarios.
+  const handleCategorySelect = useCallback((category: string) => {
+    if (userRole === null && !roleLoading) {
+      sessionStorage.setItem('lawyard_listing_category', category);
+      window.location.href = `/directory/signup?redirect=${encodeURIComponent('/directory/add-listing')}&category=${category}`;
+      return;
+    }
+    setSelectedCategory(category);
+  }, [userRole, roleLoading]);
+
+  // Hop 4: Restore category selection after auth callback.
+  // Two sources (checked in order):
+  //   a) URL ?category= param (from auth/callback → appends it to redirect URL)
+  //   b) sessionStorage (fallback — survives page refresh, manual navigation)
+  // Both are cleared after use to prevent stale restores.
+  // Category is only restored if user is now authenticated (userRole !== null).
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && userRole !== undefined && !roleLoading) {
+      if (userRole !== null) {
+        setSelectedCategory(categoryParam);
+      }
+      sessionStorage.removeItem('lawyard_listing_category');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('category');
+      window.history.replaceState({}, '', url.toString());
+      return;
+    }
+
+    const saved = sessionStorage.getItem('lawyard_listing_category');
+    if (saved && userRole !== undefined && !roleLoading) {
+      if (userRole !== null) {
+        setSelectedCategory(saved);
+      }
+      sessionStorage.removeItem('lawyard_listing_category');
+    }
+  }, [searchParams, userRole, roleLoading]);
+
+  // Show spinner while auth resolves — prevents flash of unauthed content
+  // before redirect fires. userRole is undefined during initial fetch, null when no user.
+  if (roleLoading && userRole === undefined) {
+    return (
+      <main className="max-w-4xl mx-auto py-10 px-4 md:px-6 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-4xl mx-auto py-10 px-4 md:px-6 space-y-8 text-foreground animate-fade-in">
@@ -58,7 +126,7 @@ export default function AddListingPage() {
                   <CardDescription className="text-sm">For independent practitioners, specialized solicitors, and legal engineers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => setSelectedCategory('lawyer')}>
+                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('lawyer')}>
                     Select Individual
                   </Button>
                 </CardFooter>
@@ -72,7 +140,7 @@ export default function AddListingPage() {
                   <CardDescription className="text-sm">For established law firms, multi-partner practices, and specialized chambers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => setSelectedCategory('chamber')}>
+                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('chamber')}>
                     Select Institution
                   </Button>
                 </CardFooter>
@@ -86,7 +154,7 @@ export default function AddListingPage() {
                   <CardDescription className="text-sm">For in-house legal departments, compliance units, and legal counsels hiring external experts.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => setSelectedCategory('corporate')}>
+                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('corporate')}>
                     Select Corporate
                   </Button>
                 </CardFooter>
@@ -106,7 +174,7 @@ export default function AddListingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => setSelectedCategory('need')}>
+                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('need')}>
                     {isLawyer ? 'Select Referral' : 'Post Brief'}
                   </Button>
                 </CardFooter>
@@ -164,4 +232,16 @@ export default function AddListingPage() {
         )}
       </main>
     );
+}
+
+export default function AddListingPage() {
+  return (
+    <Suspense fallback={
+      <main className="max-w-4xl mx-auto py-10 px-4 md:px-6 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </main>
+    }>
+      <AddListingContent />
+    </Suspense>
+  );
 }

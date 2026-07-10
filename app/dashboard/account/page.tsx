@@ -31,7 +31,7 @@ export default function AccountPage() {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    router.push('/signin')
+    router.push('/directory/login')
     router.refresh()
   }
 

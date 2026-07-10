@@ -158,7 +158,7 @@ function InvoicePDF({ contactName, brandName, tierName, amount, reference }: {
         </View>
 
         <View style={styles.tableRow}>
-          <Text style={styles.colDesc}>Brand Press — {tierName} Tier</Text>
+          <Text style={styles.colDesc}>Corporate Post — {tierName} Tier</Text>
           <Text style={styles.colAmount}>{fmtAmount}</Text>
         </View>
 

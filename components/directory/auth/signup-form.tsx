@@ -20,28 +20,60 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
+import TurnstileWidget from '@/components/directory/auth/TurnstileWidget'
 import { AlertCircle, ArrowRight, User, ShieldCheck } from 'lucide-react'
+
+// Hop 2 in the Delayed Auth Chain.
+// Reads `redirect` and `category` from URL params (passed from add-listing page),
+// then forwards them through every auth path:
+//   - OAuth (Google/LinkedIn): embedded in the `redirectTo` callback URL
+//   - Email/password: passed as hidden form fields → server action
+// The auth callback reads these and appends `?category=X` to the final redirect URL.
+//
+// Upstream: add-listing/page.tsx — 「/directory/signup?redirect=/directory/add-listing&category=lawyer」
+// Downstream: auth/callback/route.ts — receives next + category params and forwards them
 
 function SignupFormContent() {
   const [isPending, startTransition] = useTransition()
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
+  const redirect = searchParams.get('redirect')
+  const category = searchParams.get('category')
 
+  // Build the auth callback URL with preserved redirect params.
+  // OAuth providers redirect back here after auth, which allows
+  // auth/callback/route.ts to send the user back to add-listing.
+  const buildCallbackUrl = () => {
+    const params = new URLSearchParams()
+    if (redirect) params.set('next', redirect)
+    if (category) params.set('category', category)
+    const qs = params.toString()
+    return `${window.location.origin}/directory/auth/callback${qs ? `?${qs}` : ''}`
+  }
+
+  // Email/password signup → forwards redirect+category to the server action
+  // via hidden form fields. The action uses them for emailRedirectTo (confirmation
+  // link preserves the chain) and the success page redirect.
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
+    if (redirect) formData.set('redirect', redirect)
+    if (category) formData.set('category', category)
     startTransition(async () => {
       await signup(formData)
     })
   }
 
+  // OAuth: embed redirect params in the callback URL.
+  // After Google/LinkedIn auth, user lands at /directory/auth/callback?next=...&category=...
   const handleGoogleSignup = () => {
     startTransition(async () => {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/directory/auth/callback`,
+          redirectTo: buildCallbackUrl(),
         },
       })
       if (error) {
@@ -56,7 +88,7 @@ function SignupFormContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
-          redirectTo: `${window.location.origin}/directory/auth/callback`,
+          redirectTo: buildCallbackUrl(),
         },
       })
       if (error) {
@@ -181,10 +213,12 @@ function SignupFormContent() {
                 </Field>
 
                 <Field>
+                  <input type="hidden" name="captchaToken" value={turnstileToken || ''} />
+                  <TurnstileWidget onToken={setTurnstileToken} />
                   <Button
                     type="submit"
                     className="w-full py-6 text-base font-semibold gap-2"
-                    disabled={isPending}
+                    disabled={isPending || !turnstileToken}
                   >
                     {isPending ? 'Creating account...' : 'Initialize Account'}
                     <ArrowRight className="w-4 h-4" />

@@ -4,6 +4,71 @@
 
 ---
 
+## TASK-10: Delayed Auth Gate for /directory/add-listing
+
+**Problem**: `/directory/add-listing` was fully public — anyone could submit a listing without an account, which meant no identity to attach submissions to, no way to track edits, and no verification pipeline.
+
+**Solution**: Delayed auth gate — users can browse the page freely, but must authenticate at category selection time. After auth, they're returned to the same page with their category pre-selected.
+
+**Auth Chain (4 hops)**:
+
+```
+add-listing/page.tsx                    [Hop 1] — User clicks category, not authed
+  ↓  redirect to /directory/signup?redirect=/directory/add-listing&category=X
+signup-form.tsx / login-form.tsx        [Hop 2] — Forward redirect+category to OAuth callback URL
+  ↓  OAuth provider redirects to /directory/auth/callback?next=...&category=...
+auth/callback/route.ts                  [Hop 3] — Exchange OAuth code, append ?category=X to final URL
+  ↓  redirect to /directory/add-listing?category=lawyer
+add-listing/page.tsx                    [Hop 4] — Read ?category= from URL, auto-select, user is authed
+```
+
+**Files modified**:
+
+| File | Role |
+|------|------|
+| `app/directory/add-listing/page.tsx` | Auth gate at category selection; restore from URL param or sessionStorage on return |
+| `components/directory/auth/signup-form.tsx` | Reads `redirect`+`category` from URL, embeds in OAuth `redirectTo` and hidden form fields |
+| `components/directory/auth/login-form.tsx` | Same pattern for login — forwards redirect params through all auth paths |
+| `app/directory/auth/callback/route.ts` | Receives `?next=` and `?category=`, appends category to final redirect. `next` param takes priority over role-based routing |
+| `app/directory/login/actions.ts` | `login()` uses `redirect`+`category` from formData as destination. `signup()` passes them via `emailRedirectTo` for email confirmation flow |
+
+**How it works**:
+
+1. **Unathenticated user** browses `/directory/add-listing`, picks "Individual Lawyer" → saved to `sessionStorage`, redirected to `/directory/signup?redirect=/directory/add-listing&category=lawyer`
+2. **Signs up via Google** → OAuth `redirectTo` includes `?next=/directory/add-listing&category=lawyer`
+3. **Auth callback** receives the code, exchanges for session, redirects to `/directory/add-listing?category=lawyer` (or `/directory/dashboard?category=lawyer` if the user has a profile-based route)
+4. **Page mounts** → reads `?category=lawyer` from URL → sees user is authenticated → auto-selects "Individual Lawyer" → user fills and submits the form as an authenticated user
+5. **Fallback**: `sessionStorage` also saves the category for browser-back or tab-restore scenarios where URL params may be lost
+
+**Edge cases handled**:
+- User cancels signup → returns to add-listing unauthenticated → category silently discarded
+- User refreshes after auth callback → category param cleaned from URL via `history.replaceState`
+- Email/password signup → confirmation email includes `emailRedirectTo` with redirect params
+- Magic link login → `redirectTo` includes callback URL with `next`+`category`
+- Existing user logs in normally (no `?next` param) → role-based routing to dashboard/search as before
+
+---
+
+## TASK-11: Fix Misleading Welcome Email
+
+**Problem**: `sendSignupVerification` in `lib/api/brevo.ts` sent an email that said *"We've sent a confirmation link to your email — click it to verify"* but the email had **zero links** — no CTA, no confirmation button. Supabase had `enable_confirmations = false`, so no separate confirmation email existed either. Users received an email telling them to click something that doesn't exist.
+
+**Solution**: Renamed to `sendWelcomeEmail`, rewritten as a proper welcome email:
+- Subject: *"Your Account is Ready"* (instead of *"Verify Your Email"*)
+- Removed all references to a nonexistent confirmation link
+- Added a **"Go to Dashboard"** CTA button linking to `/directory/dashboard`
+- Lists actual next steps (browse, manage profile, post needs)
+
+**Files changed**:
+| File | Change |
+|------|--------|
+| `lib/api/brevo.ts` | Renamed `sendSignupVerification` → `sendWelcomeEmail`, rewrote template with working dashboard CTA |
+| `app/directory/login/actions.ts` | Updated import and call site |
+
+**Design decision**: Kept `enable_confirmations = false` in Supabase config. Email/password users get immediate access (like OAuth users). If verification gates are needed later, they can be added at specific high-stakes actions (submitting a listing).
+
+---
+
 ## TASK-01: Fix Chambers Featured Bug
 
 **Files**: `lib/directory/api.ts`
@@ -44,7 +109,7 @@
 |------|----------|
 | `app/admin/layout.tsx` | `"Lawyard Admin \| Admin Portal"` + description + `noindex` |
 | `app/directory/layout.tsx` | `"Lawyard Directory \| Legal Marketplace"` + description |
-| `app/(main)/brand-press/layout.tsx` | Title template `"%s – Brand Press – Lawyard"` for all sub-pages |
+| `app/(main)/corporate-posts/layout.tsx` | Title template `"%s – Corporate Posts – Lawyard"` for all sub-pages |
 
 ---
 
@@ -78,10 +143,10 @@
 - `app/admin/content/content-filter.tsx`
 - `app/admin/content/delete-button.tsx`
 
-**What**: Tabs for Articles, Podcasts, and Brand Press with:
+**What**: Tabs for Articles, Podcasts, and Corporate Posts with:
 - Status filters (all/draft/published/archived/pending_review)
 - Publish/archive/delete actions
-- Approve/reject for Brand Press
+- Approve/reject for Corporate Posts
 - Create dialog
 - Full pagination
 - Unprotected (no auth guard yet)
@@ -145,8 +210,8 @@
 
 ---
 
-### Brand Press + Shop
-- Brand Press submission flow (3 tiers, Paystack payment, admin review, scheduled publishing)
+### Corporate Posts + Shop
+- Corporate Posts submission flow (3 tiers, Paystack payment, admin review, scheduled publishing)
 - Shop order confirmation emails with branded receipt
 - Invoice PDF generation via `@react-pdf/renderer`
 - Paystack webhook handler with HMAC-SHA512 verification

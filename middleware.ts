@@ -8,6 +8,18 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   let supabaseResponse = NextResponse.next({ request })
 
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const isDirectoryHost = typeof forwardedHost === 'string' && forwardedHost.includes('directory.lawyard.org')
+
+  if (isDirectoryHost) {
+    if (pathname.startsWith('/directory')) {
+      const cleanPath = pathname.replace(/^\/directory/, '') || '/'
+      return NextResponse.rewrite(new URL(`${cleanPath}${request.nextUrl.search}`, request.url))
+    }
+    const response = NextResponse.rewrite(new URL(`/directory${pathname}${request.nextUrl.search}`, request.url))
+    return response
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -48,5 +60,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

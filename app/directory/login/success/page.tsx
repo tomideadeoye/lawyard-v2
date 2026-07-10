@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ResendButton from '@/components/directory/auth/ResendButton'
 
 export default async function RegistrationSuccessPage({
   searchParams,
@@ -34,9 +35,7 @@ export default async function RegistrationSuccessPage({
             >
               Return to Login
             </Link>
-            <button className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-2 bg-transparent border-0 cursor-pointer hover:underline">
-              Didn&apos;t receive the email? Resend
-            </button>
+            <ResendButton email={email === 'your email' ? '' : email} />
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground/60">

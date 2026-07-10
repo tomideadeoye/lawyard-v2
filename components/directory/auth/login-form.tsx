@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition, Suspense } from 'react'
+import TurnstileWidget from '@/components/directory/auth/TurnstileWidget'
 import { useSearchParams } from 'next/navigation'
 import { login, loginWithMagicLink } from '@/app/directory/login/actions'
 import { Button } from '@/components/ui/button'
@@ -20,19 +21,47 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { AlertCircle, CheckCircle2, Sparkles, ArrowRight, Mail } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Sparkles, ArrowRight, Mail, KeyRound } from 'lucide-react'
+
+// Hop 2 (Login variant) — same pattern as signup-form.tsx.
+// Used when an unauthenticated user is redirected from add-listing and
+// already has an account. Forwards redirect+category through all auth paths.
+//
+// The key difference from signup: the login server action (login/actions.ts:login)
+// reads redirect+category from formData and uses them as the redirect destination
+// instead of always sending to /directory/dashboard.
 
 function LoginFormContent() {
   const [isPending, startTransition] = useTransition()
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [loginMethod, setLoginMethod] = useState<'password' | 'magic-link'>('password')
   const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetError, setResetError] = useState('')
+  const [forgotToken, setForgotToken] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
   const successMessage = searchParams.get('success')
+  const redirect = searchParams.get('redirect')
+  const category = searchParams.get('category')
+
+  // Build callback URL with redirect params preserved.
+  // Same mechanism as signup-form — forwards through OAuth redirectTo
+  // so auth/callback can return user to the add-listing page.
+  const buildCallbackUrl = () => {
+    const params = new URLSearchParams()
+    if (redirect) params.set('next', redirect)
+    if (category) params.set('category', category)
+    const qs = params.toString()
+    return `${window.location.origin}/directory/auth/callback${qs ? `?${qs}` : ''}`
+  }
 
   const handleCredentialsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
+    if (redirect) formData.set('redirect', redirect)
+    if (category) formData.set('category', category)
     startTransition(async () => {
       await login(formData)
     })
@@ -41,7 +70,7 @@ function LoginFormContent() {
   const handleMagicLinkSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    formData.set('redirectTo', `${window.location.origin}/directory/auth/callback`)
+    formData.set('redirectTo', buildCallbackUrl())
     startTransition(async () => {
       const res = await loginWithMagicLink(formData)
       if (res?.success) {
@@ -50,13 +79,35 @@ function LoginFormContent() {
     })
   }
 
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const email = (formData.get('reset-email') as string) || (document.getElementById('email') as HTMLInputElement)?.value
+    const forgotCaptchaToken = formData.get('forgotCaptchaToken') as string | null
+    if (!email) {
+      setResetError('Please enter your email address')
+      return
+    }
+    setResetError('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/directory/auth/callback?next=/directory/dashboard/settings?tab=security`,
+      captchaToken: forgotCaptchaToken || undefined,
+    })
+    if (error) {
+      setResetError(error.message)
+    } else {
+      setResetSent(true)
+    }
+  }
+
   const handleGoogleLogin = () => {
     startTransition(async () => {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/directory/auth/callback`,
+          redirectTo: buildCallbackUrl(),
         },
       })
       if (error) {
@@ -71,7 +122,7 @@ function LoginFormContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
-          redirectTo: `${window.location.origin}/directory/auth/callback`,
+          redirectTo: buildCallbackUrl(),
         },
       })
       if (error) {
@@ -161,7 +212,7 @@ function LoginFormContent() {
                 <button
                   key={method}
                   type="button"
-                  onClick={() => { setLoginMethod(method); setMagicLinkSent(false) }}
+                  onClick={() => { setLoginMethod(method); setMagicLinkSent(false); setTurnstileToken(null) }}
                   className={`py-2.5 text-sm font-semibold rounded-md transition-all ${
                     loginMethod === method
                       ? 'bg-background text-foreground shadow-sm'
@@ -191,12 +242,13 @@ function LoginFormContent() {
                   <Field>
                     <div className="flex items-center">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <a
-                        href="#"
-                        className="ml-auto text-sm underline-offset-4 hover:underline text-muted-foreground hover:text-foreground transition-colors"
+                      <button
+                        type="button"
+                        onClick={() => { setShowForgotPassword(true); setForgotToken(null) }}
+                        className="ml-auto text-sm underline-offset-4 hover:underline text-muted-foreground hover:text-foreground transition-colors bg-transparent border-0 cursor-pointer"
                       >
                         Forgot your password?
-                      </a>
+                      </button>
                     </div>
                     <Input
                       id="password"
@@ -208,10 +260,12 @@ function LoginFormContent() {
                   </Field>
 
                   <Field>
+                    <input type="hidden" name="captchaToken" value={turnstileToken || ''} />
+                    <TurnstileWidget onToken={setTurnstileToken} />
                     <Button
                       type="submit"
                       className="w-full py-6 text-base font-semibold gap-2"
-                      disabled={isPending}
+                      disabled={isPending || !turnstileToken}
                     >
                       {isPending ? 'Signing in...' : 'Login'}
                       <ArrowRight className="w-4 h-4" />
@@ -247,10 +301,12 @@ function LoginFormContent() {
                       </Field>
 
                       <Field>
+                        <input type="hidden" name="captchaToken" value={turnstileToken || ''} />
+                        <TurnstileWidget onToken={setTurnstileToken} />
                         <Button
                           type="submit"
                           className="w-full py-6 text-base font-semibold gap-2"
-                          disabled={isPending}
+                          disabled={isPending || !turnstileToken}
                         >
                           {isPending ? 'Sending...' : 'Send Magic Link'}
                           <Mail className="w-4 h-4" />
@@ -260,6 +316,46 @@ function LoginFormContent() {
                   </form>
                 )}
               </>
+            )}
+
+            {showForgotPassword && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowForgotPassword(false)}>
+                <div className="bg-card p-6 rounded-2xl border border-border shadow-xl max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
+                  <h3 className="text-lg font-semibold mb-2">Reset your password</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Enter your email and we&apos;ll send you a link to reset your password.
+                  </p>
+                  {resetSent ? (
+                    <div className="flex flex-col items-center gap-3 py-4 text-center">
+                      <KeyRound className="w-10 h-10 text-primary" />
+                      <p className="text-sm text-muted-foreground">Check your inbox for the reset link.</p>
+                      <Button variant="outline" size="sm" onClick={() => { setShowForgotPassword(false); setResetSent(false) }}>
+                        Close
+                      </Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleForgotPassword}>
+                      <FieldGroup>
+                        <Field>
+                          <FieldLabel htmlFor="reset-email">Email</FieldLabel>
+                          <Input id="reset-email" name="reset-email" type="email" placeholder="you@example.com" required />
+                        </Field>
+                        {resetError && <p className="text-sm text-destructive">{resetError}</p>}
+                        <input type="hidden" name="forgotCaptchaToken" value={forgotToken || ''} />
+                        <TurnstileWidget onToken={setForgotToken} />
+                        <div className="flex gap-2">
+                          <Button type="button" variant="outline" onClick={() => setShowForgotPassword(false)} className="flex-1">
+                            Cancel
+                          </Button>
+                          <Button type="submit" className="flex-1" disabled={!forgotToken}>
+                            Send Reset Link
+                          </Button>
+                        </div>
+                      </FieldGroup>
+                    </form>
+                  )}
+                </div>
+              </div>
             )}
 
             <FieldDescription className="text-center">

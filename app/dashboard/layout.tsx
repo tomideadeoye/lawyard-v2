@@ -6,7 +6,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/signin')
+  if (!user) redirect('/directory/login')
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">

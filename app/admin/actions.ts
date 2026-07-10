@@ -87,7 +87,7 @@ export async function deletePodcast(formData: FormData) {
   redirect('/admin/content?tab=podcasts');
 }
 
-export async function approveBrandPress(formData: FormData) {
+export async function approveCorporatePost(formData: FormData) {
   const id = formData.get('id') as string;
   const scheduledDate = formData.get('scheduled_date') as string;
   if (!id) return;
@@ -96,37 +96,37 @@ export async function approveBrandPress(formData: FormData) {
     if (scheduledDate) updates.scheduled_date = scheduledDate;
     await updateArticleAction(id, updates);
 
-    const { sendBrandPressApproved } = await import('@/lib/api/email');
+    const { sendCorporatePostApproved } = await import('@/lib/api/email');
     const { supabase } = await getAdminClient();
     const { data } = await supabase.from('articles').select('brand_name, profiles!inner(email)').eq('id', id).single();
     if (data) {
       const email = Array.isArray(data.profiles) ? data.profiles[0]?.email : (data.profiles as any)?.email;
-      if (email) sendBrandPressApproved(email, data.brand_name || 'Brand Press').catch(() => {});
+      if (email) sendCorporatePostApproved(email, data.brand_name || 'Corporate Post').catch(() => {});
     }
 
     revalidatePath('/', 'layout');
   } catch (error) {
-    console.error('Failed to approve brand press:', error);
+    console.error('Failed to approve corporate post:', error);
   }
 }
 
-export async function rejectBrandPress(formData: FormData) {
+export async function rejectCorporatePost(formData: FormData) {
   const id = formData.get('id') as string;
   if (!id) return;
   try {
     await updateArticleAction(id, { status: 'archived' });
 
-    const { sendBrandPressRejected } = await import('@/lib/api/email');
+    const { sendCorporatePostRejected } = await import('@/lib/api/email');
     const { supabase } = await getAdminClient();
     const { data } = await supabase.from('articles').select('brand_name, profiles!inner(email)').eq('id', id).single();
     if (data) {
       const email = Array.isArray(data.profiles) ? data.profiles[0]?.email : (data.profiles as any)?.email;
-      if (email) sendBrandPressRejected(email, data.brand_name || 'Brand Press').catch(() => {});
+      if (email) sendCorporatePostRejected(email, data.brand_name || 'Corporate Post').catch(() => {});
     }
 
     revalidatePath('/', 'layout');
   } catch (error) {
-    console.error('Failed to reject brand press:', error);
+    console.error('Failed to reject corporate post:', error);
   }
 }
 
@@ -165,4 +165,128 @@ export async function createPodcast(formData: FormData) {
   }]);
   if (error) console.error('Failed to create podcast:', error);
   revalidatePath('/', 'layout');
+}
+
+export async function createCoupon(formData: FormData) {
+  const { supabase } = await getAdminClient();
+
+  const code = (formData.get('code') as string).trim().toUpperCase();
+  const discountType = formData.get('discount_type') as string;
+  const discountValueRaw = formData.get('discount_value') as string;
+  const frequencyDaysRaw = formData.get('frequency_days') as string;
+  const maxUsesRaw = formData.get('max_uses') as string;
+  const description = (formData.get('description') as string) || '';
+
+  if (!code || !discountType) return;
+
+  const payload: Record<string, any> = {
+    code,
+    discount_type: discountType,
+    is_active: true,
+    description,
+  };
+
+  if (discountType === 'percentage') {
+    const discountValue = parseInt(discountValueRaw || '0', 10);
+    if (!discountValue || discountValue <= 0 || discountValue > 100) return;
+    payload.discount_value = discountValue;
+  } else {
+    payload.discount_value = null;
+  }
+
+  if (frequencyDaysRaw) {
+    const frequencyDays = parseInt(frequencyDaysRaw, 10);
+    if (frequencyDays > 0) payload.frequency_days = frequencyDays;
+  }
+
+  if (maxUsesRaw) {
+    const maxUses = parseInt(maxUsesRaw, 10);
+    if (maxUses > 0) payload.max_uses = maxUses;
+  }
+
+  const { error } = await supabase.from('coupons').insert([payload]);
+  if (error) {
+    console.error('Failed to create coupon:', error);
+    return;
+  }
+  revalidatePath('/admin/coupons', 'layout');
+}
+
+export async function updateCouponStatus(formData: FormData) {
+  const id = formData.get('id') as string;
+  const isActive = formData.get('is_active') === 'true';
+  const { supabase } = await getAdminClient();
+
+  const { error } = await supabase
+    .from('coupons')
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) console.error('Failed to update coupon:', error);
+  revalidatePath('/admin/coupons', 'layout');
+}
+
+export async function updateCoupon(formData: FormData) {
+  const { supabase } = await getAdminClient();
+
+  const id = formData.get('id') as string;
+  if (!id) return;
+
+  const code = (formData.get('code') as string).trim().toUpperCase();
+  const discountType = formData.get('discount_type') as string;
+  const discountValueRaw = formData.get('discount_value') as string;
+  const frequencyDaysRaw = formData.get('frequency_days') as string;
+  const maxUsesRaw = formData.get('max_uses') as string;
+  const description = (formData.get('description') as string) || '';
+
+  if (!code || !discountType) return;
+
+  const payload: Record<string, any> = {
+    code,
+    discount_type: discountType,
+    description,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (discountType === 'percentage') {
+    const discountValue = parseInt(discountValueRaw || '0', 10);
+    if (!discountValue || discountValue <= 0 || discountValue > 100) return;
+    payload.discount_value = discountValue;
+  } else {
+    payload.discount_value = null;
+  }
+
+  if (frequencyDaysRaw) {
+    const frequencyDays = parseInt(frequencyDaysRaw, 10);
+    payload.frequency_days = frequencyDays > 0 ? frequencyDays : null;
+  } else {
+    payload.frequency_days = null;
+  }
+
+  if (maxUsesRaw) {
+    const maxUses = parseInt(maxUsesRaw, 10);
+    payload.max_uses = maxUses > 0 ? maxUses : null;
+  } else {
+    payload.max_uses = null;
+  }
+
+  const { error } = await supabase.from('coupons').update(payload).eq('id', id);
+  if (error) {
+    console.error('Failed to update coupon:', error);
+    return;
+  }
+  revalidatePath('/admin/coupons', 'layout');
+}
+
+export async function deleteCoupon(formData: FormData) {
+  const id = formData.get('id') as string;
+  const { supabase } = await getAdminClient();
+
+  const { error } = await supabase
+    .from('coupons')
+    .delete()
+    .eq('id', id);
+
+  if (error) console.error('Failed to delete coupon:', error);
+  revalidatePath('/admin/coupons', 'layout');
 }

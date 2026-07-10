@@ -203,11 +203,16 @@ token_verifications = 30
 # Number of Web3 logins that can be made in a 5 minute interval per IP address.
 web3 = 30
 
-# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# Configure captcha provider. Uses Turnstile (Cloudflare) — free and privacy-friendly.
+# 1. Go to https://dash.cloudflare.com/?to=/:account/turnstile and add your site
+# 2. Set env vars: NEXT_PUBLIC_TURNSTILE_SITE_KEY and SUPABASE_TURNSTILE_SECRET_KEY
+# 3. Add <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" /> in layout
+# 4. Add the Turnstile widget to signup-form.tsx
+# 5. Set the secret in Supabase dashboard: Project Settings → Auth → CAPTCHA provider
+[auth.captcha]
+enabled = true
+provider = "turnstile"
+secret = "env(SUPABASE_TURNSTILE_SECRET_KEY)"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
