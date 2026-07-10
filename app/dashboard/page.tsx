@@ -8,7 +8,7 @@ import { signOut } from '@/app/directory/login/actions'
 export default async function DashboardOverview() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/signin')
+  if (!user) redirect('/directory/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -129,7 +129,7 @@ export default async function DashboardOverview() {
           <Card className="md:col-span-2 border border-border/40 bg-card/45 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-lg">Recent Orders</CardTitle>
-              <CardDescription>Your brand press and legislation purchases.</CardDescription>
+              <CardDescription>Your corporate post and legislation purchases.</CardDescription>
             </CardHeader>
             <CardContent>
               {transactions.length === 0 ? (
@@ -137,7 +137,7 @@ export default async function DashboardOverview() {
                   <div className="text-4xl">🛒</div>
                   <div className="space-y-1">
                     <h4 className="font-semibold text-base">No orders yet</h4>
-                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">Browse the shop or submit a brand press article to get started.</p>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">Browse the shop or submit a corporate post article to get started.</p>
                   </div>
                   <Link href="/shop">
                     <Button size="sm" className="mt-2">Visit Shop</Button>
@@ -196,8 +196,8 @@ export default async function DashboardOverview() {
                 <Link href="/dashboard/account" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Account Settings &rarr;
                 </Link>
-                <Link href="/brand-press/submit" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
-                  Submit Brand Press &rarr;
+                <Link href="/corporate-posts/submit" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
+                  Submit Corporate Post &rarr;
                 </Link>
                 <Link href="/shop" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Browse Legislations &rarr;
@@ -235,7 +235,7 @@ export default async function DashboardOverview() {
                   </span>
                   <div>
                     <h5 className={`font-semibold ${transactions.length > 0 ? 'text-foreground/90' : 'text-muted-foreground'}`}>First Purchase</h5>
-                    <p className="text-muted-foreground">{transactions.length > 0 ? 'Completed' : 'Buy a legislation or brand press'}</p>
+                    <p className="text-muted-foreground">{transactions.length > 0 ? 'Completed' : 'Buy a legislation or corporate post'}</p>
                   </div>
                 </div>
               </CardContent>

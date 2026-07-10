@@ -34,7 +34,7 @@ export async function publishArticleToWordPress(article: {
   return result;
 }
 
-export async function publishBrandPressToWordPress(submission: {
+export async function publishCorporatePostToWordPress(submission: {
   title: string;
   content: string;
   excerpt: string;
@@ -47,8 +47,8 @@ export async function publishBrandPressToWordPress(submission: {
     excerpt: submission.excerpt,
     status: submission.status || 'draft',
     categories: [], 
-    tags: ['brand-press'],
-    meta: { source: 'lawyard-v2-brand-press' },
+    tags: ['corporate-posts'],
+    meta: { source: 'lawyard-v2-corporate-posts' },
   });
   return result;
 }

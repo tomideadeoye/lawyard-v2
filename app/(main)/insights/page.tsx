@@ -27,7 +27,7 @@ export default async function InsightsPage({
   const supabase = await createClient()
   const articles = await getPublishedArticles(supabase, {
     category: category || undefined,
-    excludeType: 'brand_press',
+    excludeType: 'corporate_post',
   })
 
   return (

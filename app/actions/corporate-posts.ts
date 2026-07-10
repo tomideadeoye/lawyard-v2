@@ -2,27 +2,27 @@
 
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import brandPressConfig from '@/lib/brand-press.json'
-import { sendBrandPressReceived, sendAdminNewSubmission, sendBrandPressInvoice } from '@/lib/api/email'
+import corporatePostConfig from '@/lib/corporate-posts.json'
+import { sendCorporatePostReceived, sendAdminNewSubmission, sendCorporatePostInvoice } from '@/lib/api/email'
 import { validateCoupon } from '@/app/actions/validate-coupon'
-import { brandPressSchema } from '@/lib/validations/brand-press'
+import { corporatePostSchema } from '@/lib/validations/corporate-posts'
 import { generatePaymentReference } from '@/lib/utils/payment'
 
-export async function submitBrandPress(formData: FormData) {
+export async function submitCorporatePost(formData: FormData) {
   const raw: Record<string, unknown> = Object.fromEntries(formData.entries())
   raw.accepted_terms = raw.accepted_terms === 'true'
 
-  const parsed = brandPressSchema.safeParse(raw)
+  const parsed = corporatePostSchema.safeParse(raw)
   if (!parsed.success) {
     const first = parsed.error.errors[0]
     return { error: first?.message || 'Validation failed' }
   }
 
   const data = parsed.data
-  const tier = brandPressConfig.tiers.find(t => t.id === data.tier)
+  const tier = corporatePostConfig.tiers.find(t => t.id === data.tier)
   if (!tier) return { error: 'Invalid tier' }
 
-  // Clash detection: enforce minimum gap between Brand Press scheduled dates
+  // Clash detection: enforce minimum gap between Corporate Post scheduled dates
   if (data.scheduled_date) {
     const sbAdmin = createServiceRoleClient()
     const { data: clashWindow } = await sbAdmin
@@ -42,21 +42,22 @@ export async function submitBrandPress(formData: FormData) {
       const { count } = await sbAdmin
         .from('articles')
         .select('*', { count: 'exact', head: true })
-        .eq('article_type', 'brand_press')
+        .eq('article_type', 'corporate_post')
         .in('status', ['pending_review', 'published'])
         .gte('scheduled_date', fromTime)
         .lte('scheduled_date', toTime)
 
       if (count && count > 0) {
         return {
-          error: `Another Brand Press is scheduled within ${windowMinutes} minutes of your selected time. Please choose a different date or time.`,
+          error: `Another Corporate Post is scheduled within ${windowMinutes} minutes of your selected time. Please choose a different date or time.`,
         }
       }
     }
   }
 
   let amount = tier.price
-  let appliedCoupon: { code: string; discountPercent: number; discountAmount: number } | null = null
+  let isFree = false
+  let appliedCoupon: { code: string; discountPercent: number | null; discountAmount: number } | null = null
   if (data.coupon_code) {
     const validation = await validateCoupon(data.coupon_code, tier.price)
     if (validation.valid) {
@@ -66,6 +67,7 @@ export async function submitBrandPress(formData: FormData) {
         discountAmount: validation.discountAmount,
       }
       amount = validation.finalPrice
+      isFree = validation.isFree
     }
   }
 
@@ -89,11 +91,11 @@ export async function submitBrandPress(formData: FormData) {
       author_id: null,
       brand_name: data.brand_name,
       tier: tier.id,
-      article_type: 'brand_press',
-      payment_status: 'pending',
+      article_type: 'corporate_post',
+      payment_status: isFree ? 'paid' : 'pending',
       scheduled_date: data.scheduled_date || null,
       status: 'pending_review',
-      category: 'Brand Press',
+      category: 'Corporate Post',
     })
     .select('id')
     .single()
@@ -106,7 +108,7 @@ export async function submitBrandPress(formData: FormData) {
     article_id: article.id,
     tier: tier.id,
     brand_name: data.brand_name,
-    type: 'brand_press',
+    type: 'corporate_post',
     contact_email: data.email,
     contact_name: data.contact_name || data.brand_name,
   }
@@ -121,9 +123,9 @@ export async function submitBrandPress(formData: FormData) {
     user_id: null,
     reference,
     amount,
-    plan_name: `Brand Press ${tier.name}`,
-    plan_role: `brand_press_${tier.id}`,
-    status: 'pending',
+    plan_name: `Corporate Post ${tier.name}`,
+    plan_role: `corporate_post_${tier.id}`,
+    status: isFree ? 'success' : 'pending',
     metadata: txMetadata,
   })
 
@@ -132,12 +134,20 @@ export async function submitBrandPress(formData: FormData) {
     return { error: 'Failed to record transaction' }
   }
 
-  sendBrandPressReceived(data.email, data.brand_name, tier.name).catch(() => {})
+  sendCorporatePostReceived(data.email, data.brand_name, tier.name).catch(() => {})
   sendAdminNewSubmission(data.brand_name, data.title).catch(() => {})
+
+  if (isFree) {
+    revalidatePath('/corporate-posts')
+    return {
+      success: true,
+      message: 'Your Corporate Post has been submitted for review.',
+    }
+  }
 
   if (data.payment_method === 'transfer' || data.payment_method === 'invoice') {
     if (data.payment_method === 'invoice') {
-      sendBrandPressInvoice(data.email, {
+      sendCorporatePostInvoice(data.email, {
         brandName: data.brand_name,
         contactName: data.contact_name || data.brand_name,
         tierName: tier.name,
@@ -145,7 +155,7 @@ export async function submitBrandPress(formData: FormData) {
         reference,
       }).catch(() => {})
     }
-    revalidatePath('/brand-press')
+    revalidatePath('/corporate-posts')
     return {
       success: true,
       message: data.payment_method === 'transfer'

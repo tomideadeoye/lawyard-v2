@@ -181,12 +181,12 @@ export default function ContactPage() {
           </div>
 
           <div className="border-t border-border/20 pt-8">
-            <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground mb-4">Brand Press</h3>
+            <h3 className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground mb-4">Corporate Posts</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Interested in publishing on Lawyard? Submit your press release or article through our Brand Press program.
+              Interested in publishing on Lawyard? Submit your press release or article through our Corporate Posts program.
             </p>
             <a
-              href="/brand-press"
+              href="/corporate-posts"
               className="text-sm text-[#a77c5c] hover:underline font-semibold no-underline"
             >
               Learn more →

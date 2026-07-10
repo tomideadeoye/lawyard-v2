@@ -31,7 +31,7 @@ export function ImageUpload({ onUpload, currentUrl }: ImageUploadProps) {
     formData.set('image', file)
 
     try {
-      const res = await fetch('/api/upload/brand-press', {
+      const res = await fetch('/api/upload/corporate-posts', {
         method: 'POST',
         body: formData,
       })

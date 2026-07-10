@@ -79,14 +79,14 @@ export async function postPodcastToSlack(podcast: {
   });
 }
 
-export async function postBrandPressToSlack(submission: {
+export async function postCorporatePostToSlack(submission: {
   title: string;
   slug: string;
   brandName: string;
   excerpt: string;
 }): Promise<{ ok: boolean; error?: string }> {
   return postToSlack('editorialInbox', {
-    text: `📢 *New Brand Press Submission*\n\n*${submission.title}*\nBy ${submission.brandName}\n\n${submission.excerpt}\n\n🔗 ${process.env.NEXT_PUBLIC_SITE_URL}/brand-press/${submission.slug}`,
+    text: `📢 *New Corporate Post Submission*\n\n*${submission.title}*\nBy ${submission.brandName}\n\n${submission.excerpt}\n\n🔗 ${process.env.NEXT_PUBLIC_SITE_URL}/corporate-posts/${submission.slug}`,
   });
 }
 
@@ -179,7 +179,7 @@ export async function postArticleToSlackWithButtons(article: {
   });
 }
 
-export async function postBrandPressToSlackWithButtons(submission: {
+export async function postCorporatePostToSlackWithButtons(submission: {
   id: string;
   title: string;
   slug: string;
@@ -187,14 +187,14 @@ export async function postBrandPressToSlackWithButtons(submission: {
   excerpt: string;
   tier: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  const editorUrl = `${DIRECTORY_BASE_URL}/admin/content?tab=brand-press`;
+  const editorUrl = `${DIRECTORY_BASE_URL}/admin/content?tab=corporate-posts`;
 
   return postToDirectorySlack({
-    text: `📢 *New Brand Press for Review*\n\n*${submission.title}*\nBy ${submission.brandName} (${submission.tier})`,
+    text: `📢 *New Corporate Post for Review*\n\n*${submission.title}*\nBy ${submission.brandName} (${submission.tier})`,
     blocks: [
       {
         type: 'header',
-        text: { type: 'plain_text', text: '📢 New Brand Press for Review', emoji: true },
+        text: { type: 'plain_text', text: '📢 New Corporate Post for Review', emoji: true },
       },
       {
         type: 'section',
@@ -220,14 +220,14 @@ export async function postBrandPressToSlackWithButtons(submission: {
             text: { type: 'plain_text', text: '✅ Approve', emoji: true },
             style: 'primary',
             value: submission.id,
-            action_id: 'approve_brand_press',
+            action_id: 'approve_corporate_post',
           },
           {
             type: 'button',
             text: { type: 'plain_text', text: '❌ Deny', emoji: true },
             style: 'danger',
             value: submission.id,
-            action_id: 'deny_brand_press',
+            action_id: 'deny_corporate_post',
           },
           {
             type: 'button',

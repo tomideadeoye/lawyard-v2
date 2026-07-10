@@ -2,24 +2,24 @@ import { createClient } from '@/lib/supabase/server'
 import { getPublishedArticles } from '@/lib/api/articles'
 import { ArticleCard } from '@/components/ui/article-card'
 import Link from 'next/link'
-import config from '@/lib/brand-press.json'
+import config from '@/lib/corporate-posts.json'
 
 export const metadata = {
-  title: 'Brand Press – Lawyard',
+  title: 'Corporate Posts – Lawyard',
   description: 'Paid press releases and brand announcements on Lawyard — Nigeria\'s leading legal media platform.',
 }
 
-export default async function BrandPressPage() {
+export default async function CorporatePostsPage() {
   const supabase = await createClient()
   const articles = await getPublishedArticles(supabase, { limit: 50 })
 
-  const brandPressArticles = articles.filter(a => a.article_type === 'brand_press')
+  const corporatePostArticles = articles.filter(a => a.article_type === 'corporate_post')
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-24">
       <div className="flex items-end justify-between mb-12">
         <div>
-          <h1 className="text-4xl font-black mb-3">Brand Press</h1>
+          <h1 className="text-4xl font-black mb-3">Corporate Posts</h1>
           <p className="text-muted-foreground text-lg max-w-xl">
             Paid press releases and brand announcements from the legal ecosystem.
           </p>
@@ -32,18 +32,18 @@ export default async function BrandPressPage() {
           </div>
         </div>
         <Link
-          href="/brand-press/submit"
+          href="/corporate-posts/submit"
           className="bg-accent text-accent-foreground px-6 py-3 rounded-xl font-bold hover:bg-accent/90 shrink-0"
         >
           Submit Now
         </Link>
       </div>
 
-      {brandPressArticles.length === 0 ? (
+      {corporatePostArticles.length === 0 ? (
         <div className="text-center py-24 text-muted-foreground">
-          <p className="text-lg mb-4">No Brand Press articles yet.</p>
+          <p className="text-lg mb-4">No Corporate Post articles yet.</p>
           <Link
-            href="/brand-press/submit"
+            href="/corporate-posts/submit"
             className="text-[#a77c5c] font-bold hover:underline"
           >
             Be the first to submit →
@@ -51,7 +51,7 @@ export default async function BrandPressPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {brandPressArticles.map((article) => (
+          {corporatePostArticles.map((article) => (
             <ArticleCard
               key={article.id}
               {...article}

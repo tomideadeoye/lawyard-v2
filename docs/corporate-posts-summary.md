@@ -1,23 +1,23 @@
-# Brand Press — Feature Summary
+# Corporate Posts — Feature Summary
 
 ## Overview
-Brand Press submission system for lawyard.org, inspired by Techpoint Africa's model. Allows unauthenticated users to submit paid press releases with tiered pricing and Paystack payment.
+Corporate Post submission system for lawyard.org, inspired by Techpoint Africa's model. Allows unauthenticated users to submit paid press releases with tiered pricing and Paystack payment.
 
 ## Architecture
 
 ```
 app/
-├── (main)/brand-press/
+├── (main)/corporate-posts/
 │   ├── page.tsx              — Landing page (tier overview)
 │   ├── submit/page.tsx       — Form (RHF + Zod, 11 useStates)
 │   ├── payment/page.tsx      — Paystack callback handler
 │   └── success/page.tsx      — Success confirmation
 ├── actions/
-│   ├── brand-press.ts        — Server action (service role, guest user)
+│   ├── corporate-posts.ts        — Server action (service role, guest user)
 │   └── validate-coupon.ts    — Coupon validation (LAUNCH10/LAUNCH20)
-├── api/upload/brand-press/   — Image upload endpoint (no auth required)
+├── api/upload/corporate-posts/   — Image upload endpoint (no auth required)
 components/
-├── brand-press/
+├── corporate-posts/
 │   ├── rich-text-editor.tsx  — Tiptap editor (dynamic import, ssr: false)
 │   ├── image-upload.tsx      — Drag-drop file upload
 │   ├── date-picker.tsx       — Calendar + time picker
@@ -48,7 +48,7 @@ supabase/migrations/
 
 ## Security (Post-Review)
 
-- **Price tampering:** `final_price`/`discount_amount` from formData are ignored. Server re-validates coupon against `brand-press.json` tier prices and computes the amount internally.
+- **Price tampering:** `final_price`/`discount_amount` from formData are ignored. Server re-validates coupon against `corporate-posts.json` tier prices and computes the amount internally.
 - **Service role key:** Only used in server actions (never client-side). No RLS bypass issue since the key is server-side only.
 - **Upload path:** Uses `crypto.randomUUID()` — no user ID exposed in storage paths.
 - **Tiptap SSR:** Dynamically imported with `ssr: false` to prevent `window`/`document` errors.
@@ -59,8 +59,8 @@ supabase/migrations/
 2. Server action: creates article + transaction (pending), validates coupon, initializes Paystack
 3. Returns `{ access_code, reference, email, amount }` to client
 4. Client opens `PaystackPop.setup({ access_code })` iframe
-5. User pays → callback redirects to `/brand-press/success`
-6. User closes → redirects to `/brand-press/submit?cancelled=true`
+5. User pays → callback redirects to `/corporate-posts/success`
+6. User closes → redirects to `/corporate-posts/submit?cancelled=true`
 
 ## Pricing Tiers
 
@@ -75,7 +75,7 @@ supabase/migrations/
 - `LAUNCH20` — 20% off
 
 ## Remaining Work
-- Paystack webhook handler for brand-press payments
+- Paystack webhook handler for corporate-posts payments
 - Edge case: user closes Paystack popup without paying (article stuck in `pending_payment`)
-- Navigation link to `/brand-press` in header/footer
+- Navigation link to `/corporate-posts` in header/footer
 - Invoice PDF generation for "Generate Invoice" method

@@ -1,7 +1,7 @@
 'use client'
 
 import { X, Check } from 'lucide-react'
-import config from '@/lib/brand-press.json'
+import config from '@/lib/corporate-posts.json'
 
 interface TierComparisonModalProps {
   open: boolean
@@ -15,7 +15,7 @@ export function TierComparisonModal({ open, onClose, onSelect, selectedTier }: T
 
   const allFeatures = [
     'Published on lawyard.org',
-    'Brand Press category listing',
+    'Corporate Post category listing',
     'Homepage placement (middle section)',
     'Priority homepage placement (featured top)',
     'Social media distribution',
@@ -26,9 +26,9 @@ export function TierComparisonModal({ open, onClose, onSelect, selectedTier }: T
   ]
 
   const tierFeatureMap: Record<string, string[]> = {
-    basic: ['Published on lawyard.org', 'Brand Press category listing'],
-    core: ['Published on lawyard.org', 'Brand Press category listing', 'Homepage placement (middle section)', 'Social media distribution', 'Guaranteed reach', 'Brand attribution'],
-    pro: ['Published on lawyard.org', 'Brand Press category listing', 'Homepage placement (middle section)', 'Priority homepage placement (featured top)', 'Social media distribution', 'Newsletter distribution', 'Guaranteed reach', 'Brand attribution', 'Premium positioning'],
+    basic: ['Published on lawyard.org', 'Corporate Post category listing'],
+    core: ['Published on lawyard.org', 'Corporate Post category listing', 'Homepage placement (middle section)', 'Social media distribution', 'Guaranteed reach', 'Brand attribution'],
+    pro: ['Published on lawyard.org', 'Corporate Post category listing', 'Homepage placement (middle section)', 'Priority homepage placement (featured top)', 'Social media distribution', 'Newsletter distribution', 'Guaranteed reach', 'Brand attribution', 'Premium positioning'],
   }
 
   return (

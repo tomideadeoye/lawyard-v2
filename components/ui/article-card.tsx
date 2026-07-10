@@ -48,9 +48,9 @@ export function ArticleCard({
               <span className="font-semibold text-accent uppercase tracking-wider">
                 {category || 'Article'}
               </span>
-              {article_type === 'brand_press' && (
+              {article_type === 'corporate_post' && (
                 <span className="font-semibold text-accent uppercase tracking-wider border border-accent px-1.5 py-0.5 rounded text-[10px]">
-                  Brand Press
+                  Corporate Post
                 </span>
               )}
               {tier && (
@@ -106,9 +106,9 @@ export function ArticleCard({
             <p className="text-xs font-bold uppercase tracking-wider text-accent mb-2">
               {category || 'Article'}
             </p>
-            {article_type === 'brand_press' && (
+            {article_type === 'corporate_post' && (
               <span className="text-[10px] font-semibold text-accent border border-accent px-1.5 py-0.5 rounded">
-                Brand Press
+                Corporate Post
               </span>
             )}
             {brand_name && (

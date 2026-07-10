@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getAdminClient } from '@/lib/supabase/admin-auth';
 import { updateArticleAction, updatePodcastAction } from '@/lib/admin/api';
-import { publishArticleToWordPress, publishBrandPressToWordPress } from '@/lib/wordpress';
+import { publishArticleToWordPress, publishCorporatePostToWordPress } from '@/lib/wordpress';
 
 export async function approveAndPublishArticle(formData: FormData) {
   const id = formData.get('id') as string;
@@ -42,7 +42,7 @@ export async function approveAndPublishArticle(formData: FormData) {
   }
 }
 
-export async function approveAndPublishBrandPress(formData: FormData) {
+export async function approveAndPublishCorporatePost(formData: FormData) {
   const id = formData.get('id') as string;
   if (!id) return;
   
@@ -58,7 +58,7 @@ export async function approveAndPublishBrandPress(formData: FormData) {
 
   try {
     // Publish to WordPress
-    const wpResult = await publishBrandPressToWordPress({
+    const wpResult = await publishCorporatePostToWordPress({
       title: article.title,
       content: article.content,
       excerpt: article.excerpt || '',
@@ -73,7 +73,7 @@ export async function approveAndPublishBrandPress(formData: FormData) {
     });
 
     // Send approval email
-    const { sendBrandPressApproved } = await import('@/lib/api/email');
+    const { sendCorporatePostApproved } = await import('@/lib/api/email');
     const { data: profile } = await supabase
       .from('profiles')
       .select('email')
@@ -81,13 +81,13 @@ export async function approveAndPublishBrandPress(formData: FormData) {
       .single();
     
     if (profile?.email) {
-      sendBrandPressApproved(profile.email, article.brand_name || 'Brand Press').catch(() => {});
+      sendCorporatePostApproved(profile.email, article.brand_name || 'Corporate Post').catch(() => {});
     }
 
     revalidatePath('/', 'layout');
     revalidatePath('/admin/pipeline');
   } catch (error) {
-    console.error('Failed to approve and publish brand press:', error);
+    console.error('Failed to approve and publish corporate post:', error);
   }
 }
 

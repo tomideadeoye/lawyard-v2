@@ -1,5 +1,5 @@
 import { getAdminClient } from '@/lib/supabase/admin-auth';
-import { approveAndPublishArticle, approveAndPublishBrandPress, approveAndPublishPodcast, rejectContent } from './actions';
+import { approveAndPublishArticle, approveAndPublishCorporatePost, approveAndPublishPodcast, rejectContent } from './actions';
 
 export default async function PipelinePage() {
   const { supabase } = await getAdminClient();
@@ -37,7 +37,7 @@ export default async function PipelinePage() {
           <div className="text-4xl mb-3">✨</div>
           <h3 className="text-lg font-semibold text-slate-900 mb-1">Pipeline Clear</h3>
           <p className="text-sm text-slate-500 max-w-sm mx-auto">
-            No content awaiting review. New submissions from the directory and brand press will appear here.
+            No content awaiting review. New submissions from the directory and corporate posts will appear here.
           </p>
         </div>
       ) : (
@@ -48,11 +48,11 @@ export default async function PipelinePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold uppercase border ${
-                      item.article_type === 'brand_press'
+                      item.article_type === 'corporate_post'
                         ? 'bg-purple-50 text-purple-600 border-purple-200'
                         : 'bg-blue-50 text-blue-600 border-blue-200'
                     }`}>
-                      {item.article_type === 'brand_press' ? 'Brand Press' : 'Article'}
+                      {item.article_type === 'corporate_post' ? 'Corporate Post' : 'Article'}
                     </span>
                     {item.scheduled_date && (
                       <span className="text-xs text-amber-600 font-medium">
@@ -69,7 +69,7 @@ export default async function PipelinePage() {
                 </div>
               </div>
               <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
-                <form action={item.article_type === 'brand_press' ? approveAndPublishBrandPress : approveAndPublishArticle} className="inline-block">
+                <form action={item.article_type === 'corporate_post' ? approveAndPublishCorporatePost : approveAndPublishArticle} className="inline-block">
                   <input type="hidden" name="id" value={item.id} />
                   <button type="submit" className="btn bg-emerald-500 text-white text-[13px] px-4 py-1.5 rounded-md hover:brightness-110 transition">
                     ✓ Approve & Publish to WordPress

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import SwitchToLawyerButton from '@/components/directory/dashboard/SwitchToLawyerButton'
+import WelcomeBanner from '@/components/directory/dashboard/WelcomeBanner'
 
 const tierLabels: Record<string, { label: string; color: string }> = {
   free: { label: 'Free', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
@@ -66,6 +67,7 @@ export default async function DirectoryDashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in px-4 sm:px-6">
+      <WelcomeBanner createdAt={user.created_at} />
       <p className="text-muted-foreground text-sm">
         {isLawyer ? 'Manage your directory presence, content, and subscription.' : 'Track your orders, purchases, and account.'}
       </p>
@@ -436,11 +438,11 @@ export default async function DirectoryDashboardPage() {
                 </CardContent>
               </Card>
             </Link>
-            <Link href="/brand-press/submit" className="no-underline group">
+            <Link href="/corporate-posts/submit" className="no-underline group">
               <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                 <CardContent className="p-5">
                   <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">◆</div>
-                  <h4 className="font-semibold text-sm mb-1">Brand Press</h4>
+                  <h4 className="font-semibold text-sm mb-1">Corporate Post</h4>
                   <p className="text-xs text-muted-foreground">Submit press coverage and announcements</p>
                 </CardContent>
               </Card>

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
 -- Seed defaults
 INSERT INTO app_settings (key, value, description) VALUES
   ('auto_approve_hours', '24', 'Hours after which an unreviewed article auto-publishes'),
-  ('brand_press_clash_window_minutes', '60', 'Minimum minutes between two Brand Press scheduled dates')
+  ('brand_press_clash_window_minutes', '60', 'Minimum minutes between two Corporate Post scheduled dates')
 ON CONFLICT (key) DO NOTHING;
 
 -- Enable RLS

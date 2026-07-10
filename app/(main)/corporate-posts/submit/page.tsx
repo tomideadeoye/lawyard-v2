@@ -6,21 +6,21 @@ import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { submitBrandPress } from '@/app/actions/brand-press'
+import { submitCorporatePost } from '@/app/actions/corporate-posts'
 import { validateCoupon } from '@/app/actions/validate-coupon'
-import { brandPressSchema, type BrandPressFormValues } from '@/lib/validations/brand-press'
-import config from '@/lib/brand-press.json'
+import { corporatePostSchema, type CorporatePostFormValues } from '@/lib/validations/corporate-posts'
+import config from '@/lib/corporate-posts.json'
 import { PricingCard } from '@/components/PricingCard'
 import dynamic from 'next/dynamic'
 
 const RichTextEditor = dynamic(
-  () => import('@/components/brand-press/rich-text-editor').then(m => m.RichTextEditor),
+  () => import('@/components/corporate-posts/rich-text-editor').then(m => m.RichTextEditor),
   { ssr: false }
 )
-import { ImageUpload } from '@/components/brand-press/image-upload'
-import { DatePicker } from '@/components/brand-press/date-picker'
-import { TierComparisonModal } from '@/components/brand-press/tier-comparison-modal'
-import { OrderSummary } from '@/components/brand-press/order-summary'
+import { ImageUpload } from '@/components/corporate-posts/image-upload'
+import { DatePicker } from '@/components/corporate-posts/date-picker'
+import { TierComparisonModal } from '@/components/corporate-posts/tier-comparison-modal'
+import { OrderSummary } from '@/components/corporate-posts/order-summary'
 import { Lightbulb, ShieldCheck, Banknote, CreditCard, FileText, Tags, User } from 'lucide-react'
 
 declare global {
@@ -39,9 +39,9 @@ declare global {
   }
 }
 
-// Schema imported from lib/validations/brand-press.ts
+// Schema imported from lib/validations/corporate-posts.ts
 
-export default function SubmitBrandPressPage() {
+export default function SubmitCorporatePostPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <SubmitForm />
@@ -57,7 +57,7 @@ function SubmitForm() {
   const [scheduleMinute, setScheduleMinute] = useState(0)
   const [schedulePM, setSchedulePM] = useState(false)
   const [couponCode, setCouponCode] = useState('')
-  const [couponResult, setCouponResult] = useState<{ code: string; discountPercent: number; discountAmount: number; finalPrice: number } | null>(null)
+  const [couponResult, setCouponResult] = useState<{ code: string; discountPercent: number | null; discountAmount: number; finalPrice: number; isFree: boolean } | null>(null)
   const [couponError, setCouponError] = useState('')
   const [applyingCoupon, setApplyingCoupon] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
@@ -69,8 +69,8 @@ function SubmitForm() {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<BrandPressFormValues>({
-    resolver: zodResolver(brandPressSchema),
+  } = useForm<CorporatePostFormValues>({
+    resolver: zodResolver(corporatePostSchema),
     defaultValues: {
       tier: 'core',
       payment_method: 'card',
@@ -94,14 +94,14 @@ function SubmitForm() {
 
     const result = await validateCoupon(couponCode, tier.price)
     if (result.valid) {
-      setCouponResult(result as { code: string; discountPercent: number; discountAmount: number; finalPrice: number })
+      setCouponResult(result as { code: string; discountPercent: number | null; discountAmount: number; finalPrice: number; isFree: boolean })
     } else {
       setCouponError(result.message)
     }
     setApplyingCoupon(false)
   }
 
-  async function onSubmit(data: BrandPressFormValues) {
+  async function onSubmit(data: CorporatePostFormValues) {
     const formData = new FormData()
     formData.set('email', data.email)
     formData.set('contact_name', data.contact_name || '')
@@ -123,7 +123,7 @@ function SubmitForm() {
       formData.set('coupon_code', couponResult.code)
     }
 
-    const result = await submitBrandPress(formData)
+    const result = await submitCorporatePost(formData)
 
     if (result.error) {
       setError(result.error)
@@ -131,7 +131,7 @@ function SubmitForm() {
     }
 
     if ('success' in result && result.success) {
-      router.push('/brand-press/success')
+      router.push('/corporate-posts/success')
       return
     }
 
@@ -151,10 +151,10 @@ function SubmitForm() {
           ],
         },
         callback: function () {
-          window.location.href = `/brand-press/payment?reference=${result.reference}`
+          window.location.href = `/corporate-posts/payment?reference=${result.reference}`
         },
         onClose: function () {
-          window.location.href = '/brand-press/submit?cancelled=true'
+          window.location.href = '/corporate-posts/submit?cancelled=true'
         },
       })
       handler.openIframe()
@@ -169,9 +169,9 @@ function SubmitForm() {
       <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="mb-12">
-          <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Brand Press</h1>
+          <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Corporate Post</h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
-            Fill out the form to post your Brand Press on Lawyard. You can publish now or set a future date.
+            Fill out the form to post your Corporate Post on Lawyard. You can publish now or set a future date.
           </p>
         </div>
 
@@ -211,7 +211,7 @@ function SubmitForm() {
               <section className="space-y-5">
                 <h2 className="text-lg font-bold border-b border-border pb-3 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-accent" />
-                  Curate Your Brand Press
+                  Curate Your Corporate Post
                 </h2>
                 <p className="text-xs text-muted-foreground -mt-3">
                   Make it count. Share the who, what, when, and h(w)ow.
@@ -379,7 +379,7 @@ function SubmitForm() {
                 </div>
                 {couponResult && (
                   <p className="text-xs text-green-600 font-medium">
-                    Coupon applied: {couponResult.discountPercent}% off
+                    {couponResult.isFree ? 'Coupon applied: Free Corporate Post' : `Coupon applied: ${couponResult.discountPercent}% off`}
                   </p>
                 )}
                 {couponError && (
@@ -404,7 +404,7 @@ function SubmitForm() {
                   <span className="text-xs text-muted-foreground leading-relaxed">
                     I accept{' '}
                     <a href="#" className="text-[#a77c5c] font-bold hover:underline">
-                      Lawyard&apos;s Brand Press Content Policy
+                      Lawyard&apos;s Corporate Post Content Policy
                     </a>
                     . By submitting, you confirm that you have the necessary rights to all content and images.
                   </span>
@@ -418,7 +418,7 @@ function SubmitForm() {
                   disabled={isSubmitting}
                   className="w-full bg-accent text-accent-foreground py-4 rounded-xl font-bold text-lg hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Processing...' : 'Submit and pay'}
+                  {isSubmitting ? 'Processing...' : couponResult?.isFree ? 'Submit for Free' : 'Submit and pay'}
                 </button>
               </div>
             </div>
@@ -455,7 +455,7 @@ function SubmitForm() {
                 </div>
                 <div className="flex justify-between text-sm font-bold border-t border-border pt-3">
                   <span>Total</span>
-                  <span>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(effectivePrice)}</span>
+                  <span>{couponResult?.isFree ? 'FREE' : new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(effectivePrice)}</span>
                 </div>
               </div>
             </div>

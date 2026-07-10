@@ -18,7 +18,7 @@ function StatusBadge({ status }: { status: string }) {
 export default async function OrdersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/signin')
+  if (!user) redirect('/directory/login')
 
   const { data: transactions } = await supabase
     .from('transactions')
@@ -38,8 +38,8 @@ export default async function OrdersPage() {
       {!transactions?.length ? (
         <div className="rounded-xl border border-border bg-background p-8 text-center">
           <p className="text-muted-foreground">No orders yet.</p>
-          <a href="/brand-press" className="inline-block mt-3 text-sm font-medium text-[var(--accent)] hover:underline">
-            Submit a brand press article
+          <a href="/corporate-posts" className="inline-block mt-3 text-sm font-medium text-[var(--accent)] hover:underline">
+            Submit a corporate post article
           </a>
         </div>
       ) : (

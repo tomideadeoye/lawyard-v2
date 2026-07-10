@@ -4,10 +4,10 @@
 // Cron:   supabase functions cron create "0 * * * *" --function publish-scheduled
 //
 // Does two things:
-//   1. Publishes Brand Press articles when their scheduled_date has passed
+//   1. Publishes Corporate Post articles when their scheduled_date has passed
 //      (payment_status = 'paid', status = 'pending_review', scheduled_date <= now)
 //   2. Auto-approves articles that have been pending_review longer than auto_approve_hours
-//      (status = 'pending_review', not brand_press, created_at > threshold)
+//      (status = 'pending_review', not corporate_post, created_at > threshold)
 //
 // Requires Supabase env vars: WP_API_URL, WP_USERNAME, WP_APP_PASSWORD
 
@@ -44,12 +44,12 @@ async function publishToWordPress(article: Article, status: 'draft' | 'publish')
       content: article.content || '',
       excerpt: article.excerpt || '',
       status,
-      meta: { source: article.article_type === 'brand_press' ? 'lawyard-v2-brand-press' : 'lawyard-v2-directory' },
+      meta: { source: article.article_type === 'corporate_post' ? 'lawyard-v2-corporate-posts' : 'lawyard-v2-directory' },
     }
 
-    if (article.article_type === 'brand_press') {
+    if (article.article_type === 'corporate_post') {
       body.categories = []
-      body.tags = ['brand-press']
+      body.tags = ['corporate-posts']
     }
 
     if (article.featured_image) {
@@ -99,7 +99,7 @@ async function sendPublishEmail(supabase: ReturnType<typeof createClient>, artic
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'Lawyard <noreply@lawyard.org>',
+            from: 'Lawyard <tobi@lawyard.org>',
             to: profile.email,
             subject: `Published on Lawyard — ${article.brand_name || article.title}`,
             html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -141,7 +141,7 @@ serve(async (_req) => {
   const cutoffDate = new Date(Date.now() - autoApproveHours * 60 * 60 * 1000).toISOString()
   const publishedIds: string[] = []
 
-  // ── 1. Publish scheduled Brand Press ──
+  // ── 1. Publish scheduled Corporate Post ──
   const { data: scheduledArticles, error: schedError } = await supabase
     .from('articles')
     .select('id, title, brand_name, scheduled_date, content, excerpt, featured_image, article_type')
@@ -172,16 +172,16 @@ serve(async (_req) => {
       console.error('Scheduled publish update failed:', updateError)
     } else {
       publishedIds.push(...ids)
-      console.log(`Published ${ids.length} scheduled Brand Press articles`)
+      console.log(`Published ${ids.length} scheduled Corporate Post articles`)
     }
   }
 
-  // ── 2. Auto-approve stale articles (not brand_press) ──
+  // ── 2. Auto-approve stale articles (not corporate_post) ──
   const { data: staleArticles, error: staleError } = await supabase
     .from('articles')
     .select('id, title, brand_name, scheduled_date, content, excerpt, featured_image, article_type')
     .eq('status', 'pending_review')
-    .neq('article_type', 'brand_press')
+    .neq('article_type', 'corporate_post')
     .lte('created_at', cutoffDate)
 
   if (staleError) {

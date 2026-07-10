@@ -19,7 +19,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       .from('articles')
       .select(`*, author:profiles(full_name, avatar_url)`)
       .eq('status', 'published')
-      .neq('article_type', 'brand_press')
+      .neq('article_type', 'corporate_post')
       .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%`)
       .order('created_at', { ascending: false })
       .limit(50)

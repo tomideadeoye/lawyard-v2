@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
-import { RichTextEditor } from '@/components/brand-press/rich-text-editor';
+import { RichTextEditor } from '@/components/corporate-posts/rich-text-editor';
 import CategoryMultiselect from './CategoryMultiselect';
 import { publishArticle } from '@/app/directory/actions/content';
 import { uploadArticleImage } from '@/app/directory/actions/upload-article-image';

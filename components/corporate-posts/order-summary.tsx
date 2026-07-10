@@ -1,11 +1,11 @@
 'use client'
 
 import { CheckCircle } from 'lucide-react'
-import config from '@/lib/brand-press.json'
+import config from '@/lib/corporate-posts.json'
 
 interface OrderSummaryProps {
   selectedTier: string
-  coupon: { code: string; discountPercent: number; discountAmount: number; finalPrice: number } | null
+  coupon: { code: string; discountPercent: number | null; discountAmount: number; finalPrice: number; isFree: boolean } | null
 }
 
 export function OrderSummary({ selectedTier, coupon }: OrderSummaryProps) {
@@ -14,6 +14,7 @@ export function OrderSummary({ selectedTier, coupon }: OrderSummaryProps) {
 
   const finalPrice = coupon?.finalPrice ?? tier.price
   const hasDiscount = coupon && coupon.discountAmount > 0
+  const isFree = coupon?.isFree ?? false
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -29,23 +30,29 @@ export function OrderSummary({ selectedTier, coupon }: OrderSummaryProps) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Plan</span>
-          <span className="font-medium">Brand Press — {tier.name}</span>
+          <span className="font-medium">Corporate Post — {tier.name}</span>
         </div>
         <div className="border-t border-border my-2" />
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
           <span>{tier.formatted_price}</span>
         </div>
-        {hasDiscount && (
+        {hasDiscount && !isFree && (
           <div className="flex justify-between text-green-600">
             <span>Discount ({coupon.code})</span>
             <span>-{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(coupon.discountAmount)}</span>
           </div>
         )}
+        {isFree && (
+          <div className="flex justify-between text-green-600 font-semibold">
+            <span>Partner Post ({coupon?.code})</span>
+            <span>Free</span>
+          </div>
+        )}
         <div className="border-t border-border pt-2">
           <div className="flex justify-between font-bold text-base">
             <span>Total</span>
-            <span>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(finalPrice)}</span>
+            <span>{isFree ? 'FREE' : new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(finalPrice)}</span>
           </div>
         </div>
       </div>

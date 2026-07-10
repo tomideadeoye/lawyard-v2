@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const brandPressSchema = z.object({
+export const corporatePostSchema = z.object({
   email: z.string().email('Enter a valid email address'),
   contact_name: z.string().optional(),
   title: z.string().min(1, 'Post title is required'),
@@ -17,4 +17,4 @@ export const brandPressSchema = z.object({
   }),
 })
 
-export type BrandPressFormValues = z.infer<typeof brandPressSchema>
+export type CorporatePostFormValues = z.infer<typeof corporatePostSchema>

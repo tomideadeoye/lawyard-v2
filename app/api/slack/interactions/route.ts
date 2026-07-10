@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { publishArticleToWordPress, publishBrandPressToWordPress } from '@/lib/wordpress'
+import { publishArticleToWordPress, publishCorporatePostToWordPress } from '@/lib/wordpress'
 
 const SIGNING_SECRET = process.env.DIRECTORY_SLACK_SIGNING_SECRET || ''
 
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true })
   }
 
-  if (action_id === 'approve_brand_press') {
+  if (action_id === 'approve_corporate_post') {
     const { data: article, error: fetchError } = await sbAdmin
       .from('articles')
       .select('*')
@@ -165,12 +165,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (fetchError || !article) {
-      console.error('Failed to fetch brand press:', fetchError)
+      console.error('Failed to fetch corporate post:', fetchError)
       return new Response('Article not found', { status: 404 })
     }
 
     try {
-      await publishBrandPressToWordPress({
+      await publishCorporatePostToWordPress({
         title: article.title,
         content: article.content,
         excerpt: article.excerpt || '',
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
         status: 'draft',
       })
     } catch (wpError) {
-      console.error('Failed to publish brand press to WordPress:', wpError)
+      console.error('Failed to publish corporate post to WordPress:', wpError)
       return new Response('WordPress publish failed', { status: 500 })
     }
 
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
       .eq('id', articleId)
 
     if (updateError) {
-      console.error('Failed to update brand press:', updateError)
+      console.error('Failed to update corporate post:', updateError)
       return new Response('Database error', { status: 500 })
     }
 
@@ -202,8 +202,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profile?.email) {
-      const { sendBrandPressApproved } = await import('@/lib/api/email')
-      sendBrandPressApproved(profile.email, article.brand_name || 'Brand Press').catch(() => {})
+      const { sendCorporatePostApproved } = await import('@/lib/api/email')
+      sendCorporatePostApproved(profile.email, article.brand_name || 'Corporate Post').catch(() => {})
     }
 
     if (responseUrl) {
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `✅ *Brand Press Approved*\nApproved by ${userName}\nScheduled for ${article.scheduled_date ? new Date(article.scheduled_date).toLocaleDateString() : 'as soon as possible'}\nID: \`${articleId}\``,
+                text: `✅ *Corporate Post Approved*\nApproved by ${userName}\nScheduled for ${article.scheduled_date ? new Date(article.scheduled_date).toLocaleDateString() : 'as soon as possible'}\nID: \`${articleId}\``,
               },
             },
           ],
@@ -228,14 +228,14 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true })
   }
 
-  if (action_id === 'deny_brand_press') {
+  if (action_id === 'deny_corporate_post') {
     const { error } = await sbAdmin
       .from('articles')
       .update({ status: 'archived', updated_at: new Date().toISOString() })
       .eq('id', articleId)
 
     if (error) {
-      console.error('Failed to deny brand press:', error)
+      console.error('Failed to deny corporate post:', error)
       return new Response('Database error', { status: 500 })
     }
 
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `❌ *Brand Press Denied*\nDenied by ${userName}\nID: \`${articleId}\``,
+                text: `❌ *Corporate Post Denied*\nDenied by ${userName}\nID: \`${articleId}\``,
               },
             },
           ],

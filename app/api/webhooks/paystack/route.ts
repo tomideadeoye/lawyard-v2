@@ -15,7 +15,7 @@ function verifySignature(body: string, signature: string): boolean {
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))
 }
 
-async function handleBrandPress(sbAdmin: ReturnType<typeof createServiceRoleClient>, reference: string, metadata: any, verify: any) {
+async function handleCorporatePost(sbAdmin: ReturnType<typeof createServiceRoleClient>, reference: string, metadata: any, verify: any) {
   if (!metadata) return Response.json({ error: 'Missing metadata' }, { status: 400 })
   const { error: txError } = await sbAdmin
     .from('transactions')
@@ -134,8 +134,8 @@ export async function POST(request: NextRequest) {
 
   const type = metadata?.type || ''
 
-  if (type === 'brand_press') {
-    return handleBrandPress(sbAdmin, reference, metadata, verify)
+  if (type === 'corporate_post') {
+    return handleCorporatePost(sbAdmin, reference, metadata, verify)
   }
 
   if (type === 'shop_purchase') {

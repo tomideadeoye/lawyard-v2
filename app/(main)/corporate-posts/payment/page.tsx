@@ -3,7 +3,7 @@ import { verifyTransaction } from '@/lib/api/paystack'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sendPaymentConfirmation } from '@/lib/api/email'
-import { postBrandPressToSlackWithButtons } from '@/lib/slack'
+import { postCorporatePostToSlackWithButtons } from '@/lib/slack'
 
 export default async function PaymentCallbackPage({
   searchParams,
@@ -11,7 +11,7 @@ export default async function PaymentCallbackPage({
   searchParams: Promise<{ reference?: string }>
 }) {
   const { reference } = await searchParams
-  if (!reference) redirect('/brand-press/submit')
+  if (!reference) redirect('/corporate-posts/submit')
 
   const supabase = await createClient()
 
@@ -46,7 +46,7 @@ export default async function PaymentCallbackPage({
         .single()
 
       if (article) {
-        postBrandPressToSlackWithButtons({
+        postCorporatePostToSlackWithButtons({
           id: article.id,
           title: article.title,
           slug: article.slug,
@@ -76,7 +76,7 @@ export default async function PaymentCallbackPage({
           </div>
           <h1 className="text-3xl font-black mb-3">Payment Successful!</h1>
           <p className="text-muted-foreground mb-8">
-            Your Brand Press has been submitted. We will review and publish it shortly.
+            Your Corporate Post has been submitted. We will review and publish it shortly.
           </p>
           <Link
             href="/"
@@ -95,7 +95,7 @@ export default async function PaymentCallbackPage({
             Your payment did not complete. Please try again.
           </p>
           <Link
-            href="/brand-press/submit"
+            href="/corporate-posts/submit"
             className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold hover:bg-primary/90"
           >
             Try Again
