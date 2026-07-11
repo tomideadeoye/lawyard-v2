@@ -14,6 +14,7 @@ export async function updatePassword(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string | null
   const newPassword = formData.get('newPassword') as string
   const confirmPassword = formData.get('confirmPassword') as string
+  const isRecovery = formData.get('isRecovery') === 'true'
 
   // Validate
   if (!newPassword || newPassword.length < 8) {
@@ -24,7 +25,7 @@ export async function updatePassword(formData: FormData) {
     return { error: 'New passwords do not match' }
   }
 
-  if (currentPassword && newPassword === currentPassword) {
+  if (!isRecovery && currentPassword && newPassword === currentPassword) {
     return { error: 'New password must be different from your current password' }
   }
 

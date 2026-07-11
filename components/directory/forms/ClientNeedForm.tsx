@@ -7,8 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { FormSelect } from '@/components/ui/form-select';
 import { Textarea } from '@/components/ui/textarea';
+import FormStep from './FormStep';
+
+const STEPS = [
+  { label: 'Subject', description: 'Reason for consultation' },
+  { label: 'Details', description: 'Location & budget' },
+]
 
 export default function ClientNeedForm() {
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,55 +77,65 @@ export default function ClientNeedForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <Field>
-        <FieldLabel htmlFor="title" className="text-xs uppercase tracking-wider text-accent font-bold">
-          Reason for consultation (Subject)
-        </FieldLabel>
-        <Input name="title" id="title" placeholder="e.g. Intellectual Property Dispute in Lagos" required />
-      </Field>
+      <FormStep steps={STEPS} submitLabel="Broadcast Requirement" loading={loading}>
+        {(s) => (
+          <>
+            {s === 0 && (
+              <>
+                <Field>
+                  <FieldLabel htmlFor="title" className="text-xs uppercase tracking-wider text-accent font-bold">
+                    Reason for consultation (Subject)
+                  </FieldLabel>
+                  <Input name="title" id="title" placeholder="e.g. Intellectual Property Dispute in Lagos" required />
+                </Field>
 
-      <Field>
-        <FieldLabel htmlFor="description" className="text-xs uppercase tracking-wider text-accent font-bold">
-          Detailed Description
-        </FieldLabel>
-        <Textarea 
-          name="description" 
-          id="description" 
-          rows={5} 
-          placeholder="Describe your legal situation in detail..." 
-          required 
-        />
-      </Field>
+                <Field>
+                  <FieldLabel htmlFor="description" className="text-xs uppercase tracking-wider text-accent font-bold">
+                    Detailed Description
+                  </FieldLabel>
+                  <Textarea 
+                    name="description" 
+                    id="description" 
+                    rows={5} 
+                    placeholder="Describe your legal situation in detail..." 
+                    required 
+                  />
+                </Field>
+              </>
+            )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field>
-          <FieldLabel htmlFor="location" className="text-xs uppercase tracking-wider text-accent font-bold">
-            Location
-          </FieldLabel>
-          <Input name="location" id="location" placeholder="e.g. Lagos, Nigeria" />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="budget" className="text-xs uppercase tracking-wider text-accent font-bold">
-            Budget Range
-          </FieldLabel>
-          <FormSelect 
-            name="budget" 
-            id="budget"
-          >
-            <option value="flexible" className="bg-background text-foreground">Flexible / Negotiable</option>
-            <option value="low" className="bg-background text-foreground">Under $500</option>
-            <option value="medium" className="bg-background text-foreground">$500 - $2,500</option>
-            <option value="high" className="bg-background text-foreground">$2,500 - $10,000</option>
-            <option value="premium" className="bg-background text-foreground">$10,000+</option>
-          </FormSelect>
-        </Field>
-      </div>
+            {s === 1 && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <Field>
+                    <FieldLabel htmlFor="location" className="text-xs uppercase tracking-wider text-accent font-bold">
+                      Location
+                    </FieldLabel>
+                    <Input name="location" id="location" placeholder="e.g. Lagos, Nigeria" />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="budget" className="text-xs uppercase tracking-wider text-accent font-bold">
+                      Budget Range
+                    </FieldLabel>
+                    <FormSelect 
+                      name="budget" 
+                      id="budget"
+                    >
+                      <option value="flexible" className="bg-background text-foreground">Flexible / Negotiable</option>
+                      <option value="low" className="bg-background text-foreground">Under $500</option>
+                      <option value="medium" className="bg-background text-foreground">$500 - $2,500</option>
+                      <option value="high" className="bg-background text-foreground">$2,500 - $10,000</option>
+                      <option value="premium" className="bg-background text-foreground">$10,000+</option>
+                    </FormSelect>
+                  </Field>
+                </div>
+              </>
+            )}
 
-      {error && <p className="text-sm text-destructive font-medium">{error}</p>}
-
-      <Button type="submit" disabled={loading} className="w-full glow-primary">
-        {loading ? 'Processing...' : 'Broadcast Requirement'}
-      </Button>
+            {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+          </>
+        )}
+      </FormStep>
     </form>
   );
 }

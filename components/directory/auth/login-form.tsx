@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { AlertCircle, CheckCircle2, Sparkles, ArrowRight, Mail, KeyRound } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Sparkles, ArrowRight, Mail, KeyRound, Eye, EyeOff } from 'lucide-react'
 
 // Hop 2 (Login variant) — same pattern as signup-form.tsx.
 // Used when an unauthenticated user is redirected from add-listing and
@@ -34,6 +34,7 @@ import { AlertCircle, CheckCircle2, Sparkles, ArrowRight, Mail, KeyRound } from 
 function LoginFormContent() {
   const [isPending, startTransition] = useTransition()
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<'password' | 'magic-link'>('password')
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
@@ -54,7 +55,7 @@ function LoginFormContent() {
     if (redirect) params.set('next', redirect)
     if (category) params.set('category', category)
     const qs = params.toString()
-    return `${window.location.origin}/directory/auth/callback${qs ? `?${qs}` : ''}`
+    return `${window.location.origin}/auth/callback${qs ? `?${qs}` : ''}`
   }
 
   const handleCredentialsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -91,7 +92,7 @@ function LoginFormContent() {
     setResetError('')
     const supabase = createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/directory/auth/callback?next=/directory/dashboard/settings?tab=security`,
+      redirectTo: `${window.location.origin}/auth/callback?recovery=true&next=/dashboard/settings?tab=security`,
       captchaToken: forgotCaptchaToken || undefined,
     })
     if (error) {
@@ -116,20 +117,20 @@ function LoginFormContent() {
     })
   }
 
-  const handleLinkedInLogin = () => {
-    startTransition(async () => {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'linkedin_oidc',
-        options: {
-          redirectTo: buildCallbackUrl(),
-        },
-      })
-      if (error) {
-        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
-      }
-    })
-  }
+  // const handleLinkedInLogin = () => {
+  //   startTransition(async () => {
+  //     const supabase = createClient()
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'linkedin_oidc',
+  //       options: {
+  //         redirectTo: buildCallbackUrl(),
+  //       },
+  //     })
+  //     if (error) {
+  //       window.location.href = `/login?message=${encodeURIComponent(error.message)}`
+  //     }
+  //   })
+  // }
 
   return (
     <div className="flex flex-col gap-6">
@@ -186,7 +187,7 @@ function LoginFormContent() {
               </Button>
             </Field>
 
-            <Field>
+            {/* <Field>
               <Button
                 variant="outline"
                 type="button"
@@ -202,7 +203,7 @@ function LoginFormContent() {
                 </svg>
                 Login with LinkedIn
               </Button>
-            </Field>
+            </Field> */}
 
             <FieldSeparator>Or continue with</FieldSeparator>
 
@@ -250,13 +251,24 @@ function LoginFormContent() {
                         Forgot your password?
                       </button>
                     </div>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      disabled={isPending}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        disabled={isPending}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </Field>
 
                   <Field>

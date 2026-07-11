@@ -6,6 +6,7 @@ import specialtiesData from '@/data/specialties.json';
 import BookmarkButton from '@/components/directory/BookmarkButton';
 import InquiryForm from './inquiry-form';
 import ReviewsSection from '@/components/directory/ReviewsSection';
+import ProfileViewTracker from '@/components/directory/ProfileViewTracker';
 
 interface Specialist {
   specialty?: { name: string } | null;
@@ -35,6 +36,7 @@ interface LawyerRow {
   intro_video_url: string | null;
   hide_contact_form: boolean;
   verification_status: string;
+  calendly_url: string | null;
   price_range: string | null;
   address: string | null;
   enrollment_number: string | null;
@@ -121,8 +123,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-      {/* Top bar */}
+    <>
+      <ProfileViewTracker lawyerId={id} />
+      <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
       <div className="flex items-center gap-3 mb-6 text-sm">
         <Link href="/search" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
           ← Back to Directory
@@ -139,10 +142,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             <div className="h-40 bg-gradient-to-r from-[#a77c5c]/20 to-primary/10 relative" />
             <div className="px-6 pb-6 -mt-14">
               <div className="flex items-end justify-between mb-4">
-                <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#a77c5c] to-[#906b4e] flex items-center justify-center text-5xl font-black text-white shadow-lg border-4 border-card shrink-0">
-                  {row.image_url ? (
+                <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#a77c5c] to-[#906b4e] flex items-center justify-center text-5xl font-black text-white shadow-lg border-4 border-card shrink-0 overflow-hidden">
+                  {row.image_url && row.image_url.startsWith('http') ? (
                     <img src={row.image_url} alt="" className="w-full h-full object-cover rounded-[10px]" />
-                  ) : init}
+                  ) : (
+                    <span>{init}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 pb-2">
                   {verified && (
@@ -384,6 +389,22 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
         {/* Sidebar */}
         <aside className="space-y-6">
+          {/* Calendly Booking */}
+          {row.calendly_url && (
+            <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
+              <h3 className="text-sm font-bold mb-1">Book a Consultation</h3>
+              <p className="text-xs text-muted-foreground/70 mb-4">Schedule directly on their calendar.</p>
+              <a
+                href={row.calendly_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-bold hover:bg-accent/90 transition-colors"
+              >
+                Book via Calendly &rarr;
+              </a>
+            </div>
+          )}
+
           {/* Inquiry Form */}
           {!row.hide_contact_form && (
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
@@ -442,5 +463,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
         </aside>
       </div>
     </div>
+    </>
   );
 }

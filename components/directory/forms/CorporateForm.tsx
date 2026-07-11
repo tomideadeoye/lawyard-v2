@@ -7,6 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { FormSelect } from '@/components/ui/form-select';
 import { Textarea } from '@/components/ui/textarea';
+import FormStep from './FormStep';
+
+const STEPS = [
+  { label: 'Identity', description: 'Representative & company' },
+  { label: 'Details', description: 'Team & requirements' },
+]
 
 export default function CorporateForm() {
   const [loading, setLoading] = useState(false);
@@ -86,48 +92,57 @@ export default function CorporateForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field>
-          <FieldLabel htmlFor="repName" className="text-xs uppercase tracking-wider text-accent font-bold">Representative Name</FieldLabel>
-          <Input name="repName" id="repName" placeholder="e.g. Tobi Adebowale" required />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="companyName" className="text-xs uppercase tracking-wider text-accent font-bold">Company / Organization Name</FieldLabel>
-          <Input name="companyName" id="companyName" placeholder="e.g. Tetracore Energy Group" required />
-        </Field>
-      </div>
+      <FormStep steps={STEPS} submitLabel="Activate Corporate Profile" loading={loading}>
+        {(s) => (
+          <>
+            {s === 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field>
+                  <FieldLabel htmlFor="repName" className="text-xs uppercase tracking-wider text-accent font-bold">Representative Name</FieldLabel>
+                  <Input name="repName" id="repName" placeholder="e.g. Tobi Adebowale" required />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="companyName" className="text-xs uppercase tracking-wider text-accent font-bold">Company / Organization Name</FieldLabel>
+                  <Input name="companyName" id="companyName" placeholder="e.g. Tetracore Energy Group" required />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="industry" className="text-xs uppercase tracking-wider text-accent font-bold">Industry Sector</FieldLabel>
+                  <Input name="industry" id="industry" placeholder="e.g. Energy & Infrastructure" required />
+                </Field>
+              </div>
+            )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field>
-          <FieldLabel htmlFor="industry" className="text-xs uppercase tracking-wider text-accent font-bold">Industry Sector</FieldLabel>
-          <Input name="industry" id="industry" placeholder="e.g. Energy & Infrastructure" required />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="teamSize" className="text-xs uppercase tracking-wider text-accent font-bold">Legal Team Size</FieldLabel>
-          <FormSelect name="teamSize" id="teamSize">
-            <option value="1-5" className="bg-background text-foreground">1 - 5 Lawyers</option>
-            <option value="6-20" className="bg-background text-foreground">6 - 20 Lawyers</option>
-            <option value="21-50" className="bg-background text-foreground">21 - 50 Lawyers</option>
-            <option value="50+" className="bg-background text-foreground">50+ Lawyers</option>
-          </FormSelect>
-        </Field>
-      </div>
+            {s === 1 && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <Field>
+                    <FieldLabel htmlFor="teamSize" className="text-xs uppercase tracking-wider text-accent font-bold">Legal Team Size</FieldLabel>
+                    <FormSelect name="teamSize" id="teamSize">
+                      <option value="1-5" className="bg-background text-foreground">1 - 5 Lawyers</option>
+                      <option value="6-20" className="bg-background text-foreground">6 - 20 Lawyers</option>
+                      <option value="21-50" className="bg-background text-foreground">21 - 50 Lawyers</option>
+                      <option value="50+" className="bg-background text-foreground">50+ Lawyers</option>
+                    </FormSelect>
+                  </Field>
+                </div>
 
-      <Field>
-        <FieldLabel htmlFor="needsDescription" className="text-xs uppercase tracking-wider text-accent font-bold">Primary Legal Support Requirements</FieldLabel>
-        <Textarea 
-          name="needsDescription" 
-          id="needsDescription" 
-          rows={4} 
-          placeholder="Describe the types of legal counsel, advice, or contracts your department typically manages or seeks external help with..." 
-          required 
-        />
-      </Field>
-      {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+                <Field>
+                  <FieldLabel htmlFor="needsDescription" className="text-xs uppercase tracking-wider text-accent font-bold">Primary Legal Support Requirements</FieldLabel>
+                  <Textarea 
+                    name="needsDescription" 
+                    id="needsDescription" 
+                    rows={4} 
+                    placeholder="Describe the types of legal counsel, advice, or contracts your department typically manages or seeks external help with..." 
+                    required 
+                  />
+                </Field>
+              </>
+            )}
 
-      <Button type="submit" disabled={loading} className="w-full glow-primary">
-        {loading ? 'Activating Corporate Profile...' : 'Activate Corporate Profile'}
-      </Button>
+            {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+          </>
+        )}
+      </FormStep>
     </form>
   );
 }

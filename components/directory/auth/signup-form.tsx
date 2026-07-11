@@ -21,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import TurnstileWidget from '@/components/directory/auth/TurnstileWidget'
-import { AlertCircle, ArrowRight, User, ShieldCheck } from 'lucide-react'
+import { AlertCircle, ArrowRight, User, ShieldCheck, Eye, EyeOff } from 'lucide-react'
 
 // Hop 2 in the Delayed Auth Chain.
 // Reads `redirect` and `category` from URL params (passed from add-listing page),
@@ -36,6 +36,7 @@ import { AlertCircle, ArrowRight, User, ShieldCheck } from 'lucide-react'
 function SignupFormContent() {
   const [isPending, startTransition] = useTransition()
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
   const redirect = searchParams.get('redirect')
@@ -49,7 +50,7 @@ function SignupFormContent() {
     if (redirect) params.set('next', redirect)
     if (category) params.set('category', category)
     const qs = params.toString()
-    return `${window.location.origin}/directory/auth/callback${qs ? `?${qs}` : ''}`
+    return `${window.location.origin}/auth/callback${qs ? `?${qs}` : ''}`
   }
 
   // Email/password signup → forwards redirect+category to the server action
@@ -82,20 +83,20 @@ function SignupFormContent() {
     })
   }
 
-  const handleLinkedInSignup = () => {
-    startTransition(async () => {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'linkedin_oidc',
-        options: {
-          redirectTo: buildCallbackUrl(),
-        },
-      })
-      if (error) {
-        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
-      }
-    })
-  }
+  // const handleLinkedInSignup = () => {
+  //   startTransition(async () => {
+  //     const supabase = createClient()
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'linkedin_oidc',
+  //       options: {
+  //         redirectTo: buildCallbackUrl(),
+  //       },
+  //     })
+  //     if (error) {
+  //       window.location.href = `/login?message=${encodeURIComponent(error.message)}`
+  //     }
+  //   })
+  // }
 
   return (
     <div className="flex flex-col gap-6">
@@ -133,7 +134,7 @@ function SignupFormContent() {
               </Button>
             </Field>
 
-            <Field>
+            {/* <Field>
               <Button
                 variant="outline"
                 type="button"
@@ -149,7 +150,7 @@ function SignupFormContent() {
                 </svg>
                 Sign up with LinkedIn
               </Button>
-            </Field>
+            </Field> */}
 
             <FieldSeparator>Or continue with</FieldSeparator>
 
@@ -184,13 +185,24 @@ function SignupFormContent() {
 
                 <Field>
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    disabled={isPending}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      disabled={isPending}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </Field>
 
                 <Field>

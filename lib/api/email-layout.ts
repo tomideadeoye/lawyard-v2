@@ -282,6 +282,14 @@ function authLayout(title: string, bodyHtml: string): string {
     <p style="font-size:12px;color:#94a3b8;margin:24px 0 0;padding-top:20px;border-top:1px solid #e2e8f0;">Didn't request this? Ignore this email.</p>
   </div>
   <div style="background:#f8fafc;padding:16px 36px;text-align:center;border-top:1px solid #e2e8f0;">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 12px;">
+      <tr>
+        <td style="padding:0 6px;"><a href="https://facebook.com/lawyardNG" style="display:inline-block;width:28px;height:28px;border-radius:50%;background:#e2e8f0;text-align:center;line-height:28px;font-size:12px;text-decoration:none;color:#94a3b8;">f</a></td>
+        <td style="padding:0 6px;"><a href="https://twitter.com/lawyardOrg" style="display:inline-block;width:28px;height:28px;border-radius:50%;background:#e2e8f0;text-align:center;line-height:28px;font-size:12px;text-decoration:none;color:#94a3b8;">𝕏</a></td>
+        <td style="padding:0 6px;"><a href="https://instagram.com/lawyardorg" style="display:inline-block;width:28px;height:28px;border-radius:50%;background:#e2e8f0;text-align:center;line-height:28px;font-size:12px;text-decoration:none;color:#94a3b8;">IG</a></td>
+        <td style="padding:0 6px;"><a href="https://linkedin.com/company/lawyard" style="display:inline-block;width:28px;height:28px;border-radius:50%;background:#e2e8f0;text-align:center;line-height:28px;font-size:12px;text-decoration:none;color:#94a3b8;">in</a></td>
+      </tr>
+    </table>
     <p style="font-size:11px;color:#94a3b8;margin:0;">Lawyard &mdash; Legal news, insights, and directory for Africa.<br/><a href="https://lawyard.org" style="color:#a77c5c;text-decoration:none;font-weight:600;">lawyard.org</a></p>
   </div>
 </div>`

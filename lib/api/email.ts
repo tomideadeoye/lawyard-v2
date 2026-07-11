@@ -8,57 +8,37 @@ import {
   shopOrderConfirmation,
   adminNewSubmission,
 } from './email-layout'
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM = 'Lawyard <tobi@lawyard.org>'
-
-function getResend() {
-  if (!RESEND_API_KEY) return null
-  const { Resend } = require('resend') as typeof import('resend')
-  return new Resend(RESEND_API_KEY)
-}
+import { sendTransactionalEmail } from './brevo'
 
 export async function sendCorporatePostReceived(email: string, brandName: string, tier: string) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: email,
+  return sendTransactionalEmail({
+    to: [{ email }],
     subject: `Corporate Post Received — ${brandName}`,
-    html: corporatePostReceived({ brandName, tier }),
+    htmlContent: corporatePostReceived({ brandName, tier }),
   })
 }
 
 export async function sendPaymentConfirmation(email: string, brandName: string, tier: string) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: email,
+  return sendTransactionalEmail({
+    to: [{ email }],
     subject: `Payment Confirmed — ${brandName}`,
-    html: paymentConfirmation({ brandName, tier }),
+    htmlContent: paymentConfirmation({ brandName, tier }),
   })
 }
 
 export async function sendCorporatePostApproved(email: string, brandName: string) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: email,
+  return sendTransactionalEmail({
+    to: [{ email }],
     subject: `Corporate Post Published — ${brandName}`,
-    html: corporatePostApproved({ brandName }),
+    htmlContent: corporatePostApproved({ brandName }),
   })
 }
 
 export async function sendCorporatePostRejected(email: string, brandName: string) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: email,
+  return sendTransactionalEmail({
+    to: [{ email }],
     subject: `Corporate Post Update — ${brandName}`,
-    html: corporatePostRejected({ brandName }),
+    htmlContent: corporatePostRejected({ brandName }),
   })
 }
 
@@ -70,27 +50,20 @@ export async function sendInquiryNotification(params: {
   clientPhone?: string
   message: string
 }) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: params.lawyerEmail,
+  return sendTransactionalEmail({
+    to: [{ email: params.lawyerEmail, name: params.lawyerName }],
     subject: `New Consultation Request — ${params.clientName}`,
-    html: inquiryNotification(params),
+    htmlContent: inquiryNotification(params),
   })
 }
 
 export async function sendNewsletter(emails: string[], subject: string, html: string) {
-  const resend = getResend()
-  if (!resend) return { error: 'Resend not configured' }
-
   const results = await Promise.allSettled(
     emails.map(email =>
-      resend.emails.send({
-        from: FROM,
-        to: email,
+      sendTransactionalEmail({
+        to: [{ email }],
         subject,
-        html,
+        htmlContent: html,
       })
     )
   )
@@ -107,39 +80,32 @@ export async function sendCorporatePostInvoice(email: string, params: {
   amount: number
   reference: string
 }) {
-  const resend = getResend()
-  if (!resend) return
-
-  let pdfAttachment: { filename: string; content: string } | undefined
+  let attachment: { name: string; content: string } | undefined
 
   try {
     const { generateInvoicePdf } = await import('@/lib/api/invoice-pdf')
     const pdfBuffer = await generateInvoicePdf(params)
-    pdfAttachment = {
-      filename: `invoice-${params.reference}.pdf`,
+    attachment = {
+      name: `invoice-${params.reference}.pdf`,
       content: pdfBuffer.toString('base64'),
     }
   } catch {
     // PDF generation failed — fall back to HTML-only email
   }
 
-  return resend.emails.send({
-    from: FROM,
-    to: email,
+  return sendTransactionalEmail({
+    to: [{ email }],
     subject: `Invoice — Corporate Post (${params.reference})`,
-    attachments: pdfAttachment ? [pdfAttachment] : undefined,
-    html: corporatePostInvoice(params),
-  })
+    htmlContent: corporatePostInvoice(params),
+    ...(attachment ? { attachment: [attachment] } : {}),
+  } as any)
 }
 
 export async function sendAdminNewSubmission(brandName: string, title: string) {
-  const resend = getResend()
-  if (!resend) return
-  return resend.emails.send({
-    from: FROM,
-    to: process.env.ADMIN_EMAIL || 'contact@lawyard.org',
+  return sendTransactionalEmail({
+    to: [{ email: process.env.ADMIN_EMAIL || 'contact@lawyard.org' }],
     subject: `New Corporate Post Submission — ${brandName}`,
-    html: adminNewSubmission({ brandName, title }),
+    htmlContent: adminNewSubmission({ brandName, title }),
   })
 }
 
@@ -150,14 +116,10 @@ export async function sendShopOrderConfirmation(params: {
   items: { id: string; title: string; quantity: number }[]
   billingDetails?: { firstName?: string } | null
 }) {
-  const resend = getResend()
-  if (!resend) return
-
-  return resend.emails.send({
-    from: FROM,
-    to: params.email,
+  return sendTransactionalEmail({
+    to: [{ email: params.email }],
     subject: `Order Confirmed — ${params.reference}`,
-    html: shopOrderConfirmation({
+    htmlContent: shopOrderConfirmation({
       firstName: params.billingDetails?.firstName,
       reference: params.reference,
       amount: params.amount,

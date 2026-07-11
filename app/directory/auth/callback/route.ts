@@ -24,6 +24,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
   const category = searchParams.get('category')
+  const isRecovery = searchParams.get('recovery') === 'true' || searchParams.get('type') === 'recovery'
 
   const error = searchParams.get('error')
   const errorDescription = searchParams.get('error_description')
@@ -72,6 +73,11 @@ export async function GET(request: Request) {
   if (category) {
     const separator = redirectTo.includes('?') ? '&' : '?'
     redirectTo += `${separator}category=${encodeURIComponent(category)}`
+  }
+
+  if (isRecovery) {
+    const separator = redirectTo.includes('?') ? '&' : '?'
+    redirectTo += `${separator}recovery=true`
   }
 
   const forwardedHost = request.headers.get('x-forwarded-host')

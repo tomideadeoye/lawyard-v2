@@ -1,5 +1,6 @@
 import styles from "./search.module.css";
 import Link from "next/link";
+import Image from "next/image";
 import { getLawyers, getSpecialties } from "@/lib/directory/api";
 import SearchFilters from "@/components/directory/search/SearchFilters";
 import BookmarkButton from "@/components/directory/BookmarkButton";
@@ -79,7 +80,19 @@ export default async function SearchPage(props: SearchPageProps) {
             {lawyers.length > 0 ? lawyers.map((res) => (
               <div key={res.id} className="premium-card">
                 <div className={styles.cardHeader}>
-                    <div className={styles.avatarMini}>{res.name[0]}</div>
+                    <div className={styles.avatarMini}>
+                      {res.image && res.image.startsWith('http') ? (
+                        <Image
+                          src={res.image}
+                          alt={res.name}
+                          width={50}
+                          height={50}
+                          className={styles.avatarImage}
+                        />
+                      ) : (
+                        <span>{res.name[0]}</span>
+                      )}
+                    </div>
                     <div className={styles.headerBadges}>
                       <div className={styles.badge}>{res.experience}</div>
                       {res.verified && <div className={styles.verifiedBadge}>✓ Verified</div>}

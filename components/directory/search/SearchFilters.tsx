@@ -110,14 +110,14 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
       </div>
 
       <Button className="w-full mt-6" onClick={handleApply}>
-        Apply Intelligence Filters
+        Apply Filters
       </Button>
 
       <button 
         className="w-full text-xs opacity-50 hover:opacity-100 transition-opacity mt-4"
         onClick={() => router.push('/search')}
       >
-        Reset Discovery Protocol
+        Reset
       </button>
     </aside>
   );

@@ -16,18 +16,25 @@ export async function sendTransactionalEmail(params: {
   to: { email: string; name?: string }[]
   subject: string
   htmlContent: string
+  attachment?: { name: string; content: string }[]
 }) {
   if (!BREVO_API_KEY) return { error: 'Brevo not configured' }
+
+  const body: Record<string, unknown> = {
+    sender: { name: FROM_NAME, email: FROM_EMAIL },
+    to: params.to,
+    subject: params.subject,
+    htmlContent: params.htmlContent,
+  }
+
+  if (params.attachment && params.attachment.length > 0) {
+    body.attachment = params.attachment
+  }
 
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: apiHeaders(),
-    body: JSON.stringify({
-      sender: { name: FROM_NAME, email: FROM_EMAIL },
-      to: params.to,
-      subject: params.subject,
-      htmlContent: params.htmlContent,
-    }),
+    body: JSON.stringify(body),
   })
 
   if (!res.ok) {

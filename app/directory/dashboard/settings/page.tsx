@@ -32,9 +32,9 @@ type TabId = (typeof tabs)[number]['id']
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; recovery?: string }>
 }) {
-  const { tab } = await searchParams
+  const { tab, recovery } = await searchParams
   const activeTab: TabId = tabs.some((t) => t.id === tab) ? (tab as TabId) : 'profile'
 
   const supabase = await createClient()
@@ -236,6 +236,7 @@ export default async function SettingsPage({
                       !!user.identities?.some(i => i.provider === 'email') ||
                       !!user.user_metadata?.has_password
                     }
+                    recovery={recovery === 'true'}
                   />
                 </CardContent>
               </Card>

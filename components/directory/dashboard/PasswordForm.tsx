@@ -33,9 +33,11 @@ interface PasswordFormProps {
   userEmail: string
   /** True if user has an existing password (email identity or has_password flag) */
   hasPassword: boolean
+  /** True when user came through password recovery flow */
+  recovery?: boolean
 }
 
-export default function PasswordForm({ userEmail, hasPassword }: PasswordFormProps) {
+export default function PasswordForm({ userEmail, hasPassword, recovery }: PasswordFormProps) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -184,11 +186,12 @@ export default function PasswordForm({ userEmail, hasPassword }: PasswordFormPro
     )
   }
 
-  const isSettingPassword = !hasPassword
-  const isChangingPassword = hasPassword
+  const isSettingPassword = !hasPassword || recovery
+  const isChangingPassword = hasPassword && !recovery
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+      {recovery && <input type="hidden" name="isRecovery" value="true" />}
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 text-sm rounded-md">
           {error}
@@ -204,12 +207,21 @@ export default function PasswordForm({ userEmail, hasPassword }: PasswordFormPro
       )}
 
       {/* Set password info banner */}
-      {isSettingPassword && (
+      {isSettingPassword && !recovery && (
         <div className="p-3 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm rounded-md space-y-1">
           <p className="font-semibold">Add a password to your account</p>
           <p className="text-xs">
             You signed up with Google/LinkedIn. Setting a password lets you sign in with your email
             address as well — and disconnect your OAuth account later if you want.
+          </p>
+        </div>
+      )}
+
+      {recovery && (
+        <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm rounded-md space-y-1">
+          <p className="font-semibold">Reset your password</p>
+          <p className="text-xs">
+            Enter your new password below.
           </p>
         </div>
       )}

@@ -5,6 +5,12 @@ import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import FormStep from './FormStep';
+
+const STEPS = [
+  { label: 'Identity', description: 'Name & focus' },
+  { label: 'Details', description: 'Location & media' },
+]
 
 export default function ChamberForm() {
   const [loading, setLoading] = useState(false);
@@ -112,32 +118,40 @@ export default function ChamberForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <Field>
-        <FieldLabel htmlFor="name" className="text-xs uppercase tracking-wider text-accent font-bold">Chamber / Law Firm Name</FieldLabel>
-        <Input name="name" id="name" placeholder="e.g. Aluko & Oyebode" required />
-      </Field>
+      <FormStep steps={STEPS} submitLabel="Register Chamber / Firm" loading={loading}>
+        {(s) => (
+          <>
+            {s === 0 && (
+              <>
+                <Field>
+                  <FieldLabel htmlFor="name" className="text-xs uppercase tracking-wider text-accent font-bold">Chamber / Law Firm Name</FieldLabel>
+                  <Input name="name" id="name" placeholder="e.g. Aluko & Oyebode" required />
+                </Field>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field>
-          <FieldLabel htmlFor="location" className="text-xs uppercase tracking-wider text-accent font-bold">Headquarters Location</FieldLabel>
-          <Input name="location" id="location" placeholder="e.g. Lagos, Nigeria" required />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="focus" className="text-xs uppercase tracking-wider text-accent font-bold">Primary Practice Focus</FieldLabel>
-          <Input name="focus" id="focus" placeholder="e.g. Corporate Finance & Dispute Resolution" required />
-        </Field>
-      </div>
+                <Field>
+                  <FieldLabel htmlFor="focus" className="text-xs uppercase tracking-wider text-accent font-bold">Primary Practice Focus</FieldLabel>
+                  <Input name="focus" id="focus" placeholder="e.g. Corporate Finance & Dispute Resolution" required />
+                </Field>
+              </>
+            )}
 
-      <Field>
-        <FieldLabel htmlFor="imageUrl" className="text-xs uppercase tracking-wider text-accent font-bold">Chamber Logo/Banner Image URL</FieldLabel>
-        <Input type="url" name="imageUrl" id="imageUrl" placeholder="e.g. https://lawyard.org/images/logo.png" />
-      </Field>
+            {s === 1 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field>
+                  <FieldLabel htmlFor="location" className="text-xs uppercase tracking-wider text-accent font-bold">Headquarters Location</FieldLabel>
+                  <Input name="location" id="location" placeholder="e.g. Lagos, Nigeria" required />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="imageUrl" className="text-xs uppercase tracking-wider text-accent font-bold">Logo / Banner URL</FieldLabel>
+                  <Input type="url" name="imageUrl" id="imageUrl" placeholder="https://lawyard.org/images/logo.png" />
+                </Field>
+              </div>
+            )}
 
-      {error && <p className="text-sm text-destructive font-medium">{error}</p>}
-
-      <Button type="submit" disabled={loading} className="w-full glow-primary">
-        {loading ? 'Registering Institution...' : 'Register Chamber / Firm'}
-      </Button>
+            {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+          </>
+        )}
+      </FormStep>
     </form>
   );
 }

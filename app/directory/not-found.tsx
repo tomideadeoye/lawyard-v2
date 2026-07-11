@@ -3,13 +3,18 @@ import NotFoundLayout from "@/components/ui/not-found-layout"
 export default function NotFound() {
   return (
     <NotFoundLayout
-      badgeText="Directory Finder"
-      title="This listing or page could not be found."
-      description="The profile, chamber listing, or page you are looking for does not exist or has been removed from our directory database."
+      badgeText="Listing Not Found"
+      title="We couldn't find that listing."
+      description="The lawyer, law firm, or service page you requested is unavailable."
       primaryActionText="Search Directory"
       primaryActionUrl="/search"
-      secondaryActionText="Return Home"
+      secondaryActionText="Directory Home"
       secondaryActionUrl="/"
+      suggestions={[
+        { label: "Browse Verified Lawyers", href: "/search" },
+        { label: "View Popular Listings", href: "/" },
+        { label: "Add a Listing", href: "/add-listing" },
+      ]}
     />
   )
 }

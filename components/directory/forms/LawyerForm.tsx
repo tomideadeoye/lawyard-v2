@@ -17,6 +17,8 @@ import BulletListEditor from './listing/BulletListEditor';
 import ImageUpload from './listing/ImageUpload';
 import FaqEditor from './listing/FaqEditor';
 import SocialLinksEditor from './listing/SocialLinksEditor';
+import GalleryUpload from './listing/GalleryUpload';
+import WorkingHoursEditor from './listing/WorkingHoursEditor';
 
 const STEPS = [
   { label: 'General', description: 'Basic info & specialties' },
@@ -72,11 +74,13 @@ interface FormState {
   gallery_images: string[];
   faqs: { question: string; answer: string }[];
   social_links: { platform: string; url: string }[];
+  working_hours: { day: string; hours: string }[];
   address: string;
   zip_code: string;
   price_range: string;
   hide_contact_form: boolean;
   listing_type: string;
+  calendly_url: string;
 }
 
 const INITIAL_STATE: FormState = {
@@ -85,8 +89,8 @@ const INITIAL_STATE: FormState = {
   age: '', gender: '', enrollment_number: '', enrollment_number_tx: '',
   education: [], organization_memberships: [], publications: [], awards: [], volunteer_pro_bono: [],
   image_url: null, intro_video_url: '', gallery_images: [],
-  faqs: [], social_links: [],
-  address: '', zip_code: '', price_range: '', hide_contact_form: false, listing_type: 'general',
+  faqs: [], social_links: [], working_hours: [],
+  address: '', zip_code: '', price_range: '', hide_contact_form: false, listing_type: 'general', calendly_url: '',
 };
 
 
@@ -140,11 +144,13 @@ export default function LawyerForm() {
         gallery_images: (ls.gallery_images as string[]) || [],
         faqs: (ls.faqs as { question: string; answer: string }[]) || [],
         social_links: (ls.social_links as { platform: string; url: string }[]) || [],
+        working_hours: (ls.working_hours as { day: string; hours: string }[]) || [],
         address: (ls.address as string) || '',
         zip_code: (ls.zip_code as string) || '',
         price_range: (ls.price_range as string) || '',
         hide_contact_form: (ls.hide_contact_form as boolean) || false,
         listing_type: (ls.listing_type as string) || 'general',
+        calendly_url: (ls.calendly_url as string) || '',
       });
       const specs = ls.lawyer_specialties as { specialty_id: string }[] | undefined;
       if (specs) setSelectedSpecialties(specs.map(s => s.specialty_id));
@@ -355,14 +361,17 @@ export default function LawyerForm() {
               <p className="text-xs text-muted-foreground mt-1">YouTube & Vimeo URLs only.</p>
             </Field>
           </div>
+
+          <GalleryUpload value={form.gallery_images} onChange={v => update('gallery_images', v)} />
         </div>
       )}
 
-      {/* Step 3: FAQ & Social */}
+      {/* Step 3: Extras (FAQ, Social, Working Hours) */}
       {step === 3 && (
         <div className="space-y-8">
           <FaqEditor items={form.faqs} onChange={v => update('faqs', v)} />
           <SocialLinksEditor items={form.social_links} onChange={v => update('social_links', v)} />
+          <WorkingHoursEditor value={form.working_hours} onChange={v => update('working_hours', v)} />
         </div>
       )}
 
@@ -406,6 +415,12 @@ export default function LawyerForm() {
               <FieldLabel htmlFor="website" className="text-xs uppercase tracking-wider text-accent font-bold">Website</FieldLabel>
               <Input type="url" name="website" id="website" placeholder="https://example.com"
                 value={form.website} onChange={e => update('website', e.target.value)} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="calendly_url" className="text-xs uppercase tracking-wider text-accent font-bold">Calendly Booking Link</FieldLabel>
+              <Input type="url" name="calendly_url" id="calendly_url" placeholder="https://calendly.com/your-name"
+                value={form.calendly_url} onChange={e => update('calendly_url', e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">Clients will see a &ldquo;Book Consultation&rdquo; button linking to your Calendly.</p>
             </Field>
             <Field>
               <FieldLabel htmlFor="price_range" className="text-xs uppercase tracking-wider text-accent font-bold">Price Range</FieldLabel>

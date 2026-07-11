@@ -121,8 +121,7 @@ export async function getLawyers(options: {
 
   let formattedData = rawData.map((l) => {
     const allSpecs = parseSpecialtyNames(l.specialties);
-    const rawImage = (l.image_url as string) || '';
-    const image = rawImage.replace(/\.jpg$/i, '.svg');
+    const image = (l.image_url as string) || '';
 
     return {
       ...l,
@@ -207,12 +206,11 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
   }
 
   const formattedData = (chambers as Record<string, unknown>[]).map((c) => {
-    const rawImage = (c.image_url as string) || '';
     return {
       ...c,
       id: c.id as string,
       name: c.name as string,
-      image: rawImage.replace(/\.jpg$/i, '.svg'),
+      image: (c.image_url as string) || '',
       featured: (c.is_featured as boolean) || false,
       rating: 4.8,
       type: 'Law Practice',

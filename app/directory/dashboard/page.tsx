@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import SwitchToLawyerButton from '@/components/directory/dashboard/SwitchToLawyerButton'
 import WelcomeBanner from '@/components/directory/dashboard/WelcomeBanner'
+import { getProfileViews, getInquiryStats } from '@/app/directory/actions/analytics'
+import AnalyticsSparkline from '@/components/directory/dashboard/AnalyticsSparkline'
 
 const tierLabels: Record<string, { label: string; color: string }> = {
   free: { label: 'Free', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
@@ -44,6 +46,17 @@ export default async function DirectoryDashboardPage() {
   const isRoleClient = profile?.role === 'client' || !profile?.role
 
   const isLawyer = profile?.role === 'lawyer' || profile?.role === 'chamber'
+
+  let profileViews = { total: 0, change: 0, daily: [] as { date: string; count: number }[] }
+  let inquiryStats = { total: 0, unread: 0, change: 0 }
+  if (isLawyer) {
+    const [pv, iq] = await Promise.all([
+      getProfileViews(user.id),
+      getInquiryStats(user.id),
+    ])
+    profileViews = pv
+    inquiryStats = iq
+  }
 
   const tier = profile?.subscription_tier || 'free'
   const tierInfo = tierLabels[tier] || tierLabels.free
@@ -122,17 +135,22 @@ export default async function DirectoryDashboardPage() {
             <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Profile Views</p>
-                <p className="text-2xl font-bold mt-1">—</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
+                <p className="text-2xl font-bold mt-1">{profileViews.total}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {profileViews.change > 0 ? `↑ ${profileViews.change}%` : profileViews.change < 0 ? `↓ ${Math.abs(profileViews.change)}%` : '—'} last 7 days
+                </p>
+                <div className="mt-2 h-8">
+                  <AnalyticsSparkline data={profileViews.daily} />
+                </div>
               </CardContent>
             </Card>
             <Link href="/dashboard/inquiries" className="no-underline">
               <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all cursor-pointer">
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Inquiries</p>
-                  <p className="text-2xl font-bold mt-1">{inquiries.length}</p>
+                  <p className="text-2xl font-bold mt-1">{inquiryStats.total}</p>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {unreadInquiries > 0 ? `${unreadInquiries} unread` : 'All read'}
+                    {inquiryStats.change > 0 ? `↑ ${inquiryStats.change}%` : inquiryStats.change < 0 ? `↓ ${Math.abs(inquiryStats.change)}%` : '—'} last 7 days
                   </p>
                 </CardContent>
               </Card>
@@ -154,8 +172,8 @@ export default async function DirectoryDashboardPage() {
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-3 group-hover:scale-110 transition-transform">◆</div>
-                    <h4 className="font-semibold text-sm mb-1">Edit Listing</h4>
-                    <p className="text-xs text-muted-foreground">Update your profile, specialties, and contact info</p>
+                    <h4 className="font-semibold text-sm mb-1">Manage Profile</h4>
+                    <p className="text-xs text-muted-foreground">Update your name, specialties, bio, and contact details</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -193,7 +211,7 @@ export default async function DirectoryDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2 border border-border/40 bg-card/45 backdrop-blur-md">
               <CardHeader>
-                <CardTitle className="text-lg">Directory Listing</CardTitle>
+                <CardTitle className="text-lg">Public Profile</CardTitle>
                 <CardDescription>Your public profile information visible in the directory.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -249,7 +267,7 @@ export default async function DirectoryDashboardPage() {
                     )}
                     <div className="pt-2">
                       <Link href="/dashboard/add-listing">
-                        <Button variant="outline" size="sm" className="text-xs">Edit Listing</Button>
+                        <Button variant="outline" size="sm" className="text-xs">Manage Profile</Button>
                       </Link>
                     </div>
                   </div>
@@ -257,13 +275,13 @@ export default async function DirectoryDashboardPage() {
                   <div className="text-center py-10 space-y-4">
                     <div className="text-4xl">📂</div>
                     <div className="space-y-1">
-                      <h4 className="font-semibold text-base">No directory listing yet</h4>
+                      <h4 className="font-semibold text-base">No public profile yet</h4>
                       <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                         Create a lawyer or chamber profile to appear in the Lawyard Directory.
                       </p>
                     </div>
                     <Link href="/dashboard/add-listing">
-                      <Button size="sm" className="mt-2">Create Listing</Button>
+                      <Button size="sm" className="mt-2">Create Profile</Button>
                     </Link>
                   </div>
                 )}
@@ -595,10 +613,10 @@ export default async function DirectoryDashboardPage() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-muted/30 rounded-lg border border-border/30">
                 <div>
                   <p className="text-sm font-semibold">Are you a lawyer or chamber?</p>
-                  <p className="text-xs text-muted-foreground mt-1">Create a listing to get discovered by clients actively seeking legal expertise.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Create a profile to get discovered by clients actively seeking legal expertise.</p>
                 </div>
                 <Link href="/dashboard/add-listing">
-                  <Button size="sm" variant="outline" className="shrink-0">Create a Listing</Button>
+                  <Button size="sm" variant="outline" className="shrink-0">Create a Profile</Button>
                 </Link>
               </div>
             </CardContent>
