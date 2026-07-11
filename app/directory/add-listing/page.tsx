@@ -55,7 +55,7 @@ function AddListingContent() {
   const handleCategorySelect = useCallback((category: string) => {
     if (userRole === null && !roleLoading) {
       sessionStorage.setItem('lawyard_listing_category', category);
-      window.location.href = `/directory/signup?redirect=${encodeURIComponent('/directory/add-listing')}&category=${category}`;
+      window.location.href = `/signup?redirect=${encodeURIComponent('/add-listing')}&category=${category}`;
       return;
     }
     setSelectedCategory(category);

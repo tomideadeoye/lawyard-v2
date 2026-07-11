@@ -62,9 +62,9 @@ function UserMenu({ user, scrolled }: { user: SupabaseUser; scrolled: boolean })
 
           {/* Links */}
           <div className="p-1.5 space-y-0.5">
-            <DropdownItem href="/directory/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
-            <DropdownItem href="/directory/dashboard/profile" icon={<User className="h-4 w-4" />} label="My Profile" />
-            <DropdownItem href="/directory/dashboard/settings" icon={<Settings className="h-4 w-4" />} label="Settings" />
+            <DropdownItem href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
+            <DropdownItem href="/dashboard/profile" icon={<User className="h-4 w-4" />} label="My Profile" />
+            <DropdownItem href="/dashboard/settings" icon={<Settings className="h-4 w-4" />} label="Settings" />
           </div>
 
           {/* Sign out */}
@@ -105,7 +105,7 @@ function buildNavItems(): NavItem[] {
         href: item.href,
         children: specialtiesData.map(s => ({
           name: s.name,
-          href: `/directory/search?specialty=${s.slug}`,
+          href: `/search?specialty=${s.slug}`,
         })),
       };
     }
@@ -173,7 +173,7 @@ export default function Header() {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <Link href="/directory" className="flex items-center gap-1.5 sm:gap-2.5 no-underline cursor-pointer group min-w-0">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 no-underline cursor-pointer group min-w-0">
             {/* Light Mode Logo (Blue) */}
             <img 
               src="/logo-blue.png" 
@@ -231,7 +231,7 @@ export default function Header() {
               <UserMenu user={user} scrolled={scrolled} />
             ) : (
               <Link 
-                href="/directory/login" 
+                href="/login" 
                 className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-full no-underline transition-all",
                   scrolled ? "hover:bg-white/10 hover:text-white" : "hover:bg-muted hover:text-foreground"
@@ -247,7 +247,7 @@ export default function Header() {
           </div>
 
           <Link 
-            href="/directory/add-listing" 
+            href="/add-listing" 
             className={cn(
               "no-underline px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-md active:scale-95 cursor-pointer text-white",
               "bg-[#a77c5c] hover:bg-[#906b4e] hover:shadow-lg",
@@ -264,7 +264,7 @@ export default function Header() {
         <div className="flex flex-col h-full p-6">
           {/* Header: Logo + Close */}
           <div className="flex items-center justify-between pb-6 border-b border-border/10 shrink-0">
-            <Link href="/directory" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 no-underline">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 no-underline">
               <img
                 src="/logo-blue.png"
                 alt="Lawyard Logo"
@@ -340,7 +340,7 @@ export default function Header() {
           <div className="pt-6 border-t border-border/10 flex flex-col gap-4 shrink-0">
             {user ? (
               <Link
-                href="/directory/dashboard"
+                href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 no-underline text-foreground hover:text-primary transition-colors"
               >
@@ -362,7 +362,7 @@ export default function Header() {
               </Link>
             ) : (
               <Link
-                href="/directory/login"
+                href="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-xs font-bold text-foreground hover:text-primary transition-colors no-underline"
               >
@@ -370,7 +370,7 @@ export default function Header() {
               </Link>
             )}
             <Link
-              href="/directory/add-listing"
+              href="/add-listing"
               onClick={() => setMobileMenuOpen(false)}
               className="text-center no-underline px-5 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider bg-[#a77c5c] hover:bg-[#906b4e] text-white transition-colors shadow-md"
             >

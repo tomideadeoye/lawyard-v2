@@ -18,7 +18,7 @@ function StatusBadge({ status }: { status: string }) {
 export default async function OrdersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/directory/login')
+  if (!user) redirect('/login')
 
   const { data: transactions } = await supabase
     .from('transactions')

@@ -69,7 +69,7 @@ export default function PublishArticleForm() {
       return result;
     },
     onSuccess: () => {
-      router.push('/directory/dashboard');
+      router.push('/dashboard');
     },
   });
 

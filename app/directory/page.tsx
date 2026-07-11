@@ -58,7 +58,7 @@ export default async function Home() {
           {/* Search Tabs */}
           <div className="flex items-center justify-center gap-8 md:gap-12 mt-2">
             <Link
-              href="/directory/search?type=chambers"
+              href="/search?type=chambers"
               className="group flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -70,7 +70,7 @@ export default async function Home() {
               </span>
             </Link>
             <Link
-              href="/directory/search?type=clients"
+              href="/search?type=clients"
               className="group flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -85,7 +85,7 @@ export default async function Home() {
               </span>
             </Link>
             <Link
-              href="/directory/search?type=lawyers"
+              href="/search?type=lawyers"
               className="group flex flex-col items-center gap-2 text-white transition-all"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -218,7 +218,7 @@ export default async function Home() {
             {chambers.map((c) => (
               <Link
                 key={c.id}
-                href={`/directory/chamber/${c.id}`}
+                href={`/chamber/${c.id}`}
                 className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
               >
                 <div className="flex items-start gap-4">
@@ -321,7 +321,7 @@ export default async function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-6">
             <Link
-              href="/directory/add-listing"
+              href="/add-listing"
               className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-bold text-base hover:bg-accent/90 transition-all shadow-xl hover:shadow-accent/20 hover:-translate-y-0.5"
             >
               Add Your Listing
@@ -330,7 +330,7 @@ export default async function Home() {
               </svg>
             </Link>
             <Link
-              href="/directory/search"
+              href="/search"
               className="inline-flex items-center gap-2 bg-white/10 text-white backdrop-blur-md border border-white/20 px-8 py-4 rounded-xl font-bold text-base hover:bg-white/20 transition-all hover:-translate-y-0.5"
             >
               Browse Directory

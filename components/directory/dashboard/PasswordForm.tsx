@@ -121,7 +121,7 @@ export default function PasswordForm({ userEmail, hasPassword }: PasswordFormPro
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           Your password was updated but your session needs to be refreshed. Please sign in again with your new password.
         </p>
-        <Button onClick={() => router.push('/directory/login')}>Sign In Again</Button>
+        <Button onClick={() => router.push('/login')}>Sign In Again</Button>
       </div>
     )
   }

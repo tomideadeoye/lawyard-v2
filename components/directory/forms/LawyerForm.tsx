@@ -197,7 +197,7 @@ export default function LawyerForm() {
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           Your lawyer listing has been saved and is pending verification.
         </p>
-        <Button onClick={() => window.location.href = '/directory/dashboard'} className="mt-4">
+        <Button onClick={() => window.location.href = '/dashboard'} className="mt-4">
           Go to Dashboard
         </Button>
       </div>

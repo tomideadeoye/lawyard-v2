@@ -68,7 +68,7 @@ export async function login(formData: FormData) {
   const captchaToken = formData.get('captchaToken') as string | null
 
   if (!email || !password) {
-    return redirect('/directory/login?message=Please provide both email and password')
+    return redirect('/login?message=Please provide both email and password')
   }
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -81,11 +81,11 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error('[login] Supabase auth error:', error)
-    return redirect(`/directory/login?message=${encodeURIComponent(mapAuthError(error))}`)
+    return redirect(`/login?message=${encodeURIComponent(mapAuthError(error))}`)
   }
 
   // Use custom redirect if provided, otherwise default to dashboard.
-  let destination = '/directory/dashboard'
+  let destination = '/dashboard'
   if (redirectParam) {
     destination = redirectParam
     if (categoryParam) {
@@ -108,7 +108,7 @@ export async function loginWithMagicLink(formData: FormData) {
   const captchaToken = formData.get('captchaToken') as string | null
 
   if (!email) {
-    return redirect('/directory/login?message=Please provide your email')
+    return redirect('/login?message=Please provide your email')
   }
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -121,7 +121,7 @@ export async function loginWithMagicLink(formData: FormData) {
 
   if (error) {
     console.error('[magic-link] Supabase auth error:', error)
-    return redirect(`/directory/login?message=${encodeURIComponent(mapAuthError(error))}`)
+    return redirect(`/login?message=${encodeURIComponent(mapAuthError(error))}`)
   }
 
   return { success: true }
@@ -145,7 +145,7 @@ export async function signup(formData: FormData) {
   const captchaToken = formData.get('captchaToken') as string | null
 
   if (!email || !password || !fullName) {
-    return redirect('/directory/login?message=Please complete all required fields')
+    return redirect('/login?message=Please complete all required fields')
   }
 
   // Build the callback URL for Supabase email confirmation.
@@ -174,12 +174,12 @@ export async function signup(formData: FormData) {
 
   if (error) {
     console.error('[signup] Supabase auth error:', error)
-    return redirect(`/directory/login?message=${encodeURIComponent(mapAuthError(error))}`)
+    return redirect(`/login?message=${encodeURIComponent(mapAuthError(error))}`)
   }
 
   // Pass redirect info to the success page so it can inform the user
   // where they'll end up after confirming their email.
-  let successUrl = `/directory/login/success?email=${encodeURIComponent(email)}`
+  let successUrl = `/login/success?email=${encodeURIComponent(email)}`
   if (redirectParam) {
     successUrl += `&redirect=${encodeURIComponent(redirectParam)}`
     if (categoryParam) successUrl += `&category=${encodeURIComponent(categoryParam)}`

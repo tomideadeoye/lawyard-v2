@@ -44,30 +44,30 @@ export default function DashboardSidebar({
   const pathname = usePathname()
 
   const baseLinks: SidebarSection[] = [
-    { label: 'Dashboard', href: '/directory/dashboard', icon: LayoutDashboard },
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   ]
 
   const lawyerLinks: SidebarSection[] = [
-    { label: 'My Listings', href: '/directory/dashboard/listings', icon: Building2 },
-    { label: 'My Chamber', href: '/directory/dashboard/chamber', icon: Building },
-    { label: 'Inbox', href: '/directory/dashboard/inquiries', icon: MessageSquare },
-    { label: 'Content Studio', href: '/directory/dashboard/publish', icon: PenSquare },
+    { label: 'My Listings', href: '/dashboard/listings', icon: Building2 },
+    { label: 'My Chamber', href: '/dashboard/chamber', icon: Building },
+    { label: 'Inbox', href: '/dashboard/inquiries', icon: MessageSquare },
+    { label: 'Content Studio', href: '/dashboard/publish', icon: PenSquare },
   ]
 
   const clientLinks: SidebarSection[] = [
-    { label: 'Bookmarks', href: '/directory/dashboard/favorites', icon: Bookmark },
+    { label: 'Bookmarks', href: '/dashboard/favorites', icon: Bookmark },
   ]
 
   const bottomLinks: SidebarSection[] = [
-    { label: 'Subscription', href: '/directory/dashboard/settings?tab=billing', icon: CreditCard },
-    { label: 'Settings', href: '/directory/dashboard/settings', icon: Settings },
+    { label: 'Subscription', href: '/dashboard/settings?tab=billing', icon: CreditCard },
+    { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   ]
 
   const links = [...baseLinks, ...(isLawyer ? lawyerLinks : clientLinks), ...bottomLinks]
 
   function isActive(href: string): boolean {
-    if (href === '/directory/dashboard') {
-      return pathname === '/directory/dashboard'
+    if (href === '/dashboard') {
+      return pathname === '/dashboard'
     }
     return pathname.startsWith(href)
   }
@@ -76,7 +76,7 @@ export default function DashboardSidebar({
     <aside className="hidden md:flex flex-col border-r border-border/40 bg-card/30 backdrop-blur-md sticky top-0 h-screen">
       {/* Logo */}
       <div className="p-5 border-b border-border/30 shrink-0">
-        <Link href="/directory/dashboard" className="flex items-center gap-2 no-underline">
+        <Link href="/dashboard" className="flex items-center gap-2 no-underline">
           <div className="w-8 h-8 rounded-lg bg-[#a77c5c]/20 flex items-center justify-center text-[#a77c5c] font-bold text-sm">
             L
           </div>
@@ -140,7 +140,7 @@ export default function DashboardSidebar({
         {/* Upgrade/manage button */}
         <div className="px-4 pb-3">
           <Link
-            href="/directory/dashboard/settings?tab=billing"
+            href="/dashboard/settings?tab=billing"
             className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-[#a77c5c] hover:bg-[#906b4e] transition-colors no-underline"
           >
             {tier === 'free' ? 'Upgrade Plan' : 'Manage Plan'}

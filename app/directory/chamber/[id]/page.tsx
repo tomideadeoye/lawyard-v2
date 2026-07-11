@@ -50,7 +50,7 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
       <div className="max-w-6xl mx-auto px-4 -mt-24 md:-mt-32 pb-10">
         {/* Back link */}
         <Link
-          href="/directory/search"
+          href="/search"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold uppercase tracking-wider mb-6 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-border/30"
         >
           &larr; Back to Directory
@@ -140,7 +140,7 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
                     return (
                       <Link
                         key={l.id}
-                        href={`/directory/lawyer/${l.id}`}
+                        href={`/lawyer/${l.id}`}
                         className="flex items-start gap-4 p-4 rounded-xl bg-muted/10 border border-border/30 hover:border-[#a77c5c]/30 hover:bg-[#a77c5c]/5 transition-all no-underline group"
                       >
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 border border-border/30">

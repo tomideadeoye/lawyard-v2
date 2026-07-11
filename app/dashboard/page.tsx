@@ -8,7 +8,7 @@ import { signOut } from '@/app/directory/login/actions'
 export default async function DashboardOverview() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/directory/login')
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -47,7 +47,7 @@ export default async function DashboardOverview() {
             <p className="text-muted-foreground text-sm">Manage your purchases, submissions, and profile.</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/directory/dashboard">
+            <Link href="/dashboard">
               <Button variant="outline" size="sm">Directory</Button>
             </Link>
             <form action={signOut}>
@@ -202,7 +202,7 @@ export default async function DashboardOverview() {
                 <Link href="/shop" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Browse Legislations &rarr;
                 </Link>
-                <Link href="/directory/dashboard" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
+                <Link href="/dashboard" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Directory Dashboard &rarr;
                 </Link>
               </CardContent>

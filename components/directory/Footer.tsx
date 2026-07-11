@@ -66,21 +66,21 @@ export default function Footer() {
   const importantLinks = [
     { name: "How It Works", href: "/about" },
     { name: "Legal Insights", href: "/insights" },
-    { name: "Add Listing", href: "/directory/add-listing" },
-    { name: "User Dashboard", href: "/directory/dashboard" },
-    { name: "Compare Listings", href: "/directory/search" },
+    { name: "Add Listing", href: "/add-listing" },
+    { name: "User Dashboard", href: "/dashboard" },
+    { name: "Compare Listings", href: "/search" },
     { name: "Contact Us", href: `mailto:${contact.email}` },
     { name: "Legislations", href: "/legislations" },
-    { name: "Privacy Policy", href: "/directory/privacy" },
-    { name: "Terms & Conditions", href: "/directory/terms" },
-    { name: "Knowledge Base", href: "/directory/knowledge" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms & Conditions", href: "/terms" },
+    { name: "Knowledge Base", href: "/knowledge" },
   ];
 
   const specialtyLinks = FOOTER_SPECIALTIES.map(name => {
     const match = specialtiesData.find(s => s.name === name);
     return {
       name,
-      href: match ? `/directory/search?specialty=${match.slug}` : `/directory/search?q=${encodeURIComponent(name)}`,
+      href: match ? `/search?specialty=${match.slug}` : `/search?q=${encodeURIComponent(name)}`,
     };
   });
 
@@ -190,9 +190,9 @@ export default function Footer() {
           {/* Left Block: Nav Links */}
           <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-white/90 justify-center md:justify-start">
             <Link href="/directory" className="hover:text-white transition-colors no-underline">Home</Link>
-            <Link href="/directory/search" className="hover:text-white transition-colors no-underline">Find Counsel</Link>
-            <Link href="/directory/add-listing" className="hover:text-white transition-colors no-underline">Register Profile</Link>
-            <Link href="/directory/dashboard" className="hover:text-white transition-colors no-underline">Dashboard</Link>
+            <Link href="/search" className="hover:text-white transition-colors no-underline">Find Counsel</Link>
+            <Link href="/add-listing" className="hover:text-white transition-colors no-underline">Register Profile</Link>
+            <Link href="/dashboard" className="hover:text-white transition-colors no-underline">Dashboard</Link>
           </div>
 
           {/* Center Block: Logo Signature */}

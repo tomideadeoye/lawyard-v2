@@ -69,7 +69,7 @@ function Sidebar({ activeSlug }: { activeSlug: string | null }) {
                       {cat.articles.map((article) => (
                         <Link
                           key={article.slug}
-                          href={`/directory/help?article=${article.slug}`}
+                          href={`/help?article=${article.slug}`}
                           className={cn(
                             "block w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors",
                             activeSlug === article.slug
@@ -102,7 +102,7 @@ function ArticleView({ slug }: { slug: string }) {
     <div className="flex-1 p-8 md:p-12 lg:p-16 overflow-y-auto">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
-          <Link href="/directory/help" className="hover:text-foreground transition-colors">
+          <Link href="/help" className="hover:text-foreground transition-colors">
             Help Centre
           </Link>
           <span>/</span>
@@ -178,7 +178,7 @@ function WelcomeView() {
             return (
               <Link
                 key={cat.name}
-                href={firstSlug ? `/directory/help?article=${firstSlug}` : "/directory/help"}
+                href={firstSlug ? `/help?article=${firstSlug}` : "/help"}
                 className="block rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm p-6 hover:border-[#a77c5c]/40 hover:bg-[#a77c5c]/5 transition-all group"
               >
                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#a77c5c] mb-1">

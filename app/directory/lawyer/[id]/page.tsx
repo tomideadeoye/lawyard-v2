@@ -124,7 +124,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
       {/* Top bar */}
       <div className="flex items-center gap-3 mb-6 text-sm">
-        <Link href="/directory/search" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+        <Link href="/search" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
           ← Back to Directory
         </Link>
         <span className="text-muted-foreground/30">/</span>
@@ -394,7 +394,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               ) : (
                 <div className="text-center py-6 space-y-3">
                   <p className="text-sm text-muted-foreground">Sign in to send a message</p>
-                  <Link href="/directory/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#a77c5c] text-white text-sm font-bold hover:bg-[#906b4e] transition-colors">
+                  <Link href="/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#a77c5c] text-white text-sm font-bold hover:bg-[#906b4e] transition-colors">
                     Sign In
                   </Link>
                 </div>

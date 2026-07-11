@@ -2,17 +2,5 @@
   "framework": "nextjs",
   "installCommand": "pnpm install",
   "buildCommand": "pnpm build",
-  "outputDirectory": ".next",
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/directory",
-      "has": [{ "type": "host", "value": "directory.lawyard.org" }]
-    },
-    {
-      "source": "/:path*",
-      "destination": "/directory/:path*",
-      "has": [{ "type": "host", "value": "directory.lawyard.org" }]
-    }
-  ]
+  "outputDirectory": ".next"
 }

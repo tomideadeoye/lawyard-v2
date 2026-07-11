@@ -77,7 +77,7 @@ function SignupFormContent() {
         },
       })
       if (error) {
-        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -92,7 +92,7 @@ function SignupFormContent() {
         },
       })
       if (error) {
-        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -229,7 +229,7 @@ function SignupFormContent() {
 
             <FieldDescription className="text-center">
               Already part of the network?{' '}
-              <a href="/directory/login" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
+              <a href="/login" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
                 Login here
               </a>
             </FieldDescription>

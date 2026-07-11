@@ -269,7 +269,7 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
           />
         ) : (
           <Link
-            href="/directory/dashboard"
+            href="/dashboard"
             className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-800 text-white shadow-sm transition-colors block"
           >
             Continue

@@ -22,7 +22,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/directory/dashboard'
+  const next = searchParams.get('next') ?? '/dashboard'
   const category = searchParams.get('category')
 
   const error = searchParams.get('error')
@@ -63,9 +63,9 @@ export async function GET(request: Request) {
       .single()
 
     if (profile?.role === 'client') {
-      redirectTo = '/directory/search'
+      redirectTo = '/search'
     } else if (profile?.role === 'lawyer' || profile?.role === 'chamber') {
-      redirectTo = '/directory/dashboard'
+      redirectTo = '/dashboard'
     }
   }
 

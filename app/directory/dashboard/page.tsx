@@ -16,7 +16,7 @@ const tierLabels: Record<string, { label: string; color: string }> = {
 export default async function DirectoryDashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/directory/login')
+  if (!user) redirect('/login')
 
   const [profileResult, lawyerResult, articlesResult, podcastsResult, txResult, bookmarksResult, inquiriesResult, verificationResult] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
@@ -92,7 +92,7 @@ export default async function DirectoryDashboardPage() {
                 </p>
               </div>
             </div>
-            <Link href="/directory/dashboard/settings">
+            <Link href="/dashboard/settings">
               <Button size="sm" variant="outline" className="text-xs">Edit Profile</Button>
             </Link>
           </div>
@@ -126,7 +126,7 @@ export default async function DirectoryDashboardPage() {
                 <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
               </CardContent>
             </Card>
-            <Link href="/directory/dashboard/inquiries" className="no-underline">
+            <Link href="/dashboard/inquiries" className="no-underline">
               <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all cursor-pointer">
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Inquiries</p>
@@ -150,7 +150,7 @@ export default async function DirectoryDashboardPage() {
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link href="/directory/dashboard/add-listing" className="no-underline group">
+              <Link href="/dashboard/add-listing" className="no-underline group">
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-3 group-hover:scale-110 transition-transform">◆</div>
@@ -159,7 +159,7 @@ export default async function DirectoryDashboardPage() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/directory/dashboard/publish" className="no-underline group">
+              <Link href="/dashboard/publish" className="no-underline group">
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">✎</div>
@@ -168,7 +168,7 @@ export default async function DirectoryDashboardPage() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/directory/dashboard/publish" className="no-underline group">
+              <Link href="/dashboard/publish" className="no-underline group">
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">▶</div>
@@ -177,7 +177,7 @@ export default async function DirectoryDashboardPage() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/directory/dashboard/inquiries" className="no-underline group">
+              <Link href="/dashboard/inquiries" className="no-underline group">
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">📬</div>
@@ -248,7 +248,7 @@ export default async function DirectoryDashboardPage() {
                       </div>
                     )}
                     <div className="pt-2">
-                      <Link href="/directory/dashboard/add-listing">
+                      <Link href="/dashboard/add-listing">
                         <Button variant="outline" size="sm" className="text-xs">Edit Listing</Button>
                       </Link>
                     </div>
@@ -262,7 +262,7 @@ export default async function DirectoryDashboardPage() {
                         Create a lawyer or chamber profile to appear in the Lawyard Directory.
                       </p>
                     </div>
-                    <Link href="/directory/dashboard/add-listing">
+                    <Link href="/dashboard/add-listing">
                       <Button size="sm" className="mt-2">Create Listing</Button>
                     </Link>
                   </div>
@@ -291,12 +291,12 @@ export default async function DirectoryDashboardPage() {
                         </div>
                       </div>
                     ))}
-                    <Link href="/directory/dashboard/publish" className="block text-center text-xs font-semibold text-primary hover:underline pt-2">Publish new content &rarr;</Link>
+                    <Link href="/dashboard/publish" className="block text-center text-xs font-semibold text-primary hover:underline pt-2">Publish new content &rarr;</Link>
                   </div>
                 ) : (
                   <div className="text-center py-6 space-y-3">
                     <p className="text-sm text-muted-foreground">No articles or podcasts yet.</p>
-                    <Link href="/directory/dashboard/publish">
+                    <Link href="/dashboard/publish">
                       <Button size="sm" variant="outline" className="text-xs">Publish your first piece</Button>
                     </Link>
                   </div>
@@ -325,7 +325,7 @@ export default async function DirectoryDashboardPage() {
                       : `Active until ${new Date(expiresAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`}
                   </p>
                 </div>
-                <Link href="/directory/pricing">
+                <Link href="/pricing">
                   <Button size="sm" className="shrink-0">
                     {tier === 'free' || isExpired ? 'Upgrade Now' : 'Manage Plan'}
                   </Button>
@@ -350,7 +350,7 @@ export default async function DirectoryDashboardPage() {
                       Browse the directory and bookmark profiles you&rsquo;re interested in.
                     </p>
                   </div>
-                  <Link href="/directory/search"><Button size="sm">Browse Directory</Button></Link>
+                  <Link href="/search"><Button size="sm">Browse Directory</Button></Link>
                 </div>
               ) : (
                 <table className="w-full text-sm">
@@ -370,7 +370,7 @@ export default async function DirectoryDashboardPage() {
                         <tr key={bm.id as string} className="border-b border-border/20 last:border-0">
                           <td className="p-3">
                             <Link
-                              href={`/directory/lawyer/${bl.id}`}
+                              href={`/lawyer/${bl.id}`}
                               className="font-semibold text-sm hover:text-primary transition-colors"
                             >
                               {bl.name as string}
@@ -397,7 +397,7 @@ export default async function DirectoryDashboardPage() {
               )}
               {bookmarks.length > 0 && (
                 <div className="mt-4 text-center">
-                  <Link href="/directory/search" className="text-xs font-semibold text-primary hover:underline">
+                  <Link href="/search" className="text-xs font-semibold text-primary hover:underline">
                     View all in directory &rarr;
                   </Link>
                 </div>
@@ -420,7 +420,7 @@ export default async function DirectoryDashboardPage() {
 
           {/* Client Quick Links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link href="/directory/search" className="no-underline group">
+            <Link href="/search" className="no-underline group">
               <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full cursor-pointer">
                 <CardContent className="p-5">
                   <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-3 group-hover:scale-110 transition-transform">◈</div>
@@ -466,7 +466,7 @@ export default async function DirectoryDashboardPage() {
                       Browse the directory and bookmark profiles you&rsquo;re interested in.
                     </p>
                   </div>
-                  <Link href="/directory/search"><Button size="sm">Browse Directory</Button></Link>
+                  <Link href="/search"><Button size="sm">Browse Directory</Button></Link>
                 </div>
               ) : (
                 <table className="w-full text-sm">
@@ -486,7 +486,7 @@ export default async function DirectoryDashboardPage() {
                         <tr key={bm.id as string} className="border-b border-border/20 last:border-0">
                           <td className="p-3">
                             <Link
-                              href={`/directory/lawyer/${lawyer.id}`}
+                              href={`/lawyer/${lawyer.id}`}
                               className="font-semibold text-sm hover:text-primary transition-colors"
                             >
                               {lawyer.name as string}
@@ -513,7 +513,7 @@ export default async function DirectoryDashboardPage() {
               )}
               {bookmarks.length > 0 && (
                 <div className="mt-4 text-center">
-                  <Link href="/directory/search" className="text-xs font-semibold text-primary hover:underline">
+                  <Link href="/search" className="text-xs font-semibold text-primary hover:underline">
                     View all in directory &rarr;
                   </Link>
                 </div>
@@ -576,7 +576,7 @@ export default async function DirectoryDashboardPage() {
                       request with corrected information.
                     </p>
                   </div>
-                  <Link href="/directory/dashboard/settings?tab=verification">
+                  <Link href="/dashboard/settings?tab=verification">
                     <Button size="sm" variant="outline" className="shrink-0">
                       Try Again
                     </Button>
@@ -597,7 +597,7 @@ export default async function DirectoryDashboardPage() {
                   <p className="text-sm font-semibold">Are you a lawyer or chamber?</p>
                   <p className="text-xs text-muted-foreground mt-1">Create a listing to get discovered by clients actively seeking legal expertise.</p>
                 </div>
-                <Link href="/directory/dashboard/add-listing">
+                <Link href="/dashboard/add-listing">
                   <Button size="sm" variant="outline" className="shrink-0">Create a Listing</Button>
                 </Link>
               </div>

@@ -22,7 +22,7 @@ export const metadata = {
 export default async function FavoritesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/directory/login')
+  if (!user) redirect('/login')
 
   const { data: bookmarks } = await supabase
     .from('bookmarks')
@@ -44,7 +44,7 @@ export default async function FavoritesPage() {
             Lawyers and chambers you&apos;ve saved for later.
           </p>
         </div>
-        <Link href="/directory/search">
+        <Link href="/search">
           <Button variant="outline" size="sm">Browse Directory</Button>
         </Link>
       </div>
@@ -59,7 +59,7 @@ export default async function FavoritesPage() {
                 Search the directory and save lawyers or chambers you&apos;re interested in.
               </p>
             </div>
-            <Link href="/directory/search">
+            <Link href="/search">
               <Button>Find Lawyers</Button>
             </Link>
           </CardContent>
@@ -72,7 +72,7 @@ export default async function FavoritesPage() {
             return (
               <Link
                 key={bm.created_at}
-                href={`/directory/lawyer/${bl.id}`}
+                href={`/lawyer/${bl.id}`}
                 className="no-underline"
               >
                 <Card className="border border-border/40 bg-card/45 backdrop-blur-md hover:shadow-md hover:border-accent/30 transition-all h-full">

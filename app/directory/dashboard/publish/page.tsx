@@ -6,7 +6,7 @@ export default async function PublishPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) redirect('/directory/login');
+  if (!user) redirect('/login');
 
   const { data: articles } = await supabase
     .from('articles')

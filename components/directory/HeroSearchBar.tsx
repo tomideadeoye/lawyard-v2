@@ -13,7 +13,7 @@ export function HeroSearchBar({ specialties }: { specialties: Specialty[] }) {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (specialty) params.set("specialty", specialty);
-    router.push(`/directory/search?${params.toString()}`);
+    router.push(`/search?${params.toString()}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

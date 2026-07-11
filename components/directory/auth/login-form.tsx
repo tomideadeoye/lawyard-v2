@@ -111,7 +111,7 @@ function LoginFormContent() {
         },
       })
       if (error) {
-        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -126,7 +126,7 @@ function LoginFormContent() {
         },
       })
       if (error) {
-        window.location.href = `/directory/login?message=${encodeURIComponent(error.message)}`
+        window.location.href = `/login?message=${encodeURIComponent(error.message)}`
       }
     })
   }
@@ -360,7 +360,7 @@ function LoginFormContent() {
 
             <FieldDescription className="text-center">
               Don&apos;t have an account?{' '}
-               <a href="/directory/signup" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
+               <a href="/signup" className="font-semibold underline underline-offset-4 hover:text-primary transition-colors">
                 Sign up
               </a>
             </FieldDescription>

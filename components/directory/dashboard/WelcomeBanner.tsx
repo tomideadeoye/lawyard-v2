@@ -42,13 +42,13 @@ export default function WelcomeBanner({ createdAt }: { createdAt?: string | null
           </p>
           <div className="flex gap-3 mt-3">
             <a
-              href="/directory/dashboard/settings"
+              href="/dashboard/settings"
               className="text-sm font-medium text-primary hover:underline"
             >
               Complete your profile &rarr;
             </a>
             <a
-              href="/directory/search"
+              href="/search"
               className="text-sm font-medium text-primary hover:underline"
             >
               Browse directory &rarr;

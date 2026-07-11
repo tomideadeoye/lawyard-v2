@@ -71,7 +71,7 @@ export function BillingPlanCard({ tier, status, expiresAt }: BillingPlanCardProp
 
         <div className="flex gap-3 pt-2">
           <Link
-            href="/directory/pricing"
+            href="/pricing"
             className={cn(buttonVariants({ variant: 'default' }))}
           >
             {hasPlan ? 'Change Plan' : 'View Plans'}

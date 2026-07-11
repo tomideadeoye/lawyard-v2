@@ -119,7 +119,7 @@ export function BillingUpgradeCards({ currentTier, userRole, plans }: BillingUpg
                     </Button>
                   ) : (
                     <Button className="w-full" variant={plan.recommended ? 'default' : 'secondary'} asChild>
-                      <Link href="/directory/pricing">
+                      <Link href="/pricing">
                         {buttonText}
                         <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
                       </Link>

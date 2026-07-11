@@ -48,29 +48,29 @@ export default function MobileDashboardNav({
   }, [open])
 
   const baseLinks: NavSection[] = [
-    { label: 'Dashboard', href: '/directory/dashboard', icon: LayoutDashboard },
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   ]
 
   const roleLinks: NavSection[] = isLawyer
     ? [
-        { label: 'My Listings', href: '/directory/dashboard/listings', icon: Building2 },
-        { label: 'My Chamber', href: '/directory/dashboard/chamber', icon: Building },
-        { label: 'Inbox', href: '/directory/dashboard/inquiries', icon: MessageSquare },
-        { label: 'Content Studio', href: '/directory/dashboard/publish', icon: PenSquare },
+        { label: 'My Listings', href: '/dashboard/listings', icon: Building2 },
+        { label: 'My Chamber', href: '/dashboard/chamber', icon: Building },
+        { label: 'Inbox', href: '/dashboard/inquiries', icon: MessageSquare },
+        { label: 'Content Studio', href: '/dashboard/publish', icon: PenSquare },
       ]
     : [
-        { label: 'Bookmarks', href: '/directory/dashboard/favorites', icon: Bookmark },
+        { label: 'Bookmarks', href: '/dashboard/favorites', icon: Bookmark },
       ]
 
   const bottomLinks: NavSection[] = [
-    { label: 'Subscription', href: '/directory/dashboard/settings?tab=billing', icon: CreditCard },
-    { label: 'Settings', href: '/directory/dashboard/settings', icon: Settings },
+    { label: 'Subscription', href: '/dashboard/settings?tab=billing', icon: CreditCard },
+    { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   ]
 
   const links = [...baseLinks, ...roleLinks, ...bottomLinks]
 
   function isActive(href: string): boolean {
-    if (href === '/directory/dashboard') return pathname === '/directory/dashboard'
+    if (href === '/dashboard') return pathname === '/dashboard'
     return pathname.startsWith(href)
   }
 
@@ -105,7 +105,7 @@ export default function MobileDashboardNav({
       >
         {/* Drawer header */}
         <div className="flex items-center justify-between p-4 border-b border-border/30 shrink-0">
-          <Link href="/directory/dashboard" className="flex items-center gap-2 no-underline" onClick={() => setOpen(false)}>
+          <Link href="/dashboard" className="flex items-center gap-2 no-underline" onClick={() => setOpen(false)}>
             <div className="w-8 h-8 rounded-lg bg-[#a77c5c]/20 flex items-center justify-center text-[#a77c5c] font-bold text-sm">L</div>
             <div>
               <p className="text-sm font-bold leading-tight text-foreground">Lawyard</p>
@@ -170,7 +170,7 @@ export default function MobileDashboardNav({
           <div className="px-4 pb-3">
             {tier === 'free' ? (
               <Link
-                href="/directory/pricing"
+                href="/pricing"
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-[#a77c5c] hover:bg-[#906b4e] transition-colors no-underline"
               >
@@ -178,7 +178,7 @@ export default function MobileDashboardNav({
               </Link>
             ) : (
               <Link
-                href="/directory/dashboard/settings?tab=billing"
+                href="/dashboard/settings?tab=billing"
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-[#a77c5c] border border-[#a77c5c]/30 hover:bg-[#a77c5c]/5 transition-colors no-underline"
               >

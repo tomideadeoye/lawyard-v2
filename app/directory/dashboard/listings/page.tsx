@@ -70,7 +70,7 @@ export default async function ListingsPage({
   const { tab = 'all', q = '' } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/directory/login')
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -112,7 +112,7 @@ export default async function ListingsPage({
         expires_at: chamber.subscription_expires_at,
         status,
         plan: chamber.subscription_tier || 'free',
-        href: `/directory/chamber/${chamber.id}`,
+        href: `/chamber/${chamber.id}`,
       })
     }
 
@@ -135,7 +135,7 @@ export default async function ListingsPage({
             expires_at: chamber.subscription_expires_at,
             status: deriveStatus(l.verification_status, null, null),
             plan: chamber.subscription_tier || 'free',
-            href: `/directory/lawyer/${l.id}`,
+            href: `/lawyer/${l.id}`,
           })
         }
       }
@@ -161,7 +161,7 @@ export default async function ListingsPage({
         expires_at: expiresAt,
         status: deriveStatus(lawyer.verification_status, null, expiresAt),
         plan: profileTier,
-        href: `/directory/lawyer/${lawyer.id}`,
+        href: `/lawyer/${lawyer.id}`,
       })
     }
   }
@@ -196,7 +196,7 @@ export default async function ListingsPage({
         {tabs.map(t => (
           <Link
             key={t}
-            href={`/directory/dashboard/listings?tab=${t}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            href={`/dashboard/listings?tab=${t}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
             className={`relative px-4 py-2.5 text-sm font-medium capitalize whitespace-nowrap transition-colors no-underline ${
               tab === t
                 ? 'text-foreground'

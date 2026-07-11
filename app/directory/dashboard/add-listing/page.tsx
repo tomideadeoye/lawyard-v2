@@ -11,7 +11,7 @@ export default async function DashboardAddListingPage() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect('/directory/login');
+    redirect('/login');
   }
 
   const { data: profile } = await supabase

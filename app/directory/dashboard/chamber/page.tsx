@@ -6,7 +6,7 @@ import ChamberForm from './chamber-form';
 export default async function ChamberPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/directory/login');
+  if (!user) redirect('/login');
 
   const { data: chamber } = await supabase
     .from('chambers')
@@ -53,13 +53,13 @@ export default async function ChamberPage() {
       {chamber && (
         <div className="flex items-center gap-4">
           <Link
-            href="/directory/pricing"
+            href="/pricing"
             className="px-4 py-2 rounded-lg bg-[#a77c5c] hover:bg-[#906b4e] text-white text-xs font-bold transition-colors"
           >
             {tier === 'enterprise' ? 'Manage Subscription' : 'Upgrade to Enterprise'}
           </Link>
           <Link
-            href={`/directory/chamber/${chamber.id}`}
+            href={`/chamber/${chamber.id}`}
             className="px-4 py-2 rounded-lg border border-border/40 text-xs font-semibold hover:bg-muted/20 transition-colors"
           >
             View Public Page &rarr;

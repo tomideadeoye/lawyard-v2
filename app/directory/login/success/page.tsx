@@ -30,7 +30,7 @@ export default async function RegistrationSuccessPage({
 
           <div className="flex flex-col gap-3 w-full mt-4">
             <Link 
-              href="/directory/login" 
+              href="/login" 
               className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
             >
               Return to Login

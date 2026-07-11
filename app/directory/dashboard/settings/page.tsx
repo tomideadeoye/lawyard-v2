@@ -41,7 +41,7 @@ export default async function SettingsPage({
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
-    redirect('/directory/login')
+    redirect('/login')
   }
 
   let profile: Record<string, any> | null = null
@@ -100,7 +100,7 @@ export default async function SettingsPage({
               Manage your profile, preferences, and billing details.
             </p>
           </div>
-          <Link href="/directory/dashboard">
+          <Link href="/dashboard">
             <Button variant="outline" size="sm">
               &larr; Back to Dashboard
             </Button>
@@ -111,7 +111,7 @@ export default async function SettingsPage({
           {/* Tab Navigation */}
           <div className="space-y-1" role="tablist" aria-label="Settings tabs">
             {tabs.map((t) => {
-              const href = t.id === 'profile' ? '/directory/dashboard/settings' : `?tab=${t.id}`
+              const href = t.id === 'profile' ? '/dashboard/settings' : `?tab=${t.id}`
               const isActive = activeTab === t.id
               return (
                 <Link

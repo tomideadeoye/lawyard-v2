@@ -7,7 +7,7 @@ import InboxClient from './inbox-client';
 export default async function InquiriesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/directory/login');
+  if (!user) redirect('/login');
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -16,7 +16,7 @@ export default async function InquiriesPage() {
     .single();
 
   const isLawyer = profile?.role === 'lawyer' || profile?.role === 'chamber';
-  if (!isLawyer) redirect('/directory/dashboard');
+  if (!isLawyer) redirect('/dashboard');
 
   const statsResult = await getInquiryStats();
 
@@ -64,7 +64,7 @@ export default async function InquiriesPage() {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             When clients send you messages from your listing page, they&apos;ll appear here.
           </p>
-          <Link href={`/directory/lawyer/${user.id}`} className="inline-block text-sm font-semibold text-primary hover:underline">
+          <Link href={`/lawyer/${user.id}`} className="inline-block text-sm font-semibold text-primary hover:underline">
             View your listing page &rarr;
           </Link>
         </div>

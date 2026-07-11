@@ -12,8 +12,8 @@
         "name": "Type Of Lawyers",
         "href": "#",
         "children": [
-          { "name": "Commercial Law", "href": "/directory/search?type=commercial" },
-          { "name": "Dispute Resolution Law", "href": "/directory/search?type=dispute-resolution" }
+          { "name": "Commercial Law", "href": "/search?type=commercial" },
+          { "name": "Dispute Resolution Law", "href": "/search?type=dispute-resolution" }
         ]
       },
       {
@@ -21,23 +21,23 @@
         "href": "#",
         "dataSource": "specialties"
       },
-      { "name": "Pricing", "href": "/directory/pricing" },
-      { "name": "Help", "href": "/directory/help" }
+      { "name": "Pricing", "href": "/pricing" },
+      { "name": "Help", "href": "/help" }
     ],
     "footer": {
-      "directory": [
-        { "name": "Find a Lawyer", "href": "/directory/search" },
-        { "name": "Legal Chambers", "href": "/directory/search" },
-        { "name": "Corporate Counsel", "href": "/directory/search" },
-        { "name": "Register Listing", "href": "/directory/add-listing" }
+      "": [
+        { "name": "Find a Lawyer", "href": "/search" },
+        { "name": "Legal Chambers", "href": "/search" },
+        { "name": "Corporate Counsel", "href": "/search" },
+        { "name": "Register Listing", "href": "/add-listing" }
       ],
       "resources": [
-        { "name": "How it works", "href": "/directory/about" },
-        { "name": "Legal Insights", "href": "/directory/insights" },
-        { "name": "Legislations", "href": "/directory/legislations" },
-        { "name": "Knowledge Base", "href": "/directory/knowledge" },
-        { "name": "Privacy Policy", "href": "/directory/privacy" },
-        { "name": "Terms & Conditions", "href": "/directory/terms" }
+        { "name": "How it works", "href": "/about" },
+        { "name": "Legal Insights", "href": "/insights" },
+        { "name": "Legislations", "href": "/legislations" },
+        { "name": "Knowledge Base", "href": "/knowledge" },
+        { "name": "Privacy Policy", "href": "/privacy" },
+        { "name": "Terms & Conditions", "href": "/terms" }
       ]
     }
   },

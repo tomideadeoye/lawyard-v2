@@ -34,7 +34,7 @@ export default function PublishPodcastForm() {
       return result;
     },
     onSuccess: () => {
-      router.push('/directory/dashboard');
+      router.push('/dashboard');
     },
   });
 
