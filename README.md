@@ -9,7 +9,7 @@ Single Next.js app with three route groups:
 ```text
 lawyard-v2/
 ├── app/
-│   ├── (main)/         # lawyard.org — Media platform (articles, podcasts, TV, Brand Press)
+│   ├── (main)/         # lawyard.org — Media platform (articles, podcasts, TV, Corporate Posts)
 │   ├── admin/          # /admin — Dashboard (lawyer verification, content, subscribers)
 │   └── directory/      # /directory — Legal marketplace (lawyers, chambers, search)
 ├── lib/                # Shared utilities, Supabase clients, API helpers
@@ -36,16 +36,16 @@ pnpm dev
 ## Route Groups
 
 ### Main (`app/(main)/`)
-The Lawyard website — articles, podcasts, TV, Brand Press, RSS feed, shop.
+The Lawyard website — articles, podcasts, TV, Corporate Posts, RSS feed, shop.
 
-- **Routes**: Homepage, insights (index + detail), podcasts (index + detail), TV (index + detail), category archive, RSS feed, Brand Press (listing + submit + payment + success), About, contact, cart, checkout, shop
-- **Brand Press**: Paid submission engine with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, Slack approve/deny, scheduled publishing via edge function
+- **Routes**: Homepage, insights (index + detail), podcasts (index + detail), TV (index + detail), category archive, RSS feed, Corporate Posts (listing + submit + payment + success), About, contact, cart, checkout, shop
+- **Corporate Posts**: Paid submission engine with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, Slack approve/deny, scheduled publishing via edge function
 
 ### Admin (`app/admin/`)
 Admin dashboard for managing lawyers, content, and subscribers.
 
 - **Lawyers Directory**: View, search, verify/reject lawyers
-- **Content Manager**: Tabs for Articles, Podcasts, and Brand Press with approve/reject
+- **Content Manager**: Tabs for Articles, Podcasts, and Corporate Posts with approve/reject
 - **Subscribers**: View, search, export, and broadcast newsletters
 - **Settings**: Configure `auto_approve_hours` and `brand_press_clash_window_minutes` from the database — no code changes needed
 - **Auth**: Supabase Auth with admin role enforcement
@@ -66,14 +66,14 @@ Public-facing legal marketplace with lawyer/chamber search and profiles.
 4. Click **Deny** → DB status → `archived`
 5. Auto-approves after `auto_approve_hours` (configurable in admin Settings) if no action taken
 
-### Brand Press
-1. User submits at `/brand-press/submit` → selects tier → article created with `payment_status='pending'`
+### Corporate Posts
+1. User submits at `/corporate-posts/submit` → selects tier → article created with `payment_status='pending'`
 2. Paystack payment → callback verifies → `payment_status='paid'`
 3. **Posted to #lawyard-directory** with ✅ Approve / ❌ Deny buttons
 4. Click **Approve** → publishes to WordPress as draft + `payment_status='paid'` (keeps `pending_review` for scheduling)
 5. Click **Deny** → DB status → `archived`
 6. Edge function runs hourly: when `scheduled_date` passes → publishes to WordPress **live** + DB status → `published`
-7. Clash detection prevents two Brand Press articles from being scheduled within the configurable window
+7. Clash detection prevents two Corporate Post articles from being scheduled within the configurable window
 8. Email notifications at every step via Resend
 
 ### Auto-Approve (Articles without scheduled dates)
@@ -96,7 +96,7 @@ The directory uses a **dedicated Slack app** "Lawyard Directory" (`A0BD6S8JGDD`)
 | Interactions URL | `https://directory.lawyard.org/api/slack/interactions` |
 | Webhook | Posts to `#lawyard-directory` |
 | Socket Mode | Off (HTTP Request URL) |
-| Actions | `approve_article`, `deny_article`, `approve_brand_press`, `deny_brand_press` |
+| Actions | `approve_article`, `deny_article`, `approve_corporate_post`, `deny_corporate_post` |
 
 ### Signature verification (app/api/slack/interactions/route.ts)
 - Verifies `X-Slack-Signature` with `DIRECTORY_SLACK_SIGNING_SECRET`
@@ -192,36 +192,55 @@ Shared Supabase project with cookie-based auth on `.lawyard.org` domain.
 | **Lawyers verified badge** | `verified: true` → `verified: (l.verification_status as string) === 'verified'` |
 | **Content Studio** | PublishArticleForm + PublishPodcastForm wired to server actions via TanStack Query |
 | **Admin — Lawyers CRUD** | Full page with filters, pagination, verify/reject/edit |
-| **Admin — Content Manager** | Articles + Podcasts + Brand Press tabs, status toggles, delete |
+| **Admin — Content Manager** | Articles + Podcasts + Corporate Posts tabs, status toggles, delete |
 | **Admin — Subscribers** | Server + client component for subscriber listing |
 | **Admin login page** | `app/admin/login/page.tsx` exists |
 | **Slack Approve/Deny** | Articles: Block Kit buttons posted to dedicated Lawyard Directory Slack app, interactions handler routes approve → WP draft + DB published, deny → archived |
-| **Brand Press Slack Approval** | Payment callback posts to Directory Slack with buttons; Slack approve → WP draft + payment marked paid; deny → archived; email notification on approval |
+| **Corporate Post Slack Approval** | Payment callback posts to Directory Slack with buttons; Slack approve → WP draft + payment marked paid; deny → archived; email notification on approval |
 | **Admin Settings Page** | `/admin/settings` — configure `auto_approve_hours` and `brand_press_clash_window_minutes` from DB; no code/env changes ever |
 | **App Settings Table** | `app_settings` key-value table with RLS, seeded defaults, accessible from edge function |
 | **Auto-Approve (Articles)** | Edge function checks `pending_review` articles older than `auto_approve_hours`, auto-publishes to WP as draft + DB |
-| **Scheduled Publish (Brand Press)** | Edge function publishes to WP live + DB when `scheduled_date` passes |
-| **Clash Detection** | `submitBrandPress` checks for existing scheduled dates within configurable window, rejects with message |
+| **Scheduled Publish (Corporate Posts)** | Edge function publishes to WP live + DB when `scheduled_date` passes |
+| **Clash Detection** | `submitCorporatePost` checks for existing scheduled dates within configurable window, rejects with message |
 | **Edge Function Deployed** | `publish-scheduled` deployed to Supabase with WP + email publishing |
 | **Supabase Secrets** | `WP_API_URL`, `WP_USERNAME`, `WP_APP_PASSWORD`, `RESEND_API_KEY` set for edge function |
 | **Migration Applied** | `app_settings` table pushed to remote DB |
 | **Mobile Hamburger Menu (Directory)** | Extracted `MobileDrawer` shell from main site Header; wired into directory Header with dynamic nav from `buildNavItems()` + auth state + collapsible sections + CTA button |
 | **Root Error Boundary** | `app/error.tsx` exists for directory |
 
-### ❌ Not Yet Completed / Needs Confirmation
+### ✅ Fixed This Session
 
-#### Must Confirm (Deployment & Testing)
-- [ ] **Verify cron schedule** — go to Supabase Dashboard → Edge Functions → publish-scheduled → Schedule. Should be `0 * * * *` (hourly). May already be set from previous deploy.
-- [ ] **Test full Brand Press flow**: submit BP → pay with live Paystack → check Slack for buttons → Approve → confirm WP draft + DB update → wait for scheduled date → confirm WP live + DB published
-- [ ] **Test article flow**: submit article in Content Studio → check Slack buttons → Approve → confirm WP draft + directory published
-- [ ] **Test auto-approve**: set `auto_approve_hours=0` in admin settings, submit article → should auto-publish on next edge function run
-- [ ] **Test clash detection**: submit two Brand Press with scheduled dates within 1 hour → second should be rejected
-- [ ] **Test live payments**: verify Paystack integration end-to-end with real card — subscription plans (Premium, Enterprise) and Brand Press tiers (Basic, Core, Pro) — confirm callback, webhook, DB status updates, and Slack notification fires on success
-- [ ] **Confirm with Tobi**: are lawyers paying to list on the directory, paying to be featured, or both? The current pricing page has plans (Premium/Enterprise) that map to subscription tiers — verify this matches his business model
-- [ ] **Set missing env vars on Vercel** (`SERVICE_ROLE_KEY`, Paystack keys, Slack secrets, WP credentials)
+| # | Issue | What Changed |
+|---|-------|--------------|
+| 1 | Forgot password dead link | `login-form.tsx` — now opens a modal that calls `supabase.auth.resetPasswordForEmail()` |
+| 2 | Resend button does nothing | New `ResendButton.tsx` — calls `supabase.auth.resend({ type: 'signup' })` |
+| 3 | Account deletion disabled | New `DeleteAccountDialog.tsx` + `account.ts` server action with confirmation flow |
+| 4 | mapAuthError misses cases | Handles rate-limit, banned, weak password, expired token, invalid code, user not found, OAuth errors |
+| 5 | OAuth callback error differentiation | Differentiates expired code, rate-limit, access denied, provider unavailable |
+| 6 | Rate-limit errors unhandled | Covered by #4 — 429 errors caught in all auth flows |
+| 7 | No onboarding flow | New `WelcomeBanner.tsx` — shows for 24h after account creation |
+| 8 | Email change impossible | New `EmailChangeDialog.tsx` — added to settings with confirmation flow |
+| 9 | No captcha/Turnstile | `config.toml` — Turnstile enabled with env var placeholder |
+| 10 | Sender email not verified | Changed `noreply@lawyard.org` → `tobi@lawyard.org` (verified in Brevo) in 3 files |
+
+### Immediate TODOs (Not Yet Done)
+- [ ] **Build `/admin/coupons`** — CRUD UI for partner codes (already enforced server-side, just needs UI)
+- [x] **Revisit Brand Press → Corporate Posts rename** — ✅ done this session
+- [ ] **Run live payment end-to-end** — real card, confirm Paystack callback + DB + Slack approve → WP publish
+- [ ] **Verify Brevo list subscription** — on signup + admin newsletter broadcast delivery
+- [ ] **Confirm 3 existing partner codes** — in `coupons` table: 3 specific-user codes, free once per 7 days
+
+### Next Steps (Priority Order)
+1. **Deploy to production** — Push to Vercel so all fixes go live
+2. **Set Turnstile env vars** — Create Turnstile widget in Cloudflare, add keys to `.env.local` + Supabase dashboard
+3. **Add Turnstile widget to signup form** — Render widget client-side, pass token to server action
+4. **Fix silent Brevo failures** — `login/actions.ts:157-160` `.catch()` swallows Brevo errors — should log at minimum
+5. **Check admin & main site auth** — May have same dead link / disabled button issues as directory
+6. **Create Terms & Privacy pages** — Still linked as `href="#"` in login/signup forms
+7. **Enable email confirmations** — Currently disabled in `config.toml` — captcha makes this safer to enable
 
 #### Must Do Before Launch
-- [ ] **Rate limiting (Upstash Redis) + CAPTCHA (Cloudflare Turnstile)** on Brand Press forms — prevent abuse
+- [ ] **Rate limiting (Upstash Redis)** on Corporate Post forms — prevent abuse
 - [ ] **pg_cron cleanup**: auto-archive stuck `pending_payment` articles older than 24h
 - [ ] **PDF download infrastructure**: legislation PDF generation/storage/streaming; replace `href="#"` mock links on receipt page
 - [ ] **Error boundaries on all routes** — catch Supabase fetch failures gracefully everywhere
@@ -233,7 +252,7 @@ Shared Supabase project with cookie-based auth on `.lawyard.org` domain.
 - [ ] Subscriber CSV export and growth charts
 - [ ] Multiple admin user management + role-based access
 - [ ] Audit log for admin actions
-- [ ] Brand Press analytics (revenue, tier breakdown, approval rate)
+- [ ] Corporate Post analytics (revenue, tier breakdown, approval rate)
 - [ ] WYSIWYG content editor and media library
 
 #### Publish App
@@ -243,7 +262,7 @@ Shared Supabase project with cookie-based auth on `.lawyard.org` domain.
 - [ ] Pagination/infinite scroll on article/podcast/TV lists
 - [ ] Loading skeletons for dynamic pages
 - [ ] Sitemap, JSON-LD structured data, dynamic OG images
-- [ ] Brand Press rate limiting, receipts, media upload, edit/resubmit
+- [ ] Corporate Post rate limiting, receipts, media upload, edit/resubmit
 
 #### Directory App
 - [ ] Search filter refinement (Location, Budget, Rating)

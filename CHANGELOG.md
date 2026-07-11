@@ -14,9 +14,9 @@
 - **Chamber featured filtering**: `getChambers()` now checks `subscription_status = 'active'` and `subscription_expires_at` (null ok, expired excluded) — seed data excluded (`lib/directory/api.ts`)
 - **Inbox read state**: Fixed desync bug — replaced query key invalidation with local state update (`app/directory/dashboard/inquiries/inbox-client.tsx`)
 - **Inquiry error handling**: `submitInquiry`/`markInquiryRead` now throw on DB failure so TanStack Query catches errors (`app/directory/actions/inquiries.ts`)
-- **Webhook safety**: Null guard on `metadata` in `handleBrandPress`/`handleSubscription`/`handleChamberSubscription` to prevent TypeError crash (`app/api/webhooks/paystack/route.ts`)
+- **Webhook safety**: Null guard on `metadata` in `handleCorporatePost`/`handleSubscription`/`handleChamberSubscription` to prevent TypeError crash (`app/api/webhooks/paystack/route.ts`)
 - **Redirect in mutations**: Server actions return `{ success: true }` instead of `redirect()`; client forms use `useRouter().push()` in `onSuccess` — prevents TanStack Query catching redirect errors (`app/directory/actions/content.ts`, `PublishArticleForm`, `PublishPodcastForm`)
 - **Category taxonomy**: Articles and podcasts now categorised by legal practice areas (from `specialties.json`) instead of internal content types
 
 ### Blocked
-- Content pipeline (Slack bot) integration — waiting on Shefiu to clarify endpoint, payload, auth, and data flow for directory + brand press posts
+- Content pipeline (Slack bot) integration — waiting on Shefiu to clarify endpoint, payload, auth, and data flow for directory + corporate posts

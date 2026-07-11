@@ -7,12 +7,12 @@
     {
       "source": "/",
       "destination": "/directory",
-      "has": [{ "type": "host", "value": "directory.lawyard.com" }]
+      "has": [{ "type": "host", "value": "directory.lawyard.org" }]
     },
     {
       "source": "/:path*",
       "destination": "/directory/:path*",
-      "has": [{ "type": "host", "value": "directory.lawyard.com" }]
+      "has": [{ "type": "host", "value": "directory.lawyard.org" }]
     }
   ]
 }

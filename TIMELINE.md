@@ -57,8 +57,8 @@ Client inquiry system, listing detail page rewrite, inquiry inbox
 ### Blockers
 Content pipeline integration is blocked pending clarification from Shefiu:
 
-1. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when brand press payments clear
-2. **Payload structure** — Expected JSON for article vs podcast vs brand press
+1. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear
+2. **Payload structure** — Expected JSON for article vs podcast vs corporate post
 3. **Auth method** — API key, HMAC, or IP whitelist
 4. **Other entry points** — External sources (direct brand submissions, scrapers) feeding the pipeline
 5. **Full data flow**: source → [?] → Slack bot → distribution
@@ -66,7 +66,7 @@ Content pipeline integration is blocked pending clarification from Shefiu:
 ### Next Steps
 1. Get answers from Shefiu on content pipeline
 2. Wire publish flow to POST to endpoint after DB insert
-3. Wire brand press webhook to same endpoint after Paystack confirmation
+3. Wire corporate post webhook to same endpoint after Paystack confirmation
 4. Rate limiting (Upstash Redis / Vercel Edge) + CAPTCHA (Cloudflare Turnstile) on directory forms
 
 ---

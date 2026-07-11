@@ -11,13 +11,13 @@ lawyard-v2/
 │   ├── feed.xml/route.ts       # RSS feed
 │   ├── sitemap.xml/route.ts    # Sitemap
 │   ├── fonts/                  # GeistVF.woff, GeistMonoVF.woff
-│   ├── actions/                # Shared server actions (brand-press, newsletter, shop)
+│   ├── actions/                # Shared server actions (corporate-posts, newsletter, shop)
 │   │
 │   ├── (main)/                 # Route group: lawyard.org media platform
 │   │   ├── layout.tsx          # Header + Footer + CartProvider
 │   │   ├── page.tsx            # Homepage
 │   │   ├── about/page.tsx
-│   │   ├── brand-press/        # listing, submit, payment, success
+│   │   ├── corporate-posts/        # listing, submit, payment, success
 │   │   ├── cart/page.tsx
 │   │   ├── category/[slug]/page.tsx
 │   │   ├── checkout/page.tsx
@@ -102,7 +102,7 @@ lawyard-v2/
 │
 ├── lib/                        # Shared utilities & API helpers
 │   ├── utils.ts                # cn() utility
-│   ├── brand-press.json        # Brand Press tier config
+│   ├── corporate-posts.json        # Corporate Posts tier config
 │   ├── legislations.ts
 │   │
 │   ├── supabase/               # Unified Supabase clients
@@ -189,10 +189,10 @@ lawyard-v2/
 | `/category/[slug]` | (main) | Category archive |
 | `/legislations` | (main) | Legislation listing |
 | `/legislations/[slug]` | (main) | Legislation detail |
-| `/brand-press` | (main) | Published submissions |
-| `/brand-press/submit` | (main) | Submission form |
-| `/brand-press/payment` | (main) | Paystack callback |
-| `/brand-press/success` | (main) | Confirmation |
+| `/corporate-posts` | (main) | Published submissions |
+| `/corporate-posts/submit` | (main) | Submission form |
+| `/corporate-posts/payment` | (main) | Paystack callback |
+| `/corporate-posts/success` | (main) | Confirmation |
 | `/about` | (main) | About page |
 | `/contact` | (main) | Contact page |
 | `/shop` | (main) | Shop listing |
@@ -237,7 +237,7 @@ lawyard-v2/
 | `lib/directory/supabase/*.ts` | Directory-specific clients (legacy, same pattern) |
 
 ### Edge Functions
-- `supabase/functions/publish-scheduled/index.ts` — Hourly cron, auto-publishes Brand Press articles
+- `supabase/functions/publish-scheduled/index.ts` — Hourly cron, auto-publishes Corporate Posts articles
 
 ### Environment Variables
 ```ini

@@ -1,5 +1,5 @@
 # LAWYARD v2 SYSTEM ARCHITECTURE (Zero-Dependency Protocol)
-**Status**: ACTIVE | **Phase**: 3 (Media Platform + Brand Press) | **Architecture**: Single Next.js App (Supabase-Native)
+**Status**: ACTIVE | **Phase**: 3 (Media Platform + Corporate Posts) | **Architecture**: Single Next.js App (Supabase-Native)
 
 ## 👤 KEY CONTACTS
 - **Tobi Adebowale**: Primary Client / Decision Maker (+234 706 100 3969)
@@ -20,21 +20,27 @@
 - **Database/Auth**: Supabase (PostgreSQL + RLS).
 - **UI System**: Tailwind CSS v4 + Custom Components + Shadcn UI.
 - **Email**: Resend for transactional emails (brand press lifecycle) and newsletter broadcasts.
-- **Payments**: Paystack for Brand Press paid submissions.
+- **Payments**: Paystack for Corporate Posts paid submissions.
 - **Package Manager**: pnpm (no workspaces, single app).
 
 ## 2. Core Modules (Flat Structure — Single App)
-- **app/(main)/**: Media platform — Lawyard's main site (lawyard.org) with articles, podcasts, TV, Brand Press.
+- **app/(main)/**: Media platform — Lawyard's main site (lawyard.org) with articles, podcasts, TV, Corporate Posts.
 - **app/admin/**: Admin dashboard — lawyer verification, content management, subscribers.
 - **app/directory/**: Legal marketplace — lawyers, chambers, search, content studio, dashboard.
   - `app/directory/actions/bookmarks.ts` — Server actions: `toggleBookmark(lawyerId)` (upsert/delete for saves).
   - `app/directory/dashboard/page.tsx` — Unified dashboard with client/lawyer role-aware views, bookmark listing.
+  - **Delayed Auth Chain** (`app/directory/add-listing/page.tsx` + `auth/callback/route.ts` + `login/actions.ts` + `components/directory/auth/`):
+    - Hop 1: `add-listing/page.tsx` gates on auth at category selection; redirects to signup with `?redirect=...&category=X`
+    - Hop 2: `signup-form.tsx` / `login-form.tsx` forwards redirect+category to OAuth `redirectTo`
+    - Hop 3: `auth/callback/route.ts` exchanges OAuth code, appends `?category=X` to final URL
+    - Hop 4: `add-listing/page.tsx` restores category from URL param (or sessionStorage fallback)
+    - Server actions (`login/actions.ts`) consume redirect params for email/password and magic link flows
 - **components/directory/**:
   - `BookmarkButton.tsx` — Client component: instant toggle heart icon, optimistic updates via server action.
 - **lib/api/**: Shared business logic
   - `articles.ts` — Query helpers: `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate`
   - `paystack.ts` — Paystack init/verify helpers (shared by main + directory)
-  - `email.ts` — Resend email module: 6 send functions for Brand Press lifecycle + newsletter
+  - `email.ts` — Resend email module: 6 send functions for Corporate Posts lifecycle + newsletter
   - `index.ts` — Zod schemas (ArticleSchema, PodcastSchema, NewsletterSubscriptionSchema)
 - **components/ui/**: Shared design system (Tailwind CSS v4)
   - `article-card.tsx` — ArticleCard with grid + list variants, brand/tier/category badges
@@ -47,7 +53,7 @@
 
 ## 3. Data Flow (The Protocol)
 - **Native Content Engine**: Replaced legacy WordPress with native `articles` and `podcasts` tables across publish + directory apps.
-- **Brand Press Flow**: Submit → Create article (`status='pending_review'`, `payment_status='pending'`) → Paystack payment → Callback verifies → `payment_status='paid'` → Admin reviews → Approve (status='published') or Reject (status='archived') → Email notification at every step.
+- **Corporate Post Flow**: Submit → Create article (`status='pending_review'`, `payment_status='pending'`) → Paystack payment → Callback verifies → `payment_status='paid'` → Admin reviews → Approve (status='published') or Reject (status='archived') → Email notification at every step.
 - **Scheduled Publishing**: Supabase edge function (hourly cron) queries articles where `status='pending_review'` AND `payment_status='paid'` AND `scheduled_date <= now()`, publishes them, sends approval email.
 - **Newsletter Broadcast**: Admin sends subject + HTML body from subscribers page → Resend sends individually to all active subscribers.
 - **Transactional Emails**: Resend handles 6 event types (submission received, payment confirmed, approved, rejected, admin alert, newsletter).
@@ -80,14 +86,14 @@
 - **Authentication**: Always require `await` on Next.js 15+ `searchParams` and `params`.
 - **Deployment**: Single Vercel project. Subdomain rewrites via middleware.
 
-## 7. Brand Press / Media Platform Additions (Phase 3 — 2026-06-12)
+## 7. Corporate Posts / Media Platform Additions (Phase 3 — 2026-06-12)
 1. **Shared `lib/api/articles.ts`**: Extracted `getPublishedArticles`, `getArticleBySlug`, `getRelatedArticles`, `getPublishedPodcasts`, `getPodcastBySlug`, `formatDate` — framework-agnostic helpers accepting SupabaseClient as first arg.
 2. **Shared `lib/api/paystack.ts`**: Extracted Paystack initialization and verification helpers used by both main and directory apps.
-3. **Shared `lib/api/email.ts`**: Resend email module with 6 send functions for Brand Press lifecycle (received, payment confirmed, approved, rejected, admin alert) and newsletter broadcast.
+3. **Shared `lib/api/email.ts`**: Resend email module with 6 send functions for Corporate Posts lifecycle (received, payment confirmed, approved, rejected, admin alert) and newsletter broadcast.
 4. **Shared `ArticleCard` + `PodcastCard`**: Reusable components in `components/ui/` with grid/list variants, brand/tier/category badges.
-5. **`app/(main)/` (Media Platform)**: Routes — homepage, insights index/detail, podcasts index/detail, TV index/detail, category archive, RSS feed, Brand Press (submit, payment, success, listing), About page.
-6. **Brand Press Engine**: Paid submission flow with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, admin review for ALL tiers (no auto-publish), transaction tracking.
-7. **Admin Review UI**: Brand Press tab in admin content manager with approve/reject actions, tier/payment/status badges.
+5. **`app/(main)/` (Media Platform)**: Routes — homepage, insights index/detail, podcasts index/detail, TV index/detail, category archive, RSS feed, Corporate Posts (submit, payment, success, listing), About page.
+6. **Corporate Post Engine**: Paid submission flow with 3 tiers (Basic ₦175K, Core ₦250K, Pro ₦400K), Paystack payment, admin review for ALL tiers (no auto-publish), transaction tracking.
+7. **Admin Review UI**: Corporate Posts tab in admin content manager with approve/reject actions, tier/payment/status badges.
 8. **Scheduled Publishing**: Supabase edge function (`publish-scheduled`) for cron-based publication of approved/pending articles.
 9. **Newsletter Broadcast**: Admin subscriber management with send-to-all broadcast form.
 10. **Database Migrations**: `20260612000002_add_brand_press.sql` (brand_name, tier, payment_status, scheduled_date, article_type columns) and `20260612000003_fix_brand_press_flow.sql` (pending_review status, category constraint removal).
@@ -190,9 +196,9 @@
   - **Remote Fix**: Log into [Supabase Dashboard](https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp) and unpause/restore the project.
   - **Local Fix**: Start Docker daemon, run `pnpm supabase start`, and update `.env.local` to point to `http://127.0.0.1:54321`.
 - **Migrations**: Always run `sed` filters to isolate schema changes when the remote DB is already populated.
-- **Brand Press Payment Flow Not Working**:
+- **Corporate Posts Payment Flow Not Working**:
   - Ensure `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` and `PAYSTACK_SECRET_KEY` are set in `.env.local`
-  - Check Paystack callback URL: `${NEXT_PUBLIC_SITE_URL}/brand-press/payment?reference=BP-XXXX`
+  - Check Paystack callback URL: `${NEXT_PUBLIC_SITE_URL}/corporate-posts/payment?reference=BP-XXXX`
   - Verify the transaction row was created in the `transactions` table
   - If Paystack modal doesn't open, check browser console for JS errors
 - **Transactional Emails Not Sending**:
@@ -365,7 +371,7 @@ Slack Bot
 
 ## 💳 6. Payment Integration
 
-**Current state**: Paystack configured in all apps. Directory app has pricing tiers and webhook. Shop has cart + checkout flow. Brand Press has Paystack integration.
+**Current state**: Paystack configured in all apps. Directory app has pricing tiers and webhook. Shop has cart + checkout flow. Corporate Posts has Paystack integration.
 
 ### Directory Payments
 - [ ] **Verify webhook endpoint** at `apps/directory/app/api/webhooks/paystack/route.ts` is deployed and accessible
@@ -381,7 +387,7 @@ Slack Bot
 - [ ] **PDF file hosting**: Where are the actual PDF files? Need Supabase Storage bucket for legislation PDFs
 - [ ] **Download flow**: Authenticated + paid users can download; signed URLs with expiry
 
-### Brand Press Payments
+### Corporate Post Payments
 - [ ] **End-to-end test**: Submit → Paystack → callback → payment verified → admin review → publish/schedule
 - [ ] **Payment receipts**: Send proper invoice/receipt email after payment
 - [ ] **Refund flow**: Admin can refund via Paystack dashboard + update DB
@@ -431,7 +437,7 @@ Slack Bot
 - [ ] **Header**: Hamburger menu exists but verify on all breakpoints
 - [ ] **Article cards**: Stack vertically on mobile (check `ArticleCard` grid variant)
 - [ ] **Tables**: Legislation detail, shop — add horizontal scroll on mobile
-- [ ] **Forms**: Contact, Brand Press submit, newsletter — full-width inputs on mobile
+- [ ] **Forms**: Contact, Corporate Posts submit, newsletter — full-width inputs on mobile
 - [ ] **Navigation menus**: Category/Media/Features dropdowns — work on mobile?
 - [ ] **Podcast/TV players**: Responsive width
 - [ ] **Cart/Checkout**: Full-width on mobile
@@ -458,17 +464,17 @@ Slack Bot
 
 ---
 
-## 🏷️ 11. Brand Press — Full Workflow
+## 🏷️ 11. Corporate Post — Full Workflow
 
 **Current state**: Payment → admin approve/reject in dashboard works. No Slack integration for approval.
 
 - [ ] **Slack approval workflow**: 
-  - [ ] When new Brand Press submitted, post notification to Slack channel
+  - [ ] When new Corporate Posts submitted, post notification to Slack channel
   - [ ] Slack approve/reject buttons via interactive components
   - [ ] Webhook receiver in apps to handle Slack button clicks
   - [ ] On approve: update status, send email, optionally schedule
 - [ ] **Scheduled publishing**: Edge function `publish-scheduled` needs deploying
-- [ ] **Media upload for Brand Press**: Featured image upload from submitter (currently URL-only)
+- [ ] **Media upload for Corporate Posts**: Featured image upload from submitter (currently URL-only)
 - [ ] **Edit/resubmit after rejection**: Currently rejected submissions dead-end
 - [ ] **Discount/coupon codes**: Fixed pricing only — add promo code system
 - [ ] **Analytics**: Revenue by tier, approval rate, average time to review
@@ -500,7 +506,7 @@ Slack Bot
   - [ ] Export CSV
   - [ ] Growth chart (using recharts already in dependencies)
 - [ ] **Newsletter campaign builder** (see section 4)
-- [ ] **Brand Press management** (approve/reject done, but see section 11)
+- [ ] **Corporate Post management** (approve/reject done, but see section 11)
 - [ ] **Audit log**: Who approved/rejected what, when
 - [ ] **Analytics dashboard**: Article views, subscriber growth, revenue
 - [ ] **Media library**: Upload + browse images for articles
@@ -522,7 +528,7 @@ Slack Bot
 
 ## 🏗️ 15. Infrastructure & Deploy
 
-- [ ] **Supabase migrations**: Run `supabase db push` to apply pending migrations (brand_press + contact_messages)
+- [ ] **Supabase migrations**: Run `supabase db push` to apply pending migrations (corporate_post + contact_messages)
 - [ ] **Edge function deploy**: `supabase functions deploy publish-scheduled --no-verify-jwt`
 - [ ] **Cron trigger**: `supabase functions cron create "0 * * * *" --function publish-scheduled`
 - [ ] **Supabase secrets**: Set `RESEND_API_KEY` in Supabase project
@@ -538,7 +544,7 @@ Slack Bot
 | Tier | What | Why |
 |------|------|-----|
 | **P0 — Now** | Domain DNS + Vercel deploy | Site not live without this |
-| **P0 — Now** | Supabase migrations (`supabase db push`) | Brand Press columns don't exist in prod DB |
+| **P0 — Now** | Supabase migrations (`supabase db push`) | Corporate Posts columns don't exist in prod DB |
 | **P0 — Now** | Edge function deploy + cron | Scheduled publishing won't work |
 | **P0 — Now** | Email decision (Brevo vs Resend) | All email flows blocked without this |
 | **P1 — This week** | Forgot password + auth flows | User-facing, basic feature |
@@ -547,7 +553,7 @@ Slack Bot
 | **P1 — This week** | WYSIWYG editor | Admin can't create articles |
 | **P2 — This sprint** | Newsletter campaign builder | Replace Slack Bot dependency |
 | **P2 — This sprint** | Full payment flow test + PDF delivery | Shop is not revenue-ready |
-| **P2 — This sprint** | Brand Press Slack integration | They already use this workflow |
+| **P2 — This sprint** | Corporate Posts Slack integration | They already use this workflow |
 | **P3 — Next sprint** | Podcast hosting + RSS | Distribution to Apple/Spotify |
 | **P3 — Next sprint** | Mobile audit + fixes | Broader UX pass |
 | **P3 — Next sprint** | SEO (JSON-LD, OG images) | Search ranking improvements |
