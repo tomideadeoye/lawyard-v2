@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         content: article.content,
         excerpt: article.excerpt || '',
         featured_image: article.featured_image,
-        status: 'draft',
+        status: 'publish',
       })
     } catch (wpError) {
       console.error('Failed to publish to WordPress:', wpError)
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `✅ *Article Approved*\nApproved by ${userName}\nPublished to lawyard.org as draft\nID: \`${articleId}\``,
+                text: `✅ *Article Approved*\nApproved by ${userName}\nPublished to lawyard.org\nID: \`${articleId}\``,
               },
             },
           ],
@@ -169,13 +169,17 @@ export async function POST(request: NextRequest) {
       return new Response('Article not found', { status: 404 })
     }
 
+    const isScheduled = !!article.scheduled_date
+    const wpStatus = isScheduled ? 'future' : 'publish'
+
     try {
       await publishCorporatePostToWordPress({
         title: article.title,
         content: article.content,
         excerpt: article.excerpt || '',
         featured_image: article.featured_image,
-        status: 'draft',
+        status: wpStatus,
+        ...(isScheduled ? { date_gmt: new Date(article.scheduled_date).toISOString() } : {}),
       })
     } catch (wpError) {
       console.error('Failed to publish corporate post to WordPress:', wpError)
@@ -185,6 +189,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await sbAdmin
       .from('articles')
       .update({
+        status: 'published',
         payment_status: 'paid',
         updated_at: new Date().toISOString(),
       })
@@ -217,7 +222,7 @@ export async function POST(request: NextRequest) {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `✅ *Corporate Post Approved*\nApproved by ${userName}\nScheduled for ${article.scheduled_date ? new Date(article.scheduled_date).toLocaleDateString() : 'as soon as possible'}\nID: \`${articleId}\``,
+                text: `✅ *Corporate Post Approved*\nApproved by ${userName}\n${isScheduled ? `Scheduled for ${new Date(article.scheduled_date).toLocaleDateString()}` : 'Published to lawyard.org'}\nID: \`${articleId}\``,
               },
             },
           ],

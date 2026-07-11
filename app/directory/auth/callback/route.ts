@@ -7,8 +7,8 @@
 //   1. `?next=` param (set by signup-form/login-form's buildCallbackUrl)
 //      → used when coming from add-listing flow
 //   2. Role-based routing (if no `?next` provided)
-//      → client → /directory/search, lawyer/chamber → /directory/dashboard
-//   3. Fallback → /directory/dashboard
+//      → client → /search, lawyer/chamber → /dashboard
+//   3. Fallback → /dashboard
 //
 // The `category` param is appended to whatever destination is chosen,
 // so add-listing/page.tsx can restore the user's category selection.
@@ -31,11 +31,11 @@ export async function GET(request: Request) {
 
   if (error) {
     const msg = mapOAuthError(error, errorDescription)
-    return NextResponse.redirect(`${origin}/directory/login?message=${encodeURIComponent(msg)}`)
+    return NextResponse.redirect(`${origin}/login?message=${encodeURIComponent(msg)}`)
   }
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/directory/login?message=Missing authentication code. Please try again.`)
+    return NextResponse.redirect(`${origin}/login?message=Missing authentication code. Please try again.`)
   }
 
   const supabase = await createClient()
@@ -44,13 +44,13 @@ export async function GET(request: Request) {
   if (exchangeError) {
     const msg = exchangeError.message?.toLowerCase() || ''
     if (msg.includes('expired') || msg.includes('invalid code')) {
-      return NextResponse.redirect(`${origin}/directory/login?message=This link has expired. Please log in again.`)
+      return NextResponse.redirect(`${origin}/login?message=This link has expired. Please log in again.`)
     }
     if (msg.includes('rate limit') || msg.includes('too many')) {
-      return NextResponse.redirect(`${origin}/directory/login?message=Too many attempts. Please wait and try again.`)
+      return NextResponse.redirect(`${origin}/login?message=Too many attempts. Please wait and try again.`)
     }
     console.error('[auth/callback] Code exchange error:', exchangeError)
-    return NextResponse.redirect(`${origin}/directory/login?message=${encodeURIComponent(mapAuthError(exchangeError))}`)
+    return NextResponse.redirect(`${origin}/login?message=${encodeURIComponent(mapAuthError(exchangeError))}`)
   }
 
   const { data: { user } } = await supabase.auth.getUser()

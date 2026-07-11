@@ -92,16 +92,35 @@ export async function approveCorporatePost(formData: FormData) {
   const scheduledDate = formData.get('scheduled_date') as string;
   if (!id) return;
   try {
+    const { supabase } = await getAdminClient();
+    const { data: article } = await supabase.from('articles').select('title, content, excerpt, featured_image, brand_name').eq('id', id).single();
+    if (!article) return;
+
+    const isScheduled = !!scheduledDate;
+    const { publishCorporatePostToWordPress } = await import('@/lib/wordpress');
+    try {
+      await publishCorporatePostToWordPress({
+        title: article.title,
+        content: article.content,
+        excerpt: article.excerpt || '',
+        featured_image: article.featured_image,
+        status: isScheduled ? 'future' : 'publish',
+        ...(isScheduled ? { date_gmt: new Date(scheduledDate).toISOString() } : {}),
+      });
+    } catch (wpError) {
+      console.error('WordPress publish failed:', wpError);
+      return;
+    }
+
     const updates: Record<string, any> = { status: 'published', payment_status: 'paid' };
     if (scheduledDate) updates.scheduled_date = scheduledDate;
     await updateArticleAction(id, updates);
 
     const { sendCorporatePostApproved } = await import('@/lib/api/email');
-    const { supabase } = await getAdminClient();
-    const { data } = await supabase.from('articles').select('brand_name, profiles!inner(email)').eq('id', id).single();
-    if (data) {
-      const email = Array.isArray(data.profiles) ? data.profiles[0]?.email : (data.profiles as any)?.email;
-      if (email) sendCorporatePostApproved(email, data.brand_name || 'Corporate Post').catch(() => {});
+    const { data: profile } = await supabase.from('articles').select('profiles!inner(email)').eq('id', id).single();
+    if (profile) {
+      const email = Array.isArray(profile.profiles) ? profile.profiles[0]?.email : (profile.profiles as any)?.email;
+      if (email) sendCorporatePostApproved(email, article.brand_name || 'Corporate Post').catch(() => {});
     }
 
     revalidatePath('/', 'layout');

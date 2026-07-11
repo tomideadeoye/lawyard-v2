@@ -104,42 +104,32 @@ export async function verifyPayment(reference: string) {
     const meta = tx.metadata as Record<string, unknown> | null
     const isChamber = meta?.type === 'chamber_subscription'
 
+    const tierMap: Record<string, string> = {
+      'Premium (Package)': 'premium_package',
+      'Premium (Single)': 'premium_single',
+      'Enterprise': 'enterprise',
+    }
+    const tier = tierMap[tx.plan_name] || 'free'
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+
     if (isChamber) {
       const chamberId = meta?.chamber_id as string | null
       if (chamberId) {
-        const days = tx.plan_name === 'Enterprise' ? 365 : 365
-        const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
         await sbAdmin.from('chambers').update({
-          subscription_tier: tx.plan_name === 'Enterprise' ? 'enterprise' : 'free',
+          subscription_tier: tier,
           subscription_status: 'active',
           subscription_expires_at: expiresAt,
           is_featured: true,
         }).eq('id', chamberId)
       }
     } else {
-      const tierMap: Record<string, string> = {
-        'Premium (Package)': 'premium_package',
-        'Premium (Single)': 'premium_single',
-        'Enterprise': 'enterprise',
-      }
-      const tier = tierMap[tx.plan_name] || 'free'
-
-      const expiryMap: Record<string, number> = {
-        'Premium (Package)': 365,
-        'Premium (Single)': 365,
-        'Enterprise': 365,
-      }
-      const days = expiryMap[tx.plan_name] || 365
-      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
-
-      await supabase.from('profiles').update({
+      await sbAdmin.from('profiles').update({
         subscription_tier: tier,
         subscription_status: 'active',
         subscription_expires_at: expiresAt,
         updated_at: new Date().toISOString(),
       }).eq('id', user.id)
 
-      // Upgrade lawyer listing to featured
       await sbAdmin.from('lawyers').update({
         listing_type: 'featured',
         is_featured: true,

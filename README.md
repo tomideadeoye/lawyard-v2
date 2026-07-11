@@ -1,6 +1,6 @@
 # Lawyard v2
 
-Legal media platform + legal directory + admin dashboard — built on Next.js 16, Supabase, Resend, and Paystack.
+Legal media platform + legal directory + admin dashboard — built on Next.js 16, Supabase, Brevo, and Paystack.
 
 ## Architecture
 
@@ -67,6 +67,26 @@ plans────────── DB-managed pricing
 
 **Key decision**: No separate `listings` table. A lawyer's profile IS their listing.
 
+### Clean URL Routing via Middleware
+
+The directory is served at root level on `directory.lawyard.org` — no `/directory` prefix in URLs. This is achieved via middleware rewrite:
+
+```text
+User sees:          directory.lawyard.org/dashboard
+                         │
+Middleware rewrites:     app/directory/dashboard/page.tsx
+                         │
+Filesystem:             app/directory/dashboard/page.tsx
+```
+
+**Key rules:**
+1. **All redirect/callback URLs must omit the `/directory` prefix.** The middleware prepends it internally. Hardcoding `/directory/login` in a redirect produces `/directory/directory/login`.
+2. **Exception paths** (`/admin`, `/_next`, `/api`, `/feed.xml`, `/sitemap.xml`) pass through without rewrite.
+3. **Auth paths** (`/login`, `/signup`, `/auth/callback`) follow the same pattern — they live in `app/directory/` but users see them at root level.
+4. **Build-time paths** in code (component imports, server actions, file references) always use the full `app/directory/...` filesystem path. Only user-facing redirect URLs drop the prefix.
+
+This avoids a separate subdomain deployment while keeping the URL structure clean. See `middleware.ts` for the rewrite implementation.
+
 ### Architecture Diagram
 
 ```
@@ -97,9 +117,8 @@ plans────────── DB-managed pricing
                     ┌──────────┴──────────┐
                     │   External Services  │
                     │                     │
-                    │  Paystack (payments) │
-                    │  Resend (emails)     │
-                    │  Brevo (newsletter)  │
+                     │  Paystack (payments) │
+                     │  Brevo (emails)      │
                     │  Slack (editorial)   │
                     └─────────────────────┘
 ```
@@ -201,7 +220,7 @@ Legal marketplace — lawyer profiles, chambers, search, dashboard.
 ### Newsletter
 - Subscribe via footer or popup
 - Admin broadcasts from subscribers page
-- Powered by Resend
+- Powered by Brevo
 
 ---
 
@@ -219,8 +238,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=
 PAYSTACK_SECRET_KEY=
 
-# Email
-RESEND_API_KEY=
+# Email (Brevo)
+BREVO_API_KEY=
 ADMIN_EMAIL=admin@lawyard.org
 
 # Auth
@@ -238,11 +257,14 @@ DIRECTORY_SLACK_SIGNING_SECRET=
 
 # Slack (Legacy editorial inbox)
 SLACK_WEBHOOK_EDITORIAL_INBOX=
+
+# Cron job protection
+CRON_SECRET=
 ```
 
 Supabase secrets (set via `supabase secrets set`):
 - `WP_API_URL`, `WP_USERNAME`, `WP_APP_PASSWORD` — edge function WP publishing
-- `RESEND_API_KEY` — edge function email notifications
+- `BREVO_API_KEY` — edge function email notifications (via Brevo SMTP)
 
 ---
 
@@ -258,6 +280,7 @@ supabase functions deploy publish-scheduled --no-verify-jwt
 ### Vercel
 ```bash
 vercel --prod
+# Set CRON_SECRET env var in Vercel dashboard (protects /api/cron/expire-subscriptions)
 ```
 
 Domain routing via middleware:
@@ -327,8 +350,8 @@ Domain routing via middleware:
 - [ ] PDF download infrastructure
 - [ ] Error boundaries on all routes
 - [ ] 301 redirects from old WordPress URLs
-- [ ] Subscription expiry cron job
-- [ ] Paystack webhook fix (chamber subscriptions)
+- [x] Subscription expiry cron job (Vercel Cron, daily at midnight)
+- [x] Paystack webhook fix (service role, chamber subs, featured flag)
 - [ ] Email notification system
 
 #### Admin App

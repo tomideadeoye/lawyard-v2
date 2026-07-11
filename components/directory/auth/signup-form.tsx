@@ -30,7 +30,7 @@ import { AlertCircle, ArrowRight, User, ShieldCheck, Eye, EyeOff } from 'lucide-
 //   - Email/password: passed as hidden form fields → server action
 // The auth callback reads these and appends `?category=X` to the final redirect URL.
 //
-// Upstream: add-listing/page.tsx — 「/directory/signup?redirect=/directory/add-listing&category=lawyer」
+// Upstream: add-listing/page.tsx — 「/signup?redirect=/add-listing&category=lawyer」
 // Downstream: auth/callback/route.ts — receives next + category params and forwards them
 
 function SignupFormContent() {
