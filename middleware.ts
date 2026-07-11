@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 const adminRoutes = ['/admin']
 const publicAdminRoutes = ['/admin/login', '/admin/auth/callback']
 const NON_DIRECTORY_PREFIXES = ['/admin', '/_next', '/api', '/feed.xml', '/sitemap.xml']
+const STATIC_EXT = /\.(?:png|jpg|jpeg|gif|ico|svg|css|js|woff2?|ttf|eot|pdf|webp|avif|mp4|webm|ogg|mp3|wav)$/i
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
@@ -11,6 +12,8 @@ export async function middleware(request: NextRequest) {
   const forwardedHost = request.headers.get('x-forwarded-host') || ''
   const isDirectoryHost = host === 'directory.lawyard.org' || host.endsWith('.directory.lawyard.org') || forwardedHost.includes('directory.lawyard.org')
   const isLocalDev = host.startsWith('localhost')
+
+  if (STATIC_EXT.test(pathname)) return NextResponse.next()
 
   if (isDirectoryHost || isLocalDev) {
     if (NON_DIRECTORY_PREFIXES.some(p => pathname.startsWith(p))) return NextResponse.next()
@@ -67,5 +70,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|gif|ico|svg|css|js|woff2?|ttf|eot|pdf|webp|avif|mp4|webm|ogg|mp3|wav)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
