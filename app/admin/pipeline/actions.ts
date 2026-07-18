@@ -27,7 +27,7 @@ export async function approveAndPublishArticle(formData: FormData) {
       content: article.content,
       excerpt: article.excerpt || '',
       featured_image: article.featured_image,
-      status: 'draft',
+      status: 'publish',
     });
 
     // Update DB status
@@ -56,6 +56,8 @@ export async function approveAndPublishCorporatePost(formData: FormData) {
 
   if (!article) return;
 
+  const isScheduled = !!article.scheduled_date;
+
   try {
     // Publish to WordPress
     const wpResult = await publishCorporatePostToWordPress({
@@ -63,7 +65,8 @@ export async function approveAndPublishCorporatePost(formData: FormData) {
       content: article.content,
       excerpt: article.excerpt || '',
       featured_image: article.featured_image,
-      status: 'draft',
+      status: isScheduled ? 'future' : 'publish',
+      ...(isScheduled ? { date_gmt: new Date(article.scheduled_date).toISOString() } : {}),
     });
 
     // Update DB status

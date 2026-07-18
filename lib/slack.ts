@@ -126,6 +126,7 @@ export async function postArticleToSlackWithButtons(article: {
 }): Promise<{ ok: boolean; error?: string }> {
   const categoryTags = article.categories.map(c => `\`${c}\``).join(' ');
   const editorUrl = `${DIRECTORY_BASE_URL}/admin/pipeline`;
+  const previewUrl = `${DIRECTORY_BASE_URL}/admin/pipeline/preview/${article.id}`;
 
   return postToDirectorySlack({
     text: `📰 *New Article for Review*\n\n*${article.title}*\nBy ${article.authorName} ${categoryTags}`,
@@ -153,6 +154,12 @@ export async function postArticleToSlackWithButtons(article: {
       {
         type: 'actions',
         elements: [
+          {
+            type: 'button',
+            text: { type: 'plain_text', text: '📖 View Article', emoji: true },
+            url: previewUrl,
+            action_id: 'view_article',
+          },
           {
             type: 'button',
             text: { type: 'plain_text', text: '✅ Approve', emoji: true },
@@ -188,6 +195,7 @@ export async function postCorporatePostToSlackWithButtons(submission: {
   tier: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const editorUrl = `${DIRECTORY_BASE_URL}/admin/content?tab=corporate-posts`;
+  const previewUrl = `${DIRECTORY_BASE_URL}/admin/pipeline/preview/${submission.id}`;
 
   return postToDirectorySlack({
     text: `📢 *New Corporate Post for Review*\n\n*${submission.title}*\nBy ${submission.brandName} (${submission.tier})`,
@@ -215,6 +223,12 @@ export async function postCorporatePostToSlackWithButtons(submission: {
       {
         type: 'actions',
         elements: [
+          {
+            type: 'button',
+            text: { type: 'plain_text', text: '📖 View Post', emoji: true },
+            url: previewUrl,
+            action_id: 'view_corporate_post',
+          },
           {
             type: 'button',
             text: { type: 'plain_text', text: '✅ Approve', emoji: true },

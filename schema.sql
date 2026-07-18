@@ -89,15 +89,25 @@ CREATE POLICY "Specialties data is publicly readable" ON specialties FOR SELECT 
 CREATE POLICY "Lawyer specialties are publicly readable" ON lawyer_specialties FOR SELECT USING (true);
 
 -- Trigger: Handle user creation
+-- Google OAuth provides 'name', email/password provides 'full_name'.
+-- Falls back to email local-part if both are missing.
 CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 SET search_path = ''
 AS $$
+DECLARE
+  _full_name TEXT;
 BEGIN
+  _full_name := COALESCE(
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'name',
+    split_part(new.email, '@', 1)
+  );
+
   INSERT INTO public.profiles (id, full_name, avatar_url, role)
   VALUES (
     new.id,
-    new.raw_user_meta_data->>'full_name',
+    _full_name,
     new.raw_user_meta_data->>'avatar_url',
     COALESCE(new.raw_user_meta_data->>'role', 'client')
   );

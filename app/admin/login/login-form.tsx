@@ -3,11 +3,13 @@
 import { useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { loginWithMagicLink } from './actions';
+import TurnstileWidget from '@/components/directory/auth/TurnstileWidget';
 
 export default function AdminLoginForm() {
   const [isPending, startTransition] = useTransition();
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   
   const searchParams = useSearchParams();
   const message = searchParams.get('message') || searchParams.get('error');
@@ -93,9 +95,11 @@ export default function AdminLoginForm() {
               />
             </div>
 
+            <input type="hidden" name="captchaToken" value={turnstileToken || ''} />
+            <TurnstileWidget onToken={setTurnstileToken} />
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !turnstileToken}
               className="btn btn-primary"
               style={{ width: '100%', padding: '14px', fontWeight: 600, fontSize: '0.95rem', marginTop: '6px' }}
             >

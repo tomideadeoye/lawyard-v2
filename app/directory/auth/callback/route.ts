@@ -18,6 +18,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { mapAuthError } from '@/lib/auth/auth-errors'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -90,14 +91,6 @@ export async function GET(request: Request) {
   } else {
     return NextResponse.redirect(`${origin}${redirectTo}`)
   }
-}
-
-function mapAuthError(error: { message?: string } | null) {
-  const msg = error?.message?.toLowerCase() || ''
-  if (msg.includes('rate limit') || msg.includes('too many')) return 'Too many attempts. Please wait and try again.'
-  if (msg.includes('expired') || msg.includes('invalid code')) return 'This link has expired. Please log in again.'
-  if (msg.includes('invalid credentials')) return 'Authentication failed. Please log in again.'
-  return 'Something went wrong. Please try logging in again.'
 }
 
 function mapOAuthError(error: string | null, description: string | null) {
