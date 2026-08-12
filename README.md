@@ -370,6 +370,14 @@ Domain routing via middleware:
 - [ ] Loading skeletons
 - [ ] Sitemap, JSON-LD, dynamic OG images
 
+#### Questions for Tobi
+- [ ] Premium (Single) — Lawyer: what ₦ price? (365 days)
+- [ ] Premium (Package) — Lawyer: what ₦ price? (365 days)
+- [ ] Premium (Single) — Client: what ₦ price? (90 days)
+- [ ] Premium (Package) — Client: what ₦ price? (90 days)
+- [ ] Premium — Chamber: what ₦ price? (365 days)
+- [ ] Should we scrap the 60-min clash detection on corporate post scheduling? Current error: "Another Corporate Post is scheduled within 60 minutes of your selected time. Please choose a different date or time." It blocks back-to-back posts from different brands — may be too restrictive.
+
 #### Testing & Infra
 - [ ] Unit tests + E2E tests
 - [ ] CI/CD pipeline (GitHub Actions)

@@ -102,3 +102,61 @@ Closing the loop on payments — subscriptions now have real expiry enforcement 
 - `app/directory/dashboard/inquiries/inbox-client.tsx`
 - `components/directory/forms/PublishArticleForm.tsx`
 - `components/directory/forms/PublishPodcastForm.tsx`
+
+---
+
+## 2026-07-18
+
+### Focus
+New user signup blocked by trigger chain, pricing page dark mode
+
+### What Changed
+- **Root cause:** `sync_profile_to_lawyer()` ran on EVERY profile INSERT (clients included) with unqualified `UPDATE lawyers`. In Supabase Auth's session context, `public` is not in the search_path → "relation 'lawyers' does not exist" → transaction rollback → "Database error creating new user".
+- **Fix 1:** Role-gated `sync_profile_to_lawyer()` to `'lawyer'`/`'admin'` only + qualified `public.lawyers` prefix to survive any search_path context.
+- **Fix 2:** `handle_new_user()` deployed version was missing the `full_name` COALESCE fallback chain (only had direct `->>'full_name'`). Added fallback: `full_name` → `name` (Google OAuth field) → `split_part(email, '@', 1)`.
+- **Fix 3:** `handle_new_user()` now also splits `full_name` into `first_name`/`last_name` (splits on first space) — previously only set `full_name`, leaving `first_name`/`last_name` NULL for new users.
+- **Fix 4:** Email signup `emailRedirectTo` had `/directory/auth/callback` instead of `/auth/callback` — middleware already rewrites, causing double prefix on production.
+- **Fix 5:** Auth callback route `redirectTo` had same double `/directory` prefix issue.
+- **Dark mode:** Pricing page cards, tabs, notice section, and payment buttons now render with yellow-toned colors in dark mode for proper visibility.
+
+### Rationale
+New user signups were completely broken — anyone attempting to create an account (email, Google OAuth, or admin API) would get "Database error creating new user." The `sync_profile_to_lawyer()` trigger was the culprit: it ran in the auth session context where `public` is not in the search_path, causing an unresolvable table reference. The role gate also prevents unnecessary `lawyers` table writes for client accounts.
+
+### Related Files
+- `schema.sql` — `handle_new_user()` synced with COALESCE fallback + first_name/last_name split
+- `supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql` — role gate + `public.lawyers`
+- `app/directory/login/actions.ts:117` — emailRedirectTo path fix
+- `app/directory/auth/callback/route.ts` — redirect URL prefix fix
+- `app/directory/pricing/page.tsx` — dark mode yellow styling
+- `components/directory/paystack-button.tsx` — dark mode yellow button variants
+
+---
+
+## 2026-07-28
+
+### Focus
+Live payment pipeline — Paystack live keys, NGN currency, live testing prep
+
+### What Changed
+- **Switched Paystack to live mode**: `.env.local` + Vercel production env vars now use `sk_live_*`/`pk_live_*`. Test keys kept commented in `.env.local` for local dev.
+- **Fixed trailing newline on live public key**: `echo` piping added `\n` to `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` in Vercel — PaystackPop rejected it with "Please enter a valid Key". Re-set via `printf` (no newline).
+- **Currency made explicit NGN**: `initializeTransaction()` now requires a `currency` param. All 3 payment flows (directory subscription, shop, corporate post) pass `'NGN'` and insert `currency: 'NGN'` into `transactions` (table default was `'USD'` — misleading).
+- **`NEXT_PUBLIC_SITE_URL`**: localhost → `https://directory.lawyard.org` (callback URLs now point at production).
+- **Webhook configured on Paystack dashboard**: Live webhook URL = `https://directory.lawyard.org/api/webhooks/paystack`.
+- **Corporate post Basic tier price**: ₦175,000 → ₦100 temporarily for live testing. `formatted_price` + description flagged "TEST PRICE — revert after testing".
+- **README**: New "Questions for Tobi" section — 5 NGN subscription prices unanswered + clash detection feature question (should the 60-min scheduling window be scrapped?).
+- **Drive**: Created `Clients/Lawyard/` in Google Drive with `.env.local` + `lawyard-notes.md` (matches Avid and Grace client folder format).
+
+### Rationale
+Directory subscriptions were pricing in USD (2.00, 20.00) but Paystack charges NGN at 1:1 — a ₦2 charge for what was meant as $2. Decided: NGN now, multi-currency later (Nigerian market is 99% of users). One successful live transaction proves the whole pipe (DB → server → Paystack → webhook → DB updates); price is data, not infrastructure.
+
+### Related Files
+- `.env.local` — live keys + commented test keys
+- `lib/api/paystack.ts` — `currency` required param
+- `app/directory/actions/payments.ts` — NGN on subscription init + insert
+- `app/actions/shop.ts` — NGN on shop init
+- `app/actions/corporate-posts.ts` — NGN on transaction insert
+- `lib/corporate-posts.json` — Basic tier ₦100 (TEST)
+- `README.md` — Questions for Tobi
+- Vercel project env vars — live Paystack keys, SITE_URL
+- Paystack dashboard — live webhook URL
