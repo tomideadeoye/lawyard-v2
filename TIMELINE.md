@@ -160,3 +160,35 @@ Directory subscriptions were pricing in USD (2.00, 20.00) but Paystack charges N
 - `README.md` — Questions for Tobi
 - Vercel project env vars — live Paystack keys, SITE_URL
 - Paystack dashboard — live webhook URL
+
+---
+
+## 2026-08-12
+
+### Focus
+Editorial pipeline hardening — Slack review for all content types, WordPress media sync, coupon-gated publishing, auth fixes
+
+### What Changed
+- **Slack editorial pipeline now covers podcasts + 2-way actions**: `postPodcastToSlackWithButtons()` replaces the plain-text podcast ping; shared `reviewActions()` builder standardizes View/Approve/Deny/Editor buttons across articles, podcasts, corporate posts. Corporate post messages carry submitter name (`lib/slack.ts`).
+- **WordPress integration upgrade**: New `publishPostWithImage()` helper uploads featured images to WP media, auto-creates tags, sets category/author. `uploadImage()` + `ensureTag()` added. Podcasts publish with audio/video embed HTML; corporate posts go to author 4 (Lawyard Staff), category 7358, with brand/tier/contact metadata (`lib/wordpress.ts`).
+- **Approve → "View on WordPress" + "Rescind" UX**: After approval, Slack updates the message with a link to the WP post and a danger button. Rescind reverts the WP post to draft and returns the article to `pending_review`. Try/catch logging added throughout interactions route (`app/api/slack/interactions/route.ts`).
+- **Coupon-gated article publishing**: `publishArticle()` now requires a valid free coupon via shared `validateCoupon()`. New `components/ui/coupon-input.tsx`. Article form blocks submit until coupon applied (`app/directory/actions/content.ts`).
+- **Article form overhaul**: localStorage draft autosave (`lawyard_article_draft`), DatePicker + time + timezone (Africa/Lagos) scheduling replacing raw datetime input (`components/directory/forms/PublishArticleForm.tsx`).
+- **Corporate posts relocated**: `app/(main)/corporate-posts/*` deleted → `app/directory/corporate-posts/*` (submit/payment/success/[slug]). `submitCorporatePost()` detects logged-in users → captures `author_id` + `submitter_name`; posts Slack review notification; image upload route switched to service role client (fixes guest upload RLS) (`app/actions/corporate-posts.ts`, `app/api/upload/corporate-posts/route.ts`).
+- **Search improvements**: keyword search box in sidebar filters; `LawyerCard` component extracted, reused on home + search (removes duplicated card markup) (`app/directory/search/page.tsx`, `components/directory/LawyerCard.tsx`).
+- **Auth fixes**: Supabase CAPTCHA was blocking all password/OTP-auth while error mapper showed generic message. Added `captcha` message mapping + admin login now renders Turnstile and passes `captchaToken`. All three duplicated `mapAuthError()` copies consolidated into `lib/auth/auth-errors.ts` (directory login, auth callback, admin login).
+- **Custom auth emails**: New `app/api/auth/hook/route.ts` serves branded Supabase auth emails (signup confirmation, magic link, reset, email change) via Brevo transactional.
+- **DB trigger fixes**: `handle_new_user()` now proper SECURITY DEFINER + COALESCE fallback chain (full_name → Google name → email local-part) + first/last name split; `sync_profile_to_lawyer()` role-gated to lawyer/admin + qualified `public.lawyers` (`schema.sql`, `supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`).
+- **Docs**: New `docs/CONTENT_WORKFLOW.md` — canonical reference for the three content pipelines (Supabase → Slack review → WordPress). `docs/ARCHITECTURE.md` updated.
+
+### Rationale
+The content pipeline was already live for articles; podcasts and corporate posts were still manual email pings. The Slack review loop now handles all three uniformly, WordPress posts carry real images/tags/categories instead of bare HTML, and approval is reversible (rescind). Coupon-gating article publishing ties publishing capacity to paid partner coupons (PARTNER1/PARTNER2 are the valid free codes). Auth-blocking CAPTCHA confusion traced to dashboard config + missing error mapping — code now fails visibly, config fix still pending (Supabase dashboard CAPTCHA setting).
+
+### Related Files
+- `lib/slack.ts`, `lib/wordpress.ts`, `app/api/slack/interactions/route.ts`
+- `app/directory/actions/content.ts`, `app/actions/corporate-posts.ts`, `app/actions/validate-coupon.ts`
+- `components/directory/forms/PublishArticleForm.tsx`, `components/ui/coupon-input.tsx`, `components/directory/LawyerCard.tsx`
+- `app/directory/corporate-posts/*` (moved from `app/(main)/corporate-posts/*`)
+- `lib/auth/auth-errors.ts` (new), `app/admin/login/*` (Turnstile + captcha), `app/directory/login/actions.ts`, `app/directory/auth/callback/route.ts`
+- `app/api/auth/hook/route.ts` (new), `schema.sql`, `supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`
+- `docs/CONTENT_WORKFLOW.md` (new), `docs/ARCHITECTURE.md`

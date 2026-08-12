@@ -56,7 +56,15 @@ Legal directory + legal media platform for Nigeria. Dual-site on a single Vercel
 ## Database
 37+ tables across: directory listings (`profiles`, `lawyers`, `chambers`, `specialties`), content (`articles`, `podcasts`), payments (`transactions`, `plans`, `coupons`), engagement (`bookmarks`, `reviews`, `inquiries`, `verifications`), newsletter (`subscribers`, `campaigns`), system (`app_settings`).
 
-**Triggers:** `handle_new_user()` creates profile on auth signup, `sync_profile_to_lawyer()` syncs profile fields, `sync_role_to_app_metadata()` puts role in JWT, `recalc_lawyer_rating()` updates rating on review changes.
+**Triggers:**
+
+- `handle_new_user()` — `AFTER INSERT ON auth.users`. Creates profile row with full_name, first_name/last_name (parsed from full_name), avatar_url, and role (defaults to `'client'`). Fallback chain: `full_name` → `name` (Google OAuth) → `split_part(email, '@', 1)`. Not `SECURITY INVOKER` — runs as definer. ⚠️ Does not SET search_path; uses session default.
+
+- `sync_profile_to_lawyer()` — `AFTER INSERT OR UPDATE ON profiles`. Syncs `full_name`, `phone`, `website`, `bio` to `lawyers` table WHERE `id = NEW.id`. **Role-gated:** only fires for `'lawyer'`/`'admin'` roles. Uses `public.lawyers` (fully qualified) to avoid search_path issues in auth trigger context.
+
+- `sync_role_to_app_metadata()` — `AFTER INSERT OR UPDATE OF role ON profiles`. Puts `profiles.role` into `auth.users.raw_app_meta_data` so JWT includes the role claim. Uses `SECURITY DEFINER` with `SET search_path TO 'auth', 'public'`.
+
+- `recalc_lawyer_rating()` — updates rating on review changes.
 
 ## Deployment
 - **Platform:** Vercel (auto-deploy from GitHub pushes to `main`)
