@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Docs
+- **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`
+- **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`
+- **`HANDOFF.md` added**: cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)
+- **12 Sep transcript decoded** into `HANDOFF.md` §6 — monetization spine (enterprise > individual), chambers tier + admin role, silver/premium, post caps + paid extras, 1-min video, service requests (bookings must be paid; **no Calendly**), private pricing, directory-attribution removal, Lawyard Lens cross-sell, AWS move
+
 ### Fixed
 - **Login error masking by Supabase CAPTCHA**: All auth flows (directory login, magic link, signup, password reset, admin login) failed with `captcha_failed` but fell through to a generic "Something went wrong". Root cause: Supabase Auth CAPTCHA enabled while admin login sent no `captchaToken`; error mapping had no `captcha` case. Added `captcha` handling everywhere + consolidated error mapping into single source of truth (`lib/auth/auth-errors.ts`)
 - **Admin login CAPTCHA support**: Previously sent zero Turnstile — hardcoded "Invalid email or password" masked real errors. Now includes Turnstile widget + `captchaToken` passthrough on both password + magic link actions (`app/admin/login/actions.ts`, `app/admin/login/login-form.tsx`)

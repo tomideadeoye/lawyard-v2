@@ -292,6 +292,8 @@ Domain routing via middleware:
 
 ## Status
 
+> **Canonical feature status now lives in [`docs/FEATURE-STATUS.md`](docs/FEATURE-STATUS.md)** (verified against code 2026-10-16). The tables below are a historical snapshot — update `docs/FEATURE-STATUS.md`, not this section.
+
 ### ✅ Completed
 
 | Area | Status |

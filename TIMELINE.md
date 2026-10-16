@@ -192,3 +192,53 @@ The content pipeline was already live for articles; podcasts and corporate posts
 - `lib/auth/auth-errors.ts` (new), `app/admin/login/*` (Turnstile + captcha), `app/directory/login/actions.ts`, `app/directory/auth/callback/route.ts`
 - `app/api/auth/hook/route.ts` (new), `schema.sql`, `supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`
 - `docs/CONTENT_WORKFLOW.md` (new), `docs/ARCHITECTURE.md`
+
+---
+
+## 2026-10-16
+
+### Focus
+Session handoff + decode of the 12 Sep feature/design call (Tobi) — establishing a clean decision record ahead of the Sun 18 Oct 7pm call.
+
+### What Changed
+- **`HANDOFF.md` created** — 8-section cold-start doc: locations, people, the uncommitted changeset (last commit 2026-08-12), the Sunday call, Tobi's email-signing bug, open work, the 5 blocking NGN prices, and the 12 Sep decisions.
+- **12 Sep transcript decoded** (`~40% usable`; phone recording, noisy room). HANDOFF §6 rewritten from summary → decoded readout:
+  - **Spine = monetization architecture.** Enterprise (law firms/chambers) > individual lawyers. Tobi cites a competitor directory forced to focus on law firms.
+  - **Chambers tier** — separate pricing; chamber subscribes; a **site administrator** manages the chamber page + publishes PR (e.g. IPO work).
+  - **Tiering** silver/premium; **enterprise ₦3–5M/annum** vs ₦155k individual.
+  - **Post caps** ~3/month, extra posts paid; funnel = 1 free post → premium. **Article publishing** from backend, editorial-gated.
+  - **1-min intro video** on own backend, not free tier, cloud-storage cost to model.
+  - **Directory profile**: profile picture only; FAQs; website link; working hours; presentation video; **private** pricing option. **Service requests** (renamed from booking); **bookings must be paid** (no off-platform drift). **DECISION: no Calendly / external calendar integration.** **Remove "link to directory" attribution** for paying users.
+  - **Courses (Lawyard Lens)** — AI-governance ₦200k, ₦150k for directory subscribers (cross-sell).
+  - **Dashboard cleanup** (bookmarks/history); **move to AWS**; NGN for Nigeria, foreign listings TBD.
+- **New vs prior summary**: no-Calendly decision, remove-attribution, private-pricing option, service-request rename, chamber admin role, post-cap-as-revenue + 1-free-then-subscribe funnel, currency handling, Tobi's silver-category note.
+- **Telemetry scope confirmed** (Tomide): Tier 5 = admin-facing product analytics (signups, subscribers, revenue, funnel) — distinct from the shipped per-lawyer widgets.
+
+### Rationale
+The auto-transcript is too noisy to trust as-is, but the decisions inside it gate phase-2 scope and the pricing questions on the Sunday call. Decoding it now gives Tobi a clean decision record to confirm/deny, and separates confirmed decisions from ASR-garbled items (competitor "case study" name, "$20/quota" competitor remark, the "$10,000 premium" line — almost certainly a ₦ figure).
+
+### Related Files
+- `HANDOFF.md` (§6 rewritten; §2, §5, §8)
+- `TIMELINE.md`, `CHANGELOG.md`
+- Source: `/Users/mac/Downloads/20260912_142011.transcript.md`
+
+---
+
+## 2026-10-16 (Second Session)
+
+### Focus
+Canonical feature status board — reconcile README §Status, `CHANGELOG`, `docs/features.md`, and the 12 Sep decisions into one glanceable, code-verified artifact.
+
+### What Changed
+- **`docs/FEATURE-STATUS.md` created** — single status board. Sections: Shipped ✅ · Partial 🟡 · Scaffolded-but-empty 🟦 · Not started 🔴 · Spec'd-only from 12 Sep 💬 · Conflicts/cleanup 🗑❓ · Launch checklist · Open questions.
+- **Verified against code, not docs.** Corrections to the stale README table: WorkingHoursEditor + GalleryUpload are **built and wired** (`LawyerForm.tsx:365,374`); intro video is **partial** (URL/YouTube embed only, no upload UI); Verified badge shipped; per-lawyer analytics (profile views + sparkline) shipped.
+- **Empty route dirs found**: `dashboard/bookings`, `dashboard/chat`, `dashboard/wallet`, `dashboard/packages` contain no `page.tsx` (scaffolded stubs).
+- **Conflict surfaced**: Calendly is **built** (`calendly_url` migration + field + display) but the 12 Sep call decided to **remove** it.
+- **Pointers wired**: README §Status + `docs/features.md` now redirect to `docs/FEATURE-STATUS.md` as canonical.
+- **Filenames**: used `FEATURE-STATUS.md` (hyphenated) — macOS is case-insensitive, so `FEATURES.md` collides with the existing `features.md`.
+
+### Rationale
+Three overlapping status sources had drifted (README ~3 months stale; `features.md` a task archive pointing at a missing `AGENT_TASKS.md`). One verified board removes the "is it built?" guesswork ahead of the Sunday call.
+
+### Related Files
+- `docs/FEATURE-STATUS.md` (new), `docs/features.md`, `README.md` §Status, `CHANGELOG.md`

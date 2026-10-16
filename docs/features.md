@@ -1,6 +1,6 @@
 # ✅ Lawyard v2 — Implemented Features
 
-> Archive of completed tasks. Current backlog lives in `AGENT_TASKS.md`.
+> Archive of completed tasks. **Canonical feature status now lives in [`docs/FEATURE-STATUS.md`](FEATURE-STATUS.md).** Current backlog lives in `AGENT_TASKS.md` (⚠ does not exist).
 
 ---
 
