@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendTransactionalEmail } from '@/lib/api/brevo'
 
 const SITE_URL = 'https://directory.lawyard.org'
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://jayjejqjswxtksvwoqxp.supabase.co').replace(/\/$/, '')
 
 function buildConfirmationUrl(emailData: Record<string, any>): string {
-  const siteUrl = emailData.site_url || 'https://jayjejqjswxtksvwoqxp.supabase.co'
   const tokenHash = emailData.token_hash
   const type = emailData.email_action_type || ''
   const redirectTo = emailData.redirect_to || SITE_URL
   if (!tokenHash) return ''
-  const base = siteUrl.replace(/\/auth\/v1\/?$/, '')
-  return `${base}/auth/v1/verify?token=${tokenHash}&type=${type}&redirect_to=${encodeURIComponent(redirectTo)}`
+  return `${SUPABASE_URL}/auth/v1/verify?token=${tokenHash}&type=${type}&redirect_to=${encodeURIComponent(redirectTo)}`
 }
 
 function buildEmail(actionType: string, confirmationUrl: string, _siteUrl: string): { subject: string; html: string } {

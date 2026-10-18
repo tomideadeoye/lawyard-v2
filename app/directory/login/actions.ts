@@ -18,6 +18,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { sendWelcomeEmail, addContact } from '@/lib/api/brevo'
 import { mapAuthError } from '@/lib/auth/auth-errors'
+import { getOAuthOnlyProvider, providerLabel } from '@/lib/auth/oauth-account'
 
 // Email/password login — used when login-form.tsx submits credentials.
 // If redirect+category are present (from add-listing flow), overrides the
@@ -45,6 +46,18 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error('[login] Supabase auth error:', error)
+
+    // OAuth-only account (e.g. signed up with Google, never set a password):
+    // signInWithPassword always fails with invalid_credentials. Tell the user
+    // the actual fix instead of "incorrect email or password".
+    if (error.message?.toLowerCase().includes('invalid login credentials')) {
+      const oauthProvider = await getOAuthOnlyProvider(email)
+      if (oauthProvider) {
+        const msg = `This account signs in with ${providerLabel(oauthProvider)}. Continue with ${providerLabel(oauthProvider)}, or use "Forgot your password?" to set a password.`
+        return redirect(`/login?message=${encodeURIComponent(msg)}`)
+      }
+    }
+
     return redirect(`/login?message=${encodeURIComponent(mapAuthError(error))}`)
   }
 
@@ -138,6 +151,17 @@ export async function signup(formData: FormData) {
 
   if (error) {
     console.error('[signup] Supabase auth error:', error)
+
+    // Existing OAuth-only account: "log in instead" is a dead end because they
+    // have no password. Point them at the provider that owns the account.
+    if (error.message?.toLowerCase().includes('already registered')) {
+      const oauthProvider = await getOAuthOnlyProvider(email)
+      if (oauthProvider) {
+        const msg = `You already have an account here — it signs in with ${providerLabel(oauthProvider)}. Continue with ${providerLabel(oauthProvider)} instead.`
+        return redirect(`/login?message=${encodeURIComponent(msg)}`)
+      }
+    }
+
     return redirect(`/login?message=${encodeURIComponent(mapAuthError(error))}`)
   }
 
