@@ -5,12 +5,14 @@
 CREATE OR REPLACE FUNCTION sync_profile_to_lawyer()
 RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE lawyers SET
-    name    = NEW.full_name,
-    phone   = NEW.phone,
-    website = NEW.website,
-    bio     = NEW.about
-  WHERE id = NEW.id;
+  IF NEW.role IN ('lawyer', 'admin') THEN
+    UPDATE public.lawyers SET
+      name    = NEW.full_name,
+      phone   = NEW.phone,
+      website = NEW.website,
+      bio     = NEW.about
+    WHERE id = NEW.id;
+  END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

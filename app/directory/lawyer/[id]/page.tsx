@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { TERMS } from '@/lib/constants';
 import { getArticles, getPodcasts } from '@/lib/directory/api';
-import specialtiesData from '@/data/specialties.json';
 import BookmarkButton from '@/components/directory/BookmarkButton';
 import InquiryForm from './inquiry-form';
+import ServiceRequestForm from './ServiceRequestForm';
+import { getBookingFeeAmount } from '@/app/directory/actions/service-requests';
+import { verifyPayment } from '@/app/directory/actions/payments';
 import ReviewsSection from '@/components/directory/ReviewsSection';
 import ProfileViewTracker from '@/components/directory/ProfileViewTracker';
 
@@ -38,6 +41,7 @@ interface LawyerRow {
   verification_status: string;
   calendly_url: string | null;
   price_range: string | null;
+  hide_price: boolean | null;
   address: string | null;
   enrollment_number: string | null;
   gender: string | null;
@@ -46,11 +50,29 @@ interface LawyerRow {
   chambers?: { name: string; location: string | null } | null;
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProfilePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ service_request?: string; reference?: string; trxref?: string }> }) {
   const { id } = await params;
+  const sp = await searchParams;
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Returning from a booking-fee checkout — verify and confirm the request.
+  if (sp.service_request === 'completed' && (sp.reference || sp.trxref)) {
+    await verifyPayment((sp.reference || sp.trxref)!);
+  }
+
+  const bookingFee = await getBookingFeeAmount();
+
+  let clientName = '';
+  if (user) {
+    const { data: clientProfile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .maybeSingle();
+    clientName = clientProfile?.full_name || '';
+  }
 
   const { data: lawyer, error } = await supabase
     .from('lawyers')
@@ -169,9 +191,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                 {row.location && <span>📍 {row.location}</span>}
-                {row.price_range && <span>💰 {priceLabels[row.price_range] || row.price_range}</span>}
+                {(row.price_range || row.hide_price) && (
+                  <span>💰 {row.hide_price ? 'Contact for pricing' : (priceLabels[row.price_range!] || row.price_range)}</span>
+                )}
                 <span>⭐ {row.reviews_count > 0 ? row.rating : '0.0'} ({row.reviews_count || 0} reviews)</span>
-                <span>🔖 {bookmarkCount}</span>
+                <span>🔖 {bookmarkCount} saved</span>
               </div>
 
               {specialtyNames.length > 0 && (
@@ -333,11 +357,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
               <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Introductory Video</h2>
               <div className="aspect-video rounded-xl overflow-hidden bg-muted/20">
-                <iframe
-                  src={row.intro_video_url.replace('watch?v=', 'embed/')}
-                  className="w-full h-full"
-                  allowFullScreen
-                />
+                {/\.(mp4|webm|mov)(\?.*)?$/i.test(row.intro_video_url) || row.intro_video_url.includes('/intro-videos/') ? (
+                  <video src={row.intro_video_url} controls className="w-full h-full" />
+                ) : (
+                  <iframe
+                    src={row.intro_video_url.replace('watch?v=', 'embed/')}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                )}
               </div>
             </section>
           )}
@@ -389,27 +417,34 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          {/* Calendly Booking */}
-          {row.calendly_url && (
-            <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
-              <h3 className="text-sm font-bold mb-1">Book a Consultation</h3>
-              <p className="text-xs text-muted-foreground/70 mb-4">Schedule directly on their calendar.</p>
-              <a
-                href={row.calendly_url}
-                target="_blank"
-                rel="noreferrer"
+          {/* Service Request (C14 + C15) */}
+          <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+            <h3 className="text-sm font-bold mb-1">Request a Service</h3>
+            <p className="text-xs text-muted-foreground/70 mb-4">
+              Submit a structured brief — consultation, review, representation, and more.
+            </p>
+            {user ? (
+              <ServiceRequestForm
+                lawyerId={id}
+                bookingFee={bookingFee}
+                defaultName={clientName}
+                defaultEmail={user.email || ''}
+              />
+            ) : (
+              <Link
+                href="/login"
                 className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-bold hover:bg-accent/90 transition-colors"
               >
-                Book via Calendly &rarr;
-              </a>
-            </div>
-          )}
+                Sign in to request a service
+              </Link>
+            )}
+          </div>
 
           {/* Inquiry Form */}
           {!row.hide_contact_form && (
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
               <h3 className="text-sm font-bold mb-1">Request Consultation</h3>
-              <p className="text-xs text-muted-foreground/70 mb-4">Send a direct message. Lawyers respond within 24 hours.</p>
+              <p className="text-xs text-muted-foreground/70 mb-4">Send a direct message. {TERMS.lawyer.plural} respond within 24 hours.</p>
               {user ? (
                 <InquiryForm lawyerId={id} />
               ) : (
@@ -446,15 +481,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                   <span className="font-medium">{row.enrollment_number}</span>
                 </div>
               )}
-              {row.price_range && (
+              {(row.price_range || row.hide_price) && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price Range</span>
-                  <span className="font-medium">{priceLabels[row.price_range] || row.price_range}</span>
+                  <span className="font-medium">{row.hide_price ? 'Contact for pricing' : (priceLabels[row.price_range!] || row.price_range)}</span>
                 </div>
               )}
               {row.chambers?.name && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Chambers</span>
+                  <span className="text-muted-foreground">{TERMS.firm.plural}</span>
                   <span className="font-medium text-right">{row.chambers.name}</span>
                 </div>
               )}

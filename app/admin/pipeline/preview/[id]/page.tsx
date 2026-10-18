@@ -1,10 +1,10 @@
-import { getAdminClient } from '@/lib/supabase/admin-auth'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 export default async function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { supabase } = await getAdminClient()
+  const supabase = createServiceRoleClient()
 
   const { data: article } = await supabase
     .from('articles')
@@ -43,9 +43,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
           <img src={article.featured_image} alt={article.title} className="w-full rounded-lg mb-6 object-cover max-h-96" />
         )}
 
-        <div className="text-slate-700 leading-relaxed whitespace-pre-wrap">
-          {article.content}
-        </div>
+        <div className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: article.content }} />
       </article>
     </div>
   )

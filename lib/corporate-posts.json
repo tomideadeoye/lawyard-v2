@@ -3,10 +3,10 @@
     {
       "id": "basic",
       "name": "Basic",
-      "price": 175000,
-      "formatted_price": "₦175,000",
+      "price": 100,
+      "formatted_price": "₦100",
       "recommended": false,
-      "description": "Get your announcement published on lawyard.org",
+      "description": "TEST PRICE — revert after testing. Get your announcement published on lawyard.org",
       "features": [
         "Published on lawyard.org",
         "Included in Corporate Posts category",

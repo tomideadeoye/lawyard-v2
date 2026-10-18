@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
+import { setHours, setMinutes } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { RichTextEditor } from '@/components/corporate-posts/rich-text-editor';
+import { DatePicker } from '@/components/corporate-posts/date-picker';
 import CategoryMultiselect from './CategoryMultiselect';
 import { publishArticle } from '@/app/directory/actions/content';
 import { uploadArticleImage } from '@/app/directory/actions/upload-article-image';
+import { CouponInput } from '@/components/ui/coupon-input';
 
 interface FormState {
   title: string;
@@ -20,7 +23,6 @@ interface FormState {
   excerpt: string;
   headerImage: string | null;
   categories: string[];
-  scheduledDate: string;
 }
 
 const INITIAL_STATE: FormState = {
@@ -31,7 +33,6 @@ const INITIAL_STATE: FormState = {
   excerpt: '',
   headerImage: null,
   categories: ['general-practice'],
-  scheduledDate: '',
 };
 
 function generateSlug(text: string) {
@@ -48,7 +49,49 @@ export default function PublishArticleForm() {
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
+  const [timezone, setTimezone] = useState('Africa/Lagos');
+  const [scheduleHour, setScheduleHour] = useState(10);
+  const [scheduleMinute, setScheduleMinute] = useState(0);
+  const [schedulePM, setSchedulePM] = useState(false);
+  const [validatedCoupon, setValidatedCoupon] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const STORAGE_KEY = 'lawyard_article_draft'
+
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.form) setForm(parsed.form)
+        if (parsed.scheduledDate) setScheduledDate(new Date(parsed.scheduledDate))
+        if (parsed.timezone) setTimezone(parsed.timezone)
+        if (parsed.scheduleHour) setScheduleHour(parsed.scheduleHour)
+        if (parsed.scheduleMinute) setScheduleMinute(parsed.scheduleMinute)
+        if (parsed.schedulePM !== undefined) setSchedulePM(parsed.schedulePM)
+        if (parsed.validatedCoupon) setValidatedCoupon(parsed.validatedCoupon)
+      }
+    } catch {}
+  }, [])
+
+  // Save draft to localStorage on every change
+  const saveDraft = useCallback(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        form,
+        scheduledDate: scheduledDate?.toISOString(),
+        timezone,
+        scheduleHour,
+        scheduleMinute,
+        schedulePM,
+        validatedCoupon,
+      }))
+    } catch {}
+  }, [form, scheduledDate, timezone, scheduleHour, scheduleMinute, schedulePM, validatedCoupon])
+
+  useEffect(() => { saveDraft() }, [saveDraft])
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -62,13 +105,26 @@ export default function PublishArticleForm() {
       formData.set('content', form.content);
       formData.set('excerpt', form.excerpt || form.content.substring(0, 160).replace(/<[^>]*>/g, '') + '...');
       formData.set('category', JSON.stringify(form.categories));
-      if (form.scheduledDate) formData.set('scheduled_date', form.scheduledDate);
+      if (scheduledDate) {
+        const hour24 = schedulePM ? (scheduleHour === 12 ? 12 : scheduleHour + 12) : (scheduleHour === 12 ? 0 : scheduleHour)
+        const withTime = setMinutes(setHours(scheduledDate, hour24), scheduleMinute)
+        const offset = timezone === 'Africa/Lagos' ? '+01:00' : '+00:00'
+        const y = withTime.getFullYear()
+        const m = String(withTime.getMonth() + 1).padStart(2, '0')
+        const d = String(withTime.getDate()).padStart(2, '0')
+        const hh = String(withTime.getHours()).padStart(2, '0')
+        const mm = String(withTime.getMinutes()).padStart(2, '0')
+        const ss = String(withTime.getSeconds()).padStart(2, '0')
+        formData.set('scheduled_date', `${y}-${m}-${d}T${hh}:${mm}:${ss}${offset}`)
+      }
       if (form.headerImage) formData.set('featured_image', form.headerImage);
+      if (validatedCoupon) formData.set('coupon_code', validatedCoupon);
       const result = await publishArticle(formData);
       if ('error' in result) throw new Error(result.error as string);
       return result;
     },
     onSuccess: () => {
+      localStorage.removeItem(STORAGE_KEY)
       router.push('/dashboard');
     },
   });
@@ -223,20 +279,31 @@ export default function PublishArticleForm() {
         </p>
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor="scheduled_date" className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
-          Schedule Date (optional)
+      {/* Coupon Code (optional — overrides the plan post cap) */}
+      <CouponInput
+        onValidated={(code) => setValidatedCoupon(code)}
+        onClear={() => setValidatedCoupon(null)}
+        label="Publishing Code (optional)"
+      />
+
+      {/* Schedule */}
+      <div className="space-y-2">
+        <FieldLabel className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">
+          Schedule Publish
         </FieldLabel>
-        <Input
-          id="scheduled_date"
-          type="date"
-          value={form.scheduledDate}
-          onChange={e => update('scheduledDate', e.target.value)}
+        <DatePicker
+          selected={scheduledDate}
+          timezone={timezone}
+          hour={scheduleHour}
+          minute={scheduleMinute}
+          isPM={schedulePM}
+          onSelect={setScheduledDate}
+          onTimezoneChange={setTimezone}
+          onHourChange={setScheduleHour}
+          onMinuteChange={setScheduleMinute}
+          onPeriodChange={setSchedulePM}
         />
-        <p className="text-[10px] text-muted-foreground/60 mt-1">
-          Leave empty to publish immediately after editorial approval.
-        </p>
-      </Field>
+      </div>
 
       {(error || mutation.isError) && (
         <p className="text-sm text-destructive font-medium bg-destructive/10 p-2.5 rounded border border-destructive/20">

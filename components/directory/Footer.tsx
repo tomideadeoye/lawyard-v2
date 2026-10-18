@@ -193,6 +193,7 @@ export default function Footer() {
             <Link href="/search" className="hover:text-white transition-colors no-underline">Find Counsel</Link>
             <Link href="/add-listing" className="hover:text-white transition-colors no-underline">Register Profile</Link>
             <Link href="/dashboard" className="hover:text-white transition-colors no-underline">Dashboard</Link>
+            <Link href="/corporate-posts/submit" className="hover:text-white transition-colors no-underline">Corporate Posts</Link>
           </div>
 
           {/* Center Block: Logo Signature */}
@@ -229,7 +230,7 @@ export default function Footer() {
 
         {/* Lower Row: Copyright Notice */}
         <div className="max-w-7xl mx-auto pt-6 mt-6 border-t border-white/5 text-center text-[8.5px] font-bold uppercase tracking-widest text-white/40">
-          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY <a href="https://www.merislabs.com" target="_blank" rel="noopener noreferrer" className="hover:underline">MERISLABS</a></p>
+          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY <a href="https://merislabs-merislabs.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:underline">MERISLABS</a></p>
         </div>
       </div>
     </footer>

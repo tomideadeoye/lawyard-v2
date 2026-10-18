@@ -232,14 +232,6 @@ const TRENDING_MOCK_ARTICLES = [
   }
 ]
 
-const LEGISLATIONS_LIST = [
-  { id: "l-1", title: "INSTITUTE OF CHARTERED ACCOUNTANTS OF NIGERIA ACT" },
-  { id: "l-2", title: "INDUSTRIAL TRAINING FUND ACT" },
-  { id: "l-3", title: "INSTITUTE OF CHARTERED CHEMISTS OF NIGERIA ACT" },
-  { id: "l-4", title: "INDUSTRIAL INSPECTORATE ACT" },
-  { id: "l-5", title: "INDIAN HEMP ACT" }
-]
-
 export default async function HomePage() {
   const supabase = await createClient()
   let dbArticles: any[] = []

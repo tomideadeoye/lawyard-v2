@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { TERMS } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
+import { galleryCapFor, isPaidTier } from '@/lib/directory/publishing';
+import FaqEditor from '@/components/directory/forms/listing/FaqEditor';
+import GalleryUpload from '@/components/directory/forms/listing/GalleryUpload';
+import WorkingHoursEditor from '@/components/directory/forms/listing/WorkingHoursEditor';
+import IntroVideoField from '@/components/directory/forms/listing/IntroVideoField';
 
 interface FormState {
   name: string;
@@ -12,6 +18,10 @@ interface FormState {
   email: string;
   phone: string;
   website: string;
+  working_hours: { day: string; hours: string }[];
+  faqs: { question: string; answer: string }[];
+  gallery_images: string[];
+  intro_video_url: string;
 }
 
 export default function ChamberForm({ initial }: { initial: ChamberData | null }) {
@@ -24,8 +34,14 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
     email: initial?.email || '',
     phone: initial?.phone || '',
     website: initial?.website || '',
+    working_hours: initial?.working_hours || [],
+    faqs: initial?.faqs || [],
+    gallery_images: initial?.gallery_images || [],
+    intro_video_url: initial?.intro_video_url || '',
   });
   const [saving, setSaving] = useState(false);
+
+  const isPremium = isPaidTier(initial?.subscription_tier);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -43,7 +59,19 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
     if (initial?.id) {
       await supabase.from('chambers').update(payload).eq('id', initial.id);
     } else {
-      await supabase.from('chambers').insert(payload);
+      const { data: created } = await supabase
+        .from('chambers')
+        .insert(payload)
+        .select('id')
+        .single();
+      // Register the creator as owner-admin so multiple admins can manage later.
+      if (created?.id) {
+        await supabase.from('chamber_admins').insert({
+          chamber_id: created.id,
+          user_id: user.id,
+          role: 'owner',
+        });
+      }
     }
 
     setSaving(false);
@@ -52,7 +80,7 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
-      <Field label="Chamber Name">
+      <Field label={`${TERMS.firm.singular} Name`}>
         <input value={form.name} onChange={e => update('name', e.target.value)} required className={inputClass} />
       </Field>
 
@@ -80,8 +108,24 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
         </Field>
       </div>
 
+      <WorkingHoursEditor value={form.working_hours} onChange={v => update('working_hours', v)} />
+
+      <FaqEditor items={form.faqs} onChange={v => update('faqs', v)} />
+
+      <GalleryUpload
+        value={form.gallery_images}
+        onChange={v => update('gallery_images', v)}
+        maxImages={galleryCapFor(initial?.subscription_tier, true)}
+      />
+
+      <IntroVideoField
+        value={form.intro_video_url}
+        onChange={v => update('intro_video_url', v)}
+        isPremium={isPremium}
+      />
+
       <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-lg bg-[#a77c5c] hover:bg-[#906b4e] disabled:opacity-50 text-white text-xs font-bold transition-colors">
-        {saving ? 'Saving...' : initial?.id ? 'Update Chamber' : 'Create Chamber'}
+        {saving ? 'Saving...' : initial?.id ? `Update ${TERMS.firm.singular}` : `Create ${TERMS.firm.singular}`}
       </button>
     </form>
   );
@@ -108,4 +152,9 @@ interface ChamberData {
   phone?: string;
   website?: string;
   image_url?: string;
+  subscription_tier?: string;
+  working_hours?: { day: string; hours: string }[];
+  faqs?: { question: string; answer: string }[];
+  gallery_images?: string[];
+  intro_video_url?: string;
 }

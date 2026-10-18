@@ -19,6 +19,16 @@ import {
   ImageIcon,
 } from 'lucide-react'
 
+const ToolBtn = ({ onClick, active, children }: { onClick: () => void; active?: boolean; children: React.ReactNode }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`p-1.5 rounded-md transition-colors ${active ? 'bg-accent/20 text-accent' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+  >
+    {children}
+  </button>
+)
+
 interface RichTextEditorProps {
   content: string
   onChange: (html: string) => void
@@ -54,16 +64,6 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     const url = window.prompt('Enter image URL:')
     if (url) editor.chain().focus().setImage({ src: url }).run()
   }
-
-  const ToolBtn = ({ onClick, active, children }: { onClick: () => void; active?: boolean; children: React.ReactNode }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`p-1.5 rounded-md transition-colors ${active ? 'bg-accent/20 text-accent' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
-    >
-      {children}
-    </button>
-  )
 
   return (
     <div className="rounded-xl border border-border overflow-hidden bg-background">

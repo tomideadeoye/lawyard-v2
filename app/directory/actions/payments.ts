@@ -40,6 +40,7 @@ export async function createPayment(formData: FormData) {
     email: user.email!,
     amount,
     reference,
+    currency: 'NGN',
     callback_url: `${getSiteUrl()}/pricing?payment=completed`,
     metadata: {
       type: isChamber ? 'chamber_subscription' : 'subscription',
@@ -61,6 +62,7 @@ export async function createPayment(formData: FormData) {
     user_id: user.id,
     reference,
     amount,
+    currency: 'NGN',
     plan_name: planName,
     plan_role: planRole,
     status: 'pending',
@@ -103,6 +105,56 @@ export async function verifyPayment(reference: string) {
   if (isSuccess) {
     const meta = tx.metadata as Record<string, unknown> | null
     const isChamber = meta?.type === 'chamber_subscription'
+
+    // C05: extra-post purchase → grant a post credit (idempotent by reference).
+    if (meta?.type === 'extra_post') {
+      const { data: existing } = await sbAdmin
+        .from('post_credits')
+        .select('id')
+        .eq('reference', reference)
+        .maybeSingle()
+      if (!existing) {
+        await sbAdmin.from('post_credits').insert({
+          user_id: tx.user_id,
+          delta: 1,
+          reason: 'purchase',
+          reference,
+        })
+      }
+      revalidatePath('/dashboard/publish')
+      return { success: true, status: verification.data.status }
+    }
+
+    // C15: service-request booking fee → confirm the request (idempotent).
+    if (meta?.type === 'service_request') {
+      const reqId = meta?.service_request_id as string | undefined
+      if (reqId) {
+        await sbAdmin
+          .from('service_requests')
+          .update({ status: 'requested', updated_at: new Date().toISOString() })
+          .eq('id', reqId)
+          .eq('status', 'pending_payment')
+      }
+      revalidatePath('/dashboard/bookings')
+      return { success: true, status: verification.data.status }
+    }
+
+    // C09: Lawyard Lens course enrollment → mark enrolled (idempotent).
+    if (meta?.type === 'course_enrollment') {
+      const { data: enr } = await sbAdmin
+        .from('course_enrollments')
+        .select('id, status')
+        .eq('reference', reference)
+        .maybeSingle()
+      if (enr && enr.status !== 'enrolled') {
+        await sbAdmin
+          .from('course_enrollments')
+          .update({ status: 'enrolled', updated_at: new Date().toISOString() })
+          .eq('id', enr.id)
+      }
+      revalidatePath('/lens')
+      return { success: true, status: verification.data.status }
+    }
 
     const tierMap: Record<string, string> = {
       'Premium (Package)': 'premium_package',

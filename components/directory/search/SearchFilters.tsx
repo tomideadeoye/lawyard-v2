@@ -15,6 +15,7 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
   const searchParams = useSearchParams();
   
   // Local States sync'd with URL
+  const [query, setQuery] = useState(searchParams.get('q') || searchParams.get('query') || '');
   const [location, setLocation] = useState(searchParams.get('location') || '');
   const [specialty, setSpecialty] = useState(searchParams.get('specialty') || 'all');
   const [experience, setExperience] = useState(searchParams.get('experience') || '');
@@ -23,21 +24,30 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
 
   const handleApply = () => {
     const params = new URLSearchParams();
+    if (query) params.set('q', query);
     if (location) params.set('location', location);
     if (specialty !== 'all') params.set('specialty', specialty);
     if (experience) params.set('experience', experience);
     if (priceRange) params.set('priceRange', priceRange);
     if (rating) params.set('rating', rating);
-    
-    // Preserve search query if exists
-    const q = searchParams.get('q') || searchParams.get('query');
-    if (q) params.set('q', q);
 
     router.push(`/search?${params.toString()}`);
   };
 
   return (
     <aside className={styles.filters}>
+      <div className={styles.filterSection}>
+        <h4>Search</h4>
+        <input
+          type="text"
+          placeholder="Search by name, firm, or keyword..."
+          className={styles.sidebarInput}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleApply(); }}
+        />
+      </div>
+
       <div className={styles.filterSection}>
         <h4>Location</h4>
         <input 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { TERMS } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ export default function ChamberForm() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      setError('You must be logged in to register an institution/chamber.');
+      setError(`You must be logged in to register an institution/${TERMS.firm.lower}.`);
       setLoading(false);
       return;
     }
@@ -107,7 +108,7 @@ export default function ChamberForm() {
         <div className="text-5xl">🏛️</div>
         <h3 className="text-xl font-bold tracking-tight">Institution Registered</h3>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Your chamber/firm has been registered. You have been designated as a legal professional within this institution.
+          Your {TERMS.firm.lower} has been registered. You have been designated as a legal professional within this institution.
         </p>
         <Button onClick={() => window.location.href = '/dashboard'} className="mt-4">
           Go to Dashboard
@@ -118,13 +119,13 @@ export default function ChamberForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <FormStep steps={STEPS} submitLabel="Register Chamber / Firm" loading={loading}>
+      <FormStep steps={STEPS} submitLabel={`Register ${TERMS.firm.singular}`} loading={loading}>
         {(s) => (
           <>
             {s === 0 && (
               <>
                 <Field>
-                  <FieldLabel htmlFor="name" className="text-xs uppercase tracking-wider text-accent font-bold">Chamber / Law Firm Name</FieldLabel>
+                  <FieldLabel htmlFor="name" className="text-xs uppercase tracking-wider text-accent font-bold">{TERMS.firm.singular} Name</FieldLabel>
                   <Input name="name" id="name" placeholder="e.g. Aluko & Oyebode" required />
                 </Field>
 

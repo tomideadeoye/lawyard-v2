@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { submitLawyerVerification } from '@/app/directory/actions/verify-lawyer'
+import { TERMS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -113,7 +114,7 @@ export default function LawyerVerificationForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="firm_name">Firm / Chamber</Label>
+            <Label htmlFor="firm_name">{TERMS.firm.singular}</Label>
             <Input id="firm_name" name="firm_name" required placeholder="e.g. Renix Consulting" />
           </div>
 

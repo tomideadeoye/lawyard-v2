@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 }
 
 export default function CorporatePostsLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return (
+    <>
+      <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
+      {children}
+    </>
+  )
 }

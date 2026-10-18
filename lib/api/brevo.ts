@@ -17,6 +17,7 @@ export async function sendTransactionalEmail(params: {
   subject: string
   htmlContent: string
   attachment?: { name: string; content: string }[]
+  trackClicks?: boolean
 }) {
   if (!BREVO_API_KEY) return { error: 'Brevo not configured' }
 
@@ -25,6 +26,10 @@ export async function sendTransactionalEmail(params: {
     to: params.to,
     subject: params.subject,
     htmlContent: params.htmlContent,
+  }
+
+  if (params.trackClicks === false) {
+    body.trackClicks = false
   }
 
   if (params.attachment && params.attachment.length > 0) {
@@ -81,7 +86,7 @@ export async function sendWelcomeEmail(params: {
   email: string
   name: string
 }) {
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/directory/dashboard`
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard`
 
   return sendTransactionalEmail({
     to: [{ email: params.email, name: params.name }],

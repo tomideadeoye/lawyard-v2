@@ -1,7 +1,6 @@
 const BRAND_COLOR = '#a77c5c'
-const BRAND_DARK = '#906b4e'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://directory.lawyard.org'
-const LOGO_URL = `${SITE_URL}/logo-blue.png`
+const LOGO_URL = 'https://www.lawyard.org/wp-content/uploads/2026/07/logo-blue.png'
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -231,9 +230,6 @@ export function shopOrderConfirmation(params: {
   amount: number
   items: { title: string; quantity: number }[]
 }) {
-  const date = new Date().toLocaleDateString('en-US', {
-    month: 'long', day: 'numeric', year: 'numeric',
-  })
   const fmtAmount = `₦${params.amount.toLocaleString()}`
   const itemsHtml = params.items.map(item =>
     `<tr><td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:13px;">${escapeHtml(item.title)}</td><td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:center;">${item.quantity}</td><td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:right;">₦${(item.quantity * 500).toLocaleString()}</td></tr>`
@@ -272,7 +268,7 @@ ${footerNote()}`)
 function authLayout(title: string, bodyHtml: string): string {
   return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
   <div style="text-align:center;padding:24px 36px 0;">
-    <img src="https://directory.lawyard.org/logo-blue.png" alt="Lawyard" width="140" style="display:inline-block;border:0;" />
+    <img src="${LOGO_URL}" alt="Lawyard" width="140" style="display:inline-block;border:0;" />
   </div>
   <div style="background:#a77c5c;margin:16px 36px 0;padding:20px 24px;border-radius:8px;">
     <h1 style="color:#fff;margin:0;font-size:18px;font-weight:800;">${title}</h1>
@@ -296,28 +292,13 @@ function authLayout(title: string, bodyHtml: string): string {
 }
 
 export function authMagicLinkTemplate(): string {
-  return authLayout('Sign in to Lawyard', `
-<p style="font-size:15px;margin:0 0 16px;">Hi there,</p>
-<p style="color:#475569;margin:0 0 24px;">Click the button below to sign in to your Lawyard account. This link expires in 1 hour.</p>
-<div style="text-align:center;margin:28px 0;">
-  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#a77c5c;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 2px 4px rgba(167,124,92,0.2);">Sign In</a>
-</div>`)
+  return authLayout('Sign In', '<p style="font-size:15px;color:#475569;margin:0;">A verification link has been sent to your email. Click the button in the email to sign in.</p>')
 }
 
 export function authConfirmationTemplate(): string {
-  return authLayout('Confirm your account', `
-<p style="font-size:15px;margin:0 0 16px;">Hi there,</p>
-<p style="color:#475569;margin:0 0 24px;">Click the button below to confirm your Lawyard account and get started.</p>
-<div style="text-align:center;margin:28px 0;">
-  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#a77c5c;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 2px 4px rgba(167,124,92,0.2);">Confirm Account</a>
-</div>`)
+  return authLayout('Confirm your account', '<p style="font-size:15px;color:#475569;margin:0;">A verification link has been sent to your email. Click the button in the email to confirm your account.</p>')
 }
 
 export function authRecoveryTemplate(): string {
-  return authLayout('Reset your password', `
-<p style="font-size:15px;margin:0 0 16px;">Hi there,</p>
-<p style="color:#475569;margin:0 0 24px;">Click the button below to reset your Lawyard password. This link expires in 1 hour.</p>
-<div style="text-align:center;margin:28px 0;">
-  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#a77c5c;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 2px 4px rgba(167,124,92,0.2);">Reset Password</a>
-</div>`)
+  return authLayout('Reset your password', '<p style="font-size:15px;color:#475569;margin:0;">A verification link has been sent to your email. Click the button in the email to reset your password.</p>')
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Check, X, ExternalLink, Mail, Phone, Scale } from 'lucide-react'
+import { Loader2, Check, X, Mail, Phone, Scale } from 'lucide-react'
 
 interface Verification {
   id: string

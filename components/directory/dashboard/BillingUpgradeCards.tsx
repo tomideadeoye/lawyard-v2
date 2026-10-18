@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Check, X, ArrowUpRight } from 'lucide-react'
+import { parseAmount } from '@/lib/currency'
+import { TIER_RANK } from '@/lib/directory/publishing'
 import type { Plan, PlansByRole } from '@/app/directory/actions/plans'
 
 interface BillingUpgradeCardsProps {
@@ -12,16 +14,10 @@ interface BillingUpgradeCardsProps {
   plans: PlansByRole
 }
 
-const TIER_RANK: Record<string, number> = {
-  free: 0,
-  premium_single: 1,
-  premium_package: 2,
-  enterprise: 3,
-}
-
 const PLAN_TIER_MAP: Record<string, string> = {
   'Premium (Package)': 'premium_package',
   'Premium (Single)': 'premium_single',
+  'Silver': 'silver',
   'Free': 'free',
   'Free Access': 'free',
   'Enterprise': 'enterprise',
@@ -52,7 +48,7 @@ export function BillingUpgradeCards({ currentTier, userRole, plans }: BillingUpg
             const rank = TIER_RANK[planTier] ?? -1
             const isCurrent = planTier === currentTier || (currentTier === '' && planTier === 'free')
             const isUpgrade = rank > currentRank
-            const hasPrice = parseFloat(plan.price.replace('$', '')) > 0
+            const hasPrice = parseAmount(plan.price) > 0
 
             let scenario: 'current' | 'upgrade' | 'downgrade' | 'subscribe'
             if (isCurrent) scenario = 'current'

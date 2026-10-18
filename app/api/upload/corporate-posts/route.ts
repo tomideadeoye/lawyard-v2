@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const filePath = `brand-press/${crypto.randomUUID()}.${ext}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { error: uploadError } = await supabase.storage
     .from('brand-press')
     .upload(filePath, buffer, { contentType: file.type, upsert: true })

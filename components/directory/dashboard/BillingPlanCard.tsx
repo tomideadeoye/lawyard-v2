@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { TERMS } from '@/lib/constants'
 import { ArrowUpRight } from 'lucide-react'
 
 interface BillingPlanCardProps {
@@ -17,7 +18,7 @@ const TIER_MAP: Record<string, { name: string; description: string }> = {
   free: { name: 'Free', description: 'Basic directory listing' },
   premium_single: { name: 'Premium (Single)', description: 'Featured listing for 365 days' },
   premium_package: { name: 'Premium (Package)', description: '15 featured listings with maximum visibility' },
-  enterprise: { name: 'Enterprise', description: 'Comprehensive chamber visibility' },
+  enterprise: { name: 'Enterprise', description: `Comprehensive ${TERMS.firm.lower} visibility` },
 }
 
 export function BillingPlanCard({ tier, status, expiresAt }: BillingPlanCardProps) {

@@ -75,8 +75,8 @@ export default function BookmarkButton({ lawyerId, initialBookmarked = false, cl
           ? 'text-accent scale-110'
           : 'text-muted-foreground/50 hover:text-muted-foreground'
       } ${className}`}
-      title={bookmarked ? 'Remove bookmark' : 'Bookmark this profile'}
-      aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this profile'}
+      title={bookmarked ? 'Remove from saved lawyers' : 'Save this lawyer'}
+      aria-label={bookmarked ? 'Remove from saved lawyers' : 'Save this lawyer'}
     >
       <svg
         viewBox="0 0 24 24"

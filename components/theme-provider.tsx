@@ -14,13 +14,24 @@ const ThemeProviderContext = React.createContext<ThemeProviderContext | undefine
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  ...props
 }: {
   children: React.ReactNode
   defaultTheme?: Theme
   [key: string]: any
 }) {
   const [theme, setThemeState] = React.useState<Theme>(defaultTheme)
+
+  const applyTheme = (t: Theme) => {
+    const root = window.document.documentElement
+    root.classList.remove("light", "dark")
+
+    if (t === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      root.classList.add(systemTheme)
+    } else {
+      root.classList.add(t)
+    }
+  }
 
   React.useEffect(() => {
     const savedTheme = (localStorage.getItem("theme") as Theme) || defaultTheme
@@ -38,18 +49,6 @@ export function ThemeProvider({
     mediaQuery.addEventListener("change", handleSystemThemeChange)
     return () => mediaQuery.removeEventListener("change", handleSystemThemeChange)
   }, [defaultTheme])
-
-  const applyTheme = (t: Theme) => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
-
-    if (t === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      root.classList.add(systemTheme)
-    } else {
-      root.classList.add(t)
-    }
-  }
 
   const setTheme = (newTheme: Theme) => {
     localStorage.setItem("theme", newTheme)

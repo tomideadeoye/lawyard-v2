@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LayoutDashboard, Building2, Building, MessageSquare, PenSquare, Bookmark, CreditCard, Settings, LogOut, type LucideIcon } from 'lucide-react'
+import { Menu, X, LayoutDashboard, Building2, Building, MessageSquare, PenSquare, Bookmark, CreditCard, Settings, LogOut, CalendarCheck, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TERMS } from '@/lib/constants'
 import { signOut } from '@/app/directory/login/actions'
 
 interface NavSection {
@@ -27,13 +28,13 @@ interface MobileDashboardNavProps {
 
 export default function MobileDashboardNav({
   fullName,
-  email,
+  email: _email,
   avatarUrl,
   role,
   initial,
   isLawyer,
   tier,
-  subscriptionStatus,
+  subscriptionStatus: _subscriptionStatus,
 }: MobileDashboardNavProps) {
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -57,12 +58,13 @@ export default function MobileDashboardNav({
   const roleLinks: NavSection[] = isLawyer
     ? [
         { label: 'My Listings', href: '/dashboard/listings', icon: Building2 },
-        { label: 'My Chamber', href: '/dashboard/chamber', icon: Building },
+        { label: `My ${TERMS.firm.singular}`, href: '/dashboard/chamber', icon: Building },
         { label: 'Inbox', href: '/dashboard/inquiries', icon: MessageSquare },
+        { label: 'Service Requests', href: '/dashboard/bookings', icon: CalendarCheck },
         { label: 'Content Studio', href: '/dashboard/publish', icon: PenSquare },
       ]
     : [
-        { label: 'Bookmarks', href: '/dashboard/favorites', icon: Bookmark },
+        { label: 'Saved Lawyers', href: '/dashboard/favorites', icon: Bookmark },
       ]
 
   const bottomLinks: NavSection[] = [

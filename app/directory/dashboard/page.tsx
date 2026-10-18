@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { TERMS } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -7,13 +8,6 @@ import SwitchToLawyerButton from '@/components/directory/dashboard/SwitchToLawye
 import WelcomeBanner from '@/components/directory/dashboard/WelcomeBanner'
 import { getProfileViews, getInquiryStats } from '@/app/directory/actions/analytics'
 import AnalyticsSparkline from '@/components/directory/dashboard/AnalyticsSparkline'
-
-const tierLabels: Record<string, { label: string; color: string }> = {
-  free: { label: 'Free', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
-  premium_single: { label: 'Premium Single', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-  premium_package: { label: 'Premium Package', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  enterprise: { label: 'Enterprise', color: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
-}
 
 export default async function DirectoryDashboardPage() {
   const supabase = await createClient()
@@ -57,14 +51,6 @@ export default async function DirectoryDashboardPage() {
     profileViews = pv
     inquiryStats = iq
   }
-
-  const tier = profile?.subscription_tier || 'free'
-  const tierInfo = tierLabels[tier] || tierLabels.free
-  const expiresAt = profile?.subscription_expires_at as string | null
-  const isExpired = expiresAt ? new Date(expiresAt) <= new Date() : false
-  const expiresSoon = expiresAt && !isExpired
-    ? (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24) <= 30
-    : false
 
   const totalSpent = transactions.filter(t => t.status === 'success').reduce((sum, t) => sum + Number(t.amount), 0)
   const publishedArticles = articles.filter(a => a.status === 'published').length
@@ -200,7 +186,7 @@ export default async function DirectoryDashboardPage() {
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">📬</div>
                     <h4 className="font-semibold text-sm mb-1">Inquiries {unreadInquiries > 0 && <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[9px] font-bold">{unreadInquiries}</span>}</h4>
-                    <p className="text-xs text-muted-foreground">View and respond to client messages</p>
+                    <p className="text-xs text-muted-foreground">View and respond to {TERMS.client.lower} messages</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -277,7 +263,7 @@ export default async function DirectoryDashboardPage() {
                     <div className="space-y-1">
                       <h4 className="font-semibold text-base">No public profile yet</h4>
                       <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Create a lawyer or chamber profile to appear in the Lawyard Directory.
+                        Create a {TERMS.lawyer.lower} or {TERMS.firm.lower} profile to appear in the Lawyard Directory.
                       </p>
                     </div>
                     <Link href="/dashboard/add-listing">
@@ -323,49 +309,20 @@ export default async function DirectoryDashboardPage() {
             </Card>
           </div>
 
-          {/* Subscription Section */}
+          {/* Saved Lawyers */}
           <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-lg">Subscription</CardTitle>
-              <CardDescription>Your current plan and available upgrades.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-lg border ${isExpired ? 'bg-rose-500/10 border-rose-500/30' : 'bg-muted/30 border-border/30'}`}>
-                <div>
-                  <p className="text-sm font-semibold">Current Plan: <span className="text-primary">{tierInfo.label}</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {tier === 'free'
-                      ? 'Upgrade to Premium for featured listings, enhanced visibility, and priority support.'
-                      : isExpired
-                      ? 'Your subscription has expired. Renew to reactivate featured listing benefits.'
-                      : expiresSoon
-                      ? `Expires ${new Date(expiresAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} — renew soon to maintain featured status.`
-                      : `Active until ${new Date(expiresAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`}
-                  </p>
-                </div>
-                <Link href="/pricing">
-                  <Button size="sm" className="shrink-0">
-                    {tier === 'free' || isExpired ? 'Upgrade Now' : 'Manage Plan'}
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Bookmarked Directory */}
-          <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="text-lg">Bookmarked Directory</CardTitle>
-              <CardDescription>Lawyers and chambers you&rsquo;ve saved for later.</CardDescription>
+              <CardTitle className="text-lg">Saved Lawyers</CardTitle>
+              <CardDescription>{TERMS.lawyer.plural} and {TERMS.firm.lowerPlural} you&rsquo;ve saved for later.</CardDescription>
             </CardHeader>
             <CardContent>
               {bookmarks.length === 0 ? (
                 <div className="text-center py-8 space-y-4">
                   <div className="text-4xl">🔖</div>
                   <div className="space-y-1">
-                    <h4 className="font-semibold text-base">No bookmarks yet</h4>
+                    <h4 className="font-semibold text-base">No saved lawyers yet</h4>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Browse the directory and bookmark profiles you&rsquo;re interested in.
+                      Browse the directory and save profiles you&rsquo;re interested in.
                     </p>
                   </div>
                   <Link href="/search"><Button size="sm">Browse Directory</Button></Link>
@@ -429,9 +386,9 @@ export default async function DirectoryDashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Bookmarked</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Saved Lawyers</p>
                 <p className="text-2xl font-bold mt-1">{bookmarks.length}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">lawyers & chambers</p>
+                <p className="text-[10px] text-muted-foreground mt-1">{TERMS.lawyer.lowerPlural} & {TERMS.firm.lowerPlural}</p>
               </CardContent>
             </Card>
           </div>
@@ -443,7 +400,7 @@ export default async function DirectoryDashboardPage() {
                 <CardContent className="p-5">
                   <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-3 group-hover:scale-110 transition-transform">◈</div>
                   <h4 className="font-semibold text-sm mb-1">Search Directory</h4>
-                  <p className="text-xs text-muted-foreground">Find lawyers and chambers by specialty or location</p>
+                  <p className="text-xs text-muted-foreground">Find {TERMS.lawyer.lowerPlural} and {TERMS.firm.lowerPlural} by specialty or location</p>
                 </CardContent>
               </Card>
             </Link>
@@ -468,20 +425,20 @@ export default async function DirectoryDashboardPage() {
 
           </div>
 
-          {/* Bookmarked Directory */}
+          {/* Saved Lawyers */}
           <Card className="border border-border/40 bg-card/45 backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-lg">Bookmarked Directory</CardTitle>
-              <CardDescription>Lawyers and chambers you&rsquo;ve saved for later.</CardDescription>
+              <CardTitle className="text-lg">Saved Lawyers</CardTitle>
+              <CardDescription>{TERMS.lawyer.plural} and {TERMS.firm.lowerPlural} you&rsquo;ve saved for later.</CardDescription>
             </CardHeader>
             <CardContent>
               {bookmarks.length === 0 ? (
                 <div className="text-center py-8 space-y-4">
                   <div className="text-4xl">🔖</div>
                   <div className="space-y-1">
-                    <h4 className="font-semibold text-base">No bookmarks yet</h4>
+                    <h4 className="font-semibold text-base">No saved lawyers yet</h4>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Browse the directory and bookmark profiles you&rsquo;re interested in.
+                      Browse the directory and save profiles you&rsquo;re interested in.
                     </p>
                   </div>
                   <Link href="/search"><Button size="sm">Browse Directory</Button></Link>
@@ -550,8 +507,8 @@ export default async function DirectoryDashboardPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">Practise law?</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Switch to Lawyer Mode to access listings, chamber profiles, content studio, and
-                      client inquiries. No verification needed — you can get verified later to earn
+                      Switch to Lawyer Mode to access listings, {TERMS.firm.lower} profiles, content studio, and
+                      {TERMS.client.lower} inquiries. No verification needed — you can get verified later to earn
                       the trusted badge.
                     </p>
                   </div>
@@ -571,7 +528,7 @@ export default async function DirectoryDashboardPage() {
                   <div>
                     <p className="text-sm font-semibold">Verification Pending</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Your lawyer verification request is being reviewed. We&apos;ll update your
+                      Your {TERMS.lawyer.lower} verification request is being reviewed. We&apos;ll update your
                       status once the admin team completes the review.
                     </p>
                   </div>
@@ -612,8 +569,8 @@ export default async function DirectoryDashboardPage() {
             <CardContent>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-muted/30 rounded-lg border border-border/30">
                 <div>
-                  <p className="text-sm font-semibold">Are you a lawyer or chamber?</p>
-                  <p className="text-xs text-muted-foreground mt-1">Create a profile to get discovered by clients actively seeking legal expertise.</p>
+                  <p className="text-sm font-semibold">Are you a {TERMS.lawyer.lower} or {TERMS.firm.lower}?</p>
+                  <p className="text-xs text-muted-foreground mt-1">Create a profile to get discovered by {TERMS.client.lowerPlural} actively seeking legal expertise.</p>
                 </div>
                 <Link href="/dashboard/add-listing">
                   <Button size="sm" variant="outline" className="shrink-0">Create a Profile</Button>

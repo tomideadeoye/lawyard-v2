@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getArticleBySlug, formatDate } from '@/lib/api/articles'
+import { getArticleBySlug } from '@/lib/api/articles'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MOCK_ARTICLES_DATA } from '../mockArticles'

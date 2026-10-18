@@ -38,7 +38,7 @@ export default async function OrdersPage() {
       {!transactions?.length ? (
         <div className="rounded-xl border border-border bg-background p-8 text-center">
           <p className="text-muted-foreground">No orders yet.</p>
-          <a href="/corporate-posts" className="inline-block mt-3 text-sm font-medium text-[var(--accent)] hover:underline">
+          <a href="https://directory.lawyard.org/corporate-posts" className="inline-block mt-3 text-sm font-medium text-[var(--accent)] hover:underline">
             Submit a corporate post article
           </a>
         </div>
@@ -55,7 +55,7 @@ export default async function OrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tx, i) => (
+              {transactions.map((tx) => (
                 <tr key={tx.id} className="border-b border-border last:border-0">
                   <td className="p-3 font-mono text-xs">{tx.reference}</td>
                   <td className="p-3 text-muted-foreground">{tx.plan_name}</td>

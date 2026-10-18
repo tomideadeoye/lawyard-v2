@@ -31,6 +31,7 @@ export async function initializeTransaction(params: {
   reference: string
   callback_url: string
   metadata: Record<string, any>
+  currency: string
 }): Promise<PaystackInitResponse> {
   const res = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
     method: 'POST',
@@ -41,6 +42,7 @@ export async function initializeTransaction(params: {
     body: JSON.stringify({
       email: params.email,
       amount: params.amount * 100,
+      currency: params.currency,
       reference: params.reference,
       metadata: params.metadata,
       callback_url: params.callback_url,

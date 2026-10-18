@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { TERMS } from '@/lib/constants'
 
 interface BookmarkLawyer {
   id: string
@@ -16,7 +17,7 @@ interface BookmarkLawyer {
 }
 
 export const metadata = {
-  title: 'Bookmarks — Lawyard Dashboard',
+  title: 'Saved Lawyers — Lawyard Dashboard',
 }
 
 export default async function FavoritesPage() {
@@ -39,9 +40,9 @@ export default async function FavoritesPage() {
     <div className="space-y-8 animate-fade-in px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bookmarks</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Saved Lawyers</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Lawyers and chambers you&apos;ve saved for later.
+            {TERMS.lawyer.plural} and {TERMS.firm.lowerPlural} you&apos;ve saved for later.
           </p>
         </div>
         <Link href="/search">
@@ -54,13 +55,13 @@ export default async function FavoritesPage() {
           <CardContent className="text-center py-16 space-y-4">
             <div className="text-5xl">♡</div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-lg">No bookmarks yet</h3>
+              <h3 className="font-semibold text-lg">No saved lawyers yet</h3>
               <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                Search the directory and save lawyers or chambers you&apos;re interested in.
+                Search the directory and save {TERMS.lawyer.lowerPlural} or {TERMS.firm.lowerPlural} you&apos;re interested in.
               </p>
             </div>
             <Link href="/search">
-              <Button>Find Lawyers</Button>
+              <Button>Find {TERMS.lawyer.plural}</Button>
             </Link>
           </CardContent>
         </Card>

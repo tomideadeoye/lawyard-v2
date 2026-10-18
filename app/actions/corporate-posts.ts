@@ -1,9 +1,10 @@
 'use server'
 
-import { createServiceRoleClient } from '@/lib/supabase/server'
+import { createServiceRoleClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import corporatePostConfig from '@/lib/corporate-posts.json'
 import { sendCorporatePostReceived, sendAdminNewSubmission, sendCorporatePostInvoice } from '@/lib/api/email'
+import { postCorporatePostToSlackWithButtons } from '@/lib/slack'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import { corporatePostSchema } from '@/lib/validations/corporate-posts'
 import { generatePaymentReference } from '@/lib/utils/payment'
@@ -57,7 +58,26 @@ export async function submitCorporatePost(formData: FormData) {
 
   let amount = tier.price
   let isFree = false
+  let submitterName: string | undefined
+  let submitterId: string | undefined
   let appliedCoupon: { code: string; discountPercent: number | null; discountAmount: number } | null = null
+
+  // Check if submitter is a logged-in user (e.g., a lawyer)
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      submitterId = user.id
+      submitterName = user.user_metadata?.full_name || user.user_metadata?.name || ''
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, role')
+        .eq('id', user.id)
+        .single()
+      if (profile?.full_name) submitterName = profile.full_name
+    }
+  } catch {} // Guest submission — no auth needed
+
   if (data.coupon_code) {
     const validation = await validateCoupon(data.coupon_code, tier.price)
     if (validation.valid) {
@@ -88,14 +108,14 @@ export async function submitCorporatePost(formData: FormData) {
       content: data.content,
       excerpt: data.excerpt || data.content.substring(0, 160),
       featured_image: data.featured_image || null,
-      author_id: null,
+      author_id: submitterId || null,
       brand_name: data.brand_name,
       tier: tier.id,
       article_type: 'corporate_post',
       payment_status: isFree ? 'paid' : 'pending',
       scheduled_date: data.scheduled_date || null,
       status: 'pending_review',
-      category: 'Corporate Post',
+      category: ['Corporate Post'],
     })
     .select('id')
     .single()
@@ -111,6 +131,8 @@ export async function submitCorporatePost(formData: FormData) {
     type: 'corporate_post',
     contact_email: data.email,
     contact_name: data.contact_name || data.brand_name,
+    submitter_name: submitterName || data.contact_name || data.brand_name,
+    submitter_id: submitterId || null,
   }
 
   if (appliedCoupon) {
@@ -120,9 +142,10 @@ export async function submitCorporatePost(formData: FormData) {
   }
 
   const { error: txError } = await sbAdmin.from('transactions').insert({
-    user_id: null,
+    user_id: submitterId || null,
     reference,
     amount,
+    currency: 'NGN',
     plan_name: `Corporate Post ${tier.name}`,
     plan_role: `corporate_post_${tier.id}`,
     status: isFree ? 'success' : 'pending',
@@ -137,8 +160,18 @@ export async function submitCorporatePost(formData: FormData) {
   sendCorporatePostReceived(data.email, data.brand_name, tier.name).catch(() => {})
   sendAdminNewSubmission(data.brand_name, data.title).catch(() => {})
 
+  postCorporatePostToSlackWithButtons({
+    id: article.id,
+    title: data.title,
+    slug,
+    brandName: data.brand_name,
+    excerpt: data.excerpt || data.content.substring(0, 160),
+    tier: tier.name,
+    submitterName: submitterName,
+  }).catch(() => {})
+
   if (isFree) {
-    revalidatePath('/corporate-posts')
+    revalidatePath('/directory/corporate-posts')
     return {
       success: true,
       message: 'Your Corporate Post has been submitted for review.',
@@ -155,7 +188,7 @@ export async function submitCorporatePost(formData: FormData) {
         reference,
       }).catch(() => {})
     }
-    revalidatePath('/corporate-posts')
+    revalidatePath('/directory/corporate-posts')
     return {
       success: true,
       message: data.payment_method === 'transfer'

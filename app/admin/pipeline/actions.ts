@@ -22,7 +22,7 @@ export async function approveAndPublishArticle(formData: FormData) {
 
   try {
     // Publish to WordPress
-    const wpResult = await publishArticleToWordPress({
+    await publishArticleToWordPress({
       title: article.title,
       content: article.content,
       excerpt: article.excerpt || '',
@@ -60,7 +60,7 @@ export async function approveAndPublishCorporatePost(formData: FormData) {
 
   try {
     // Publish to WordPress
-    const wpResult = await publishCorporatePostToWordPress({
+    await publishCorporatePostToWordPress({
       title: article.title,
       content: article.content,
       excerpt: article.excerpt || '',

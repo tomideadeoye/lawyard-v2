@@ -2,9 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLawyers, getChambers, getSpecialties } from "@/lib/directory/api";
 import { Lawyer, Chamber, Specialty } from "@/lib/api";
+import { TERMS } from "@/lib/constants";
 import { HeroSearchBar } from "@/components/directory/HeroSearchBar";
-import { Building2 } from "lucide-react";
 import { ListingAvatar } from "@/components/directory/ListingAvatar";
+import { LawyerCard } from "@/components/directory/LawyerCard";
 
 export const dynamic = "force-dynamic";
 
@@ -46,13 +47,13 @@ export default async function Home() {
 
         <div className="relative z-20 text-center px-6 max-w-5xl w-full flex flex-col items-center gap-8">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif italic font-bold text-white tracking-tight leading-[1.05] [text-shadow:0_4px_24px_rgba(0,0,0,0.45)]">
-            Experienced Lawyers Are
+            Experienced {TERMS.lawyer.plural} Are
             <br />
             <span className="text-accent dark:text-[#a77c5c]">Ready To Help</span>
           </h1>
 
           <p className="text-base md:text-lg text-white/80 max-w-2xl leading-relaxed">
-            Nigeria's premier legal directory. Find verified lawyers, distinguished chambers, and trusted counsel across every practice area.
+            Nigeria's premier legal directory. Find verified {TERMS.lawyer.lowerPlural}, distinguished {TERMS.firm.lowerPlural}, and trusted counsel across every practice area.
           </p>
 
           {/* Search Tabs */}
@@ -65,7 +66,7 @@ export default async function Home() {
                 <path d="M3 21V9L12 4L21 9V21H14V14H10V21H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
               </svg>
               <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
-                Chambers
+                {TERMS.firm.plural}
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-accent group-hover:w-full transition-all duration-300" />
               </span>
             </Link>
@@ -80,7 +81,7 @@ export default async function Home() {
                 <path d="M14 14.5c2 .5 4 2 4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
               <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
-                Clients
+                {TERMS.client.plural}
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-accent group-hover:w-full transition-all duration-300" />
               </span>
             </Link>
@@ -93,7 +94,7 @@ export default async function Home() {
                 <path d="M9 7l3-4 3 4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
               </svg>
               <span className="text-xs font-semibold tracking-wide uppercase relative pb-1">
-                Lawyers
+                {TERMS.lawyer.plural}
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-full bg-accent" />
               </span>
             </Link>
@@ -127,8 +128,8 @@ export default async function Home() {
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/30 rounded-2xl overflow-hidden shadow-2xl border border-border/40 bg-card">
             {[
-              { value: "2,500+", label: "Verified Lawyers" },
-              { value: "180+", label: "Chambers" },
+              { value: "2,500+", label: `Verified ${TERMS.lawyer.plural}` },
+              { value: "180+", label: TERMS.firm.plural },
               { value: "24", label: "Practice Areas" },
               { value: "6", label: "Cities Covered" },
             ].map((stat) => (
@@ -153,7 +154,7 @@ export default async function Home() {
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-serif italic text-foreground">
-              Featured Lawyer Listings
+              Featured {TERMS.lawyer.singular} Listings
             </h2>
             <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
               Hand-picked practitioners with proven track records across Nigeria.
@@ -162,40 +163,19 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {lawyers.map((l) => (
-              <Link
+              <LawyerCard
                 key={l.id}
-                href={`/lawyer/${l.id}`}
-                className="group flex flex-col gap-5 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                    <ListingAvatar src={l.image} name={l.name} type="lawyer" />
-                  </div>
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                      {l.name}
-                    </h3>
-                    <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-1.5">
-                      {l.role}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-base text-muted-foreground leading-relaxed line-clamp-2">
-                  {l.specialties.join(" · ")}
-                </p>
-                <div className="flex items-center justify-between pt-4 border-t border-border/50 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5 font-semibold">
-                    <span className="text-amber-500 text-base">★</span>
-                    <span className="text-foreground">{l.rating}</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 truncate ml-2">
-                    <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor">
-                      <path d="M6 0C3.8 0 2 1.8 2 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5C5.2 5.5 4.5 4.8 4.5 4S5.2 2.5 6 2.5 7.5 3.2 7.5 4 6.8 5.5 6 5.5z" />
-                    </svg>
-                    <span className="truncate">{l.location}</span>
-                  </span>
-                </div>
-              </Link>
+                id={l.id}
+                name={l.name}
+                role={l.role}
+                image={l.image}
+                specialties={l.specialties}
+                rating={l.rating}
+                reviews={l.reviews}
+                location={l.location}
+                experience={l.experience}
+                verified={l.verified}
+              />
             ))}
           </div>
         </div>
@@ -207,7 +187,7 @@ export default async function Home() {
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-serif italic text-foreground">
-              Featured Chamber Listings
+              Featured {TERMS.firm.singular} Listings
             </h2>
             <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
               Distinguished legal practices with deep institutional expertise.
@@ -276,7 +256,7 @@ export default async function Home() {
                   <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3">For Clients</h3>
+              <h3 className="text-xl font-bold text-foreground mb-3">For {TERMS.client.plural}</h3>
               <p className="text-base text-muted-foreground leading-relaxed">
                 Find the right legal counsel for any matter, from corporate disputes to family law, with verified reviews and transparent pricing.
               </p>
@@ -288,9 +268,9 @@ export default async function Home() {
                   <path d="M12 3v18M5 7h14M5 7l-2 2v8a2 2 0 002 2h14a2 2 0 002-2V9l-2-2" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3">For Lawyers</h3>
+              <h3 className="text-xl font-bold text-foreground mb-3">For {TERMS.lawyer.plural}</h3>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Build your professional presence. Get discovered by clients actively seeking your expertise and grow your practice.
+                Build your professional presence. Get discovered by {TERMS.client.lowerPlural} actively seeking your expertise and grow your practice.
               </p>
             </div>
 
@@ -300,9 +280,9 @@ export default async function Home() {
                   <path d="M3 21V9L12 4L21 9V21H14V14H10V21H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3">For Chambers</h3>
+              <h3 className="text-xl font-bold text-foreground mb-3">For {TERMS.firm.plural}</h3>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  Showcase your firm's collective expertise, manage member profiles, and attract institutional clients at scale.
+                  Showcase your firm's collective expertise, manage member profiles, and attract institutional {TERMS.client.lowerPlural} at scale.
                 </p>
             </div>
           </div>

@@ -83,6 +83,7 @@ export async function initializeShopPayment(
       email: billingDetails.email || user.email!,
       amount: totalAmount,
       reference,
+      currency: 'NGN',
       callback_url: callbackUrl,
       metadata: {
         user_id: user.id,

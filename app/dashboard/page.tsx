@@ -155,7 +155,7 @@ export default async function DashboardOverview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {transactions.slice(0, 10).map((tx, i) => (
+                    {transactions.slice(0, 10).map((tx) => (
                       <tr key={tx.id} className="border-b border-border/20 last:border-0">
                         <td className="p-3 font-mono text-xs">{tx.reference.slice(0, 12)}&hellip;</td>
                         <td className="p-3 text-muted-foreground text-xs hidden sm:table-cell truncate max-w-[140px]">{tx.plan_name}</td>
@@ -196,9 +196,9 @@ export default async function DashboardOverview() {
                 <Link href="/dashboard/account" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Account Settings &rarr;
                 </Link>
-                <Link href="/corporate-posts/submit" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
+                <a href="https://directory.lawyard.org/corporate-posts/submit" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Submit Corporate Post &rarr;
-                </Link>
+                </a>
                 <Link href="/shop" className="block text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
                   Browse Legislations &rarr;
                 </Link>

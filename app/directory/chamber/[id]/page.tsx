@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getChamberById } from '@/lib/directory/api';
 import { ListingAvatar } from '@/components/directory/ListingAvatar';
+import { TERMS } from '@/lib/constants';
 
 interface ChamberLawyer {
   id: string;
@@ -31,6 +32,15 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
     `)
     .eq('chamber_id', id)
     .returns<ChamberLawyer[]>();
+
+  const { data: pressReleases } = await supabase
+    .from('articles')
+    .select('id, title, slug, excerpt, created_at')
+    .eq('chamber_id', id)
+    .eq('article_type', 'press_release')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(6);
 
   // Aggregate practice areas across all member lawyers
   const practiceAreas = new Map<string, number>();
@@ -124,6 +134,49 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
               </section>
             )}
 
+            {/* Intro Video */}
+            {chamber.intro_video_url && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Introductory Video</h2>
+                <div className="aspect-video rounded-xl overflow-hidden bg-muted/20">
+                  {/\.(mp4|webm|mov)(\?.*)?$/i.test(chamber.intro_video_url) || chamber.intro_video_url.includes('/intro-videos/') ? (
+                    <video src={chamber.intro_video_url} controls className="w-full h-full" />
+                  ) : (
+                    <iframe src={chamber.intro_video_url.replace('watch?v=', 'embed/')} className="w-full h-full" allowFullScreen />
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* Gallery */}
+            {Array.isArray(chamber.gallery_images) && chamber.gallery_images.length > 0 && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Gallery</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {chamber.gallery_images.map((url: string, i: number) => (
+                    <div key={i} className="aspect-[4/3] rounded-lg overflow-hidden border border-border/30 bg-muted">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* FAQs */}
+            {Array.isArray(chamber.faqs) && chamber.faqs.length > 0 && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">FAQs</h2>
+                <div className="space-y-4">
+                  {chamber.faqs.map((f: { question: string; answer: string }, i: number) => (
+                    <div key={i}>
+                      <p className="text-sm font-semibold">{f.question}</p>
+                      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{f.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Our Lawyers */}
             {lawyers && lawyers.length > 0 && (
               <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
@@ -177,10 +230,32 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
               </section>
             )}
 
+            {/* Announcements & Press */}
+            {(pressReleases?.length ?? 0) > 0 && (
+              <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Announcements &amp; Press</h2>
+                <div className="space-y-4">
+                  {pressReleases!.map((pr) => (
+                    <article key={pr.id} className="pb-4 border-b border-border/30 last:border-0 last:pb-0">
+                      <Link href={`/insights/${pr.slug}`} className="group block no-underline">
+                        <time className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                          {new Date(pr.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </time>
+                        <h3 className="text-base font-semibold mt-1 group-hover:text-primary transition-colors">{pr.title}</h3>
+                        {pr.excerpt && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{pr.excerpt}</p>
+                        )}
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* No lawyers message */}
             {(!lawyers || lawyers.length === 0) && (
               <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-8 text-center">
-                <p className="text-sm text-muted-foreground">No lawyers listed for this chamber yet.</p>
+                <p className="text-sm text-muted-foreground">No {TERMS.lawyer.lowerPlural} listed for this {TERMS.firm.lower} yet.</p>
               </section>
             )}
           </div>
@@ -216,6 +291,21 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
                       <p className="text-sm font-medium mt-0.5">{chamber.location}</p>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Working Hours */}
+            {Array.isArray(chamber.working_hours) && chamber.working_hours.length > 0 && (
+              <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+                <h3 className="text-sm font-bold mb-4">Working Hours</h3>
+                <div className="space-y-2">
+                  {chamber.working_hours.map((h: { day: string; hours: string }, i: number) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{h.day}</span>
+                      <span className="font-medium">{h.hours}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Image from "next/image"
 
 // Custom SVGs for social media icons
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -162,7 +161,7 @@ export default function Footer() {
             <Link href="/tv" className="hover:text-white transition-colors no-underline">TV</Link>
             <Link href="/podcasts" className="hover:text-white transition-colors no-underline">Podcasts</Link>
             <Link href="/shop" className="hover:text-white transition-colors no-underline">Shop</Link>
-            <Link href="/corporate-posts/submit" className="hover:text-white transition-colors no-underline">Corporate Posts</Link>
+            <a href="https://directory.lawyard.org/corporate-posts/submit" className="hover:text-white transition-colors no-underline">Corporate Posts</a>
             <Link href="/about" className="hover:text-white transition-colors no-underline">About</Link>
             <Link href="/contact" className="hover:text-white transition-colors no-underline">Contact</Link>
           </div>
@@ -200,7 +199,7 @@ export default function Footer() {
 
         {/* Lower Row: Copyright Notice */}
         <div className="max-w-7xl mx-auto pt-6 mt-6 border-t border-white/5 text-center text-[8.5px] font-bold uppercase tracking-widest text-white/40">
-          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY <a href="https://www.merislabs.com" target="_blank" rel="noopener noreferrer" className="hover:underline">MERISLABS</a></p>
+          <p>© COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY <a href="https://merislabs-merislabs.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:underline">MERISLABS</a></p>
         </div>
 
         {/* Vertical Scroll to Top (Positioned bottom right) */}

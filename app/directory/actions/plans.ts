@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
+import { formatNGN } from '@/lib/currency'
 
 export type PlanFeature = {
   name: string
@@ -56,7 +57,7 @@ export const getPlans = unstable_cache(
         id: plan.id,
         role: plan.role,
         name: plan.name,
-        price: `$${Number(plan.price).toFixed(2)}`,
+        price: formatNGN(plan.price),
         period: plan.period,
         subtitle: plan.subtitle || '',
         description: plan.description || '',

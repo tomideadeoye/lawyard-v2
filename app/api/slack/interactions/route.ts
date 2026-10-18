@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { publishArticleToWordPress, publishCorporatePostToWordPress } from '@/lib/wordpress'
+import { publishArticleToWordPress, publishCorporatePostToWordPress, publishPodcastToWordPress, updateWordPressPostStatus } from '@/lib/wordpress'
 
 const SIGNING_SECRET = process.env.DIRECTORY_SLACK_SIGNING_SECRET || ''
 
@@ -37,35 +37,39 @@ function parsePayload(body: string): Record<string, unknown> | null {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.text()
-  const signature = request.headers.get('x-slack-signature') || ''
-  const timestamp = request.headers.get('x-slack-request-timestamp') || ''
+  try {
+    const body = await request.text()
+    const signature = request.headers.get('x-slack-signature') || ''
+    const timestamp = request.headers.get('x-slack-request-timestamp') || ''
 
-  if (!verifySignature(body, signature, timestamp)) {
-    return new Response('Invalid signature', { status: 401 })
-  }
+    if (!verifySignature(body, signature, timestamp)) {
+      console.error('[Slack] Invalid signature')
+      return new Response('Invalid signature', { status: 401 })
+    }
 
-  const payload = parsePayload(body)
-  if (!payload) {
-    return new Response('Invalid payload', { status: 400 })
-  }
+    const payload = parsePayload(body)
+    if (!payload) {
+      console.error('[Slack] Invalid payload')
+      return new Response('Invalid payload', { status: 400 })
+    }
 
-  if (payload.type !== 'block_actions') {
-    return new Response('Ignored', { status: 200 })
-  }
+    if (payload.type !== 'block_actions') {
+      return new Response('Ignored', { status: 200 })
+    }
 
-  const actions = payload.actions as Array<{ action_id: string; value: string }> | undefined
-  if (!actions || actions.length === 0) {
-    return new Response('No actions', { status: 400 })
-  }
+    const actions = payload.actions as Array<{ action_id: string; value: string }> | undefined
+    if (!actions || actions.length === 0) {
+      console.error('[Slack] No actions in payload')
+      return new Response('No actions', { status: 400 })
+    }
 
-  const action = actions[0]
-  const { action_id, value: articleId } = action
-  const user = payload.user as { id: string; username?: string; name?: string } | undefined
-  const userName = user?.name || user?.username || 'Someone'
-  const responseUrl = payload.response_url as string | undefined
+    const action = actions[0]
+    const { action_id, value: articleId } = action
+    const user = payload.user as { id: string; username?: string; name?: string } | undefined
+    const userName = user?.name || user?.username || 'Someone'
+    const responseUrl = payload.response_url as string | undefined
 
-  const sbAdmin = createServiceRoleClient()
+    const sbAdmin = createServiceRoleClient()
 
   if (action_id === 'approve_article') {
     const { data: article, error: fetchError } = await sbAdmin
@@ -79,14 +83,16 @@ export async function POST(request: NextRequest) {
       return new Response('Article not found', { status: 404 })
     }
 
+    let wpPostId: number | null = null
     try {
-      await publishArticleToWordPress({
+      const wpResult = await publishArticleToWordPress({
         title: article.title,
         content: article.content,
         excerpt: article.excerpt || '',
         featured_image: article.featured_image,
         status: 'publish',
       })
+      wpPostId = wpResult?.id ?? null
     } catch (wpError) {
       console.error('Failed to publish to WordPress:', wpError)
       return new Response('WordPress publish failed', { status: 500 })
@@ -102,6 +108,9 @@ export async function POST(request: NextRequest) {
       return new Response('Database error', { status: 500 })
     }
 
+    const viewUrl = wpPostId ? `https://www.lawyard.org/wp-admin/post.php?post=${wpPostId}&action=edit` : null
+    const buttonValue = wpPostId ? JSON.stringify({ a: articleId, w: wpPostId }) : articleId
+
     if (responseUrl) {
       await fetch(responseUrl, {
         method: 'POST',
@@ -115,6 +124,13 @@ export async function POST(request: NextRequest) {
                 type: 'mrkdwn',
                 text: `✅ *Article Approved*\nApproved by ${userName}\nPublished to lawyard.org\nID: \`${articleId}\``,
               },
+            },
+            {
+              type: 'actions',
+              elements: [
+                ...(viewUrl ? [{ type: 'button', text: { type: 'plain_text', text: '👁 View on WordPress', emoji: true }, url: viewUrl, action_id: 'view_wp_post' }] : []),
+                { type: 'button', text: { type: 'plain_text', text: '↩ Rescind', emoji: true }, style: 'danger', value: buttonValue, action_id: 'rescind_article' },
+              ],
             },
           ],
         }),
@@ -172,18 +188,55 @@ export async function POST(request: NextRequest) {
     const isScheduled = !!article.scheduled_date
     const wpStatus = isScheduled ? 'future' : 'publish'
 
+    const { data: tx } = await sbAdmin
+      .from('transactions')
+      .select('metadata')
+      .eq('metadata->>article_id', articleId)
+      .single()
+
+    let contactEmail = (tx?.metadata as Record<string, unknown> | null)?.contact_email as string | undefined
+    const submitterName = (tx?.metadata as Record<string, unknown> | null)?.submitter_name as string | undefined
+
+    // If article has an author_id, try to use their profile email instead
+    if (article.author_id && !contactEmail) {
+      const { data: profile } = await sbAdmin
+        .from('profiles')
+        .select('email')
+        .eq('id', article.author_id)
+        .single()
+      if (profile?.email) {
+        contactEmail = profile.email
+      }
+    }
+
+    let wpPostId: number | null = null
     try {
-      await publishCorporatePostToWordPress({
+      const wpResult = await publishCorporatePostToWordPress({
         title: article.title,
         content: article.content,
         excerpt: article.excerpt || '',
         featured_image: article.featured_image,
         status: wpStatus,
+        brand_name: article.brand_name,
+        tier: article.tier,
+        contact_email: contactEmail,
+        submitter_name: submitterName,
         ...(isScheduled ? { date_gmt: new Date(article.scheduled_date).toISOString() } : {}),
       })
+      wpPostId = wpResult?.id ?? null
     } catch (wpError) {
-      console.error('Failed to publish corporate post to WordPress:', wpError)
-      return new Response('WordPress publish failed', { status: 500 })
+      const msg = wpError instanceof Error ? wpError.message : 'WordPress publish failed'
+      console.error('Failed to publish corporate post to WordPress:', msg)
+      if (responseUrl) {
+        fetch(responseUrl, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            replace_original: true,
+            blocks: [{ type: 'section', text: { type: 'mrkdwn', text: `❌ *Corporate Post Publish Failed*\n${msg}\nArticle remains in pending_review.` } }],
+          }),
+        }).catch(() => {})
+      }
+      return Response.json({ ok: false, error: msg })
     }
 
     const { error: updateError } = await sbAdmin
@@ -197,19 +250,25 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('Failed to update corporate post:', updateError)
-      return new Response('Database error', { status: 500 })
+      if (responseUrl) {
+        fetch(responseUrl, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            replace_original: true,
+            blocks: [{ type: 'section', text: { type: 'mrkdwn', text: `❌ *Database Error*\n${updateError.message}\nID: \`${articleId}\`` } }],
+          }),
+        }).catch(() => {})
+      }
+      return Response.json({ ok: false, error: updateError.message })
     }
 
-    const { data: profile } = await sbAdmin
-      .from('profiles')
-      .select('email')
-      .eq('id', article.author_id)
-      .single()
-
-    if (profile?.email) {
+    if (contactEmail) {
       const { sendCorporatePostApproved } = await import('@/lib/api/email')
-      sendCorporatePostApproved(profile.email, article.brand_name || 'Corporate Post').catch(() => {})
+      sendCorporatePostApproved(contactEmail, article.brand_name || 'Corporate Post').catch(() => {})
     }
+
+    const viewUrl = wpPostId ? `https://www.lawyard.org/wp-admin/post.php?post=${wpPostId}&action=edit` : null
+    const buttonValue = wpPostId ? JSON.stringify({ a: articleId, w: wpPostId }) : articleId
 
     if (responseUrl) {
       await fetch(responseUrl, {
@@ -224,6 +283,13 @@ export async function POST(request: NextRequest) {
                 type: 'mrkdwn',
                 text: `✅ *Corporate Post Approved*\nApproved by ${userName}\n${isScheduled ? `Scheduled for ${new Date(article.scheduled_date).toLocaleDateString()}` : 'Published to lawyard.org'}\nID: \`${articleId}\``,
               },
+            },
+            {
+              type: 'actions',
+              elements: [
+                ...(viewUrl ? [{ type: 'button', text: { type: 'plain_text', text: '👁 View on WordPress', emoji: true }, url: viewUrl, action_id: 'view_wp_post' }] : []),
+                { type: 'button', text: { type: 'plain_text', text: '↩ Rescind', emoji: true }, style: 'danger', value: buttonValue, action_id: 'rescind_corporate_post' },
+              ],
             },
           ],
         }),
@@ -259,6 +325,207 @@ export async function POST(request: NextRequest) {
               },
             },
           ],
+        }),
+      }).catch((e) => console.error('Failed to update Slack message:', e))
+    }
+
+    return Response.json({ ok: true })
+  }
+
+  /* ── Link button handlers (acknowledge to prevent 400 in Slack) ── */
+  if (['view_article', 'open_article', 'view_corporate_post', 'open_corporate_post', 'view_podcast', 'open_podcast', 'open_editor_bp', 'view_wp_post'].includes(action_id)) {
+    return Response.json({ ok: true })
+  }
+
+  if (action_id === 'rescind_article') {
+    let wpPostId: number | null = null
+    let rescindId = articleId
+    try {
+      const parsed = JSON.parse(articleId)
+      wpPostId = parsed.w ?? null
+      rescindId = parsed.a ?? articleId
+    } catch {}
+
+    try {
+      if (wpPostId) await updateWordPressPostStatus(wpPostId, 'draft')
+    } catch (wpError) {
+      console.error('Failed to rescind WordPress post:', wpError)
+    }
+
+    const { error: updateError } = await sbAdmin
+      .from('articles')
+      .update({ status: 'pending_review', updated_at: new Date().toISOString() })
+      .eq('id', rescindId)
+
+    if (updateError) {
+      console.error('Failed to rescind article:', updateError)
+      return new Response('Database error', { status: 500 })
+    }
+
+    if (responseUrl) {
+      await fetch(responseUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replace_original: true,
+          blocks: [{ type: 'section', text: { type: 'mrkdwn', text: `↩ *Article Rescinded*\nRescinded by ${userName}\nPost moved back to pending_review.${wpPostId ? '\nWordPress post reverted to draft.' : ''}\nID: \`${rescindId}\`` } }],
+        }),
+      }).catch((e) => console.error('Failed to update Slack message:', e))
+    }
+
+    return Response.json({ ok: true })
+  }
+
+  if (action_id === 'rescind_corporate_post') {
+    let wpPostId: number | null = null
+    let rescindArticleId = articleId
+    try {
+      const parsed = JSON.parse(articleId)
+      wpPostId = parsed.w ?? null
+      rescindArticleId = parsed.a ?? articleId
+    } catch {}
+
+    try {
+      if (wpPostId) await updateWordPressPostStatus(wpPostId, 'draft')
+    } catch (wpError) {
+      console.error('Failed to rescind WordPress post:', wpError)
+    }
+
+    const { error: updateError } = await sbAdmin
+      .from('articles')
+      .update({ status: 'pending_review', updated_at: new Date().toISOString() })
+      .eq('id', rescindArticleId)
+
+    if (updateError) {
+      console.error('Failed to rescind article:', updateError)
+      return new Response('Database error', { status: 500 })
+    }
+
+    if (responseUrl) {
+      await fetch(responseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replace_original: true,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `↩ *Corporate Post Rescinded*\nRescinded by ${userName}\nPost moved back to pending_review.${wpPostId ? '\nWordPress post reverted to draft.' : ''}\nID: \`${rescindArticleId}\``,
+              },
+            },
+          ],
+        }),
+      }).catch((e) => console.error('Failed to update Slack message:', e))
+    }
+
+    return Response.json({ ok: true })
+  }
+
+  if (action_id === 'approve_podcast') {
+    const { data: podcast, error: fetchError } = await sbAdmin
+      .from('podcasts')
+      .select('*')
+      .eq('id', articleId)
+      .single()
+
+    if (fetchError || !podcast) {
+      console.error('Failed to fetch podcast:', fetchError)
+      return new Response('Podcast not found', { status: 404 })
+    }
+
+    let wpPostId: number | null = null
+    try {
+      const wpResult = await publishPodcastToWordPress({
+        title: podcast.title,
+        description: podcast.description || '',
+        media_url: podcast.media_url,
+        media_type: podcast.media_type,
+        status: 'publish',
+        authorName: null,
+      })
+      wpPostId = wpResult?.id ?? null
+    } catch (wpError) {
+      console.error('Failed to publish podcast to WordPress:', wpError)
+    }
+
+    const { error: updateError } = await sbAdmin
+      .from('podcasts')
+      .update({ status: 'published', updated_at: new Date().toISOString() })
+      .eq('id', articleId)
+
+    if (updateError) {
+      console.error('Failed to approve podcast:', updateError)
+      return new Response('Database error', { status: 500 })
+    }
+
+    const viewUrl = wpPostId
+      ? `https://www.lawyard.org/wp-admin/post.php?post=${wpPostId}&action=edit`
+      : `https://directory.lawyard.org/knowledge/${podcast.slug}`
+
+    if (responseUrl) {
+      await fetch(responseUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replace_original: true,
+          blocks: [
+            { type: 'section', text: { type: 'mrkdwn', text: `✅ *Podcast Approved*\nApproved by ${userName}\nID: \`${articleId}\`` } },
+            {
+              type: 'actions',
+              elements: [
+                { type: 'button', text: { type: 'plain_text', text: '👁 View on WordPress', emoji: true }, url: viewUrl, action_id: 'view_wp_post' },
+                { type: 'button', text: { type: 'plain_text', text: '↩ Rescind', emoji: true }, style: 'danger', value: articleId, action_id: 'rescind_podcast' },
+              ],
+            },
+          ],
+        }),
+      }).catch((e) => console.error('Failed to update Slack message:', e))
+    }
+
+    return Response.json({ ok: true })
+  }
+
+  if (action_id === 'deny_podcast') {
+    const { error } = await sbAdmin
+      .from('podcasts')
+      .update({ status: 'archived', updated_at: new Date().toISOString() })
+      .eq('id', articleId)
+
+    if (error) {
+      console.error('Failed to deny podcast:', error)
+      return new Response('Database error', { status: 500 })
+    }
+
+    if (responseUrl) {
+      await fetch(responseUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replace_original: true,
+          blocks: [{ type: 'section', text: { type: 'mrkdwn', text: `❌ *Podcast Denied*\nDenied by ${userName}\nID: \`${articleId}\`` } }],
+        }),
+      }).catch((e) => console.error('Failed to update Slack message:', e))
+    }
+
+    return Response.json({ ok: true })
+  }
+
+  if (action_id === 'rescind_podcast') {
+    const { error } = await sbAdmin
+      .from('podcasts')
+      .update({ status: 'pending_review', updated_at: new Date().toISOString() })
+      .eq('id', articleId)
+
+    if (error) {
+      console.error('Failed to rescind podcast:', error)
+      return new Response('Database error', { status: 500 })
+    }
+
+    if (responseUrl) {
+      await fetch(responseUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          replace_original: true,
+          blocks: [{ type: 'section', text: { type: 'mrkdwn', text: `↩ *Podcast Rescinded*\nRescinded by ${userName}\nPost moved back to pending_review.\nID: \`${articleId}\`` } }],
         }),
       }).catch((e) => console.error('Failed to update Slack message:', e))
     }
@@ -374,4 +641,10 @@ export async function POST(request: NextRequest) {
   }
 
   return new Response('Unknown action', { status: 400 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    const stack = err instanceof Error ? err.stack : ''
+    console.error('[Slack] Unhandled error:', message, stack)
+    return new Response(`Internal error: ${message}`, { status: 500 })
+  }
 }

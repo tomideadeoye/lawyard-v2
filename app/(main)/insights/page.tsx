@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getPublishedArticles, formatDate } from '@/lib/api/articles'
+import { getPublishedArticles } from '@/lib/api/articles'
 import { ArticleCard } from '@/components/ui/article-card'
 import Link from 'next/link'
 
@@ -27,7 +27,7 @@ export default async function InsightsPage({
   const supabase = await createClient()
   const articles = await getPublishedArticles(supabase, {
     category: category || undefined,
-    excludeType: 'corporate_post',
+    excludeType: ['corporate_post', 'press_release'],
   })
 
   return (

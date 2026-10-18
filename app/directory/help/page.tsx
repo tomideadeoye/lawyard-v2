@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, BookOpen, HelpCircle } from "lucide-react";
+import { TERMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { KB_CATEGORIES, ARTICLES } from "./data";
 
@@ -147,7 +148,7 @@ function ArticleView({ slug }: { slug: string }) {
 
 function WelcomeView() {
   const mainCategories = KB_CATEGORIES.filter(
-    (cat) => cat.name === "For Clients" || cat.name === "For Lawyers" || cat.name === "For Chambers"
+    (cat) => cat.name === `For ${TERMS.client.plural}` || cat.name === `For ${TERMS.lawyer.plural}` || cat.name === `For ${TERMS.firm.plural}`
   );
 
   return (
@@ -167,8 +168,8 @@ function WelcomeView() {
           </p>
           <div className="space-y-4 text-base text-muted-foreground leading-relaxed border-l-2 border-[#a77c5c]/30 pl-5 py-2">
             <p>Lawyard Directory is Nigeria&apos;s premier legal marketplace, connecting individuals and businesses with legal professionals across the country.</p>
-            <p>Browse lawyer and chamber listings by specialty, location, or search directly. Each profile includes practice areas, experience, ratings, and direct contact information.</p>
-            <p>To get started, use the search bar or browse specialties to find the right legal professional for your needs. You can compare listings, read reviews, and contact lawyers directly through the platform.</p>
+            <p>Browse {TERMS.lawyer.lower} and {TERMS.firm.lower} listings by specialty, location, or search directly. Each profile includes practice areas, experience, ratings, and direct contact information.</p>
+            <p>To get started, use the search bar or browse specialties to find the right legal professional for your needs. You can compare listings, read reviews, and contact {TERMS.lawyer.lowerPlural} directly through the platform.</p>
           </div>
         </div>
 

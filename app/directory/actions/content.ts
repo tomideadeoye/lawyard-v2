@@ -2,7 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { postArticleToSlackWithButtons, postPodcastToSlack } from '@/lib/slack';
+import { postArticleToSlackWithButtons, postPodcastToSlackWithButtons } from '@/lib/slack';
+import { validateCoupon } from '@/app/actions/validate-coupon';
+import { consumePostAllowance } from '@/app/directory/actions/publishing';
 
 export async function publishArticle(formData: FormData) {
   const supabase = await createClient();
@@ -16,6 +18,25 @@ export async function publishArticle(formData: FormData) {
   const excerpt = formData.get('excerpt') as string || content.substring(0, 160).replace(/<[^>]*>/g, '') + '...';
   const featured_image = formData.get('featured_image') as string || null;
   const scheduled_date = formData.get('scheduled_date') as string || null;
+  const couponCode = formData.get('coupon_code') as string || '';
+
+  // Post cap (C05): a valid publishing coupon overrides the cap; otherwise the
+  // tier allowance applies (free = 1 total, paid = 3/month, then paid extras).
+  let couponOverride = false;
+  if (couponCode) {
+    const couponResult: any = await validateCoupon(couponCode, 0)
+    if (!couponResult.valid) {
+      return { error: 'That publishing code is not valid. Remove it to publish with your plan allowance.' }
+    }
+    if (!couponResult.isFree) {
+      return { error: 'This coupon does not grant free publishing. Please use a valid publishing coupon.' }
+    }
+    couponOverride = true
+  }
+  if (!couponOverride) {
+    const gate = await consumePostAllowance(user.id)
+    if (!gate.allowed) return { error: gate.error }
+  }
 
   let categories: string[] = ['general-practice'];
   try {
@@ -72,6 +93,10 @@ export async function publishPodcast(formData: FormData) {
 
   if (!user) throw new Error('Unauthorized');
 
+  // Post cap (C05) — articles and podcasts share one allowance.
+  const gate = await consumePostAllowance(user.id)
+  if (!gate.allowed) return { error: gate.error }
+
   const title = formData.get('title') as string;
   const media_url = formData.get('media_url') as string;
   const media_type = formData.get('media_type') as string;
@@ -86,7 +111,7 @@ export async function publishPodcast(formData: FormData) {
 
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  const { error } = await supabase
+  const { data: podcast, error } = await supabase
     .from('podcasts')
     .insert([{
       title, 
@@ -98,7 +123,9 @@ export async function publishPodcast(formData: FormData) {
       author_id: user.id, 
       status: 'pending_review',
       scheduled_date: scheduled_date,
-    }]);
+    }])
+    .select('id')
+    .single();
 
   if (error) throw new Error(error.message);
 
@@ -113,7 +140,8 @@ export async function publishPodcast(formData: FormData) {
   const dateNote = scheduled_date 
     ? `\n📅 Scheduled for: ${new Date(scheduled_date).toLocaleDateString()}` 
     : '';
-  await postPodcastToSlack({
+  await postPodcastToSlackWithButtons({
+    id: podcast.id,
     title,
     slug,
     description: (description || '') + dateNote,

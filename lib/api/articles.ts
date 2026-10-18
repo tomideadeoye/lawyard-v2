@@ -41,7 +41,7 @@ export function formatDate(date: string, style: 'full' | 'short' = 'full'): stri
 
 export async function getPublishedArticles(
   supabase: SupabaseClient,
-  opts?: { category?: string; excludeType?: string; limit?: number }
+  opts?: { category?: string; excludeType?: string | string[]; limit?: number }
 ): Promise<ArticleWithAuthor[]> {
   let query = supabase
     .from('articles')
@@ -50,7 +50,10 @@ export async function getPublishedArticles(
     .order('created_at', { ascending: false })
 
   if (opts?.category) query = query.eq('category', opts.category)
-  if (opts?.excludeType) query = query.neq('article_type', opts.excludeType)
+  if (opts?.excludeType) {
+    const types = Array.isArray(opts.excludeType) ? opts.excludeType : [opts.excludeType]
+    query = query.not('article_type', 'in', `(${types.join(',')})`)
+  }
   if (opts?.limit) query = query.limit(opts.limit)
 
   const { data } = await query

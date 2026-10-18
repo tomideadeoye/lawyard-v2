@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react';
 import { uploadListingImage } from '@/app/directory/actions/upload-listing-image';
-import { Button } from '@/components/ui/button';
 
 interface GalleryUploadProps {
   value: string[];

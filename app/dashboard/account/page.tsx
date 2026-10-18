@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 export default function AccountPage() {
   const router = useRouter()
   const supabase = createClient()
-  const [currentPassword, setCurrentPassword] = useState('')
+  const [, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [loading, setLoading] = useState(false)

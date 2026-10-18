@@ -19,6 +19,8 @@ import FaqEditor from './listing/FaqEditor';
 import SocialLinksEditor from './listing/SocialLinksEditor';
 import GalleryUpload from './listing/GalleryUpload';
 import WorkingHoursEditor from './listing/WorkingHoursEditor';
+import IntroVideoField from './listing/IntroVideoField';
+import { galleryCapFor, isPaidTier } from '@/lib/directory/publishing';
 
 const STEPS = [
   { label: 'General', description: 'Basic info & specialties' },
@@ -35,16 +37,6 @@ const PRICE_OPTIONS = [
   { value: 'economy', label: 'Economy ($$)' },
   { value: 'moderate', label: 'Moderate ($$$)' },
   { value: 'ultra_high', label: 'Ultra High ($$$$)' },
-];
-const SENIORITY_OPTIONS = [
-  { value: '', label: 'Select Seniority' },
-  { value: 'junior_associate', label: 'Junior Associate' },
-  { value: 'associate', label: 'Associate' },
-  { value: 'senior_associate', label: 'Senior Associate' },
-  { value: 'partner', label: 'Partner' },
-  { value: 'managing_partner', label: 'Managing Partner' },
-  { value: 'of_counsel', label: 'Of Counsel' },
-  { value: 'san', label: 'Senior Advocate of Nigeria (SAN)' },
 ];
 const LISTING_TYPE_OPTIONS = [
   { value: 'general', label: 'General' },
@@ -78,6 +70,7 @@ interface FormState {
   address: string;
   zip_code: string;
   price_range: string;
+  hide_price: boolean;
   hide_contact_form: boolean;
   listing_type: string;
   calendly_url: string;
@@ -90,7 +83,7 @@ const INITIAL_STATE: FormState = {
   education: [], organization_memberships: [], publications: [], awards: [], volunteer_pro_bono: [],
   image_url: null, intro_video_url: '', gallery_images: [],
   faqs: [], social_links: [], working_hours: [],
-  address: '', zip_code: '', price_range: '', hide_contact_form: false, listing_type: 'general', calendly_url: '',
+  address: '', zip_code: '', price_range: '', hide_price: false, hide_contact_form: false, listing_type: 'general', calendly_url: '',
 };
 
 
@@ -116,6 +109,22 @@ export default function LawyerForm() {
     },
     staleTime: 1000 * 60 * 5,
   });
+
+  const { data: tier = 'free' } = useQuery({
+    queryKey: ['profile-tier'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 'free';
+      const { data } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .maybeSingle();
+      return (data?.subscription_tier as string) || 'free';
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+  const isPremium = isPaidTier(tier);
 
   useEffect(() => {
     if (existingListing && !hydrated.current) {
@@ -148,6 +157,7 @@ export default function LawyerForm() {
         address: (ls.address as string) || '',
         zip_code: (ls.zip_code as string) || '',
         price_range: (ls.price_range as string) || '',
+        hide_price: (ls.hide_price as boolean) || false,
         hide_contact_form: (ls.hide_contact_form as boolean) || false,
         listing_type: (ls.listing_type as string) || 'general',
         calendly_url: (ls.calendly_url as string) || '',
@@ -354,15 +364,10 @@ export default function LawyerForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ImageUpload label="Profile Picture" value={form.image_url} onChange={v => update('image_url', v)} />
-            <Field>
-              <FieldLabel htmlFor="intro_video_url" className="text-xs uppercase tracking-wider text-accent font-bold">Introductory Video</FieldLabel>
-              <Input type="url" name="intro_video_url" id="intro_video_url" placeholder="YouTube or Vimeo URL"
-                value={form.intro_video_url} onChange={e => update('intro_video_url', e.target.value)} />
-              <p className="text-xs text-muted-foreground mt-1">YouTube & Vimeo URLs only.</p>
-            </Field>
+            <IntroVideoField value={form.intro_video_url} onChange={v => update('intro_video_url', v)} isPremium={isPremium} />
           </div>
 
-          <GalleryUpload value={form.gallery_images} onChange={v => update('gallery_images', v)} />
+          <GalleryUpload value={form.gallery_images} onChange={v => update('gallery_images', v)} maxImages={galleryCapFor(tier)} />
         </div>
       )}
 
@@ -417,12 +422,6 @@ export default function LawyerForm() {
                 value={form.website} onChange={e => update('website', e.target.value)} />
             </Field>
             <Field>
-              <FieldLabel htmlFor="calendly_url" className="text-xs uppercase tracking-wider text-accent font-bold">Calendly Booking Link</FieldLabel>
-              <Input type="url" name="calendly_url" id="calendly_url" placeholder="https://calendly.com/your-name"
-                value={form.calendly_url} onChange={e => update('calendly_url', e.target.value)} />
-              <p className="text-xs text-muted-foreground mt-1">Clients will see a &ldquo;Book Consultation&rdquo; button linking to your Calendly.</p>
-            </Field>
-            <Field>
               <FieldLabel htmlFor="price_range" className="text-xs uppercase tracking-wider text-accent font-bold">Price Range</FieldLabel>
               <FormSelect name="price_range" id="price_range"
                 value={form.price_range} onChange={e => update('price_range', e.target.value)}>
@@ -432,6 +431,13 @@ export default function LawyerForm() {
               </FormSelect>
             </Field>
           </div>
+
+          <label className="flex items-center gap-2.5 text-sm cursor-pointer">
+            <input type="checkbox" checked={form.hide_price}
+              onChange={e => update('hide_price', e.target.checked)}
+              className="rounded border-border text-accent focus-visible:ring-accent/20" />
+            <span className="text-muted-foreground">Keep my pricing private — show &ldquo;Contact for pricing&rdquo; instead of the price range</span>
+          </label>
 
           <label className="flex items-center gap-2.5 text-sm cursor-pointer">
             <input type="checkbox" checked={form.hide_contact_form}

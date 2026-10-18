@@ -93,27 +93,30 @@ CREATE POLICY "Lawyer specialties are publicly readable" ON lawyer_specialties F
 -- Falls back to email local-part if both are missing.
 CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
-SET search_path = ''
+LANGUAGE plpgsql
+SECURITY DEFINER
 AS $$
-DECLARE
-  _full_name TEXT;
+DECLARE _full_name TEXT;
+DECLARE _space_pos INT;
 BEGIN
   _full_name := COALESCE(
     new.raw_user_meta_data->>'full_name',
     new.raw_user_meta_data->>'name',
     split_part(new.email, '@', 1)
   );
-
-  INSERT INTO public.profiles (id, full_name, avatar_url, role)
+  _space_pos := position(' ' in _full_name);
+  INSERT INTO public.profiles (id, full_name, first_name, last_name, avatar_url, role)
   VALUES (
     new.id,
     _full_name,
+    CASE WHEN _space_pos > 0 THEN left(_full_name, _space_pos - 1) ELSE _full_name END,
+    CASE WHEN _space_pos > 0 THEN substr(_full_name, _space_pos + 1) ELSE NULL END,
     new.raw_user_meta_data->>'avatar_url',
     COALESCE(new.raw_user_meta_data->>'role', 'client')
   );
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

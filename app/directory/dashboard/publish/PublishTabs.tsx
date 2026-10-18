@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import PublishArticleForm from '@/components/directory/forms/PublishArticleForm';
 import PublishPodcastForm from '@/components/directory/forms/PublishPodcastForm';
-import Link from 'next/link';
+import PublishQuotaBanner from './PublishQuotaBanner';
+import type { PublishingQuota } from '@/lib/directory/publishing';
 
 type Tab = 'article' | 'podcast';
 
@@ -18,6 +19,7 @@ interface ContentItem {
 interface PublishTabsProps {
   articles: ContentItem[];
   podcasts: ContentItem[];
+  quota: PublishingQuota | null;
 }
 
 const tabs: { key: Tab; label: string; icon: string }[] = [
@@ -54,11 +56,13 @@ function ContentList({ items, type }: { items: ContentItem[]; type: 'article' | 
   );
 }
 
-export default function PublishTabs({ articles, podcasts }: PublishTabsProps) {
+export default function PublishTabs({ articles, podcasts, quota }: PublishTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>('article');
 
   return (
-    <div className="flex gap-8">
+    <div className="space-y-6">
+      {quota && <PublishQuotaBanner quota={quota} />}
+      <div className="flex gap-8">
       {/* Sidebar */}
       <aside className="w-64 shrink-0 space-y-6">
         {/* Tab Switcher */}
@@ -115,6 +119,7 @@ export default function PublishTabs({ articles, podcasts }: PublishTabsProps) {
           )}
         </div>
       </main>
+    </div>
     </div>
   );
 }

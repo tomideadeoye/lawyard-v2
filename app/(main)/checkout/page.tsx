@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { initializeShopPayment } from "@/app/actions/shop"
 
 export default function CheckoutPage() {
-  const { cart, getCartTotal, clearCart } = useCart()
+  const { cart, getCartTotal } = useCart()
   const [user, setUser] = React.useState<any>(null)
   const [loadingUser, setLoadingUser] = React.useState(true)
   

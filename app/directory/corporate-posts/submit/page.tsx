@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react'
 import { setHours, setMinutes, format } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import Script from 'next/script'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { submitCorporatePost } from '@/app/actions/corporate-posts'
@@ -21,7 +20,7 @@ import { ImageUpload } from '@/components/corporate-posts/image-upload'
 import { DatePicker } from '@/components/corporate-posts/date-picker'
 import { TierComparisonModal } from '@/components/corporate-posts/tier-comparison-modal'
 import { OrderSummary } from '@/components/corporate-posts/order-summary'
-import { Lightbulb, ShieldCheck, Banknote, CreditCard, FileText, Tags, User } from 'lucide-react'
+import { Lightbulb, Banknote, CreditCard, FileText, Tags, User } from 'lucide-react'
 
 declare global {
   interface Window {
@@ -81,7 +80,6 @@ function SubmitForm() {
   const selectedTier = watch('tier')
   const paymentMethod = watch('payment_method')
   const content = watch('content')
-  const featuredImage = watch('featured_image')
 
   async function handleApplyCoupon() {
     if (!couponCode.trim()) return
@@ -166,7 +164,6 @@ function SubmitForm() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="mb-12">
           <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Corporate Post</h1>
@@ -416,7 +413,7 @@ function SubmitForm() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-accent text-accent-foreground py-4 rounded-xl font-bold text-lg hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-accent text-accent-foreground py-4 rounded-xl font-bold text-lg hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 cursor-pointer"
                 >
                   {isSubmitting ? 'Processing...' : couponResult?.isFree ? 'Submit for Free' : 'Submit and pay'}
                 </button>

@@ -242,3 +242,28 @@ Three overlapping status sources had drifted (README ~3 months stale; `features.
 
 ### Related Files
 - `docs/FEATURE-STATUS.md` (new), `docs/features.md`, `README.md` §Status, `CHANGELOG.md`
+
+---
+
+## 2026-10-18
+
+### Focus
+Build the 12 Sep changeset — execute `docs/TOBI-12SEP-CHANGES.md` decisions as working code ahead of the Sun 18 Oct 7pm call with Tobi.
+
+### What Changed
+- **18 of 23 items shipped, build + TypeScript green.** Open: C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build").
+- **Seven migrations**: `hide_price` toggle · post caps + credits · service requests · intro-videos bucket · chambers parity · lens courses · chamber admins.
+- **Pricing/commerce**: three-tier Free→Silver→Premium; NGN end-to-end via `lib/currency.ts` (removed the last hardcoded `$`); post quotas (free 1 total → paid 3/mo → extra posts as one-off credits) with a `PublishQuotaBanner`; paid, payable service requests replacing free bookings; Calendly UI removed (column kept).
+- **Directory listing**: featured-first ranking + Featured badge in `getLawyers`/`getChambers`; "Contact for pricing" privacy toggle; gallery caps by tier with image validation; full law-firm page parity (working hours, FAQs, gallery, intro video) reusing the lawyer editors; "Chamber" → "Law Firm" in UI labels through centralized `TERMS`.
+- **Lawyard Lens (C09)**: thin bespoke — `courses` + `course_enrollments`, Paystack checkout with server-side subscriber discount (₦200k → ₦150k), `course_enrollment` handled in both webhook and `verifyPayment`, `/lens` + `/lens/[slug]`.
+- **Law-firm admin role (C17)**: `chamber_admins` (owner/admin, multi-user, RLS) with auto-registration on chamber creation; delegates manage the listing; PR/announcement publishing as `article_type='press_release'` — editorial-gated through the existing Slack review, rendered on the public firm page, excluded from the main Insights feed.
+- **Dashboard**: bookmarks kept for both roles, renamed "Saved Lawyers"; subscription/history duplication cleaned; `/directory/insights` is now a real article surface instead of a stub.
+
+### Rationale
+Tobi asked for a reviewable pass rather than a prototype: build the changes, he reacts with voice notes, we iterate. The pattern this pass validated — **an action isn't done until its effect is read back** — kept every claim honest: real migrations, real checkout paths, a real RLS policy, verified against `pnpm run build`.
+
+### Related Files
+- `docs/TOBI-12SEP-CHANGES.md` (index statuses + build-outcome table)
+- `supabase/migrations/20261016000001..07_*.sql` (new)
+- `app/directory/{lens,actions/{courses,press-releases,service-requests,upload-intro-video}}`
+- `lib/{currency.ts,directory/publishing.ts,constants.ts}`

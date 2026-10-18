@@ -56,6 +56,7 @@ export default async function CorporatePostsPage() {
               key={article.id}
               {...article}
               authorName={article.author?.[0]?.full_name}
+              href={`/corporate-posts/${article.slug}`}
             />
           ))}
         </div>

@@ -73,7 +73,9 @@ export async function getLawyers(options: {
       specialties:lawyer_specialties(
         specialty:specialties(name)
       )
-    `);
+    `)
+    .order('is_featured', { ascending: false })
+    .order('rating', { ascending: false });
 
   if (options.featured) query = query.eq('is_featured', true);
   if (options.location) query = query.ilike('location', `%${options.location}%`);
@@ -189,7 +191,7 @@ export async function getLawyerById(id: string): Promise<Lawyer | null> {
 export async function getChambers(options: { featured?: boolean } = {}): Promise<Chamber[]> {
   const supabase = await createClient();
 
-  let query = supabase.from('chambers').select('*');
+  let query = supabase.from('chambers').select('*').order('is_featured', { ascending: false });
 
   if (options.featured) {
     query = query

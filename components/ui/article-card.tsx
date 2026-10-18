@@ -14,6 +14,7 @@ interface ArticleCardProps {
   authorName?: string | null
   variant?: 'grid' | 'list'
   className?: string
+  href?: string
 }
 
 export function ArticleCard({
@@ -29,6 +30,7 @@ export function ArticleCard({
   authorName,
   variant = 'grid',
   className,
+  href,
 }: ArticleCardProps) {
   const date = new Date(created_at).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -39,7 +41,7 @@ export function ArticleCard({
   if (variant === 'list') {
     return (
       <Link
-        href={`/insights/${slug}`}
+        href={href || `/insights/${slug}`}
         className={cn('group block no-underline', className)}
       >
         <article className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 items-start border-b border-border pb-10">
@@ -88,7 +90,7 @@ export function ArticleCard({
 
   return (
     <Link
-      href={`/insights/${slug}`}
+      href={href || `/insights/${slug}`}
       className={cn('group block no-underline', className)}
     >
       <article className="flex flex-col gap-4 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-lg transition-all h-full">

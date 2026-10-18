@@ -13,8 +13,8 @@ function SubmitButton({ recommended }: { recommended: boolean }) {
       disabled={pending}
       className={`w-full py-6 text-base font-semibold transition-all ${
         recommended
-          ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-md'
-          : 'bg-transparent border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm'
+          ? 'bg-slate-700 dark:bg-yellow-700 hover:bg-slate-800 dark:hover:bg-yellow-600 text-white shadow-md'
+          : 'bg-transparent border border-slate-200 dark:border-yellow-700/40 text-slate-700 dark:text-yellow-200 hover:bg-slate-50 dark:hover:bg-yellow-800/30 shadow-sm'
       }`}
     >
       {pending ? 'Redirecting...' : 'Continue'}

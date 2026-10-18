@@ -10,8 +10,6 @@ const STATIC_ROUTES = [
   { url: '/insights', priority: '0.9', changefreq: 'daily' },
   { url: '/podcasts', priority: '0.8', changefreq: 'daily' },
   { url: '/tv', priority: '0.7', changefreq: 'daily' },
-  { url: '/corporate-posts', priority: '0.6', changefreq: 'weekly' },
-  { url: '/corporate-posts/submit', priority: '0.5', changefreq: 'monthly' },
   { url: '/legislations', priority: '0.9', changefreq: 'weekly' },
   { url: '/shop', priority: '0.6', changefreq: 'weekly' },
   { url: '/cart', priority: '0.3', changefreq: 'monthly' },

@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Building2, Building, MessageSquare, PenSquare, Bookmark, CreditCard, Settings, LogOut, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, Building2, Building, MessageSquare, PenSquare, Bookmark, CreditCard, Settings, LogOut, CalendarCheck, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TERMS } from '@/lib/constants'
 import { signOut } from '@/app/directory/login/actions'
 
 interface SidebarSection {
@@ -24,22 +25,15 @@ interface DashboardSidebarProps {
   subscriptionStatus: string | null
 }
 
-const TIER_LABELS: Record<string, string> = {
-  free: 'Free',
-  premium_single: 'Premium',
-  premium_package: 'Premium Package',
-  enterprise: 'Enterprise',
-}
-
 export default function DashboardSidebar({
   fullName,
-  email,
+  email: _email,
   avatarUrl,
   role,
   initial,
   isLawyer,
   tier,
-  subscriptionStatus,
+  subscriptionStatus: _subscriptionStatus,
 }: DashboardSidebarProps) {
   const pathname = usePathname()
 
@@ -49,13 +43,14 @@ export default function DashboardSidebar({
 
   const lawyerLinks: SidebarSection[] = [
     { label: 'My Listings', href: '/dashboard/listings', icon: Building2 },
-    { label: 'My Chamber', href: '/dashboard/chamber', icon: Building },
+    { label: `My ${TERMS.firm.singular}`, href: '/dashboard/chamber', icon: Building },
     { label: 'Inbox', href: '/dashboard/inquiries', icon: MessageSquare },
+    { label: 'Service Requests', href: '/dashboard/bookings', icon: CalendarCheck },
     { label: 'Content Studio', href: '/dashboard/publish', icon: PenSquare },
   ]
 
   const clientLinks: SidebarSection[] = [
-    { label: 'Bookmarks', href: '/dashboard/favorites', icon: Bookmark },
+    { label: 'Saved Lawyers', href: '/dashboard/favorites', icon: Bookmark },
   ]
 
   const bottomLinks: SidebarSection[] = [

@@ -21,6 +21,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/comp
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { TERMS } from "@/lib/constants";
 import { useQuery } from '@tanstack/react-query';
 
 function AddListingContent() {
@@ -122,7 +123,7 @@ function AddListingContent() {
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🎓</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Individual Lawyer</CardTitle>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Individual {TERMS.lawyer.singular}</CardTitle>
                   <CardDescription className="text-sm">For independent practitioners, specialized solicitors, and legal engineers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
@@ -136,8 +137,8 @@ function AddListingContent() {
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
                   <div className="text-5xl mb-4">🏛️</div>
-                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">Law Chamber / Firm</CardTitle>
-                  <CardDescription className="text-sm">For established law firms, multi-partner practices, and specialized chambers.</CardDescription>
+                  <CardTitle className="text-xl font-bold tracking-tight text-foreground">{TERMS.firm.singular}</CardTitle>
+                  <CardDescription className="text-sm">For established {TERMS.firm.lowerPlural}, multi-partner practices, and specialized {TERMS.firm.lowerPlural}.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
                   <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('chamber')}>
@@ -169,7 +170,7 @@ function AddListingContent() {
                   </CardTitle>
                   <CardDescription className="text-sm">
                     {isLawyer 
-                      ? 'For lawyers seeking to delegate briefs, collaborate with specialists, or hire local correspondent counsel.'
+                      ? `For ${TERMS.lawyer.lowerPlural} seeking to delegate briefs, collaborate with specialists, or hire local correspondent counsel.`
                       : 'For individuals, startups, or corporate groups seeking to broadcast a specific brief or query.'}
                   </CardDescription>
                 </CardHeader>
@@ -217,7 +218,7 @@ function AddListingContent() {
             <ul className="space-y-2 text-sm text-muted-foreground list-none pl-0">
               <li className="flex gap-2">
                 <span className="text-accent font-semibold">✦</span>
-                Access to high-net-worth clients, global mandates, and corporate legal departments.
+                Access to high-net-worth {TERMS.client.lowerPlural}, global mandates, and corporate legal departments.
               </li>
               <li className="flex gap-2">
                 <span className="text-accent font-semibold">✦</span>

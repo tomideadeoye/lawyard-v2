@@ -1,7 +1,7 @@
 # Lawyard — Session Handoff
 
 > Purpose: everything a fresh session needs to start Lawyard work without re-discovery.
-> Last updated: 2026-10-16 (Orion). Next milestone: **Sun 18 Oct, 7pm call — Tobi + Shefiu (close out website)**.
+> Last updated: 2026-10-18 (Orion). Next milestone: **Sun 18 Oct, 7pm call — Tobi + Shefiu (close out website)**.
 
 ## 0. Where everything is
 
@@ -24,13 +24,15 @@
 ## 1. ⚠️ START HERE — uncommitted work
 
 `git log` last commit = **2026-08-12** (`docs-sync: Slack review for podcasts/corporate posts…`).
-The working tree has a **large uncommitted changeset** — ~30 modified files + 5 untracked:
+The working tree now holds the **full 12 Sep changeset build** — **96 changed paths** (~70 modified/deleted + ~26 untracked), ~1,750 insertions across 70 tracked files.
 
-- Untracked: `app/api/auth/hook/`, `app/directory/corporate-posts/`, `components/directory/LawyerCard.tsx`, `components/ui/avatar.tsx`, `components/ui/coupon-input.tsx`, `components/ui/section.tsx`
-- Deleted: `app/(main)/corporate-posts/*` (relocated to `app/directory/corporate-posts/*`)
-- Modified: `lib/slack.ts`, `lib/wordpress.ts`, `app/directory/actions/content.ts`, `app/actions/corporate-posts.ts`, auth paths, pricing, search, footers, `schema.sql`, migrations…
+**Built 2026-10-16/18 (18 of 23 items)** — see the build-outcome table in `docs/TOBI-12SEP-CHANGES.md`. Highlights: three-tier Free→Silver→Premium, NGN end-to-end (`lib/currency.ts`), post quotas + credits, paid service requests, Lawyard Lens courses (`/lens`), law-firm admin role + PR publishing, chamber page parity, "Chamber"→"Law Firm" labels (`TERMS`), featured-first ranking, private pricing, intro-video upload, Calendly UI removed.
 
-**First action next session:** `git status` → review the diff → decide commit/PR. The `CHANGELOG.md` 2026-08-12 entry already documents this work, so it is *described but not committed*.
+**Seven migrations are APPLIED to production** (`supabase db push`, 2026-10-18 — `20261016000001..07`): hide_price · post caps/credits · service_requests · intro-videos bucket · chambers parity · lens courses (AI Governance seeded ₦200k/₦150k) · chamber_admins. Verified via REST read-back.
+
+**`pnpm run build` green + TypeScript clean. Nothing committed and nothing deployed** — Vercel ships on push, so prod code still predates these features until the commit lands.
+
+**First action next session:** commit this changeset (stage only session files, not stray drift) after Tomide's go, then deploy.
 
 ## 2. The 18 Oct call — what Tobi actually wants
 
@@ -108,13 +110,19 @@ cd /Users/mac/Documents/GitHub/lawyard-v2
 pnpm install
 pnpm dev          # main :3000 · admin /admin · directory /directory
 pnpm run build    # always verify after route/auth changes (stale caches mislead)
+pnpm run lint          # eslint . (flat config, added 2026-10-18; `next lint` was dead in Next 16)
+pnpm run check:migrations   # FAILS if local migration files are unapplied to the linked project
 ```
+
+**After writing any new migration:** `pnpm run migrations:push` then `pnpm run check:migrations` to confirm — seven migrations sat unapplied for days in Oct 2026 because nothing checked.
 
 ## 8. Live items to close
 
 - [ ] Reply to Tobi/Shefiu with the **design update** before Sun 7pm
 - [ ] Confirm the **email-auth bug** interpretation, then reproduce + fix
-- [ ] Answer the 5 pricing questions + clash-detection question
-- [ ] Review & commit the uncommitted changeset
-- [ ] Follow up on the 12 Sep feature decisions (which are in scope for phase 2?)
+- [ ] Answer the 5 pricing questions + clash-detection question (Q1, Q2–Q6, Q7 in `docs/TOBI-12SEP-CHANGES.md`)
+- [ ] **Commit + deploy the 12 Sep changeset** (built, migrations live, code not yet pushed)
+- [ ] Get Tobi's verdict on C13 (remove directory attribution?) and C21 (silver contents) — the two undecided items
+- [ ] End-to-end smoke test once deployed: course checkout, PR publish → Slack review, service-request payment
 - [ ] Product analytics / telemetry (Tier 5) — signups · subscribers · revenue · funnel (admin-facing; not the per-lawyer widgets)
+- [ ] `pnpm run lint` is broken repo-wide (`next lint` → "Invalid project directory") — logged as a tool improvement

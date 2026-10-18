@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { TERMS } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/server'
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
@@ -19,7 +20,7 @@ const STATUS_STYLES: Record<string, string> = {
 interface ListingItem {
   id: string
   name: string
-  type: 'Lawyer' | 'Chamber'
+  type: 'Lawyer' | 'Law Firm'
   category: string
   expires_at: string | null
   status: 'published' | 'pending' | 'expired' | 'rejected'
@@ -84,7 +85,7 @@ export default async function ListingsPage({
   if (!isLawyer) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Listings are only available for lawyers and chambers.</p>
+        <p className="text-muted-foreground">Listings are only available for {TERMS.lawyer.lowerPlural} and {TERMS.firm.lowerPlural}.</p>
       </div>
     )
   }
@@ -107,8 +108,8 @@ export default async function ListingsPage({
       listings.push({
         id: chamber.id,
         name: chamber.name,
-        type: 'Chamber',
-        category: chamber.focus || 'Law Chamber',
+        type: TERMS.firm.singular as ListingItem['type'],
+        category: chamber.focus || TERMS.firm.singular,
         expires_at: chamber.subscription_expires_at,
         status,
         plan: chamber.subscription_tier || 'free',
@@ -130,7 +131,7 @@ export default async function ListingsPage({
           listings.push({
             id: l.id,
             name: l.name,
-            type: 'Lawyer',
+            type: TERMS.lawyer.singular as ListingItem['type'],
             category: formatCategory(l.specialties, l.role),
             expires_at: chamber.subscription_expires_at,
             status: deriveStatus(l.verification_status, null, null),
@@ -156,7 +157,7 @@ export default async function ListingsPage({
       listings.push({
         id: lawyer.id,
         name: lawyer.name,
-        type: 'Lawyer',
+        type: TERMS.lawyer.singular as ListingItem['type'],
         category: formatCategory(lawyer.specialties, lawyer.role),
         expires_at: expiresAt,
         status: deriveStatus(lawyer.verification_status, null, expiresAt),

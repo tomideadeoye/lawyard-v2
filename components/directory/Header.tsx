@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, ChevronDown, LayoutDashboard, User, Settings, LogOut } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";

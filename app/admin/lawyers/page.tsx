@@ -1,5 +1,5 @@
 import { getAllLawyers } from '@/lib/admin/api';
-import { verifyLawyer, rejectLawyer, updateLawyer } from '../actions';
+import { verifyLawyer, rejectLawyer } from '../actions';
 import { EditLawyerDialog } from './edit-dialog';
 import { LawyersFilters } from './lawyers-filters';
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
+import { TERMS } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Lawyard Directory | Legal Marketplace",
-  description: "Nigeria's legal marketplace — find lawyers, law chambers, and legal services by specialty, location, and budget.",
+  description: `Nigeria's legal marketplace — find ${TERMS.lawyer.lowerPlural}, ${TERMS.firm.lowerPlural}, and legal services by specialty, location, and budget.`,
 }
 
 import Header from "@/components/directory/Header";

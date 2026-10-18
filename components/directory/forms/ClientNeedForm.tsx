@@ -15,7 +15,6 @@ const STEPS = [
 ]
 
 export default function ClientNeedForm() {
-  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,10 +121,10 @@ export default function ClientNeedForm() {
                       id="budget"
                     >
                       <option value="flexible" className="bg-background text-foreground">Flexible / Negotiable</option>
-                      <option value="low" className="bg-background text-foreground">Under $500</option>
-                      <option value="medium" className="bg-background text-foreground">$500 - $2,500</option>
-                      <option value="high" className="bg-background text-foreground">$2,500 - $10,000</option>
-                      <option value="premium" className="bg-background text-foreground">$10,000+</option>
+                      <option value="low" className="bg-background text-foreground">Under ₦500,000</option>
+                      <option value="medium" className="bg-background text-foreground">₦500,000 – ₦2,500,000</option>
+                      <option value="high" className="bg-background text-foreground">₦2,500,000 – ₦10,000,000</option>
+                      <option value="premium" className="bg-background text-foreground">₦10,000,000+</option>
                     </FormSelect>
                   </Field>
                 </div>

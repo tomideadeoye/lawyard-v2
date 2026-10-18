@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { TERMS } from '@/lib/constants';
 
 const CATEGORIES = [
   { id: 'documentation', title: 'How to use', desc: 'Documentation for site guests.' },
-  { id: 'clients', title: 'For Clients', desc: 'Guides for those in need of legal services.' },
-  { id: 'lawyers', title: 'For Lawyers', desc: 'Manage your profile and listings.' },
-  { id: 'chambers', title: 'For Chambers', desc: 'Case management and listing tips.' },
+  { id: 'clients', title: `For ${TERMS.client.plural}`, desc: 'Guides for those in need of legal services.' },
+  { id: 'lawyers', title: `For ${TERMS.lawyer.plural}`, desc: 'Manage your profile and listings.' },
+  { id: 'chambers', title: `For ${TERMS.firm.plural}`, desc: 'Case management and listing tips.' },
 ];
 
 export default function KnowledgeBase() {

@@ -5,7 +5,7 @@ import { toggleSubscriberStatus, exportSubscribersToCSV, sendNewsletter } from '
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function SubscribersClientPage({ subscribers }: { subscribers: any[] }) {
-  const [data, setData] = useState(subscribers);
+  const [data] = useState(subscribers);
 
   const handleExport = async () => {
     const result = await exportSubscribersToCSV();

@@ -3,6 +3,8 @@
 > **The single glance.** One row per feature, status at a glance.
 > Reconciled from README §Status, `CHANGELOG.md`, `docs/features.md`, `HANDOFF.md` §6 (12 Sep decisions), and **verified against the codebase on 2026-10-16**.
 > Replaces the README status table and `docs/features.md` as the source of truth for "is it built?"
+>
+> **18 of the 23 12 Sep items were built on 2026-10-16/18** — see the build-outcome table in [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md). Rows below that say "spec'd only" or "not started" have **not been re-verified since that pass**; trust the checklist over this board for 12 Sep items.
 
 ## Legend
 
@@ -94,25 +96,19 @@ Route directories exist but contain **no `page.tsx`** — dead links if nav poin
 
 ---
 
-## 5. Spec'd only — 12 Sep call 💬
+## 5. 12 Sep call 💬 → mostly built ✅
 
-Agreed with Tobi 2026-09-12; **none built**. Full context: `HANDOFF.md` §6. **Item-by-item walkthrough checklist: [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md).**
+Agreed with Tobi 2026-09-12. Full context: `HANDOFF.md` §6. **Item-by-item walkthrough checklist + build outcome: [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md).** Most rows below shipped 2026-10-16/18; only these remain open:
 
 | Feature | Detail |
 |---|---|
-| **Chambers tier (separate pricing)** | Chamber subscribes at its own price point; enterprise ₦3–5M/annum discussed vs ₦155k individual. |
-| **Chamber site-admin role** | A chamber administrator manages the chamber page + publishes PR/announcements to the directory. |
-| **Silver tier** | New tier between free and premium; Tobi owes a note on what stays in silver vs premium. |
-| **Post caps** | ~3 posts/month; extra posts = paid add-on. Funnel: 1 free post → subscribe. |
-| **Back-end article publishing** | Lawyer publishes from backend to Lawyard site, editorial-gated. |
-| **Service requests** | Renamed from "booking" — clients request services. |
-| **Paid-only bookings** | No free booking that lets the conversation move off-platform. |
-| **No Calendly / external calendar** | Explicit decision. *Conflicts with what's built — see §6.* |
-| **Remove "link to directory" attribution** | For paying users. |
-| **Private pricing option** | Hide price on the profile. |
-| **Courses / Lawyard Lens** | AI-governance course ₦200k, ₦150k for directory subscribers (cross-sell). |
-| **Move to AWS** | Infra migration (a feature is getting heavy usage). |
-| **Foreign-currency listings** | NGN for Nigeria; handling for foreign listings TBD. |
+| **Chambers tier (separate pricing)** | Chamber subscribes at its own price point; enterprise ₦3–5M/annum discussed vs ₦155k individual — needs Tobi's figures (C01/C04). |
+| **Silver tier contents** | Ladder built (Free→Silver→Premium); Tobi still owes a note on what stays in silver vs premium (C21). |
+| **Remove "link to directory" attribution** | Intent unclear — confirm with Tobi (C13). |
+| **Move to AWS** | Decided **no build** — stay on Supabase; self-host on DigitalOcean only if Shefiuu insists (C19). |
+| **Foreign-currency listings** | NGN shipped end-to-end; foreign-listing handling still TBD (C20). |
+
+Built from this call: chamber/law-firm admin role + PR publishing, post caps, back-end article publishing surfaced on the directory, service requests, paid-only bookings, no Calendly (UI removed), private pricing, Lawyard Lens courses.
 
 ---
 
@@ -145,8 +141,11 @@ Agreed with Tobi 2026-09-12; **none built**. Full context: `HANDOFF.md` §6. **I
 
 ## 8. Open questions (blocking)
 
+**Chamber subscription model** — confirmed *per member lawyer* (seat-based) but flagged uncertain; confirm with Tobi. *(from C01)*
 **Pricing — 5 NGN prices unset:** Premium Single (Lawyer, 365d) · Premium Package (Lawyer, 365d) · Premium Single (Client, 90d) · Premium Package (Client, 90d) · Premium (Chamber, 365d).
 **Plus:** scrap the 60-min corporate-post clash detection? (blocks back-to-back posts from different brands)
+
+> Accumulating list as the 12 Sep walkthrough proceeds: [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md) § *Questions for Tobi*.
 
 ---
 

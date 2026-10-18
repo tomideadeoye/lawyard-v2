@@ -1,4 +1,5 @@
 import { getAdminStats, getPendingLawyers, getRecentSubscribers } from '@/lib/admin/api';
+import { TERMS } from '@/lib/constants';
 import { verifyLawyer, rejectLawyer } from './actions';
 
 function ErrorBanner({ message, source }: { message: string; source: string }) {
@@ -58,7 +59,7 @@ export default async function AdminDashboard() {
             <span className="text-xs text-amber-600">Awaiting credential check</span>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-1.5 shadow-sm hover:shadow-md transition relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-[#1E3A5F] before:to-[#C5A059] before:opacity-60">
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Institutional Chambers</span>
+            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Institutional {TERMS.firm.plural}</span>
             <span className="text-3xl font-bold text-slate-900">{stats.totalChambers}</span>
             <span className="text-xs text-emerald-500">Law practices listed</span>
           </div>
@@ -90,7 +91,7 @@ export default async function AdminDashboard() {
                 <span className="text-4xl">⚠️</span>
                 <h3>Unable to Load</h3>
                 <p className="text-sm max-w-[320px] text-red-600">
-                  Could not fetch pending lawyers. Check your database connection.
+                  Could not fetch pending {TERMS.lawyer.lowerPlural}. Check your database connection.
                 </p>
               </div>
             ) : pendingLawyers.length === 0 ? (
@@ -98,7 +99,7 @@ export default async function AdminDashboard() {
                 <span className="text-4xl">✨</span>
                 <h3>Pipeline Fully Vetted</h3>
                 <p className="text-sm max-w-[320px]">
-                  There are no lawyers or experts awaiting credential verification at this time.
+                  There are no {TERMS.lawyer.lowerPlural} or experts awaiting credential verification at this time.
                 </p>
               </div>
             ) : (

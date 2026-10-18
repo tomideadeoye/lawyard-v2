@@ -1,9 +1,7 @@
 import styles from "./search.module.css";
-import Link from "next/link";
-import Image from "next/image";
 import { getLawyers, getSpecialties } from "@/lib/directory/api";
 import SearchFilters from "@/components/directory/search/SearchFilters";
-import BookmarkButton from "@/components/directory/BookmarkButton";
+import { LawyerCard } from "@/components/directory/LawyerCard";
 import { Lawyer, Specialty } from '@/lib/api';
 import { createClient } from '@/lib/supabase/server';
 
@@ -78,59 +76,22 @@ export default async function SearchPage(props: SearchPageProps) {
 
           <div className={styles.resultsGrid}>
             {lawyers.length > 0 ? lawyers.map((res) => (
-              <div key={res.id} className="premium-card">
-                <div className={styles.cardHeader}>
-                    <div className={styles.avatarMini}>
-                      {res.image && res.image.startsWith('http') ? (
-                        <Image
-                          src={res.image}
-                          alt={res.name}
-                          width={50}
-                          height={50}
-                          className={styles.avatarImage}
-                        />
-                      ) : (
-                        <span>{res.name[0]}</span>
-                      )}
-                    </div>
-                    <div className={styles.headerBadges}>
-                      <div className={styles.badge}>{res.experience}</div>
-                      {res.verified && <div className={styles.verifiedBadge}>✓ Verified</div>}
-                    </div>
-                </div>
-                
-                <div className={styles.cardContent}>
-                  <div className={styles.flexTitle}>
-                    <h3>{res.name}</h3>
-                    {isAuthenticated && (
-                      <BookmarkButton lawyerId={res.id} initialBookmarked={bookmarkedIds.includes(res.id)} />
-                    )}
-                  </div>
-                  <p className={styles.resRole}>{res.role}</p>
-                  <div className={styles.resSpecs}>
-                    {res.specialties.slice(0, 3).map(s => (
-                      <span key={s} className={styles.resSpecTag}>{s}</span>
-                    ))}
-                    {res.specialties.length > 3 && (
-                      <span className={styles.resSpecTag}>+{res.specialties.length - 3}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.cardFooter}>
-                  <div className={styles.resStats}>
-                    ⭐ {res.rating} <span>({res.reviews})</span>
-                  </div>
-                  <div className={styles.resLocation}>
-                    📍 {res.location}
-                  </div>
-                </div>
-
-                <Link href={`/lawyer/${res.id}`} className={styles.profileLink}>
-                  View Full Portfolio
-                </Link>
-
-              </div>
+              <LawyerCard
+                key={res.id}
+                id={res.id}
+                name={res.name}
+                role={res.role}
+                image={res.image}
+                specialties={res.specialties}
+                rating={res.rating}
+                reviews={res.reviews}
+                location={res.location}
+                experience={res.experience}
+                verified={res.verified}
+                featured={res.featured}
+                isAuthenticated={isAuthenticated}
+                bookmarked={bookmarkedIds.includes(res.id)}
+              />
             )) : (
               <div className={styles.noResults}>
                 <h3>No experts found</h3>

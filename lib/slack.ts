@@ -63,7 +63,8 @@ export async function postArticleToSlack(article: {
   });
 }
 
-export async function postPodcastToSlack(podcast: {
+export async function postPodcastToSlackWithButtons(podcast: {
+  id: string;
   title: string;
   slug: string;
   description: string;
@@ -73,9 +74,32 @@ export async function postPodcastToSlack(podcast: {
 }): Promise<{ ok: boolean; error?: string }> {
   const categoryTags = podcast.categories.map(c => `\`${c}\``).join(' ');
   const icon = podcast.mediaType === 'video' ? '🎥' : '🎙️';
-  
-  return postToSlack('editorialInbox', {
-    text: `${icon} *New Podcast for Review*\n\n*${podcast.title}*\nBy ${podcast.authorName} ${categoryTags}\n\n${podcast.description}\n\n🔗 ${process.env.NEXT_PUBLIC_SITE_URL}/knowledge/${podcast.slug}`,
+  const previewUrl = `${DIRECTORY_BASE_URL}/admin/pipeline/preview/${podcast.id}`;
+  const editorUrl = `${DIRECTORY_BASE_URL}/admin/pipeline`;
+
+  return postToDirectorySlack({
+    text: `${icon} *New Podcast for Review*\n\n*${podcast.title}*\nBy ${podcast.authorName} ${categoryTags}`,
+    blocks: [
+      {
+        type: 'header',
+        text: { type: 'plain_text', text: `${icon} New Podcast for Review`, emoji: true },
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*${podcast.title}*\nBy ${podcast.authorName} ${categoryTags}\n\n${podcast.description}`,
+        },
+      },
+      {
+        type: 'context',
+        elements: [{ type: 'mrkdwn', text: `ID: \`${podcast.id}\`` }],
+      },
+      {
+        type: 'actions',
+        elements: reviewActions(podcast.id, 'podcast', previewUrl, editorUrl),
+      },
+    ],
   });
 }
 
@@ -97,23 +121,29 @@ async function postToDirectorySlack(message: SlackMessage): Promise<{ ok: boolea
   if (!DIRECTORY_WEBHOOK) {
     return { ok: false, error: 'No DIRECTORY_SLACK_WEBHOOK configured' };
   }
-
   try {
     const res = await fetch(DIRECTORY_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message),
     });
-
     if (!res.ok) {
       const text = await res.text();
       return { ok: false, error: `Slack error: ${res.status} ${text}` };
     }
-
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
+}
+
+function reviewActions(id: string, prefix: string, previewUrl: string, editorUrl: string) {
+  return [
+    { type: 'button', text: { type: 'plain_text', text: '📖 View', emoji: true }, url: previewUrl, action_id: `view_${prefix}` },
+    { type: 'button', text: { type: 'plain_text', text: '✅ Approve', emoji: true }, style: 'primary', value: id, action_id: `approve_${prefix}` },
+    { type: 'button', text: { type: 'plain_text', text: '❌ Deny', emoji: true }, style: 'danger', value: id, action_id: `deny_${prefix}` },
+    { type: 'button', text: { type: 'plain_text', text: '✏️ Editor', emoji: true }, url: editorUrl, action_id: `open_${prefix}` },
+  ];
 }
 
 export async function postArticleToSlackWithButtons(article: {
@@ -144,43 +174,11 @@ export async function postArticleToSlackWithButtons(article: {
       },
       {
         type: 'context',
-        elements: [
-          {
-            type: 'mrkdwn',
-            text: `ID: \`${article.id}\``,
-          },
-        ],
+        elements: [{ type: 'mrkdwn', text: `ID: \`${article.id}\`` }],
       },
       {
         type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '📖 View Article', emoji: true },
-            url: previewUrl,
-            action_id: 'view_article',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '✅ Approve', emoji: true },
-            style: 'primary',
-            value: article.id,
-            action_id: 'approve_article',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '❌ Deny', emoji: true },
-            style: 'danger',
-            value: article.id,
-            action_id: 'deny_article',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '✏️ Open Editor', emoji: true },
-            url: editorUrl,
-            action_id: 'open_editor',
-          },
-        ],
+        elements: reviewActions(article.id, 'article', previewUrl, editorUrl),
       },
     ],
   });
@@ -193,12 +191,16 @@ export async function postCorporatePostToSlackWithButtons(submission: {
   brandName: string;
   excerpt: string;
   tier: string;
+  submitterName?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const editorUrl = `${DIRECTORY_BASE_URL}/admin/content?tab=corporate-posts`;
   const previewUrl = `${DIRECTORY_BASE_URL}/admin/pipeline/preview/${submission.id}`;
+  const byline = submission.submitterName
+    ? `Submitted by *${submission.submitterName}* · *${submission.brandName}* · Tier: \`${submission.tier}\``
+    : `By *${submission.brandName}* · Tier: \`${submission.tier}\``;
 
   return postToDirectorySlack({
-    text: `📢 *New Corporate Post for Review*\n\n*${submission.title}*\nBy ${submission.brandName} (${submission.tier})`,
+    text: `📢 *New Corporate Post for Review*\n\n*${submission.title}*\n${byline}`,
     blocks: [
       {
         type: 'header',
@@ -208,48 +210,16 @@ export async function postCorporatePostToSlackWithButtons(submission: {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*${submission.title}*\nBy *${submission.brandName}* · Tier: \`${submission.tier}\`\n\n${submission.excerpt}`,
+          text: `*${submission.title}*\n${byline}\n\n${submission.excerpt}`,
         },
       },
       {
         type: 'context',
-        elements: [
-          {
-            type: 'mrkdwn',
-            text: `ID: \`${submission.id}\``,
-          },
-        ],
+        elements: [{ type: 'mrkdwn', text: `ID: \`${submission.id}\` · <${previewUrl}|View Post>` }],
       },
       {
         type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '📖 View Post', emoji: true },
-            url: previewUrl,
-            action_id: 'view_corporate_post',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '✅ Approve', emoji: true },
-            style: 'primary',
-            value: submission.id,
-            action_id: 'approve_corporate_post',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '❌ Deny', emoji: true },
-            style: 'danger',
-            value: submission.id,
-            action_id: 'deny_corporate_post',
-          },
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: '✏️ Open Editor', emoji: true },
-            url: editorUrl,
-            action_id: 'open_editor_bp',
-          },
-        ],
+        elements: reviewActions(submission.id, 'corporate_post', previewUrl, editorUrl),
       },
     ],
   });

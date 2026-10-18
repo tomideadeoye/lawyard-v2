@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, User, Users, Building } from "lucide-react";
 import { getPlans } from "@/app/directory/actions/plans";
 import { DirectoryRole } from "@/lib/api";
+import { CURRENCY, formatNGN, parseAmount } from "@/lib/currency";
+import { TERMS } from "@/lib/constants";
 import { PaystackButton } from "@/components/directory/paystack-button";
 import { PaymentMessage } from "./payment-message";
 import Link from "next/link";
@@ -14,19 +16,19 @@ type Feature = {
 };
 
 const roles = [
-  { label: "Lawyers", value: DirectoryRole.LAWYER, icon: User },
-  { label: "Clients", value: DirectoryRole.CLIENT, icon: Users },
-  { label: "Chambers", value: DirectoryRole.CHAMBER, icon: Building },
+  { label: TERMS.lawyer.plural, value: DirectoryRole.LAWYER, icon: User },
+  { label: TERMS.client.plural, value: DirectoryRole.CLIENT, icon: Users },
+  { label: TERMS.firm.plural, value: DirectoryRole.CHAMBER, icon: Building },
 ];
 
 const FALLBACK_PLANS: Record<string, any[]> = {
   lawyer: [
     {
       name: "Premium (Package)",
-      price: "$20.00",
+      price: formatNGN(20),
       period: "/ 365 days",
       recommended: false,
-      desc: "Best for a group of established lawyers seeking the best online visibility.",
+      desc: `Best for a group of established ${TERMS.lawyer.lowerPlural} seeking the best online visibility.`,
       features: [
         { name: "15 Featured Listings", included: true },
         { name: "Website", included: true },
@@ -44,10 +46,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
     },
     {
       name: "Premium (Single)",
-      price: "$2.00",
+      price: formatNGN(2),
       period: "/ 365 days",
       recommended: true,
-      desc: "Best for established lawyers seeking the best online visibility.",
+      desc: `Best for established ${TERMS.lawyer.lowerPlural} seeking the best online visibility.`,
       features: [
         { name: "Listing as featured", included: true },
         { name: "Website", included: true },
@@ -65,10 +67,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
     },
     {
       name: "Free",
-      price: "$0.00",
+      price: formatNGN(0),
       period: "/ Lifetime",
       recommended: false,
-      desc: "Plan for a lawyer just getting started with achieving online visibility",
+      desc: `Plan for a ${TERMS.lawyer.lower} just getting started with achieving online visibility`,
       features: [
         { name: "Listing as featured", included: false },
         { name: "Website", included: false },
@@ -83,15 +85,24 @@ const FALLBACK_PLANS: Record<string, any[]> = {
         { name: "Booking Included", included: false },
         { name: "Live Chat Included", included: false }
       ]
+    },
+    {
+      name: "Silver",
+      price: formatNGN(0),
+      period: "",
+      recommended: false,
+      comingSoon: true,
+      desc: "Silver tier — contents & pricing to be confirmed.",
+      features: []
     }
   ],
   client: [
     {
       name: "Premium (Single)",
-      price: "$1.00",
+      price: formatNGN(1),
       period: "/ 90 days",
       recommended: true,
-      desc: "Best for clients actively in need of a lawyer.",
+      desc: `Best for ${TERMS.client.lowerPlural} actively in need of a ${TERMS.lawyer.lower}.`,
       features: [
         { name: "Listing as featured", included: true },
         { name: "Deadline Date", included: true },
@@ -106,10 +117,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
     },
     {
       name: "Premium (Package)",
-      price: "$3.00",
+      price: formatNGN(3),
       period: "/ 90 days",
       recommended: false,
-      desc: "Best for clients actively in need of a lawyer.",
+      desc: `Best for ${TERMS.client.lowerPlural} actively in need of a ${TERMS.lawyer.lower}.`,
       features: [
         { name: "Regular Listings", included: false },
         { name: "5 Featured Listings", included: true },
@@ -125,10 +136,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
     },
     {
       name: "Free",
-      price: "$0.00",
+      price: formatNGN(0),
       period: "/ 90 days",
       recommended: false,
-      desc: "Best for a client routinely looking for a lawyer.",
+      desc: `Best for a ${TERMS.client.lower} routinely looking for a ${TERMS.lawyer.lower}.`,
       features: [
         { name: "Listing as featured", included: false },
         { name: "Deadline Date", included: false },
@@ -140,12 +151,21 @@ const FALLBACK_PLANS: Record<string, any[]> = {
         { name: "Claim Badge Included", included: false },
         { name: "Live Chat Included", included: false }
       ]
+    },
+    {
+      name: "Silver",
+      price: formatNGN(0),
+      period: "",
+      recommended: false,
+      comingSoon: true,
+      desc: "Silver tier — contents & pricing to be confirmed.",
+      features: []
     }
   ],
   chamber: [
     {
       name: "Premium",
-      price: "$2.00",
+      price: formatNGN(2),
       period: "/ 365 days",
       recommended: true,
       desc: "Best for large agencies that have more than 50 members",
@@ -168,10 +188,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
     },
     {
       name: "Free",
-      price: "$0.00",
+      price: formatNGN(0),
       period: "/ Lifetime",
       recommended: false,
-      desc: "Best for a law firm just getting started with our product.",
+      desc: `Best for a ${TERMS.firm.lower} just getting started with our product.`,
       features: [
         { name: "Listing as featured", included: false },
         { name: "Link Directory - Lawyers (Maximum of 1)", included: true },
@@ -188,21 +208,30 @@ const FALLBACK_PLANS: Record<string, any[]> = {
         { name: "Booking Included", included: false },
         { name: "Live Chat Included", included: false }
       ]
+    },
+    {
+      name: "Silver",
+      price: formatNGN(0),
+      period: "",
+      recommended: false,
+      comingSoon: true,
+      desc: "Silver tier — contents & pricing to be confirmed.",
+      features: []
     }
   ]
 };
 
 function Price({ price, period, name }: { price: string; period: string; name: string }) {
-  const numeric = price.replace('$', '')
+  const amount = parseAmount(price)
   const subtext = name.toLowerCase().includes('package') ? 'Per Package' : 'Per Listing'
   return (
     <div className="flex flex-col items-center mb-5">
       <div className="flex items-baseline justify-center gap-0.5">
-        <span className="text-xl font-light text-slate-400 align-super">$</span>
-        <span className="text-5xl font-bold text-slate-900 tracking-tight">{numeric}</span>
-        <span className="text-sm font-medium text-slate-400 ml-1">{period}</span>
+        <span className="text-xl font-light text-slate-400 dark:text-yellow-300/70 align-super">{CURRENCY.symbol}</span>
+        <span className="text-5xl font-bold text-slate-900 dark:text-yellow-50 tracking-tight">{amount.toLocaleString(CURRENCY.locale)}</span>
+        <span className="text-sm font-medium text-slate-400 dark:text-yellow-300/70 ml-1">{period}</span>
       </div>
-      <div className="text-[10px] font-bold text-[#a77c5c] uppercase tracking-widest mt-2 bg-[#a77c5c]/5 px-2.5 py-0.5 rounded-full">
+      <div className="text-[10px] font-bold text-[#a77c5c] dark:text-yellow-300 uppercase tracking-widest mt-2 bg-[#a77c5c]/5 dark:bg-yellow-400/10 px-2.5 py-0.5 rounded-full">
         {subtext}
       </div>
     </div>
@@ -213,15 +242,15 @@ function FeatureItem({ name, included }: { name: string; included: boolean }) {
   return (
     <li className="flex items-center gap-3 text-xs leading-relaxed">
       {included ? (
-        <span className="w-5 h-5 shrink-0 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+        <span className="w-5 h-5 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
           <Check className="w-3 h-3" strokeWidth={3} />
         </span>
       ) : (
-        <span className="w-5 h-5 shrink-0 rounded-full bg-rose-50/70 flex items-center justify-center text-rose-500">
+        <span className="w-5 h-5 shrink-0 rounded-full bg-rose-50/70 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 dark:text-rose-400">
           <X className="w-3 h-3" strokeWidth={3} />
         </span>
       )}
-      <span className={included ? "text-slate-700 font-medium" : "text-slate-400 font-normal"}>
+      <span className={included ? "text-slate-700 dark:text-yellow-100" : "text-slate-400 dark:text-yellow-300/60 font-normal"}>
         {name}
       </span>
     </li>
@@ -229,24 +258,30 @@ function FeatureItem({ name, included }: { name: string; included: boolean }) {
 }
 
 function PricingCard({ tier, role }: { tier: any; role: string }) {
-  const amount = parseFloat(tier.price.replace('$', ''))
+  const amount = parseAmount(tier.price)
   const isPaid = amount > 0
 
   return (
-    <Card className={`relative flex flex-col bg-white border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
+    <Card className={`relative flex flex-col bg-white dark:bg-yellow-950/40 border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
       tier.recommended 
-        ? 'border-orange-500 shadow-[0_20px_50px_rgba(249,115,22,0.1)] z-10 scale-[1.02] rounded-xl' 
-        : 'border-slate-200/80 shadow-sm rounded-lg hover:shadow-lg hover:border-slate-300/80'
+        ? 'border-orange-500 dark:border-yellow-400 shadow-[0_20px_50px_rgba(249,115,22,0.1)] dark:shadow-[0_20px_50px_rgba(234,179,8,0.15)] z-10 scale-[1.02] rounded-xl' 
+        : 'border-slate-200/80 dark:border-yellow-700/30 shadow-sm rounded-lg hover:shadow-lg hover:border-slate-300/80 dark:hover:border-yellow-600/40'
     }`}>
       {tier.recommended && (
-        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-center py-1.5 text-[9px] font-black uppercase tracking-widest">
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-yellow-500 dark:to-yellow-600 text-white text-center py-1.5 text-[9px] font-black uppercase tracking-widest">
           Recommended
         </div>
       )}
-      <CardHeader className={`text-center pb-4 px-5 border-b border-slate-100 ${tier.recommended ? 'pt-8' : 'pt-6'}`}>
-        <CardTitle className="text-base font-bold text-slate-800 mb-4">{tier.name}</CardTitle>
-        <Price price={tier.price} period={tier.period} name={tier.name} />
-        <p className="text-[11px] text-slate-500 max-w-[240px] mx-auto min-h-[33px] mt-1 leading-relaxed">
+      <CardHeader className={`text-center pb-4 px-5 border-b border-slate-100 dark:border-yellow-800/30 ${tier.recommended ? 'pt-8' : 'pt-6'}`}>
+        <CardTitle className="text-base font-bold text-slate-800 dark:text-yellow-100 mb-4">{tier.name}</CardTitle>
+        {tier.comingSoon ? (
+          <div className="flex flex-col items-center mb-5">
+            <span className="text-2xl font-bold text-slate-500 dark:text-yellow-200/80 tracking-tight">Coming soon</span>
+          </div>
+        ) : (
+          <Price price={tier.price} period={tier.period} name={tier.name} />
+        )}
+        <p className="text-[11px] text-slate-500 dark:text-yellow-200/70 max-w-[240px] mx-auto min-h-[33px] mt-1 leading-relaxed">
           {tier.desc}
         </p>
       </CardHeader>
@@ -260,7 +295,11 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
       </CardContent>
 
       <CardFooter className="px-5 pb-6 pt-2">
-        {isPaid ? (
+        {tier.comingSoon ? (
+          <span className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-100 dark:bg-yellow-900/30 text-slate-400 dark:text-yellow-200/50 block cursor-not-allowed">
+            Coming soon
+          </span>
+        ) : isPaid ? (
           <PaystackButton
             amount={amount}
             planName={tier.name}
@@ -270,7 +309,7 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
         ) : (
           <Link
             href="/dashboard"
-            className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-700 hover:bg-slate-800 text-white shadow-sm transition-colors block"
+            className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-700 dark:bg-yellow-700 hover:bg-slate-800 dark:hover:bg-yellow-600 text-white shadow-sm transition-colors block"
           >
             Continue
           </Link>
@@ -284,7 +323,7 @@ export default async function PricingPage() {
   const pricingData = await getPlans()
 
   return (
-    <div className="min-h-screen bg-slate-50/60 pb-24">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950 pb-24">
       <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-24 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
         <div className="absolute inset-0 bg-radial-gradient from-slate-900/50 to-slate-950/80" />
@@ -301,25 +340,25 @@ export default async function PricingPage() {
           <PaymentMessage />
         </Suspense>
 
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 border-l-4 border-l-[#a77c5c] p-5 mb-10 mt-4">
-          <h3 className="text-sm font-bold text-[#a77c5c] uppercase tracking-wider mb-2">Notice & Guidelines</h3>
-          <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600 font-medium">
-            <li><strong className="text-slate-800">Clients:</strong> Clients browse for free — no plan needed to search and contact lawyers.</li>
-            <li><strong className="text-slate-800">Lawyers:</strong> listing plans for lawyer/law professionals</li>
-            <li><strong className="text-slate-800">Chambers:</strong> listing plans for law chambers</li>
-            <li>Paid listing plans secure <strong className="text-slate-800">featured listings</strong> that receive the most user views, appear first, and rank higher in search results.</li>
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-yellow-700/30 border-l-4 border-l-[#a77c5c] dark:border-l-yellow-400 p-5 mb-10 mt-4">
+          <h3 className="text-sm font-bold text-[#a77c5c] dark:text-yellow-300 uppercase tracking-wider mb-2">Notice & Guidelines</h3>
+          <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600 dark:text-yellow-200/70 font-medium">
+            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.client.plural}:</strong> {TERMS.client.plural} browse for free — no plan needed to search and contact {TERMS.lawyer.lowerPlural}.</li>
+            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.lawyer.plural}:</strong> listing plans for {TERMS.lawyer.lower}/law professionals</li>
+            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.firm.plural}:</strong> listing plans for {TERMS.firm.lowerPlural}</li>
+            <li>Paid listing plans secure <strong className="text-slate-800 dark:text-yellow-100">featured listings</strong> that receive the most user views, appear first, and rank higher in search results.</li>
           </ol>
         </div>
 
         <Tabs defaultValue="lawyer" className="w-full">
-          <TabsList className="w-full max-w-md mx-auto flex h-11 items-center justify-between rounded-full bg-slate-100 p-1 mb-10 border border-slate-200/40">
+          <TabsList className="w-full max-w-md mx-auto flex h-11 items-center justify-between rounded-full bg-slate-100 dark:bg-slate-800 p-1 mb-10 border border-slate-200/40 dark:border-yellow-800/20">
             {roles.map((r) => {
               const Icon = r.icon;
               return (
                 <TabsTrigger
                   key={r.value}
                   value={r.value}
-                  className="flex-1 flex items-center justify-center gap-2 h-full rounded-full text-xs font-semibold text-slate-400 hover:text-slate-700 transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-[#a77c5c] data-[state=active]:shadow-sm"
+                  className="flex-1 flex items-center justify-center gap-2 h-full rounded-full text-xs font-semibold text-slate-400 dark:text-yellow-300/50 hover:text-slate-700 dark:hover:text-yellow-200 transition-all duration-200 data-[state=active]:bg-white dark:data-[state=active]:bg-yellow-700/40 data-[state=active]:text-[#a77c5c] dark:data-[state=active]:text-yellow-200 data-[state=active]:shadow-sm"
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span>{r.label}</span>

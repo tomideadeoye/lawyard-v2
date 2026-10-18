@@ -34,6 +34,30 @@
 - **`components/directory/LawyerCard.tsx`**, `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components
 - **Podcast approval in Slack**: `approve_podcast`/`deny_podcast` actions + `publishPodcastToWordPress()` (`lib/wordpress.ts`)
 
+### Added (sync: 2026-10-18 — 12 Sep changeset build pass)
+- **Lawyard Lens (C09)**: thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`)
+- **Law-firm admin role + PR publishing (C17)**: `chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them
+- **Law-firm page parity (C11)**: `20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page
+- **Service requests (C14/C15)**: `20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings)
+- **Post quotas + paid extras (C05)**: `20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner`
+- **Premium intro video (C08)**: `20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated
+- **Private pricing (C12)**: `20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows "Contact for pricing"
+- **`lib/currency.ts`**: NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20)
+
+### Changed (sync: 2026-10-18 — 12 Sep changeset build pass)
+- **"Chamber" → "Law Firm" (C23)**: all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged
+- **Three-tier pricing (C02)**: Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing
+- **Featured placement (C03)**: `.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards
+- **Gallery caps (C10)**: enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation
+- **Calendly removed from UI (C16)**: field dropped from `LawyerForm` and the profile display; `calendly_url` column retained
+- **Bookmarks → "Saved Lawyers" (C18)**: renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up
+- **Directory insights (C07)**: `/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array
+- **NGN transactions (C20)**: pricing/plans/currency flows record and display ₦ end-to-end
+
+### Fixed (sync: 2026-10-18 — tooling)
+- **Lint was dead repo-wide**: `pnpm run lint` ran `next lint`, which fails with "Invalid project directory provided" on Next 16 (and no eslint config existed). Added `eslint.config.mjs` (eslint-config-next 16.2.0 flat config), switched the script to `eslint .`, and fixed all **58 errors** it surfaced (46 unused vars/imports, 11 from a `ToolBtn` nested inside render in the rich-text editor, 1 TDZ/immutability in `theme-provider`). Now 0 errors / 181 warnings
+- **Silently unapplied migrations**: added `scripts/migration-drift.mjs` + `pnpm run check:migrations` — parses `supabase migration list` and exits non-zero when local files are unapplied (or migrations exist only remotely). Also `pnpm run migrations:push`. Wired into `HANDOFF.md` §7 and the lawyard-ops skill's Verification Gates
+
 ### Fixed (sync: 2026-07-28)
 - **Paystack public key trailing newline**: `echo` added `\n` to `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` on Vercel, causing "Please enter a valid Key" from PaystackPop. Re-set with `printf` (no trailing newline).
 - **New user signup blocked by `sync_profile_to_lawyer()` trigger**: Trigger ran unqualified `UPDATE lawyers` for ALL profile inserts (including clients) in the auth trigger context where `public` is not in the search_path. Role-gated to `lawyer`/`admin` only and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)

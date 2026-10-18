@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { galleryCapFor } from '@/lib/directory/publishing';
 
 export interface ListingFormData {
   name: string;
@@ -29,6 +30,7 @@ export interface ListingFormData {
   social_links?: { platform: string; url: string }[];
   chamber_id?: string;
   price_range?: string;
+  hide_price?: boolean;
   hide_contact_form?: boolean;
   listing_type?: string;
   faqs?: { question: string; answer: string }[];
@@ -54,6 +56,14 @@ export async function submitLawyerListing(data: ListingFormData) {
   } = data;
 
   try {
+    // Enforce the plan gallery cap server-side (C10).
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('id', user.id)
+      .maybeSingle();
+    const galleryCap = galleryCapFor(profile?.subscription_tier);
+
     const { error: upsertError } = await supabase
       .from('lawyers')
       .upsert({
@@ -61,7 +71,7 @@ export async function submitLawyerListing(data: ListingFormData) {
         ...lawyerFields,
         social_links: social_links ?? [],
         faqs: faqs ?? [],
-        gallery_images: gallery_images ?? [],
+        gallery_images: (gallery_images ?? []).slice(0, galleryCap),
         working_hours: working_hours ?? [],
         verification_status: 'pending',
       });
