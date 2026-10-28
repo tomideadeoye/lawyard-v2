@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const adminRoutes = ['/admin']
 const publicAdminRoutes = ['/admin/login', '/admin/auth/callback']
-const NON_DIRECTORY_PREFIXES = ['/admin', '/_next', '/api', '/feed.xml', '/sitemap.xml']
+const NON_DIRECTORY_PREFIXES = ['/admin', '/_next', '/api', '/feed.xml', '/sitemap.xml', '/product-owner']
 const STATIC_EXT = /\.(?:png|jpg|jpeg|gif|ico|svg|css|js|woff2?|ttf|eot|pdf|webp|avif|mp4|webm|ogg|mp3|wav)$/i
 
 export async function middleware(request: NextRequest) {
