@@ -1,17 +1,13 @@
-import { ProductOwnerBoard } from '@/components/product-owner/ProductOwnerBoard'
-import { createServiceRoleClient } from '@/lib/supabase/server'
-
-// Token-gated board for Tobi (product owner). No login — the link carries the token.
+// Product-owner board lives in the MerisLabs PM system (orion-horizon Supabase,
+// multi-client). This page embeds it so Tobi accesses it from Lawyard's own
+// domain — no visit to merislabs needed. Token is carried in the iframe src.
 export const dynamic = 'force-dynamic'
 
-export default async function ProductOwnerPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ token?: string }>
-}) {
-  const { token } = await searchParams
+const PM_ORIGIN = process.env.PM_BOARD_ORIGIN || 'https://merislabs-merislabs.vercel.app'
+const PM_TOKEN = process.env.PM_BOARD_TOKEN || ''
 
-  if (!token || !process.env.PRODUCT_OWNER_TOKEN || token !== process.env.PRODUCT_OWNER_TOKEN) {
+export default function ProductOwnerPage() {
+  if (!PM_TOKEN) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-neutral-50 px-6">
         <p className="text-neutral-500">This page does not exist.</p>
@@ -19,18 +15,15 @@ export default async function ProductOwnerPage({
     )
   }
 
-  const supabase = createServiceRoleClient()
-  const { data: open } = await supabase
-    .from('product_questions')
-    .select('*')
-    .eq('status', 'open')
-    .order('created_at')
-  const { data: answered } = await supabase
-    .from('product_questions')
-    .select('*')
-    .in('status', ['answered', 'insight'])
-    .order('answered_at', { ascending: false })
-    .limit(20)
+  const src = `${PM_ORIGIN}/pm/b/lawyard?token=${PM_TOKEN}&embed=1`
 
-  return <ProductOwnerBoard token={token} initialOpen={open || []} initialAnswered={answered || []} />
+  return (
+    <main className="min-h-screen bg-neutral-50">
+      <iframe
+        src={src}
+        title="Product questions"
+        style={{ width: '100%', minHeight: '100vh', border: 0, display: 'block' }}
+      />
+    </main>
+  )
 }
