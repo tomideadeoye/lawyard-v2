@@ -11,6 +11,8 @@
 - **Auth email hook built 404 verify links**: `buildConfirmationUrl()` used `emailData.site_url` (the app domain) as the base — GoTrue hosts `/auth/v1/verify` on the Supabase project domain, so every confirm/magic-link/reset link 404'd. Now always built on `NEXT_PUBLIC_SUPABASE_URL` (`app/api/auth/hook/route.ts`)
 
 ### Docs
+- **`docs/FEATURE-STATUS.md` re-verified against code (2026-11-04)**: 20 features checked post-deploy, 15 clean, 5 shipped-with-gaps; new **§6 defect table D1–D9** — ledger-per-page pricing (plans seeded in USD but rendered ₦), unenforced firm/chamber gallery caps, ₦0 silver placeholder, ₦100 corporate-post test price, card-level bookmark gap, dead Calendly fields, empty dashboard dirs, missing admin analytics, two error boundaries
+- **`docs/TOBI-12SEP-CHANGES.md` post-build verification**: each gap mapped back to its C-item so the Tobi checklist and the code agree
 - **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`
 - **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`
 - **`HANDOFF.md` added**: cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)

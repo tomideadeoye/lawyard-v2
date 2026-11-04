@@ -128,6 +128,11 @@ pnpm run check:migrations   # FAILS if local migration files are unapplied to th
 - [ ] Confirm the Brevo email hook is **enabled** in Supabase dashboard (Auth → Hooks) — magic-link/reset emails depend on it; no management token to read it programmatically
 - [ ] Revert corporate-posts Basic tier from test price ₦100 once real prices land
 - [ ] End-to-end smoke test: course checkout, PR publish → Slack review, service-request payment
+- [ ] **Fix D1 — plans priced in NGN**: `plans` is still seeded with dollar-era values but formatted as NGN, so every plan page shows ₦20/₦2 (`20260629000002`; no currency column). Needs Tobi's Q2–Q6 figures; add a currency column while doing it
+- [ ] **Fix D2 — gallery caps**: pass `isFirm` at `submit-listing.ts:65,74` and validate the chamber form server-side (it currently writes straight from the browser client)
+- [ ] Fill the silver tier (D3) once Tobi answers Q8 — the rows are ₦0 placeholders
+- [ ] Quick cleanup: bookmark button on cards (D5) · delete dead Calendly state fields (D6) · remove empty `chat/wallet/packages` dirs (D7) · error boundaries on admin + dashboard (D9)
+- [ ] Build admin product analytics (D8) — same item as Tier 5 below
 - [ ] Product analytics / telemetry (Tier 5) — signups · subscribers · revenue · funnel (admin-facing; not the per-lawyer widgets)
 
 **Closed since 2026-10-18:** email-auth bug fixed (`05caa76`, deployed) · 12 Sep changeset committed + deployed · `pnpm run lint` fixed (eslint flat config, 0 errors).

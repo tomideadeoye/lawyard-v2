@@ -1,10 +1,9 @@
 # Lawyard v2 — Feature Status Board
 
 > **The single glance.** One row per feature, status at a glance.
-> Reconciled from README §Status, `CHANGELOG.md`, `docs/features.md`, `HANDOFF.md` §6 (12 Sep decisions), and **verified against the codebase on 2026-10-16**.
+> Reconciled from README §Status, `CHANGELOG.md`, `docs/features.md`, `HANDOFF.md` §6 (12 Sep decisions).
+> **Re-verified against the codebase on 2026-11-04**, after the 12 Sep changeset was committed and deployed (`164510d`).
 > Replaces the README status table and `docs/features.md` as the source of truth for "is it built?"
->
-> **18 of the 23 12 Sep items were built on 2026-10-16/18** — see the build-outcome table in [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md). Rows below that say "spec'd only" or "not started" have **not been re-verified since that pass**; trust the checklist over this board for 12 Sep items.
 
 ## Legend
 
@@ -26,32 +25,41 @@
 |---|---|
 | Auth — email/password, Google OAuth, magic link, password recovery | `app/directory/login`, `components/directory/auth/*` |
 | Account settings — profile, password, email change, delete | `dashboard/settings`, `EmailChangeDialog`, `DeleteAccountDialog` |
-| Branded auth emails (Brevo auth hook) | `app/api/auth/hook/route.ts` *(new, uncommitted)* |
+| Branded auth emails (Brevo auth hook) | `app/api/auth/hook/route.ts` — shipped in `05caa76`, verify URL fixed |
 | Turnstile CAPTCHA | `components/directory/auth/TurnstileWidget.tsx` |
 | Lawyer multi-step profile wizard | `components/directory/forms/LawyerForm.tsx` + `FormStep` |
 | Working-hours editor | `WorkingHoursEditor.tsx` → wired `LawyerForm.tsx:374` |
-| Gallery upload | `GalleryUpload.tsx` → wired `LawyerForm.tsx:365` |
+| Gallery upload | `GalleryUpload.tsx` → wired `LawyerForm.tsx:367` *(cap enforcement — see 🟡)* |
 | FAQs / social links / awards / publications / memberships | schema (`20260617000001_extend_lawyers_table.sql`) + form editors |
-| Chamber management + public chamber page | `app/directory/chamber/[id]`, `dashboard/chamber`, `ChamberForm` |
+| Chamber (Law Firm) management + public page | `app/directory/chamber/[id]`, `dashboard/chamber`, `ChamberForm` — full parity: hours, FAQs, gallery, intro video |
+| Chamber site-admin role | `20261016000007_chamber_admins.sql` — owner/admin, RLS-managed; PR publishing via `press-releases.ts` |
 | Search (specialty, location, rating, price, experience + keyword) | `app/directory/search`, `SearchFilters.tsx` |
+| Featured-first ranking + Featured badge | `.order('is_featured', {ascending:false})` `lib/directory/api.ts:77`; badge `LawyerCard.tsx:41,67` |
 | Lawyer public profile page | `app/directory/lawyer/[id]` |
 | Reviews (submit, display, auto-rating) | `components/directory/ReviewsSection.tsx`, reviews table |
 | Client inquiries inbox | `dashboard/inquiries`, `lawyer_inquiries` table |
+| Service requests (structured + payable) | `actions/service-requests.ts` (₦5,000 `app_settings.booking_fee`), `ServiceRequestForm.tsx`, webhook confirmation |
+| Bookings dashboard | `dashboard/bookings/page.tsx` → `getServiceRequestsForLawyer()`, role-gated |
+| Lawyard Lens courses | `20261016000006_lens_courses.sql`, `actions/courses.ts`, `/lens` + `/lens/[slug]`, Paystack checkout, ₦200k → ₦150k subscriber discount |
 | Content Studio (articles + podcasts) | `forms/PublishArticleForm.tsx`, `PublishPodcastForm.tsx` |
-| Slack editorial workflow (articles, podcasts, corporate posts) | `lib/slack.ts`, `app/api/slack/interactions` |
+| Post caps + credit ledger | `lib/directory/publishing.ts` (free 1 lifetime → paid 3/mo → ₦20,000 extra), `PublishQuotaBanner`, `20261016000002` |
+| Publishing surfaced on /directory/insights | Real `getArticles({limit:30})` grid, no longer a stub |
+| Intro video — premium-gated | `upload-intro-video.ts` (Supabase `intro-videos` bucket, 25MB) **or** external URL (`IntroVideoField.tsx`) |
+| Private pricing | `hide_price` toggle (`LawyerForm.tsx:436`), profile renders "Contact for pricing" |
+| Slack editorial workflow (articles, podcasts, corporate posts, press releases) | `lib/slack.ts`, `app/api/slack/interactions` |
 | WordPress publishing + media/tags/categories sync | `lib/wordpress.ts` |
 | Coupon-gated article publishing | `actions/content.ts` + `components/ui/coupon-input.tsx` |
 | Corporate posts (3 tiers, Paystack, admin review, scheduling) | `app/directory/corporate-posts/*` |
 | Shop + cart + checkout + orders | `app/(main)/shop`, `app/dashboard/orders` |
-| Paystack payments + webhook (HMAC-SHA512) | `lib/api/paystack.ts`, `app/api/webhooks/paystack` |
-| Plans table (DB-managed pricing) | `actions/plans.ts`, `getPlans()` — *but see 🟡 currency* |
+| Paystack payments + webhook (HMAC-SHA512) | `lib/api/paystack.ts`, `app/directory/api/webhooks/paystack` |
+| Plans table (DB-managed pricing) | `actions/plans.ts`, `getPlans()` — *values still dollar-era, see 🟡* |
 | Coupons (server-side enforced) + admin coupons UI | `app/admin/coupons`, coupons table |
 | Subscription expiry cron | `app/directory/api/cron` (Vercel Cron, daily) |
-| Verification flow (admin review) + Verified badge on cards | `app/admin/verifications`, `LawyerCard.tsx` ✓ Verified |
+| Verification flow (admin review) + Verified badge on cards | `app/admin/verifications`, `LawyerCard.tsx` |
 | Per-lawyer analytics — profile views + 14-day sparkline, inquiry trends | `AnalyticsSparkline.tsx`, `actions/analytics.ts` |
 | Admin — lawyers CRUD, content manager, subscribers, settings, transactions, pipeline | `app/admin/*` |
 | Route restructure (clean URLs, no `/directory` prefix) + middleware subdomain routing | `middleware.ts` |
-| Error boundary (root) | `app/error.tsx` |
+| Error boundary (root + directory) | `app/error.tsx`, `app/directory/error.tsx` *(not "all routes" — see 🟡)* |
 | Password visibility toggles, forgot-password modal, social icons in email footer | — |
 
 ---
@@ -60,26 +68,26 @@
 
 | Feature | Gap |
 |---|---|
-| **Intro video** | `intro_video_url` field + YouTube-embed display exist (`LawyerForm.tsx:73`, `lawyer/[id]:332`). No **upload/hosted** UI — Tier 1 ask is a real upload flow with cloud-storage cost modelling (12 Sep). |
-| **Pricing currency** | Plans seed still in **USD** (`$20 / $2`, `20260629000002_update_plans_data_exact.sql`). NGN direction is set; blocked on Tobi's 5 prices. |
-| **Gallery** | Upload + display done; per-tier image caps ("max 6 / max 3") are display-only, not enforced. |
+| **Gallery plan caps** | Caps defined (free 3 / premium 6 / firm 12) `lib/directory/publishing.ts:52-61` and passed in the lawyer + chamber forms, but **server-side enforcement is incomplete**: `submit-listing.ts:65,74` calls `galleryCapFor(tier)` without `isFirm`, so the firm cap isn't enforced; `chamber-form.tsx` writes straight from the browser Supabase client — **no server enforcement for chambers at all**. |
+| **Pricing currency** | `lib/currency.ts` formats NGN correctly, but `plans` is still seeded with dollar-era values (`20260629000002_update_plans_data_exact.sql`: `20.00`, `2.00`) and the table has **no currency column** — pages therefore render "₦20 / ₦2". Only the new `app_settings` prices (booking fee, course price, extra-post credits) are correctly NGN. Blocked on Tobi's 5 prices (Q2–Q6). |
+| **Silver tier** | Visible in the ladder and rank map (`publishing.ts:10,19`), upgrade card `BillingUpgradeCards.tsx:20` — but the plan rows are **₦0 with empty features** (`20261016000002:47-56`, marked PLACEHOLDER). Needs C21 contents. |
+| **Bookmarks** | Kept and renamed "Saved Lawyers", but the bookmark button renders **only on the profile page** (`lawyer/[id]/page.tsx:180`); `LawyerCard` accepts `bookmarked` and ignores it (`_bookmarked`), so cards have no save affordance. |
+| **Calendly removal** | UI is gone (form + profile), column kept by decision — but dead state/type fields remain (`LawyerForm.tsx:76,86,163`, `lawyer/[id]/page.tsx:42` never rendered). |
 | **Verified badge** | Card-level done; confirm profile-level + "Claim Badge" flow. |
-| **Error boundaries** | Root done; "on all routes" is a launch-checklist item. |
+| **Error boundaries** | Only two (`app/error.tsx`, `app/directory/error.tsx`) — no `app/admin/error.tsx`, no dashboard-level boundary. |
 
 ---
 
 ## 3. Scaffolded but empty 🟦
 
-Route directories exist but contain **no `page.tsx`** — dead links if nav points at them.
+Route directories exist but contain **no `page.tsx`** — dead scaffolding. Confirmed 2026-11-04 that **no nav links point at them** (sidebar only links `/dashboard/bookings`, which resolves).
 
 | Feature | Path |
 |---|---|
-| Bookings dashboard | `app/directory/dashboard/bookings/` (empty) |
-| Live chat dashboard | `app/directory/dashboard/chat/` (empty) |
-| Wallet | `app/directory/dashboard/wallet/` (empty) |
-| Packages | `app/directory/dashboard/packages/` (empty) |
-| Insights (directory) | `app/directory/insights` → `ComingSoon` |
-| Legislations (directory) | `app/directory/legislations` → `ComingSoon` |
+| Live chat dashboard | `app/directory/dashboard/chat/` |
+| Wallet | `app/directory/dashboard/wallet/` |
+| Packages | `app/directory/dashboard/packages/` |
+| Legislations (directory) | `app/directory/legislations/page.tsx` → `ComingSoon` only |
 
 ---
 
@@ -87,9 +95,8 @@ Route directories exist but contain **no `page.tsx`** — dead links if nav poin
 
 | Feature | Tier | Notes |
 |---|---|---|
-| Appointment / booking system | 3 | No table/actions. Only the Calendly field exists (see 🗑). |
 | Live chat | 4 | Empty dashboard dir; pricing page advertises it. |
-| Admin product analytics (signups · subscribers · revenue · funnel) | 5 | No `app/admin/analytics`. **Scope confirmed 2026-10-16** (distinct from per-lawyer widgets). |
+| Admin product analytics (signups · subscribers · revenue · funnel) | 5 | No `app/admin/analytics`. Stats exist only as a block on `app/admin/page.tsx:19`. **Scope confirmed 2026-10-16** (distinct from per-lawyer widgets). |
 | Admin enhancements — CSV export, growth charts, multi-admin roles, audit log, corporate-post analytics, WYSIWYG | 6 | — |
 | Infrastructure hardening | 7 | — |
 | Unit + E2E tests, CI/CD, monitoring, backup strategy | — | README "Testing & Infra" |
@@ -98,29 +105,37 @@ Route directories exist but contain **no `page.tsx`** — dead links if nav poin
 
 ## 5. 12 Sep call 💬 → mostly built ✅
 
-Agreed with Tobi 2026-09-12. Full context: `HANDOFF.md` §6. **Item-by-item walkthrough checklist + build outcome: [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md).** Most rows below shipped 2026-10-16/18; only these remain open:
+Agreed with Tobi 2026-09-12. Full context: `HANDOFF.md` §6. **Item-by-item walkthrough + build outcome: [`docs/TOBI-12SEP-CHANGES.md`](TOBI-12SEP-CHANGES.md).**
+
+Built and verified in code (2026-11-04): tier ladder, featured ranking, post caps + paid extras, insights surfacing, premium intro video (upload or URL), Lens courses, chamber parity, private pricing, service requests + paid bookings, no Calendly (UI), chamber admin + PR publishing, dashboard cleanup, NGN formatting, chamber→law-firm labels, gallery caps *(UI + lawyer path; enforcement gap above)*.
+
+Still open:
 
 | Feature | Detail |
 |---|---|
-| **Chambers tier (separate pricing)** | Chamber subscribes at its own price point; enterprise ₦3–5M/annum discussed vs ₦155k individual — needs Tobi's figures (C01/C04). |
-| **Silver tier contents** | Ladder built (Free→Silver→Premium); Tobi still owes a note on what stays in silver vs premium (C21). |
-| **Remove "link to directory" attribution** | Intent unclear — confirm with Tobi (C13). |
-| **Move to AWS** | Decided **no build** — stay on Supabase; self-host on DigitalOcean only if Shefiuu insists (C19). |
+| **Chambers tier (separate pricing)** | Chamber subscribes at its own price point; enterprise ₦3–5M/annum discussed vs ₦155k individual — needs Tobi's figures (C01/C04, Q1/Q9). |
+| **Silver tier contents** | Ladder built (Free→Silver→Premium) but silver plans are ₦0 placeholders — Tobi owes the note (C21, Q8). |
+| **Remove "link to directory" attribution** | Intent unclear — confirm with Tobi (C13, Q10). No attribution badge exists in code today. |
+| **Move to AWS** | Decided **no build** — stay on Supabase; self-host on DigitalOcean only if Shefiu insists (C19). |
 | **Foreign-currency listings** | NGN shipped end-to-end; foreign-listing handling still TBD (C20). |
-
-Built from this call: chamber/law-firm admin role + PR publishing, post caps, back-end article publishing surfaced on the directory, service requests, paid-only bookings, no Calendly (UI removed), private pricing, Lawyard Lens courses.
 
 ---
 
-## 6. Conflicts & cleanup 🗑❓
+## 6. Known defects found in the 2026-11-04 verification
 
-| Item | Situation |
-|---|---|
-| 🗑 **Calendly** | **Built** (`calendly_url` migration `20260711000001`, `LawyerForm.tsx:420`, display `lawyer/[id]:392`) but the 12 Sep call decided to **remove** it. Remove field + UI + migration or confirm reversal. |
-| 🗑 **Bookmarks** | Shipped (`dashboard/favorites`, `BookmarkButton`), but 12 Sep questioned/removed it. Confirm final call. |
-| ❓ **Pricing currency** | Public pricing reads DB plans seeded in **USD**; NGN is the direction. Blocked on Tobi's 5 prices. |
-| ❓ **Dead nav links** | Confirm the sidebar does not link to the empty `bookings/chat/wallet/packages` dirs. |
-| ❓ **"Email-based signing" bug** | Tobi-reported; interpretation (email auth vs e-signature) unconfirmed. `HANDOFF.md` §3. |
+| # | Defect | Evidence | Impact |
+|---|---|---|---|
+| D1 | `plans` still seeded in USD and formatted as NGN | `20260629000002_update_plans_data_exact.sql:13,24`; no currency column in `20260628000001_create_plans_table.sql` | Every plan page shows **₦20 / ₦2**. Blocked on Q2–Q6. |
+| D2 | Firm/law-firm gallery cap not enforced server-side; chamber gallery not validated at all | `submit-listing.ts:65,74` (no `isFirm`), `chamber-form.tsx` browser-client write | Free users can exceed caps via the chamber form. |
+| D3 | Silver plan rows are ₦0 with no features | `20261016000002:47-56` (PLACEHOLDER) | Pricing page advertises an empty tier. |
+| D4 | Corporate-posts Basic tier still on test price ₦100 | `lib/corporate-posts.json:6-7` | Do not ship to production pricing. |
+| D5 | Bookmark affordance absent from cards | `LawyerCard.tsx` destructures `_bookmarked` and ignores it | "Saved Lawyers" only usable from a profile page. |
+| D6 | Dead Calendly state/type fields after UI removal | `LawyerForm.tsx:76,86,163`, `lawyer/[id]/page.tsx:42` | Dead code; misleads future readers. |
+| D7 | Three empty dashboard dirs (chat/wallet/packages) | `app/directory/dashboard/{chat,wallet,packages}/` | Harmless, but suggests shipped features. |
+| D8 | No admin analytics route | no `app/admin/analytics` | Tier 5 blocked. |
+| D9 | Error boundaries on only two routes | `app/error.tsx`, `app/directory/error.tsx` | Admin + dashboard failures fall to the root boundary. |
+
+Security findings are **not** duplicated here — see [`docs/AUDIT-2026-10-20.md`](AUDIT-2026-10-20.md).
 
 ---
 
@@ -131,11 +146,12 @@ Built from this call: chamber/law-firm admin role + PR publishing, post caps, ba
 | Rate limiting (Upstash Redis) on forms | 🔴 |
 | pg_cron: auto-archive `pending_payment` > 24h | 🔴 |
 | PDF download infrastructure | 🔴 |
-| Error boundaries on all routes | 🟡 |
+| Error boundaries on all routes | 🟡 (D9) |
 | 301 redirects from old WordPress URLs | 🔴 |
 | Email notification system | 🔴 |
 | Subscription expiry cron | ✅ |
 | Paystack webhook fix (service role, chamber subs, featured) | ✅ |
+| Plans priced in NGN | 🔴 (D1 — blocked on Tobi Q2–Q6) |
 
 ---
 
@@ -152,5 +168,5 @@ Built from this call: chamber/law-firm admin role + PR publishing, post caps, ba
 ## Maintenance
 
 - **Update this board** whenever a feature ships or a decision lands — same pass as `CHANGELOG.md` / `TIMELINE.md`.
-- **Never trust the docs alone:** re-verify 🟡/🟦 rows against code before marking ✅.
+- **Never trust the docs alone:** re-verify 🟡/🟦 rows against code before marking ✅. Last full sweep: 2026-11-04.
 - Superseded by this file: the `README.md` §Status table and `docs/features.md` (task archive; references a missing `AGENT_TASKS.md`).

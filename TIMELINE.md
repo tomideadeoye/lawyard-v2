@@ -317,3 +317,22 @@ The bespoke board duplicated what the MerisLabs PM board already does for a mult
 
 ### Related Files
 - `app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`
+
+## 2026-11-04 (Evening — changeset shipped + status board re-verified)
+
+### Focus
+Commit/push the 12 Sep changeset, then re-verify the feature board against code instead of trusting a two-week-old doc.
+
+### What Changed
+- **Changeset pushed**: `164510d` — 121 files, +5890/−839 (C02 tiers, C03 featured ranking, C05 post caps, C07 insights, C08 intro video, C09 Lens, C10 gallery caps, C11 chamber parity, C12 private pricing, C14/C15 service requests, corporate-posts moved under `/directory`, migrations `20261016000001..07`, eslint flat config). Pre-push secret scan clean.
+- **`docs/FEATURE-STATUS.md` re-verified 2026-11-04** (was last verified 2026-10-16): 20 items checked in code, 15 confirmed shipped clean, 5 shipped-with-gaps, plus a new **§6 defect table (D1–D9)** so the gaps live in one place instead of evaporating into a session.
+- **Headline defects**: plans still seeded in USD but formatted as NGN (every plan page renders "₦20 / ₦2"); firm/chamber gallery caps unenforced server-side; silver tier is a ₦0 placeholder; corporate-posts Basic still on the ₦100 test price; bookmark button only on profile pages; dead Calendly fields; three empty dashboard dirs; no admin analytics; only two error boundaries.
+- **`docs/TOBI-12SEP-CHANGES.md`**: added a *Post-build verification* subsection mapping each gap back to its C-item, so Tobi's checklist and the code stop disagreeing.
+
+### Rationale
+A checklist that says ✅ and code that can't enforce the cap is the same false-success as a lint script that exits 0 without running — the board has to be read back from the code, not remembered. "18 of 23 shipped" was true; "all shipped cleanly" was not.
+
+### Related Files
+- `docs/FEATURE-STATUS.md` (re-verified + D1–D9), `docs/TOBI-12SEP-CHANGES.md` (post-build verification)
+- `lib/directory/publishing.ts`, `app/directory/actions/submit-listing.ts`, `app/directory/dashboard/chamber/chamber-form.tsx`
+- `supabase/migrations/20260629000002_update_plans_data_exact.sql` (root of D1)

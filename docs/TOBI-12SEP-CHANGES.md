@@ -217,6 +217,20 @@ For each item: read the request → note the current status → record a **Decis
 
 **Not built (deliberate):** C01, C04, C21 — blocked on Tobi's figures/notes · C13 — intent unclear · C19 — decided to stay on Supabase.
 
+### Post-build verification — 2026-11-04
+
+Re-verified every "shipped" item above against the code after the changeset was committed and deployed (`164510d`). Fifteen confirm clean; five shipped with gaps that don't invalidate the decision but must be closed before pricing goes public:
+
+| Item | Gap found | Where |
+|---|---|---|
+| C10 | Firm (12-image) cap isn't passed server-side; the chamber form writes directly from the browser client with no validation | `submit-listing.ts:65,74`, `chamber-form.tsx` |
+| C02 | Silver plan rows are **₦0 with no features** (PLACEHOLDER) — ladder exists, contents don't | `20261016000002:47-56` |
+| C12 | Toggle + profile display work, but search cards have no price field at all, so the toggle is moot there | `LawyerCard.tsx` |
+| C16 | Calendly UI is gone; dead state/type fields remain | `LawyerForm.tsx:76,86,163` |
+| C18 | Bookmarks kept, but the button only renders on a profile page — no card affordance | `lawyer/[id]:180`, `LawyerCard.tsx` |
+
+Full defect table (D1–D9), including the USD-seeded plans bug that makes every plan page render "₦20 / ₦2": [`docs/FEATURE-STATUS.md`](FEATURE-STATUS.md) §6.
+
 ---
 
 ## Questions for Tobi (accumulating → Sunday call)
