@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+- **Product-owner board (28 Oct)**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
+- **`docs/AUDIT-2026-10-20.md`**: full-repo audit — 3 critical (self-service admin promotion via unrestricted `profiles.role` UPDATE; leaked keys in git history; unauthenticated `/api/auth/hook` mail relay with HTML injection), high/medium findings on cron + payments + RLS, plus a suggested fix order
+
+### Fixed
+- **OAuth-only accounts at login (18 Oct)**: users who signed up with Google and had no password got a dead-end "Incorrect email or password" / "log in instead" on login/signup. Added `lib/auth/oauth-account.ts` (service-role lookup, fires only after a failed credential attempt — same enumeration surface as Clerk/Auth0 identifier-first flows) so they now see "This account signs in with Google. Continue with Google, or use 'Forgot your password?' to set a password." (`app/directory/login/actions.ts`)
+- **Auth email hook built 404 verify links**: `buildConfirmationUrl()` used `emailData.site_url` (the app domain) as the base — GoTrue hosts `/auth/v1/verify` on the Supabase project domain, so every confirm/magic-link/reset link 404'd. Now always built on `NEXT_PUBLIC_SUPABASE_URL` (`app/api/auth/hook/route.ts`)
+
 ### Docs
 - **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`
 - **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`

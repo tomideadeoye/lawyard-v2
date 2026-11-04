@@ -267,3 +267,53 @@ Tobi asked for a reviewable pass rather than a prototype: build the changes, he 
 - `supabase/migrations/20261016000001..07_*.sql` (new)
 - `app/directory/{lens,actions/{courses,press-releases,service-requests,upload-intro-video}}`
 - `lib/{currency.ts,directory/publishing.ts,constants.ts}`
+
+## 2026-10-18 (Evening — auth fix + deploy)
+
+### Focus
+Tobi's report: "email login doesn't work, only Google works."
+
+### What Changed
+- **Root cause (two bugs, one report)**: (1) Tobi's account is Google-identity-only with no password, so `signInWithPassword` always failed — and our error said "Incorrect email or password", a dead end; (2) the Brevo auth-email hook built `/auth/v1/verify` URLs on the **app domain**, which 404s — GoTrue hosts verify on the Supabase project domain (proved via `admin/generate_link` ground truth).
+- **Fixes**: `lib/auth/oauth-account.ts` detects OAuth-only accounts after a failed login/signup and points users at the provider + the set-password path; `app/api/auth/hook/route.ts` always builds verify URLs on `NEXT_PUBLIC_SUPABASE_URL`.
+- **Deployed**: commit `05caa76` → pushed → Vercel production (SHA verified against live deployment); `check:migrations` clean (40, in sync).
+- **Industry grounding** (researched): Auth0 keeps identities separate by default, Clerk auto-links on verified email both-sides, Google says key on `sub` not email, Ory/WorkOS document pre-account-takeover from unverified-email auto-linking — so: tell them which provider owns the account + set-password from an authenticated surface, never blind auto-merge.
+
+### Rationale
+A user with no password cannot be told "wrong password" — the message must name the real fix. The hook fix was on the critical path because "Forgot your password?" is how a Google-only user sets their first password.
+
+### Related Files
+- `lib/auth/oauth-account.ts` (new), `app/directory/login/actions.ts`, `app/api/auth/hook/route.ts`
+
+## 2026-10-20
+
+### Focus
+Full-repo read-through after the changeset deploy — static checks, auth/RLS/middleware review, payment-flow and repo-hygiene review.
+
+### What Changed
+- **`docs/AUDIT-2026-10-20.md` created** — 75-commit history audited; `tsc --noEmit` clean, `eslint` 0 errors/181 warnings.
+- **3 Critical**: C1 any logged-in user can self-promote to admin (`profiles.role` UPDATE policy has no `WITH CHECK`/column restriction + role→JWT trigger); C2 leaked keys in git history (rotate); C3 `/api/auth/hook` is an unauthenticated mail relay with HTML injection.
+- **High**: cron path broken (subscription expiry never fires), `verifyPayment` missing ownership/idempotency checks, dual-webhook overlap, `service_requests` RLS gaps, upload-route auth.
+- **Suggested order of work** recorded in the doc (rotate keys → lock role → secure hook → cron → payments → RLS → CI).
+
+### Rationale
+Architecture/authorization/process findings, not build breakage — an action isn't done until its effect is read back, and the same applies to the security posture.
+
+### Related Files
+- `docs/AUDIT-2026-10-20.md` (new)
+
+## 2026-10-28
+
+### Focus
+Product-owner workflow for Tobi — surface pending questions/insights, then move to the multi-client system.
+
+### What Changed
+- **`/product-owner` board** (`153014d`): token-gated API route + board component + `product_owner_questions` migration — pending questions + insight dump.
+- **Replaced by MerisLabs PM board embed** (`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page.
+- **Middleware exemption** (`518a5e3`): `/product-owner` removed from the directory rewrite so the route resolves.
+
+### Rationale
+The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two.
+
+### Related Files
+- `app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`

@@ -1,7 +1,7 @@
 # Lawyard — Session Handoff
 
 > Purpose: everything a fresh session needs to start Lawyard work without re-discovery.
-> Last updated: 2026-10-18 (Orion). Next milestone: **Sun 18 Oct, 7pm call — Tobi + Shefiu (close out website)**.
+> Last updated: 2026-11-04 (Orion). Next milestone: Tobi's pricing answers (Q1–Q11) → C01/C04/C13/C21 closure → audit fix pass (`docs/AUDIT-2026-10-20.md`).
 
 ## 0. Where everything is
 
@@ -21,26 +21,29 @@
 - **Shefiu Adeyemi** — integrator on the main site · +234 905 879 7631
 - WhatsApp group: **"Lawyard Feature Updates"** (room `!oLbTjDbxqMZvU0Mokr9K:beeper.local`)
 
-## 1. ⚠️ START HERE — uncommitted work
+## 1. Where the 12 Sep changeset stands (updated 2026-11-04)
 
-`git log` last commit = **2026-08-12** (`docs-sync: Slack review for podcasts/corporate posts…`).
-The working tree now holds the **full 12 Sep changeset build** — **96 changed paths** (~70 modified/deleted + ~26 untracked), ~1,750 insertions across 70 tracked files.
+**Everything is committed, pushed, and deployed.** `main` = production (Vercel ships on push).
 
-**Built 2026-10-16/18 (18 of 23 items)** — see the build-outcome table in `docs/TOBI-12SEP-CHANGES.md`. Highlights: three-tier Free→Silver→Premium, NGN end-to-end (`lib/currency.ts`), post quotas + credits, paid service requests, Lawyard Lens courses (`/lens`), law-firm admin role + PR publishing, chamber page parity, "Chamber"→"Law Firm" labels (`TERMS`), featured-first ranking, private pricing, intro-video upload, Calendly UI removed.
+- `164510d` — the 18-of-23 changeset (build green, lint 0 errors / 181 warnings)
+- `05caa76` — auth fixes (OAuth-only login messaging + email-hook verify URL; 2026-10-18)
+- `153014d`/`7454fc2`/`518a5e3` — product-owner board → MerisLabs PM embed (2026-10-28)
 
-**Seven migrations are APPLIED to production** (`supabase db push`, 2026-10-18 — `20261016000001..07`): hide_price · post caps/credits · service_requests · intro-videos bucket · chambers parity · lens courses (AI Governance seeded ₦200k/₦150k) · chamber_admins. Verified via REST read-back.
+**Seven migrations APPLIED to production** (`20261016000001..07`): hide_price · post caps/credits · service_requests · intro-videos bucket · chambers parity · lens courses (AI Governance seeded ₦200k/₦150k) · chamber_admins — verified via REST read-back. Schema and code match; `pnpm run check:migrations` is the gate (40, in sync).
 
-**`pnpm run build` green + TypeScript clean. Nothing committed and nothing deployed** — Vercel ships on push, so prod code still predates these features until the commit lands.
-
-**First action next session:** commit this changeset (stage only session files, not stray drift) after Tomide's go, then deploy.
+**Still open from the changeset:** C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build" — stay on Supabase). ⚠ **Corporate-posts Basic tier still on test price ₦100** — revert once real prices land.
 
 ## 2. The 18 Oct call — what Tobi actually wants
 
 Tobi has asked three times (6, 7, 13 Oct) for the **design update** — *"There are some things I want Shefiu to integrate to the main page."* The call is to close out the website. Bring: (a) where the build actually is, (b) the pricing answers (below), (c) the feature decisions from the 12 Sep transcript.
 
-## 3. 🐞 Tobi-reported bug (new, 2026-10-16)
+## 3. 🐞 Tobi-reported bug — RESOLVED (2026-10-18, `05caa76`)
 
-**"Email-based signing doesn't work yet."** — reported by Tobi via Tomide. *Interpretation to confirm:* most likely **email auth (sign-up / sign-in / magic link)**, given the auth-heavy CHANGELOG history (Brevo auth hook, `mapAuthError`, callback double-prefix fixes). Could alternatively mean e-signature — **confirm with Tobi before building.** Not yet reproduced or logged.
+**"Email login doesn't work, only Google works."** — two stacked causes, both fixed:
+1. **Tobi's account is Google-identity-only, no password** — `signInWithPassword` always fails; the error was a dead-end "Incorrect email or password". Now: `lib/auth/oauth-account.ts` detects this after a failed attempt and says *"This account signs in with Google. Continue with Google, or use 'Forgot your password?' to set a password."* Same fix on signup's "already registered" dead-end.
+2. **Auth-email hook built 404 verify links** — `buildConfirmationUrl()` used the app domain as base; GoTrue hosts `/auth/v1/verify` on the Supabase project domain (ground truth via `admin/generate_link`). Now always `NEXT_PUBLIC_SUPABASE_URL`.
+
+**Path for Tobi:** sign in with Google → Settings → Password & Security → set password → both methods work on the same account. Magic-link/reset emails depend on the hook being *enabled* in the Supabase dashboard — no management token to verify that; **confirm in dashboard → Auth → Hooks**.
 
 ## 4. Open work (from README)
 
@@ -118,11 +121,13 @@ pnpm run check:migrations   # FAILS if local migration files are unapplied to th
 
 ## 8. Live items to close
 
-- [ ] Reply to Tobi/Shefiu with the **design update** before Sun 7pm
-- [ ] Confirm the **email-auth bug** interpretation, then reproduce + fix
+- [ ] Check whether the **design update** to Tobi/Shefiu (asked 3× — 6/7/13 Oct) was ever sent, and what came of the 18 Oct call — no record in this repo after 2026-10-18
+- [ ] **Security fix pass** — `docs/AUDIT-2026-10-20.md` suggested order: rotate leaked keys (C2) → lock `profiles.role` (C1) → secure `/api/auth/hook` (C3) → cron path (H1) → `verifyPayment` ownership/idempotency (H2) → RLS + uploads (H4/H5) → CI (tsc/eslint/check:migrations/gitleaks)
 - [ ] Answer the 5 pricing questions + clash-detection question (Q1, Q2–Q6, Q7 in `docs/TOBI-12SEP-CHANGES.md`)
-- [ ] **Commit + deploy the 12 Sep changeset** (built, migrations live, code not yet pushed)
 - [ ] Get Tobi's verdict on C13 (remove directory attribution?) and C21 (silver contents) — the two undecided items
-- [ ] End-to-end smoke test once deployed: course checkout, PR publish → Slack review, service-request payment
+- [ ] Confirm the Brevo email hook is **enabled** in Supabase dashboard (Auth → Hooks) — magic-link/reset emails depend on it; no management token to read it programmatically
+- [ ] Revert corporate-posts Basic tier from test price ₦100 once real prices land
+- [ ] End-to-end smoke test: course checkout, PR publish → Slack review, service-request payment
 - [ ] Product analytics / telemetry (Tier 5) — signups · subscribers · revenue · funnel (admin-facing; not the per-lawyer widgets)
-- [ ] `pnpm run lint` is broken repo-wide (`next lint` → "Invalid project directory") — logged as a tool improvement
+
+**Closed since 2026-10-18:** email-auth bug fixed (`05caa76`, deployed) · 12 Sep changeset committed + deployed · `pnpm run lint` fixed (eslint flat config, 0 errors).
