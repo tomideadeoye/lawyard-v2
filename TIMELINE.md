@@ -336,3 +336,22 @@ A checklist that says ✅ and code that can't enforce the cap is the same false-
 - `docs/FEATURE-STATUS.md` (re-verified + D1–D9), `docs/TOBI-12SEP-CHANGES.md` (post-build verification)
 - `lib/directory/publishing.ts`, `app/directory/actions/submit-listing.ts`, `app/directory/dashboard/chamber/chamber-form.tsx`
 - `supabase/migrations/20260629000002_update_plans_data_exact.sql` (root of D1)
+
+## 2026-11-05 — Docs become data (registry + render gate)
+
+### Focus
+Stop letting markdown drift from the code: make the living docs machine-readable, the way Orion's design register already works.
+
+### What Changed
+- **`docs/data/{features,changeset,defects,questions}.json`** added as the source of truth: 54 features, 23 changeset items (with `alternatives` — the rejected option and why), 9 defects, 11 questions.
+- **`scripts/docs.mjs`** renders `docs/FEATURE-STATUS.md` + `docs/TOBI-12SEP-CHANGES.md` and validates: id formats/uniqueness, status vocabularies, cross-references in both directions (feature ↔ change ↔ defect ↔ question), and **every evidence pointer against the real filesystem**.
+- **Commands**: `pnpm run docs:render` · `docs:check` (fails on drift, dangling refs, deleted evidence) · `docs:ask` (open questions for Tobi) · `docs:stats`.
+- **`alternatives`** added to changeset items — the fork not taken, and why it lost (e.g. C15: routing the lawyer's fee rejected for escrow/payment-intermediary exposure).
+- Verified the gate both ways: a hand edit to the md fails `--check` with the first differing line; a missing evidence path fails validation.
+
+### Rationale
+The same failure mode as a lint script that exits 0 without running: a doc that says ✅ while the code can't enforce the cap. If the page is generated from data that is validated against the filesystem, a stale claim becomes a build error instead of a false memory.
+
+### Related Files
+- `docs/data/*.json`, `scripts/docs.mjs`, `package.json` (docs scripts)
+- `docs/FEATURE-STATUS.md`, `docs/TOBI-12SEP-CHANGES.md` (now generated)

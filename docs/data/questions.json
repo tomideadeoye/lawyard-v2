@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "note": "Questions blocking build decisions. Rendered into docs/TOBI-12SEP-CHANGES.md. 'answered' questions keep their answer here — the record is the point.",
+  "questions": [
+    {
+      "id": "Q1",
+      "question": "Chamber subscription model — per member lawyer (seat-based), or flat per chamber?",
+      "from": [
+        "C01"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q2",
+      "question": "Premium Single (Lawyer, 365d) — NGN price?",
+      "from": [
+        "C20"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q3",
+      "question": "Premium Package (Lawyer, 365d) — NGN price?",
+      "from": [
+        "C20"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q4",
+      "question": "Premium Single (Client, 90d) — NGN price?",
+      "from": [
+        "C20"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q5",
+      "question": "Premium Package (Client, 90d) — NGN price?",
+      "from": [
+        "C20"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q6",
+      "question": "Premium (Chamber / Law Firm, 365d) — NGN price?",
+      "from": [
+        "C20"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q7",
+      "question": "Scrap the 60-min corporate-post clash detection? (blocks back-to-back posts from different brands)",
+      "from": [],
+      "status": "open",
+      "answer": null,
+      "source": "pre-existing (corporate posts)"
+    },
+    {
+      "id": "Q8",
+      "question": "Silver category — which items stay vs get added?",
+      "from": [
+        "C21"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q9",
+      "question": "Exact annual figure for enterprise / law firm (range heard as ₦3–5M — confirm)",
+      "from": [
+        "C04"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q10",
+      "question": "Take out the 'link to directory' — remove the Link Directory feature, or a badge/attribution?",
+      "from": [
+        "C13"
+      ],
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q11",
+      "question": "Booking fee amount (client → Lawyard, before the slot is confirmed)",
+      "from": [
+        "C15"
+      ],
+      "status": "open",
+      "answer": null
+    }
+  ]
+}

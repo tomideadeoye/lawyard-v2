@@ -14,6 +14,7 @@
 | Ops skill | `~/.hermes/skills/general/lawyard-ops/SKILL.md` (build pitfalls, auth-surface rules, admin UI, not-found conventions) |
 | Project record | `projects` table id `bf2d6129-9fab-4771-a0dd-9bf6382079b7` (currently marked *completed* — actually active) |
 | Context docs | `README.md` (active contract), `CHANGELOG.md`, `TIMELINE.md`, `docs/ARCHITECTURE.md`, `docs/CONTENT_WORKFLOW.md`, `docs/features.md` |
+| Living registries | `docs/data/{features,changeset,defects,questions}.json` — source of truth; `docs/FEATURE-STATUS.md` + `docs/TOBI-12SEP-CHANGES.md` are **generated** (`pnpm run docs:render`), never hand-edited |
 | Ingested transcript | `documents` table id `02f7f537-124c-40ea-9f42-116b729ab366` (12 Sep feature/design call) |
 
 **People**
@@ -115,7 +116,12 @@ pnpm dev          # main :3000 · admin /admin · directory /directory
 pnpm run build    # always verify after route/auth changes (stale caches mislead)
 pnpm run lint          # eslint . (flat config, added 2026-10-18; `next lint` was dead in Next 16)
 pnpm run check:migrations   # FAILS if local migration files are unapplied to the linked project
+pnpm run docs:render   # regenerate the two status docs from docs/data/*.json
+pnpm run docs:check    # FAILS if those docs drifted, an id dangles, or an evidence path is gone
+pnpm run docs:ask      # print the open questions for Tobi
 ```
+
+**Docs rule:** `docs/FEATURE-STATUS.md` and `docs/TOBI-12SEP-CHANGES.md` are build artifacts. Change the JSON, run `docs:render`. `docs:check` validates ids, statuses, cross-references (feature ↔ change ↔ defect ↔ question) and checks every evidence path still exists on disk — a claim pointing at deleted code fails the gate.
 
 **After writing any new migration:** `pnpm run migrations:push` then `pnpm run check:migrations` to confirm — seven migrations sat unapplied for days in Oct 2026 because nothing checked.
 

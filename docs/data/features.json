@@ -1,0 +1,685 @@
+{
+  "schema": 1,
+  "verified": "2026-11-04",
+  "note": "Source of truth for 'is it built?'. Rendered to docs/FEATURE-STATUS.md. Evidence paths are checked against the filesystem by scripts/docs.mjs.",
+  "features": [
+    {
+      "id": "F-01",
+      "name": "Auth — email/password, Google OAuth, magic link, password recovery",
+      "status": "shipped",
+      "area": "auth",
+      "evidence": [
+        "app/directory/login",
+        "components/directory/auth",
+        "lib/auth/oauth-account.ts"
+      ]
+    },
+    {
+      "id": "F-02",
+      "name": "Account settings — profile, password, email change, delete",
+      "status": "shipped",
+      "area": "account",
+      "evidence": [
+        "app/directory/dashboard/settings/page.tsx",
+        "components/directory/dashboard/EmailChangeDialog.tsx",
+        "components/directory/dashboard/DeleteAccountDialog.tsx"
+      ]
+    },
+    {
+      "id": "F-03",
+      "name": "Branded auth emails (Brevo auth hook)",
+      "status": "shipped",
+      "area": "auth",
+      "evidence": [
+        "app/api/auth/hook/route.ts"
+      ],
+      "note": "Verify URLs always built on NEXT_PUBLIC_SUPABASE_URL (fixed in 05caa76)."
+    },
+    {
+      "id": "F-04",
+      "name": "Turnstile CAPTCHA on auth flows",
+      "status": "shipped",
+      "area": "auth",
+      "evidence": [
+        "components/directory/auth/TurnstileWidget.tsx"
+      ]
+    },
+    {
+      "id": "F-05",
+      "name": "Lawyer multi-step profile wizard",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "components/directory/forms/LawyerForm.tsx",
+        "components/directory/forms/FormStep.tsx"
+      ]
+    },
+    {
+      "id": "F-06",
+      "name": "Working-hours editor",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "components/directory/forms/listing/WorkingHoursEditor.tsx",
+        "components/directory/forms/LawyerForm.tsx"
+      ]
+    },
+    {
+      "id": "F-07",
+      "name": "Gallery upload",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "components/directory/forms/listing/GalleryUpload.tsx",
+        "components/directory/forms/LawyerForm.tsx"
+      ],
+      "defects": [
+        "D2"
+      ]
+    },
+    {
+      "id": "F-08",
+      "name": "FAQs, social links, awards, publications, memberships",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "supabase/migrations/20260617000001_extend_lawyers_table.sql",
+        "components/directory/forms/listing/FaqEditor.tsx",
+        "components/directory/forms/listing/SocialLinksEditor.tsx"
+      ]
+    },
+    {
+      "id": "F-09",
+      "name": "Law Firm (chamber) management + public page, full parity",
+      "status": "shipped",
+      "area": "firms",
+      "evidence": [
+        "app/directory/chamber/[id]/page.tsx",
+        "app/directory/dashboard/chamber/page.tsx",
+        "app/directory/dashboard/chamber/chamber-form.tsx"
+      ],
+      "note": "Hours, FAQs, gallery, intro video all render on the public page.",
+      "changes": [
+        "C11",
+        "C23"
+      ]
+    },
+    {
+      "id": "F-10",
+      "name": "Chamber site-admin role + press-release publishing",
+      "status": "shipped",
+      "area": "firms",
+      "evidence": [
+        "supabase/migrations/20261016000007_chamber_admins.sql",
+        "app/directory/actions/press-releases.ts",
+        "app/directory/dashboard/chamber/publish-press-release-form.tsx"
+      ],
+      "changes": [
+        "C17"
+      ]
+    },
+    {
+      "id": "F-11",
+      "name": "Search — specialty, location, rating, price, experience + keyword",
+      "status": "shipped",
+      "area": "search",
+      "evidence": [
+        "app/directory/search/page.tsx",
+        "components/directory/search/SearchFilters.tsx"
+      ]
+    },
+    {
+      "id": "F-12",
+      "name": "Featured-first ranking + Featured badge",
+      "status": "shipped",
+      "area": "search",
+      "evidence": [
+        "lib/directory/api.ts",
+        "components/directory/LawyerCard.tsx"
+      ],
+      "changes": [
+        "C03"
+      ]
+    },
+    {
+      "id": "F-13",
+      "name": "Lawyer public profile page",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "app/directory/lawyer/[id]/page.tsx"
+      ]
+    },
+    {
+      "id": "F-14",
+      "name": "Reviews — submit, display, auto-rating",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "components/directory/ReviewsSection.tsx"
+      ]
+    },
+    {
+      "id": "F-15",
+      "name": "Client inquiries inbox",
+      "status": "shipped",
+      "area": "messaging",
+      "evidence": [
+        "app/directory/dashboard/inquiries/page.tsx",
+        "app/directory/actions/inquiries.ts"
+      ]
+    },
+    {
+      "id": "F-16",
+      "name": "Service requests — structured + payable",
+      "status": "shipped",
+      "area": "monetization",
+      "evidence": [
+        "app/directory/actions/service-requests.ts",
+        "app/directory/lawyer/[id]/ServiceRequestForm.tsx",
+        "supabase/migrations/20261016000003_service_requests.sql"
+      ],
+      "note": "₦5,000 booking fee seeded in app_settings; confirmed by the Paystack webhook.",
+      "changes": [
+        "C14",
+        "C15"
+      ]
+    },
+    {
+      "id": "F-17",
+      "name": "Bookings dashboard",
+      "status": "shipped",
+      "area": "monetization",
+      "evidence": [
+        "app/directory/dashboard/bookings/page.tsx",
+        "app/directory/dashboard/bookings/bookings-client.tsx"
+      ],
+      "changes": [
+        "C15"
+      ]
+    },
+    {
+      "id": "F-18",
+      "name": "Lawyard Lens courses + subscriber discount",
+      "status": "shipped",
+      "area": "monetization",
+      "evidence": [
+        "app/directory/lens/page.tsx",
+        "app/directory/lens/[slug]/page.tsx",
+        "app/directory/actions/courses.ts",
+        "supabase/migrations/20261016000006_lens_courses.sql"
+      ],
+      "note": "AI Governance seeded ₦200k, ₦150k for directory subscribers; Paystack checkout.",
+      "changes": [
+        "C09"
+      ]
+    },
+    {
+      "id": "F-19",
+      "name": "Content Studio — articles + podcasts",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "components/directory/forms/PublishArticleForm.tsx",
+        "components/directory/forms/PublishPodcastForm.tsx"
+      ]
+    },
+    {
+      "id": "F-20",
+      "name": "Post caps + credit ledger",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "lib/directory/publishing.ts",
+        "app/directory/actions/publishing.ts",
+        "app/directory/dashboard/publish/PublishQuotaBanner.tsx",
+        "supabase/migrations/20261016000002_post_caps_and_credits.sql"
+      ],
+      "note": "Free 1 lifetime → paid 3/month → ₦20,000 extra-post credits.",
+      "changes": [
+        "C05",
+        "C06"
+      ]
+    },
+    {
+      "id": "F-21",
+      "name": "Published articles surface on /directory/insights",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "app/directory/insights/page.tsx"
+      ],
+      "changes": [
+        "C07"
+      ]
+    },
+    {
+      "id": "F-22",
+      "name": "Intro video — premium-gated, upload or external URL",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "app/directory/actions/upload-intro-video.ts",
+        "components/directory/forms/listing/IntroVideoField.tsx",
+        "supabase/migrations/20261016000004_intro_videos_bucket.sql"
+      ],
+      "note": "Supabase storage bucket (25MB cap) rather than R2; external YouTube/Vimeo URL accepted too.",
+      "changes": [
+        "C08"
+      ]
+    },
+    {
+      "id": "F-23",
+      "name": "Private pricing — hide the number, keep the section",
+      "status": "shipped",
+      "area": "profile",
+      "evidence": [
+        "supabase/migrations/20261016000001_add_hide_price_to_lawyers.sql",
+        "components/directory/forms/LawyerForm.tsx",
+        "app/directory/lawyer/[id]/page.tsx"
+      ],
+      "note": "Profile renders 'Contact for pricing'; search cards have no price field, so the toggle is moot there.",
+      "changes": [
+        "C12"
+      ]
+    },
+    {
+      "id": "F-24",
+      "name": "Slack editorial workflow (articles, podcasts, corporate posts, PR)",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "lib/slack.ts",
+        "app/api/slack/interactions/route.ts"
+      ]
+    },
+    {
+      "id": "F-25",
+      "name": "WordPress publishing + media/tags/categories sync",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "lib/wordpress.ts"
+      ]
+    },
+    {
+      "id": "F-26",
+      "name": "Coupon-gated article publishing",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "app/directory/actions/content.ts",
+        "components/ui/coupon-input.tsx"
+      ]
+    },
+    {
+      "id": "F-27",
+      "name": "Corporate posts — 3 tiers, Paystack, admin review, scheduling",
+      "status": "shipped",
+      "area": "content",
+      "evidence": [
+        "app/directory/corporate-posts/page.tsx",
+        "app/directory/corporate-posts/submit/page.tsx",
+        "app/actions/corporate-posts.ts"
+      ],
+      "defects": [
+        "D4"
+      ]
+    },
+    {
+      "id": "F-28",
+      "name": "Shop + cart + checkout + orders",
+      "status": "shipped",
+      "area": "commerce",
+      "evidence": [
+        "app/(main)/shop",
+        "app/dashboard/orders/page.tsx"
+      ]
+    },
+    {
+      "id": "F-29",
+      "name": "Paystack payments + webhook (HMAC-SHA512)",
+      "status": "shipped",
+      "area": "commerce",
+      "evidence": [
+        "lib/api/paystack.ts",
+        "app/directory/api/webhooks/paystack/route.ts"
+      ]
+    },
+    {
+      "id": "F-30",
+      "name": "Plans table (DB-managed pricing)",
+      "status": "shipped",
+      "area": "commerce",
+      "evidence": [
+        "app/directory/actions/plans.ts",
+        "supabase/migrations/20260628000001_create_plans_table.sql"
+      ],
+      "note": "Mechanism works; the seeded values are dollar-era — see D1.",
+      "defects": [
+        "D1"
+      ]
+    },
+    {
+      "id": "F-31",
+      "name": "Coupons — server-side enforced + admin UI",
+      "status": "shipped",
+      "area": "commerce",
+      "evidence": [
+        "app/admin/coupons/page.tsx",
+        "app/actions/validate-coupon.ts"
+      ]
+    },
+    {
+      "id": "F-32",
+      "name": "Subscription expiry cron",
+      "status": "shipped",
+      "area": "commerce",
+      "evidence": [
+        "app/directory/api/cron/expire-subscriptions/route.ts"
+      ]
+    },
+    {
+      "id": "F-33",
+      "name": "Verification flow (admin review) + Verified badge on cards",
+      "status": "shipped",
+      "area": "trust",
+      "evidence": [
+        "app/admin/verifications/verifications-table.tsx",
+        "components/directory/LawyerCard.tsx"
+      ]
+    },
+    {
+      "id": "F-34",
+      "name": "Per-lawyer analytics — profile views, 14-day sparkline, inquiry trends",
+      "status": "shipped",
+      "area": "analytics",
+      "evidence": [
+        "components/directory/dashboard/AnalyticsSparkline.tsx",
+        "app/directory/actions/analytics.ts"
+      ]
+    },
+    {
+      "id": "F-35",
+      "name": "Admin suite — lawyers, content, subscribers, settings, transactions, pipeline",
+      "status": "shipped",
+      "area": "admin",
+      "evidence": [
+        "app/admin/page.tsx",
+        "app/admin/lawyers/page.tsx",
+        "app/admin/pipeline/actions.ts"
+      ]
+    },
+    {
+      "id": "F-36",
+      "name": "Route restructure (clean URLs) + middleware subdomain routing",
+      "status": "shipped",
+      "area": "platform",
+      "evidence": [
+        "middleware.ts"
+      ]
+    },
+    {
+      "id": "F-37",
+      "name": "Error boundary — root + directory",
+      "status": "shipped",
+      "area": "platform",
+      "evidence": [
+        "app/error.tsx",
+        "app/directory/error.tsx"
+      ],
+      "defects": [
+        "D9"
+      ]
+    },
+    {
+      "id": "F-38",
+      "name": "Auth UX polish — password toggles, forgot-password modal, email footer",
+      "status": "shipped",
+      "area": "auth",
+      "evidence": [
+        "components/directory/auth"
+      ]
+    },
+    {
+      "id": "F-39",
+      "name": "Gallery plan caps",
+      "status": "partial",
+      "area": "profile",
+      "evidence": [
+        "lib/directory/publishing.ts",
+        "app/directory/actions/submit-listing.ts",
+        "app/directory/dashboard/chamber/chamber-form.tsx"
+      ],
+      "gap": "Caps defined (free 3 / premium 6 / firm 12) but the firm cap is never passed server-side, and the chamber form writes from the browser client with no validation.",
+      "defects": [
+        "D2"
+      ],
+      "changes": [
+        "C10"
+      ]
+    },
+    {
+      "id": "F-40",
+      "name": "Pricing currency (NGN)",
+      "status": "partial",
+      "area": "commerce",
+      "evidence": [
+        "lib/currency.ts",
+        "supabase/migrations/20260629000002_update_plans_data_exact.sql"
+      ],
+      "gap": "Formatter is correct, but plans are seeded with dollar-era values and the table has no currency column — pages render ₦20 / ₦2. Blocked on Q2–Q6.",
+      "defects": [
+        "D1"
+      ],
+      "changes": [
+        "C20"
+      ]
+    },
+    {
+      "id": "F-41",
+      "name": "Silver tier",
+      "status": "partial",
+      "area": "commerce",
+      "evidence": [
+        "lib/directory/publishing.ts",
+        "components/directory/dashboard/BillingUpgradeCards.tsx",
+        "supabase/migrations/20261016000002_post_caps_and_credits.sql"
+      ],
+      "gap": "Visible in the ladder and upgrade card, but the plan rows are ₦0 with empty features (PLACEHOLDER). Needs C21 contents.",
+      "defects": [
+        "D3"
+      ],
+      "changes": [
+        "C02",
+        "C21"
+      ]
+    },
+    {
+      "id": "F-42",
+      "name": "Bookmarks — 'Saved Lawyers'",
+      "status": "partial",
+      "area": "profile",
+      "evidence": [
+        "app/directory/dashboard/favorites/page.tsx",
+        "components/directory/BookmarkButton.tsx",
+        "components/directory/LawyerCard.tsx"
+      ],
+      "gap": "Kept and renamed, but the button renders only on the profile page; cards accept `bookmarked` and ignore it.",
+      "defects": [
+        "D5"
+      ],
+      "changes": [
+        "C18"
+      ]
+    },
+    {
+      "id": "F-43",
+      "name": "Calendly removal",
+      "status": "partial",
+      "area": "profile",
+      "evidence": [
+        "components/directory/forms/LawyerForm.tsx",
+        "app/directory/lawyer/[id]/page.tsx",
+        "supabase/migrations/20260711000001_add_calendly_url.sql"
+      ],
+      "gap": "UI is gone (column kept by decision), but dead state/type fields remain.",
+      "defects": [
+        "D6"
+      ],
+      "changes": [
+        "C16"
+      ]
+    },
+    {
+      "id": "F-44",
+      "name": "Verified badge at profile level + Claim Badge flow",
+      "status": "partial",
+      "area": "trust",
+      "evidence": [
+        "components/directory/LawyerCard.tsx"
+      ],
+      "gap": "Card-level done; profile-level badge and claim flow unconfirmed."
+    },
+    {
+      "id": "F-45",
+      "name": "Error boundaries on all routes",
+      "status": "partial",
+      "area": "platform",
+      "evidence": [
+        "app/error.tsx",
+        "app/directory/error.tsx"
+      ],
+      "gap": "No app/admin/error.tsx and no dashboard-level boundary.",
+      "defects": [
+        "D9"
+      ]
+    },
+    {
+      "id": "F-46",
+      "name": "Live chat dashboard",
+      "status": "scaffolded",
+      "area": "messaging",
+      "evidence": [
+        "app/directory/dashboard/chat"
+      ],
+      "gap": "Directory exists with no page.tsx; no nav link points at it."
+    },
+    {
+      "id": "F-47",
+      "name": "Wallet",
+      "status": "scaffolded",
+      "area": "commerce",
+      "evidence": [
+        "app/directory/dashboard/wallet"
+      ],
+      "gap": "Empty dir; no nav link."
+    },
+    {
+      "id": "F-48",
+      "name": "Packages",
+      "status": "scaffolded",
+      "area": "commerce",
+      "evidence": [
+        "app/directory/dashboard/packages"
+      ],
+      "gap": "Empty dir; no nav link."
+    },
+    {
+      "id": "F-49",
+      "name": "Legislations archive",
+      "status": "scaffolded",
+      "area": "content",
+      "evidence": [
+        "app/directory/legislations/page.tsx"
+      ],
+      "gap": "ComingSoon stub only."
+    },
+    {
+      "id": "F-50",
+      "name": "Live chat",
+      "status": "not_started",
+      "area": "messaging",
+      "gap": "Pricing page advertises live chat; no code.",
+      "tier": 4
+    },
+    {
+      "id": "F-51",
+      "name": "Admin product analytics — signups, subscribers, revenue, funnel",
+      "status": "not_started",
+      "area": "analytics",
+      "gap": "No app/admin/analytics; stats live as a block on the dashboard.",
+      "tier": 5,
+      "defects": [
+        "D8"
+      ]
+    },
+    {
+      "id": "F-52",
+      "name": "Admin enhancements — CSV export, growth charts, multi-admin, audit log, WYSIWYG",
+      "status": "not_started",
+      "area": "admin",
+      "tier": 6,
+      "gap": "No work started."
+    },
+    {
+      "id": "F-53",
+      "name": "Infrastructure hardening",
+      "status": "not_started",
+      "area": "platform",
+      "tier": 7,
+      "gap": "No work started."
+    },
+    {
+      "id": "F-54",
+      "name": "Unit + E2E tests, CI/CD, monitoring, backup strategy",
+      "status": "not_started",
+      "area": "platform",
+      "gap": "README 'Testing & Infra' section only."
+    }
+  ],
+  "launch_checklist": [
+    {
+      "item": "Rate limiting (Upstash Redis) on forms",
+      "status": "not_started"
+    },
+    {
+      "item": "pg_cron: auto-archive pending_payment > 24h",
+      "status": "not_started"
+    },
+    {
+      "item": "PDF download infrastructure",
+      "status": "not_started"
+    },
+    {
+      "item": "Error boundaries on all routes",
+      "status": "partial",
+      "defects": [
+        "D9"
+      ]
+    },
+    {
+      "item": "301 redirects from old WordPress URLs",
+      "status": "not_started"
+    },
+    {
+      "item": "Email notification system",
+      "status": "not_started"
+    },
+    {
+      "item": "Subscription expiry cron",
+      "status": "shipped"
+    },
+    {
+      "item": "Paystack webhook fix (service role, chamber subs, featured)",
+      "status": "shipped"
+    },
+    {
+      "item": "Plans priced in NGN",
+      "status": "not_started",
+      "defects": [
+        "D1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "verified": "2026-11-04",
+  "note": "Known product defects found by code verification. Rendered into docs/FEATURE-STATUS.md §6. Security findings stay in docs/AUDIT-2026-10-20.md.",
+  "defects": [
+    {
+      "id": "D1",
+      "title": "Plans still seeded in USD but formatted as NGN",
+      "severity": "high",
+      "status": "open",
+      "impact": "Every plan page renders ₦20 / ₦2. Blocked on Q2–Q6.",
+      "evidence": ["supabase/migrations/20260629000002_update_plans_data_exact.sql", "supabase/migrations/20260628000001_create_plans_table.sql", "lib/currency.ts"],
+      "fix": "Add a currency column to plans and re-seed with Tobi's NGN figures once Q2–Q6 are answered.",
+      "changes": ["C20"],
+      "features": ["F-40", "F-30"]
+    },
+    {
+      "id": "D2",
+      "title": "Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated",
+      "severity": "high",
+      "status": "open",
+      "impact": "Free users can exceed gallery caps via the chamber form.",
+      "evidence": ["app/directory/actions/submit-listing.ts", "app/directory/dashboard/chamber/chamber-form.tsx", "lib/directory/publishing.ts"],
+      "fix": "Pass isFirm into galleryCapFor at submit-listing.ts:65,74 and move the chamber form onto a server action with the same validation.",
+      "changes": ["C10"],
+      "features": ["F-39", "F-07"]
+    },
+    {
+      "id": "D3",
+      "title": "Silver plan rows are ₦0 with no features",
+      "severity": "high",
+      "status": "open",
+      "impact": "The pricing page advertises an empty middle tier.",
+      "evidence": ["supabase/migrations/20261016000002_post_caps_and_credits.sql"],
+      "fix": "Fill features + price once Tobi answers Q8 (C21 contents).",
+      "changes": ["C02", "C21"],
+      "features": ["F-41"]
+    },
+    {
+      "id": "D4",
+      "title": "Corporate-posts Basic tier still on test price ₦100",
+      "severity": "medium",
+      "status": "open",
+      "impact": "Must not ship to production pricing.",
+      "evidence": ["lib/corporate-posts.json"],
+      "fix": "Replace with the real Basic price before launch.",
+      "features": ["F-27"]
+    },
+    {
+      "id": "D5",
+      "title": "Bookmark affordance absent from cards",
+      "severity": "low",
+      "status": "open",
+      "impact": "'Saved Lawyers' is only usable from a profile page.",
+      "evidence": ["components/directory/LawyerCard.tsx", "app/directory/lawyer/[id]/page.tsx"],
+      "fix": "Render BookmarkButton on LawyerCard using the bookmarked prop that is already passed in.",
+      "changes": ["C18"],
+      "features": ["F-42"]
+    },
+    {
+      "id": "D6",
+      "title": "Dead Calendly state/type fields after UI removal",
+      "severity": "low",
+      "status": "open",
+      "impact": "Dead code; misleads future readers into thinking Calendly is supported.",
+      "evidence": ["components/directory/forms/LawyerForm.tsx", "app/directory/lawyer/[id]/page.tsx"],
+      "fix": "Delete the unused state/init/type fields; keep the DB column by decision.",
+      "changes": ["C16"],
+      "features": ["F-43"]
+    },
+    {
+      "id": "D7",
+      "title": "Three empty dashboard dirs (chat, wallet, packages)",
+      "severity": "low",
+      "status": "open",
+      "impact": "Harmless, but suggests shipped features; no nav links point at them.",
+      "evidence": ["app/directory/dashboard/chat", "app/directory/dashboard/wallet", "app/directory/dashboard/packages"],
+      "fix": "Delete the dirs, or add a page.tsx when the feature is actually built.",
+      "features": ["F-46", "F-47", "F-48"]
+    },
+    {
+      "id": "D8",
+      "title": "No admin analytics route",
+      "severity": "medium",
+      "status": "open",
+      "impact": "Tier 5 telemetry (signups, subscribers, revenue, funnel) is blocked.",
+      "evidence": ["app/admin/page.tsx"],
+      "fix": "Build app/admin/analytics on top of getAdminStats + revenue queries.",
+      "features": ["F-51"]
+    },
+    {
+      "id": "D9",
+      "title": "Error boundaries on only two routes",
+      "severity": "low",
+      "status": "open",
+      "impact": "Admin and dashboard failures fall through to the root boundary.",
+      "evidence": ["app/error.tsx", "app/directory/error.tsx"],
+      "fix": "Add app/admin/error.tsx and a dashboard-level boundary.",
+      "features": ["F-45", "F-37"]
+    }
+  ]
+}
