@@ -19,7 +19,8 @@ Category taxonomy alignment, TanStack Query migration for publish forms
 - **Migration default**: changed from `'documentation'` to `'general-practice'` in `20260616000004_multiselect_categories.sql`
 
 ### Rationale
-- Practice areas are what users search by; internal content categories were meaningless to readers - TanStack Query provides consistent error/success/pending state across all directory forms
+- Practice areas are what users search by; internal content categories were meaningless to readers
+- TanStack Query provides consistent error/success/pending state across all directory forms
 
 ### Related Files
 - `components/directory/forms/CategoryMultiselect.tsx`
@@ -42,7 +43,9 @@ Client inquiry system, listing detail page rewrite, inquiry inbox
 - **Dashboard**: Inquiries stat card now shows live count + unread badge; Quick Actions now includes Inquiries card with badge
 
 ### Rationale
-- Lawyers need to receive and manage client inquiries from their directory listing - The listing detail page needed the full set of extended fields to match the live site's feature set - Inbox follows the established dashboard layout pattern with sidebar navigation
+- Lawyers need to receive and manage client inquiries from their directory listing
+- The listing detail page needed the full set of extended fields to match the live site's feature set
+- Inbox follows the established dashboard layout pattern with sidebar navigation
 
 ### Related Files
 - `supabase/migrations/20260616000005_create_lawyer_inquiries.sql`
@@ -59,12 +62,13 @@ Client inquiry system, listing detail page rewrite, inquiry inbox
 ## 2026-06-16 (Session End)
 
 ### Blockers
-1. Content pipeline integration is blocked pending clarification from Shefiu:
-2. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear
-3. **Payload structure** — Expected JSON for article vs podcast vs corporate post
-4. **Auth method** — API key, HMAC, or IP whitelist
-5. **Other entry points** — External sources (direct brand submissions, scrapers) feeding the pipeline
-6. **Full data flow**: source → [?] → Slack bot → distribution
+Content pipeline integration is blocked pending clarification from Shefiu:
+
+1. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear
+2. **Payload structure** — Expected JSON for article vs podcast vs corporate post
+3. **Auth method** — API key, HMAC, or IP whitelist
+4. **Other entry points** — External sources (direct brand submissions, scrapers) feeding the pipeline
+5. **Full data flow**: source → [?] → Slack bot → distribution
 
 ### Next Steps
 1. Get answers from Shefiu on content pipeline
@@ -381,33 +385,39 @@ The same failure mode as a lint script that exits 0 without running: a doc that 
 
 ---
 
-## 2026-11-09 — Tobi's 8 Nov messages: category filter was dead sitewide
+## 2026-11-09 — Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide
 
 ### Focus
-Triage Tobi's last Beeper thread (8 Nov, 14:31–15:26) and close what was real code rather than a WordPress confusion.
+Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditing the WordPress site, then fix both.
 
 ### What Changed
-- **Diagnosis first, then code**: `www.lawyard.org` is still WordPress on Bluehost — the Next app only serves `directory.lawyard.org`. That single fact explains "published post not on the website", "Categories dropdown doesn't list Corporate Post", "verification link 404 + a form" (WordPress search form nobody reads), and why "the redesign" is the actual unblocker.
-- **`lib/api/articles.ts`**: added `categoryCandidates()` (slug ↔ label spellings, with small-word casing) and replaced `.eq('category', …)` with `.overlaps()`. `articles.category` is `TEXT[]`; the old filter was a 400 every time and the error was swallowed. Also added an `articleType` option and surfaced query errors instead of silently returning `[]`.
-- **`app/(main)/insights/page.tsx`**: , **`app/(main)/category/[slug]/page.tsx`**, **`app/directory/knowledge/category/[id]/page.tsx`**, **`getRelatedArticles()`**: all now resolve categories through the new matcher.
-- **`app/directory/corporate-posts/page.tsx`**: server-side `article_type = corporate_post` instead of fetch-50-then-filter.
-- **`app/auth/callback/route.ts`**: added: forwards auth-link queries landing on a non-directory host to `directory.lawyard.org`, where the exchange handler lives.
-- **`app/directory/add-listing/page.tsx`**: removed the last user-visible "Orion" reference (Tobi's explicit ask).
-- **Docs**: defects D10 (category filter, fixed), D11 (listing starvation, fixed), D12 (auth links on WP domain, open — needs a Supabase dashboard change); `scripts/docs.mjs` defect id regex widened to `D\d{1,2}`.
+- **Diagnosis first**: `www.lawyard.org` is still WordPress on Bluehost — Next serves only `directory.lawyard.org`. That explains "published post not on the website", "Categories dropdown has no Corporate Post", and why the redesign is the real unblocker.
+- **Category filtering was dead sitewide**: `articles.category` is `TEXT[]`, but every query filtered it with `.eq('category','news')` → PostgREST 400 `malformed array literal`, error swallowed, page empty. Added `categoryCandidates()` + `.overlaps()` in `lib/api/articles.ts`; applied at insights, category, knowledge-category and related-articles.
+- **Corporate Posts listing starved**: `app/directory/corporate-posts/page.tsx` fetched the 50 newest published articles then filtered in JS. Now filtered in Postgres via a new `articleType` option.
+- **Email verification signed nobody in**: The Send Email hook pointed at GoTrue `/auth/v1/verify`, which returns `?code=` (needs the code-verifier cookie) or `#access_token` (a fragment a route can never read). Added `lib/auth/confirm.ts` with `verifyOtp({type, token_hash})` — no cookie needed — served at `/auth/confirm` on both hosts; the hook now mails that link and preserves `?next=`.
+- **Per-account coupon caps**: `max_uses` was global and `frequency_days` a global cooldown; neither means "three times by an account". Added `coupons.per_user_limit`, enforced against `transactions.metadata->>submitter_id`, and seeded `LAWYARD100` (3) and `LAWYARD30` (1) in production.
+- **Nav and copy**: Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Removed the last user-visible "Orion" reference in `app/directory/add-listing/page.tsx`.
+- **Test data purged**: Deleted the six MerisLabs corporate-post test rows plus the orphaned ₦250k pending transaction; only the real Kredete post remains.
+
+### Next Steps
+1. Send Tobi the reply — blocked on a delivery date for the redesign.
+2. WordPress → Next cutover on www.lawyard.org, then the `/category/*` pages and the new header go live.
 
 ### Verification
-- `tsc --noEmit` clean; `eslint` clean on touched files (one pre-existing `set-state-in-effect` warning).
-- `next build` succeeds; `/auth/callback` is now a route.
-- Live data checks: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2 — all previously 400ing.
-- Local smoke test with `Host: lawyard.test` (must bypass the localhost→directory rewrite): `/insights?category=news` shows only News; `?category=corporate-post` shows the Kredete post and its sibling; `/corporate-posts` no longer shows the empty state.
+- `tsc --noEmit` clean; `eslint` 0 errors on touched files; `next build` succeeds.
+- Live data: category filters return news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2 (all previously 400ing).
+- Live `/auth/confirm`: bogus token → `/login?message=expired`; real token → session cookie + `/search`.
+- Coupon cap predicate returns 3 after three synthetic redemptions; rows removed after the check.
+- Deployed to production (`vercel --prod`), aliased to https://directory.lawyard.org.
 
 ### Rationale
-Two of Tobi's five items were not bugs in the new app — they were him auditing a WordPress site that no longer holds the data. Saying that plainly, and fixing the real latent bugs it exposed, is cheaper than building features for a mismatch.
+- Two of Tobi's five items were not bugs in the new app — he was auditing a WordPress site that no longer holds the data. Saying that plainly, then fixing the latent bugs it exposed, is cheaper than building features for a mismatch.
+- The verification failure was only findable by reproducing it: the link looked correct in the code and returned 200s everywhere, but the session arrived in a form no server route can read.
 
 ### Related Files
-- `lib/api/articles.ts`, `app/auth/callback/route.ts`, `app/directory/corporate-posts/page.tsx`
-- `app/(main)/insights/page.tsx`, `app/(main)/category/[slug]/page.tsx`, `app/directory/knowledge/category/[id]/page.tsx`
-- `docs/data/defects.json`, `docs/FEATURE-STATUS.md` (generated), `CHANGELOG.md`
+- `lib/api/articles.ts` · `lib/auth/confirm.ts` · `app/auth/confirm` · `app/directory/auth/confirm` · `app/api/auth/hook/route.ts`
+- `app/actions/validate-coupon.ts` · `app/actions/corporate-posts.ts` · `app/admin/coupons/*` · `supabase/migrations/20261109000001_*.sql`, `20261109000002_*.sql`
+- `app/directory/corporate-posts/page.tsx` · `app/(main)/insights/page.tsx` · `components/Header.tsx` · `components/Footer.tsx` · `config/site-config.json`
 
 > defects D10 D11 D12
 

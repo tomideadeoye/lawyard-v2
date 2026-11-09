@@ -24,7 +24,10 @@
           "detail": "changed from `'documentation'` to `'general-practice'` in `20260616000004_multiselect_categories.sql`"
         }
       ],
-      "rationale": "- Practice areas are what users search by; internal content categories were meaningless to readers - TanStack Query provides consistent error/success/pending state across all directory forms",
+      "rationale": [
+        "Practice areas are what users search by; internal content categories were meaningless to readers",
+        "TanStack Query provides consistent error/success/pending state across all directory forms"
+      ],
       "files": [
         "`components/directory/forms/CategoryMultiselect.tsx`",
         "`components/directory/forms/PublishPodcastForm.tsx`",
@@ -60,7 +63,11 @@
           "detail": "Inquiries stat card now shows live count + unread badge; Quick Actions now includes Inquiries card with badge"
         }
       ],
-      "rationale": "- Lawyers need to receive and manage client inquiries from their directory listing - The listing detail page needed the full set of extended fields to match the live site's feature set - Inbox follows the established dashboard layout pattern with sidebar navigation",
+      "rationale": [
+        "Lawyers need to receive and manage client inquiries from their directory listing",
+        "The listing detail page needed the full set of extended fields to match the live site's feature set",
+        "Inbox follows the established dashboard layout pattern with sidebar navigation"
+      ],
       "files": [
         "`supabase/migrations/20260616000005_create_lawyer_inquiries.sql`",
         "`app/directory/actions/inquiries.ts`",
@@ -77,11 +84,7 @@
       "date": "2026-06-16",
       "label": "Session End",
       "labelStyle": "paren",
-      "focus": "",
-      "whatChanged": [],
-      "rationale": "",
       "blockers": [
-        "Content pipeline integration is blocked pending clarification from Shefiu:",
         "**API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear",
         "**Payload structure** — Expected JSON for article vs podcast vs corporate post",
         "**Auth method** — API key, HMAC, or IP whitelist",
@@ -93,7 +96,8 @@
         "Wire publish flow to POST to endpoint after DB insert",
         "Wire corporate post webhook to same endpoint after Paystack confirmation",
         "Rate limiting (Upstash Redis / Vercel Edge) + CAPTCHA (Cloudflare Turnstile) on directory forms"
-      ]
+      ],
+      "blockersNote": "Content pipeline integration is blocked pending clarification from Shefiu:"
     },
     {
       "id": "S-2026-06-22-04",
@@ -121,7 +125,9 @@
           "detail": "Inbox read state now updates locally (no stale query cache). `submitInquiry`/`markInquiryRead` throw errors on DB failure so TanStack Query catches them. Paystack webhook handlers guard against null metadata. Server actions return `{ success: true }` instead of `redirect()` to prevent TanStack Query catching redirect errors in mutations."
         }
       ],
-      "rationale": "Closing the loop on payments — subscriptions now have real expiry enforcement so featured listings degrade properly. Chambers get parity with lawyers: subscription-backed featured status, a public detail page, and owner management. Four bugs caught in a single review pass and fixed.",
+      "rationale": [
+        "Closing the loop on payments — subscriptions now have real expiry enforcement so featured listings degrade properly. Chambers get parity with lawyers: subscription-backed featured status, a public detail page, and owner management. Four bugs caught in a single review pass and fixed."
+      ],
       "files": [
         "`supabase/migrations/20260616000007_subscription_expiry.sql`",
         "`supabase/migrations/20260622000001_extend_chambers.sql`",
@@ -174,7 +180,9 @@
           "detail": "Pricing page cards, tabs, notice section, and payment buttons now render with yellow-toned colors in dark mode for proper visibility."
         }
       ],
-      "rationale": "New user signups were completely broken — anyone attempting to create an account (email, Google OAuth, or admin API) would get \"Database error creating new user.\" The `sync_profile_to_lawyer()` trigger was the culprit: it ran in the auth session context where `public` is not in the search_path, causing an unresolvable table reference. The role gate also prevents unnecessary `lawyers` table writes for client accounts.",
+      "rationale": [
+        "New user signups were completely broken — anyone attempting to create an account (email, Google OAuth, or admin API) would get \"Database error creating new user.\" The `sync_profile_to_lawyer()` trigger was the culprit: it ran in the auth session context where `public` is not in the search_path, causing an unresolvable table reference. The role gate also prevents unnecessary `lawyers` table writes for client accounts."
+      ],
       "files": [
         "`schema.sql` — `handle_new_user()` synced with COALESCE fallback + first_name/last_name split",
         "`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql` — role gate + `public.lawyers`",
@@ -222,7 +230,9 @@
           "detail": "Created `Clients/Lawyard/` in Google Drive with `.env.local` + `lawyard-notes.md` (matches Avid and Grace client folder format)."
         }
       ],
-      "rationale": "Directory subscriptions were pricing in USD (2.00, 20.00) but Paystack charges NGN at 1:1 — a ₦2 charge for what was meant as $2. Decided: NGN now, multi-currency later (Nigerian market is 99% of users). One successful live transaction proves the whole pipe (DB → server → Paystack → webhook → DB updates); price is data, not infrastructure.",
+      "rationale": [
+        "Directory subscriptions were pricing in USD (2.00, 20.00) but Paystack charges NGN at 1:1 — a ₦2 charge for what was meant as $2. Decided: NGN now, multi-currency later (Nigerian market is 99% of users). One successful live transaction proves the whole pipe (DB → server → Paystack → webhook → DB updates); price is data, not infrastructure."
+      ],
       "files": [
         "`.env.local` — live keys + commented test keys",
         "`lib/api/paystack.ts` — `currency` required param",
@@ -285,7 +295,9 @@
           "detail": "New `docs/CONTENT_WORKFLOW.md` — canonical reference for the three content pipelines (Supabase → Slack review → WordPress). `docs/ARCHITECTURE.md` updated."
         }
       ],
-      "rationale": "The content pipeline was already live for articles; podcasts and corporate posts were still manual email pings. The Slack review loop now handles all three uniformly, WordPress posts carry real images/tags/categories instead of bare HTML, and approval is reversible (rescind). Coupon-gating article publishing ties publishing capacity to paid partner coupons (PARTNER1/PARTNER2 are the valid free codes). Auth-blocking CAPTCHA confusion traced to dashboard config + missing error mapping — code now fails visibly, config fix still pending (Supabase dashboard CAPTCHA setting).",
+      "rationale": [
+        "The content pipeline was already live for articles; podcasts and corporate posts were still manual email pings. The Slack review loop now handles all three uniformly, WordPress posts carry real images/tags/categories instead of bare HTML, and approval is reversible (rescind). Coupon-gating article publishing ties publishing capacity to paid partner coupons (PARTNER1/PARTNER2 are the valid free codes). Auth-blocking CAPTCHA confusion traced to dashboard config + missing error mapping — code now fails visibly, config fix still pending (Supabase dashboard CAPTCHA setting)."
+      ],
       "files": [
         "`lib/slack.ts`, `lib/wordpress.ts`, `app/api/slack/interactions/route.ts`",
         "`app/directory/actions/content.ts`, `app/actions/corporate-posts.ts`, `app/actions/validate-coupon.ts`",
@@ -328,7 +340,9 @@
           "detail": "(Tomide): Tier 5 = admin-facing product analytics (signups, subscribers, revenue, funnel) — distinct from the shipped per-lawyer widgets."
         }
       ],
-      "rationale": "The auto-transcript is too noisy to trust as-is, but the decisions inside it gate phase-2 scope and the pricing questions on the Sunday call. Decoding it now gives Tobi a clean decision record to confirm/deny, and separates confirmed decisions from ASR-garbled items (competitor \"case study\" name, \"$20/quota\" competitor remark, the \"$10,000 premium\" line — almost certainly a ₦ figure).",
+      "rationale": [
+        "The auto-transcript is too noisy to trust as-is, but the decisions inside it gate phase-2 scope and the pricing questions on the Sunday call. Decoding it now gives Tobi a clean decision record to confirm/deny, and separates confirmed decisions from ASR-garbled items (competitor \"case study\" name, \"$20/quota\" competitor remark, the \"$10,000 premium\" line — almost certainly a ₦ figure)."
+      ],
       "files": [
         "`HANDOFF.md` (§6 rewritten; §2, §5, §8)",
         "`TIMELINE.md`, `CHANGELOG.md`",
@@ -367,7 +381,9 @@
           "detail": "used `FEATURE-STATUS.md` (hyphenated) — macOS is case-insensitive, so `FEATURES.md` collides with the existing `features.md`."
         }
       ],
-      "rationale": "Three overlapping status sources had drifted (README ~3 months stale; `features.md` a task archive pointing at a missing `AGENT_TASKS.md`). One verified board removes the \"is it built?\" guesswork ahead of the Sunday call.",
+      "rationale": [
+        "Three overlapping status sources had drifted (README ~3 months stale; `features.md` a task archive pointing at a missing `AGENT_TASKS.md`). One verified board removes the \"is it built?\" guesswork ahead of the Sunday call."
+      ],
       "files": [
         "`docs/FEATURE-STATUS.md` (new), `docs/features.md`, `README.md` §Status, `CHANGELOG.md`"
       ]
@@ -406,7 +422,9 @@
           "detail": "bookmarks kept for both roles, renamed \"Saved Lawyers\"; subscription/history duplication cleaned; `/directory/insights` is now a real article surface instead of a stub."
         }
       ],
-      "rationale": "Tobi asked for a reviewable pass rather than a prototype: build the changes, he reacts with voice notes, we iterate. The pattern this pass validated — **an action isn't done until its effect is read back** — kept every claim honest: real migrations, real checkout paths, a real RLS policy, verified against `pnpm run build`.",
+      "rationale": [
+        "Tobi asked for a reviewable pass rather than a prototype: build the changes, he reacts with voice notes, we iterate. The pattern this pass validated — **an action isn't done until its effect is read back** — kept every claim honest: real migrations, real checkout paths, a real RLS policy, verified against `pnpm run build`."
+      ],
       "files": [
         "`docs/TOBI-12SEP-CHANGES.md` (index statuses + build-outcome table)",
         "`supabase/migrations/20261016000001..07_*.sql` (new)",
@@ -447,7 +465,9 @@
           "detail": "(researched): Auth0 keeps identities separate by default, Clerk auto-links on verified email both-sides, Google says key on `sub` not email, Ory/WorkOS document pre-account-takeover from unverified-email auto-linking — so: tell them which provider owns the account + set-password from an authenticated surface, never blind auto-merge."
         }
       ],
-      "rationale": "A user with no password cannot be told \"wrong password\" — the message must name the real fix. The hook fix was on the critical path because \"Forgot your password?\" is how a Google-only user sets their first password.",
+      "rationale": [
+        "A user with no password cannot be told \"wrong password\" — the message must name the real fix. The hook fix was on the critical path because \"Forgot your password?\" is how a Google-only user sets their first password."
+      ],
       "files": [
         "`lib/auth/oauth-account.ts` (new), `app/directory/login/actions.ts`, `app/api/auth/hook/route.ts`"
       ],
@@ -477,7 +497,9 @@
           "detail": "recorded in the doc (rotate keys → lock role → secure hook → cron → payments → RLS → CI)."
         }
       ],
-      "rationale": "Architecture/authorization/process findings, not build breakage — an action isn't done until its effect is read back, and the same applies to the security posture.",
+      "rationale": [
+        "Architecture/authorization/process findings, not build breakage — an action isn't done until its effect is read back, and the same applies to the security posture."
+      ],
       "files": [
         "`docs/AUDIT-2026-10-20.md` (new)"
       ]
@@ -500,7 +522,9 @@
           "detail": "(`518a5e3`): `/product-owner` removed from the directory rewrite so the route resolves."
         }
       ],
-      "rationale": "The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two.",
+      "rationale": [
+        "The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two."
+      ],
       "files": [
         "`app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`"
       ],
@@ -534,7 +558,9 @@
           "detail": "added a *Post-build verification* subsection mapping each gap back to its C-item, so Tobi's checklist and the code stop disagreeing."
         }
       ],
-      "rationale": "A checklist that says ✅ and code that can't enforce the cap is the same false-success as a lint script that exits 0 without running — the board has to be read back from the code, not remembered. \"18 of 23 shipped\" was true; \"all shipped cleanly\" was not.",
+      "rationale": [
+        "A checklist that says ✅ and code that can't enforce the cap is the same false-success as a lint script that exits 0 without running — the board has to be read back from the code, not remembered. \"18 of 23 shipped\" was true; \"all shipped cleanly\" was not."
+      ],
       "files": [
         "`docs/FEATURE-STATUS.md` (re-verified + D1–D9), `docs/TOBI-12SEP-CHANGES.md` (post-build verification)",
         "`lib/directory/publishing.ts`, `app/directory/actions/submit-listing.ts`, `app/directory/dashboard/chamber/chamber-form.tsx`",
@@ -596,7 +622,9 @@
           "detail": "Verified the gate both ways: a hand edit to the md fails `--check` with the first differing line; a missing evidence path fails validation."
         }
       ],
-      "rationale": "The same failure mode as a lint script that exits 0 without running: a doc that says ✅ while the code can't enforce the cap. If the page is generated from data that is validated against the filesystem, a stale claim becomes a build error instead of a false memory.",
+      "rationale": [
+        "The same failure mode as a lint script that exits 0 without running: a doc that says ✅ while the code can't enforce the cap. If the page is generated from data that is validated against the filesystem, a stale claim becomes a build error instead of a false memory."
+      ],
       "files": [
         "`docs/data/*.json`, `scripts/docs.mjs`, `package.json` (docs scripts)",
         "`docs/FEATURE-STATUS.md`, `docs/TOBI-12SEP-CHANGES.md` (now generated)"
@@ -608,55 +636,63 @@
     {
       "id": "S-2026-11-09-16",
       "date": "2026-11-09",
-      "label": "Tobi's 8 Nov messages: category filter was dead sitewide",
+      "label": "Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide",
       "labelStyle": "dash",
-      "focus": "Triage Tobi's last Beeper thread (8 Nov, 14:31–15:26) and close what was real code rather than a WordPress confusion.",
+      "focus": "Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditing the WordPress site, then fix both.",
       "whatChanged": [
         {
-          "title": "Diagnosis first, then code",
-          "detail": "`www.lawyard.org` is still WordPress on Bluehost — the Next app only serves `directory.lawyard.org`. That single fact explains \"published post not on the website\", \"Categories dropdown doesn't list Corporate Post\", \"verification link 404 + a form\" (WordPress search form nobody reads), and why \"the redesign\" is the actual unblocker."
+          "title": "Diagnosis first",
+          "detail": "`www.lawyard.org` is still WordPress on Bluehost — Next serves only `directory.lawyard.org`. That explains \"published post not on the website\", \"Categories dropdown has no Corporate Post\", and why the redesign is the real unblocker."
         },
         {
-          "title": "`lib/api/articles.ts`",
-          "detail": "added `categoryCandidates()` (slug ↔ label spellings, with small-word casing) and replaced `.eq('category', …)` with `.overlaps()`. `articles.category` is `TEXT[]`; the old filter was a 400 every time and the error was swallowed. Also added an `articleType` option and surfaced query errors instead of silently returning `[]`."
+          "title": "Category filtering was dead sitewide",
+          "detail": "`articles.category` is `TEXT[]`, but every query filtered it with `.eq('category','news')` → PostgREST 400 `malformed array literal`, error swallowed, page empty. Added `categoryCandidates()` + `.overlaps()` in `lib/api/articles.ts`; applied at insights, category, knowledge-category and related-articles."
         },
         {
-          "title": "`app/(main)/insights/page.tsx`",
-          "detail": ", **`app/(main)/category/[slug]/page.tsx`**, **`app/directory/knowledge/category/[id]/page.tsx`**, **`getRelatedArticles()`**: all now resolve categories through the new matcher."
+          "title": "Corporate Posts listing starved",
+          "detail": "`app/directory/corporate-posts/page.tsx` fetched the 50 newest published articles then filtered in JS. Now filtered in Postgres via a new `articleType` option."
         },
         {
-          "title": "`app/directory/corporate-posts/page.tsx`",
-          "detail": "server-side `article_type = corporate_post` instead of fetch-50-then-filter."
+          "title": "Email verification signed nobody in",
+          "detail": "The Send Email hook pointed at GoTrue `/auth/v1/verify`, which returns `?code=` (needs the code-verifier cookie) or `#access_token` (a fragment a route can never read). Added `lib/auth/confirm.ts` with `verifyOtp({type, token_hash})` — no cookie needed — served at `/auth/confirm` on both hosts; the hook now mails that link and preserves `?next=`."
         },
         {
-          "title": "`app/auth/callback/route.ts`",
-          "detail": "added: forwards auth-link queries landing on a non-directory host to `directory.lawyard.org`, where the exchange handler lives."
+          "title": "Per-account coupon caps",
+          "detail": "`max_uses` was global and `frequency_days` a global cooldown; neither means \"three times by an account\". Added `coupons.per_user_limit`, enforced against `transactions.metadata->>submitter_id`, and seeded `LAWYARD100` (3) and `LAWYARD30` (1) in production."
         },
         {
-          "title": "`app/directory/add-listing/page.tsx`",
-          "detail": "removed the last user-visible \"Orion\" reference (Tobi's explicit ask)."
+          "title": "Nav and copy",
+          "detail": "Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Removed the last user-visible \"Orion\" reference in `app/directory/add-listing/page.tsx`."
         },
         {
-          "title": "Docs",
-          "detail": "defects D10 (category filter, fixed), D11 (listing starvation, fixed), D12 (auth links on WP domain, open — needs a Supabase dashboard change); `scripts/docs.mjs` defect id regex widened to `D\\d{1,2}`."
+          "title": "Test data purged",
+          "detail": "Deleted the six MerisLabs corporate-post test rows plus the orphaned ₦250k pending transaction; only the real Kredete post remains."
         }
       ],
-      "rationale": "Two of Tobi's five items were not bugs in the new app — they were him auditing a WordPress site that no longer holds the data. Saying that plainly, and fixing the real latent bugs it exposed, is cheaper than building features for a mismatch.",
+      "rationale": [
+        "Two of Tobi's five items were not bugs in the new app — he was auditing a WordPress site that no longer holds the data. Saying that plainly, then fixing the latent bugs it exposed, is cheaper than building features for a mismatch.",
+        "The verification failure was only findable by reproducing it: the link looked correct in the code and returned 200s everywhere, but the session arrived in a form no server route can read."
+      ],
       "files": [
-        "`lib/api/articles.ts`, `app/auth/callback/route.ts`, `app/directory/corporate-posts/page.tsx`",
-        "`app/(main)/insights/page.tsx`, `app/(main)/category/[slug]/page.tsx`, `app/directory/knowledge/category/[id]/page.tsx`",
-        "`docs/data/defects.json`, `docs/FEATURE-STATUS.md` (generated), `CHANGELOG.md`"
+        "`lib/api/articles.ts` · `lib/auth/confirm.ts` · `app/auth/confirm` · `app/directory/auth/confirm` · `app/api/auth/hook/route.ts`",
+        "`app/actions/validate-coupon.ts` · `app/actions/corporate-posts.ts` · `app/admin/coupons/*` · `supabase/migrations/20261109000001_*.sql`, `20261109000002_*.sql`",
+        "`app/directory/corporate-posts/page.tsx` · `app/(main)/insights/page.tsx` · `components/Header.tsx` · `components/Footer.tsx` · `config/site-config.json`"
       ],
       "verification": [
-        "`tsc --noEmit` clean; `eslint` clean on touched files (one pre-existing `set-state-in-effect` warning).",
-        "`next build` succeeds; `/auth/callback` is now a route.",
-        "Live data checks: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2 — all previously 400ing.",
-        "Local smoke test with `Host: lawyard.test` (must bypass the localhost→directory rewrite): `/insights?category=news` shows only News; `?category=corporate-post` shows the Kredete post and its sibling; `/corporate-posts` no longer shows the empty state."
+        "`tsc --noEmit` clean; `eslint` 0 errors on touched files; `next build` succeeds.",
+        "Live data: category filters return news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2 (all previously 400ing).",
+        "Live `/auth/confirm`: bogus token → `/login?message=expired`; real token → session cookie + `/search`.",
+        "Coupon cap predicate returns 3 after three synthetic redemptions; rows removed after the check.",
+        "Deployed to production (`vercel --prod`), aliased to https://directory.lawyard.org."
       ],
       "defects": [
         "D10",
         "D11",
         "D12"
+      ],
+      "nextSteps": [
+        "Send Tobi the reply — blocked on a delivery date for the redesign.",
+        "WordPress → Next cutover on www.lawyard.org, then the `/category/*` pages and the new header go live."
       ]
     }
   ]

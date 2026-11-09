@@ -189,16 +189,17 @@
     },
     {
       "id": "D12",
-      "title": "Supabase auth email links land on the WordPress main domain and 404",
+      "title": "Email verification links land signed-out (PKCE code / implicit hash)",
       "severity": "high",
-      "status": "open",
-      "impact": "Signup confirmation / magic-link / recovery links open `www.lawyard.org/auth/callback`, which is WordPress — a 404 plus a WordPress search form that nobody reads. New users cannot verify.",
+      "status": "fixed",
+      "impact": "Confirmation links went to GoTrue /auth/v1/verify, which redirects with ?code= (needs the code-verifier cookie, so it fails on a phone) or #access_token (a fragment no route can read). Users were verified but signed out.",
       "evidence": [
-        "app/auth/callback/route.ts",
-        "app/directory/auth/callback/route.ts",
-        "middleware.ts"
+        "lib/auth/confirm.ts",
+        "app/auth/confirm/route.ts",
+        "app/directory/auth/confirm/route.ts",
+        "app/api/auth/hook/route.ts"
       ],
-      "fix": "Code done: `app/auth/callback` forwards the query to directory.lawyard.org. Remaining: allow `https://directory.lawyard.org/**` in Supabase Redirect URLs so emails stop falling back to Site URL. Dashboard only.",
+      "fix": "Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.",
       "features": []
     }
   ]

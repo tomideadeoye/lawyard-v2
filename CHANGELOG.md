@@ -19,6 +19,7 @@
 - **Corporate Posts listing starved by ordinary articles**: `app/directory/corporate-posts/page.tsx` pulled the 50 newest published articles and filtered in JS. Now filtered in Postgres via a new `articleType` option on `getPublishedArticles()`
 - **"Corporate Posts" missing from the site's Categories nav**: the header dropdown (desktop + mobile) and the footer list were hardcoded to five/six legacy categories. Added Corporate Posts → `/category/corporate-post` in `components/Header.tsx` and `components/Footer.tsx`, plus a chips entry on `/insights`
 - **Auth email links 404'd on the WordPress main domain**: supabase confirmation/magic-link/recovery links open `www.lawyard.org/auth/callback`, which is still WordPress (404 + a search form nobody reads). Added `app/auth/callback/route.ts` — forwards the whole query to `directory.lawyard.org/auth/callback` so the code exchange can run. The remaining half is a dashboard change: allow-list the directory URL in Supabase → Redirect URLs (D12)
+- **Email verification links signed nobody in unless opened in the same browser**: A confirmation link issued by the Send Email hook pointed at GoTrue's `/auth/v1/verify`, which redirects with either `?code=` (PKCE — the exchange needs the code-verifier cookie) or `#access_token` (a fragment a server route can never read); the user was verified in `auth.users` but landed on `/login?message=Missing authentication code`. Added `lib/auth/confirm.ts` — `verifyOtp({ type, token_hash })` needs no cookie, so a link opened on a phone or in another browser completes; `?next=` intent is preserved and recovery routes to the security tab. `/auth/confirm` and `/auth/confirm` on the directory host serve the same handler, and the hook now mails `/auth/confirm?token_hash&type&next` instead of the GoTrue hop.
 
 ## 2026-11-05
 
@@ -37,7 +38,7 @@
 
 ### Added
 
-- **Product-owner board**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`) (commit 7454fc2, 518a5e3)
+- **Product-owner board**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
 
 ## 2026-10-20
 
@@ -49,25 +50,25 @@
 
 ### Added
 
-- **Lawyard Lens (C09)**: thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`) (changeset C09)
-- **Law-firm admin role + PR publishing (C17)**: `chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them (changeset C17)
-- **Law-firm page parity (C11)**: `20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page (changeset C11)
-- **Service requests (C14/C15)**: `20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings) (changeset C14, C15)
-- **Post quotas + paid extras (C05)**: `20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner` (changeset C05)
-- **Premium intro video (C08)**: `20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated (changeset C08)
-- **Private pricing (C12)**: `20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows "Contact for pricing" (changeset C12)
-- **`lib/currency.ts`**: NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20) (changeset C20)
+- **Lawyard Lens (C09)**: thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`)
+- **Law-firm admin role + PR publishing (C17)**: `chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them
+- **Law-firm page parity (C11)**: `20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page
+- **Service requests (C14/C15)**: `20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings)
+- **Post quotas + paid extras (C05)**: `20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner`
+- **Premium intro video (C08)**: `20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated
+- **Private pricing (C12)**: `20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows "Contact for pricing"
+- **`lib/currency.ts`**: NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20)
 
 ### Changed
 
-- **"Chamber" → "Law Firm" (C23)**: all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged (changeset C23)
-- **Three-tier pricing (C02)**: Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing (changeset C02)
-- **Featured placement (C03)**: `.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards (changeset C03)
-- **Gallery caps (C10)**: enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation (changeset C10)
-- **Calendly removed from UI (C16)**: field dropped from `LawyerForm` and the profile display; `calendly_url` column retained (changeset C16)
-- **Bookmarks → "Saved Lawyers" (C18)**: renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up (changeset C18)
-- **Directory insights (C07)**: `/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array (changeset C07)
-- **NGN transactions (C20)**: pricing/plans/currency flows record and display ₦ end-to-end (changeset C20)
+- **"Chamber" → "Law Firm" (C23)**: all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged
+- **Three-tier pricing (C02)**: Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing
+- **Featured placement (C03)**: `.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards
+- **Gallery caps (C10)**: enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation
+- **Calendly removed from UI (C16)**: field dropped from `LawyerForm` and the profile display; `calendly_url` column retained
+- **Bookmarks → "Saved Lawyers" (C18)**: renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up
+- **Directory insights (C07)**: `/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array
+- **NGN transactions (C20)**: pricing/plans/currency flows record and display ₦ end-to-end
 
 ### Fixed
 
@@ -80,7 +81,7 @@
 
 ### Docs
 
-- **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md` (changeset C01, C02, C03, C04, C05, C06, C07, C08, C09, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22)
+- **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`
 - **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`
 - **`HANDOFF.md` added**: cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)
 - **12 Sep transcript decoded**: into `HANDOFF.md` §6 — monetization spine (enterprise > individual), chambers tier + admin role, silver/premium, post caps + paid extras, 1-min video, service requests (bookings must be paid; **no Calendly**), private pricing, directory-attribution removal, Lawyard Lens cross-sell, AWS move
@@ -91,7 +92,7 @@
 
 - **`lib/auth/auth-errors.ts`**: Single `mapAuthError()` source of truth — replaces 3 duplicated copies (directory login, auth callback, admin login)
 - **`docs/CONTENT_WORKFLOW.md`**: Canonical doc for the three content pipelines (Articles / Corporate Posts / Podcasts): Supabase → Slack review → WordPress
-- **`components/directory/LawyerCard.tsx`**: , `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components
+- **`components/directory/LawyerCard.tsx`**, `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components
 - **Podcast approval in Slack**: `approve_podcast`/`deny_podcast` actions + `publishPodcastToWordPress()` (`lib/wordpress.ts`)
 
 ### Changed
@@ -145,6 +146,6 @@
 
 ## Maintenance
 
-- **Never edit this file.** Add a row to `docs/data/changelog.json` (`date`, `type`, `title`, `detail`, optional `evidence`/`commits`), then run `pnpm run docs:render`.
+- **Never edit this file.** Add a row to `docs/data/changelog.json` (`id` = next `CH-###`, `date`, `type`, `title`, `detail`, optional `evidence`/`commits`/`changeset`/`defects`), then run `pnpm run docs:render`.
 - The whole history is available as data: filter by `type`, group by `date`, or load it into a graph with `pnpm run docs:graph`.
 - Dates are ISO (`YYYY-MM-DD`). A row whose date has no matching timeline session is flagged by the renderer.

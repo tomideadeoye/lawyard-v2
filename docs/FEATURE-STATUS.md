@@ -115,7 +115,7 @@ Agreed with Tobi on 2026-09-12. Full context: `HANDOFF.md` §6. Item-by-item wal
 | C20 | Currency — Naira for Nigeria | 🟡 | Q2 — Premium Single (Lawyer, 365d) — NGN price?<br>Q3 — Premium Package (Lawyer, 365d) — NGN price?<br>Q4 — Premium Single (Client, 90d) — NGN price?<br>Q5 — Premium Package (Client, 90d) — NGN price?<br>Q6 — Premium (Chamber / Law Firm, 365d) — NGN price? |
 | C21 | Silver category (which items stay/add) | 💬 | Q8 — Silver category — which items stay vs get added? |
 
-## 6. Known defects (10 open)
+## 6. Known defects (9 open)
 
 Found by the 2026-11-04 code verification. Security findings are **not** duplicated here — see [`docs/AUDIT-2026-10-20.md`](AUDIT-2026-10-20.md).
 
@@ -132,7 +132,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 | D9 | Error boundaries on only two routes | low | Admin and dashboard failures fall through to the root boundary. | `app/error.tsx` · `app/directory/error.tsx` |
 | D10 | Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty | high | `/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with "malformed array literal". Corporate Posts were invisible for the same reason. | `lib/api/articles.ts` · `app/(main)/insights/page.tsx` · `app/(main)/category/[slug]/page.tsx` · `app/directory/knowledge/category/[id]/page.tsx` |
 | D11 | Corporate Posts listing fetched the 50 newest articles then filtered in JS | medium | Any burst of ordinary published articles pushed Corporate Posts off the listing entirely. | `app/directory/corporate-posts/page.tsx` · `lib/api/articles.ts` |
-| D12 | Supabase auth email links land on the WordPress main domain and 404 | high | Signup confirmation / magic-link / recovery links open `www.lawyard.org/auth/callback`, which is WordPress — a 404 plus a WordPress search form that nobody reads. New users cannot verify. | `app/auth/callback/route.ts` · `app/directory/auth/callback/route.ts` · `middleware.ts` |
+| D12 | Email verification links land signed-out (PKCE code / implicit hash) | high | Confirmation links went to GoTrue /auth/v1/verify, which redirects with ?code= (needs the code-verifier cookie, so it fails on a phone) or #access_token (a fragment no route can read). Users were verified but signed out. | `lib/auth/confirm.ts` · `app/auth/confirm/route.ts` · `app/directory/auth/confirm/route.ts` · `app/api/auth/hook/route.ts` |
 
 **Fix notes**
 
@@ -147,7 +147,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 - **D9** — Add app/admin/error.tsx and a dashboard-level boundary.
 - **D10** — Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.
 - **D11** — Filter server-side with `article_type = corporate_post` via the new `articleType` option on `getPublishedArticles()`.
-- **D12** — Code done: `app/auth/callback` forwards the query to directory.lawyard.org. Remaining: allow `https://directory.lawyard.org/**` in Supabase Redirect URLs so emails stop falling back to Site URL. Dashboard only.
+- **D12** — Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.
 
 ## 7. Must-do before public launch
 
