@@ -774,6 +774,22 @@
         ".env.local",
         "lawyard-notes.md"
       ]
+    },
+    {
+      "id": "CH-069",
+      "date": "2026-11-09",
+      "type": "fixed",
+      "title": "Email verification links signed nobody in unless opened in the same browser",
+      "detail": "A confirmation link issued by the Send Email hook pointed at GoTrue's `/auth/v1/verify`, which redirects with either `?code=` (PKCE — the exchange needs the code-verifier cookie) or `#access_token` (a fragment a server route can never read); the user was verified in `auth.users` but landed on `/login?message=Missing authentication code`. Added `lib/auth/confirm.ts` — `verifyOtp({ type, token_hash })` needs no cookie, so a link opened on a phone or in another browser completes; `?next=` intent is preserved and recovery routes to the security tab. `/auth/confirm` and `/auth/confirm` on the directory host serve the same handler, and the hook now mails `/auth/confirm?token_hash&type&next` instead of the GoTrue hop.",
+      "evidence": [
+        "lib/auth/confirm.ts",
+        "app/auth/confirm/route.ts",
+        "app/directory/auth/confirm/route.ts",
+        "app/api/auth/hook/route.ts"
+      ],
+      "commits": [
+        "04532c1"
+      ]
     }
   ]
 }

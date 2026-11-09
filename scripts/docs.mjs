@@ -195,13 +195,11 @@ for (const row of features.launch_checklist) {
 
 /* ── historical logs: shape + cross-refs, not filesystem existence ──────── */
 
-const isStringList = (value) =>
-  Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === "string" && v.trim().length > 0);
 const isStringArray = (value) =>
   Array.isArray(value) && value.every((v) => typeof v === "string" && v.trim().length > 0);
 
-const changelogIds = checkIds(changelog.changelog, /^CH-\d{3}$/, "changelog");
-const sessionIds = checkIds(timeline.sessions, /^S-\d{4}-\d{2}-\d{2}-\d{2}$/, "timeline");
+checkIds(changelog.changelog, /^CH-\d{3}$/, "changelog");
+checkIds(timeline.sessions, /^S-\d{4}-\d{2}-\d{2}-\d{2}$/, "timeline");
 
 for (const c of changelog.changelog) {
   if (!ISO_DATE.test(c.date)) fail(`changelog ${c.id}: date "${c.date}" is not YYYY-MM-DD`);
@@ -230,7 +228,12 @@ for (const s of timeline.sessions) {
   const hasBody = Boolean(s.focus) || (s.whatChanged ?? []).length > 0 || (s.blockers ?? []).length > 0;
   if (!hasBody) fail(`timeline ${s.id}: session records nothing (no focus, changes or blockers)`);
   if ((s.focus ?? "").length > LIMITS.note) fail(`timeline ${s.id}: focus is too long (max ${LIMITS.note})`);
-  if ((s.rationale ?? "").length > LIMITS.detail) fail(`timeline ${s.id}: rationale is too long (max ${LIMITS.detail})`);
+  if (s.rationale !== undefined && !isStringArray(s.rationale)) {
+    fail(`timeline ${s.id}: rationale must be a list of paragraphs`);
+  }
+  for (const para of s.rationale ?? []) {
+    if (para.length > LIMITS.detail) fail(`timeline ${s.id}: rationale paragraph is too long (max ${LIMITS.detail})`);
+  }
   for (const item of s.whatChanged ?? []) {
     if (!item || typeof item.detail !== "string" || !item.detail.trim()) {
       fail(`timeline ${s.id}: every whatChanged row needs a detail`);
@@ -239,6 +242,9 @@ for (const s of timeline.sessions) {
     if (item.detail.length > LIMITS.detail) fail(`timeline ${s.id}: whatChanged detail too long (max ${LIMITS.detail})`);
     if (item.title && item.title.length > LIMITS.title) fail(`timeline ${s.id}: whatChanged title too long`);
     if (item.sub !== undefined && !isStringArray(item.sub)) fail(`timeline ${s.id}: whatChanged sub must be a string list`);
+  }
+  if (s.blockersNote !== undefined && (typeof s.blockersNote !== "string" || !s.blockersNote.trim())) {
+    fail(`timeline ${s.id}: blockersNote must be a non-empty string`);
   }
   for (const field of ["files", "blockers", "nextSteps", "verification"]) {
     if (s[field] !== undefined && !isStringArray(s[field])) fail(`timeline ${s.id}: ${field} must be a string list`);
@@ -272,14 +278,21 @@ const table = (headers, rows) =>
     ...rows.map((r) => `| ${r.join(" | ")} |`),
   ].join("\n");
 
+// "**Title**: rest" vs "**Title**, rest" vs "**Title** — rest": the source used
+// different separators, and re-adding a colon where there was a comma reads wrong.
+const joinHead = (head, rest) => {
+  if (!rest) return head;
+  if (/^[,.;:]/.test(rest)) return `${head}${rest}`;
+  if (/^[—–-]/.test(rest)) return `${head} ${rest}`;
+  return `${head}: ${rest}`;
+};
+
 const evidenceText = (row) => (row.evidence ?? []).map(code).join(" · ");
 const withNote = (row, extra) =>
   [evidenceText(row), row.note ? `— ${row.note}` : "", extra ?? ""].filter(Boolean).join(" ");
 
 const byId = (rows) => new Map(rows.map((r) => [r.id, r]));
 const featureById = byId(features.features);
-const changeById = byId(changeset.items);
-const defectById = byId(defects.defects);
 const questionById = byId(questions.questions);
 
 const refText = (ids, map, fallback = "") =>
@@ -538,12 +551,6 @@ ${changeset.out_of_scope.map((line) => `- ${line}`).join("\n")}
 
 /* ── CHANGELOG.md ───────────────────────────────────────────────────────── */
 
-const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const shortDate = (iso) => {
-  const [, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTH_SHORT[m - 1]}`;
-};
-
 function renderChangelog() {
   const rows = [...changelog.changelog].sort(
     (a, b) => b.date.localeCompare(a.date) || CHANGE_TYPE_ORDER.indexOf(a.type) - CHANGE_TYPE_ORDER.indexOf(b.type),
@@ -572,10 +579,7 @@ function renderChangelog() {
       if (group.length === 0) continue;
       parts.push(`### ${type[0].toUpperCase() + type.slice(1)}\n`);
       for (const e of group) {
-        const refs = [e.changeset?.length ? `changeset ${e.changeset.join(", ")}` : "", e.commits?.length ? `commit ${e.commits.join(", ")}` : ""]
-          .filter(Boolean)
-          .join(" · ");
-        parts.push(`- **${e.title}**${e.detail ? `: ${e.detail}` : ""}${refs ? ` (${refs})` : ""}`);
+        parts.push(`- ${joinHead(`**${e.title}**`, e.detail)}`);
       }
       parts.push("");
     }
@@ -585,7 +589,7 @@ function renderChangelog() {
 
 ## Maintenance
 
-- **Never edit this file.** Add a row to \`docs/data/changelog.json\` (\`date\`, \`type\`, \`title\`, \`detail\`, optional \`evidence\`/\`commits\`), then run \`pnpm run docs:render\`.
+- **Never edit this file.** Add a row to \`docs/data/changelog.json\` (\`id\` = next \`CH-###\`, \`date\`, \`type\`, \`title\`, \`detail\`, optional \`evidence\`/\`commits\`/\`changeset\`/\`defects\`), then run \`pnpm run docs:render\`.
 - The whole history is available as data: filter by \`type\`, group by \`date\`, or load it into a graph with \`pnpm run docs:graph\`.
 - Dates are ISO (\`YYYY-MM-DD\`). A row whose date has no matching timeline session is flagged by the renderer.
 `);
@@ -614,14 +618,15 @@ function renderTimeline() {
 
     if (session.whatChanged?.length) {
       const lines = session.whatChanged.map((item) => {
-        const head = item.title ? `- **${item.title}**${item.detail ? `: ${item.detail}` : ""}` : `- ${item.detail}`;
+        const head = item.title ? `- ${joinHead(`**${item.title}**`, item.detail)}` : `- ${item.detail}`;
         return [head, ...(item.sub ?? []).map((s) => `  - ${s}`)].join("\n");
       });
       parts.push(`### What Changed\n${lines.join("\n")}\n`);
     }
 
     if (session.blockers?.length) {
-      parts.push(`### Blockers\n${session.blockers.map((b, i) => `${i + 1}. ${b}`).join("\n")}\n`);
+      const lead = session.blockersNote ? `${session.blockersNote}\n\n` : "";
+      parts.push(`### Blockers\n${lead}${session.blockers.map((b, i) => `${i + 1}. ${b}`).join("\n")}\n`);
     }
     if (session.nextSteps?.length) {
       parts.push(`### Next Steps\n${session.nextSteps.map((b, i) => `${i + 1}. ${b}`).join("\n")}\n`);
@@ -629,7 +634,11 @@ function renderTimeline() {
     if (session.verification?.length) {
       parts.push(`### Verification\n${session.verification.map((v) => `- ${v}`).join("\n")}\n`);
     }
-    if (session.rationale) parts.push(`### Rationale\n${session.rationale}\n`);
+    if (session.rationale?.length) {
+      const body =
+        session.rationale.length === 1 ? session.rationale[0] : session.rationale.map((p) => `- ${p}`).join("\n");
+      parts.push(`### Rationale\n${body}\n`);
+    }
     if (session.files?.length) {
       parts.push(`### Related Files\n${session.files.map((f) => `- ${f}`).join("\n")}\n`);
     }
@@ -726,6 +735,21 @@ function buildGraph() {
   }
   for (const d of defects.defects) {
     for (const ref of d.features ?? []) addEdge(d.id, ref, "affects");
+  }
+  // Session → feature, but only on an exact file match: the session listed a file
+  // that is itself the evidence for that feature. Approximate, so it gets its own
+  // edge kind ("touches") instead of being passed off as delivery.
+  const backticked = (text) => [...text.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+  for (const s of timeline.sessions) {
+    const touched = new Set((s.files ?? []).flatMap(backticked));
+    for (const f of features.features) {
+      for (const evidence of f.evidence ?? []) {
+        if (touched.has(evidence)) {
+          addEdge(s.id, f.id, "touches");
+          break;
+        }
+      }
+    }
   }
 
   return {

@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "check:migrations": "node scripts/migration-drift.mjs",
     "docs:render": "node scripts/docs.mjs render",
-    "docs:check": "node scripts/docs.mjs render --check",
+    "docs:check": "node scripts/docs.mjs render --check && node scripts/docs.mjs graph --check",
     "docs:graph": "node scripts/docs.mjs graph",
     "docs:graph:check": "node scripts/docs.mjs graph --check",
     "docs:ask": "node scripts/docs.mjs ask",
