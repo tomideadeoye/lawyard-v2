@@ -117,9 +117,9 @@
     {
       "id": "S-2026-11-09-16",
       "type": "session",
-      "label": "Triage Tobi's last Beeper thread (8 Nov, 14:31–15:26) and close what was real code rath…",
+      "label": "Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditi…",
       "date": "2026-11-09",
-      "detail": "Tobi's 8 Nov messages: category filter was dead sitewide"
+      "detail": "Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide"
     },
     {
       "id": "CH-001",
@@ -1077,8 +1077,8 @@
     {
       "id": "D12",
       "type": "defect",
-      "label": "Supabase auth email links land on the WordPress main domain and 404",
-      "status": "open",
+      "label": "Email verification links land signed-out (PKCE code / implicit hash)",
+      "status": "fixed",
       "detail": "high"
     },
     {
@@ -2567,7 +2567,17 @@
     },
     {
       "from": "S-2026-11-09-16",
+      "to": "F-03",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-09-16",
       "to": "F-27",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-09-16",
+      "to": "F-31",
       "kind": "touches"
     }
   ]
