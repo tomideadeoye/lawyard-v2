@@ -355,3 +355,31 @@ The same failure mode as a lint script that exits 0 without running: a doc that 
 ### Related Files
 - `docs/data/*.json`, `scripts/docs.mjs`, `package.json` (docs scripts)
 - `docs/FEATURE-STATUS.md`, `docs/TOBI-12SEP-CHANGES.md` (now generated)
+
+## 2026-11-09 — Tobi's 8 Nov messages: category filter was dead sitewide
+
+### Focus
+Triage Tobi's last Beeper thread (8 Nov, 14:31–15:26) and close what was real code rather than a WordPress confusion.
+
+### What Changed
+- **Diagnosis first, then code**: `www.lawyard.org` is still WordPress on Bluehost — the Next app only serves `directory.lawyard.org`. That single fact explains "published post not on the website", "Categories dropdown doesn't list Corporate Post", "verification link 404 + a form" (WordPress search form nobody reads), and why "the redesign" is the actual unblocker.
+- **`lib/api/articles.ts`**: added `categoryCandidates()` (slug ↔ label spellings, with small-word casing) and replaced `.eq('category', …)` with `.overlaps()`. `articles.category` is `TEXT[]`; the old filter was a 400 every time and the error was swallowed. Also added an `articleType` option and surfaced query errors instead of silently returning `[]`.
+- **`app/(main)/insights/page.tsx`**, **`app/(main)/category/[slug]/page.tsx`**, **`app/directory/knowledge/category/[id]/page.tsx`**, **`getRelatedArticles()`**: all now resolve categories through the new matcher.
+- **`app/directory/corporate-posts/page.tsx`**: server-side `article_type = corporate_post` instead of fetch-50-then-filter.
+- **`app/auth/callback/route.ts`** added: forwards auth-link queries landing on a non-directory host to `directory.lawyard.org`, where the exchange handler lives.
+- **`app/directory/add-listing/page.tsx`**: removed the last user-visible "Orion" reference (Tobi's explicit ask).
+- **Docs**: defects D10 (category filter, fixed), D11 (listing starvation, fixed), D12 (auth links on WP domain, open — needs a Supabase dashboard change); `scripts/docs.mjs` defect id regex widened to `D\d{1,2}`.
+
+### Verification
+- `tsc --noEmit` clean; `eslint` clean on touched files (one pre-existing `set-state-in-effect` warning).
+- `next build` succeeds; `/auth/callback` is now a route.
+- Live data checks: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2 — all previously 400ing.
+- Local smoke test with `Host: lawyard.test` (must bypass the localhost→directory rewrite): `/insights?category=news` shows only News; `?category=corporate-post` shows the Kredete post and its sibling; `/corporate-posts` no longer shows the empty state.
+
+### Rationale
+Two of Tobi's five items were not bugs in the new app — they were him auditing a WordPress site that no longer holds the data. Saying that plainly, and fixing the real latent bugs it exposed, is cheaper than building features for a mismatch.
+
+### Related Files
+- `lib/api/articles.ts`, `app/auth/callback/route.ts`, `app/directory/corporate-posts/page.tsx`
+- `app/(main)/insights/page.tsx`, `app/(main)/category/[slug]/page.tsx`, `app/directory/knowledge/category/[id]/page.tsx`
+- `docs/data/defects.json`, `docs/FEATURE-STATUS.md` (generated), `CHANGELOG.md`

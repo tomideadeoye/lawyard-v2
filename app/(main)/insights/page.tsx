@@ -16,6 +16,7 @@ const CATEGORIES = [
   { name: 'Spotlight', slug: 'lawyard-spotlight' },
   { name: 'Sports Law', slug: 'sports-law' },
   { name: 'Judgements', slug: 'judgements' },
+  { name: 'Corporate Posts', slug: 'corporate-post' },
 ]
 
 export default async function InsightsPage({
@@ -27,7 +28,9 @@ export default async function InsightsPage({
   const supabase = await createClient()
   const articles = await getPublishedArticles(supabase, {
     category: category || undefined,
-    excludeType: ['corporate_post', 'press_release'],
+    // Corporate Posts are normally kept off the news feed, but when the reader
+    // explicitly asks for that category they are the only thing worth showing.
+    excludeType: category === 'corporate-post' ? undefined : ['corporate_post', 'press_release'],
   })
 
   return (

@@ -9,10 +9,19 @@
       "severity": "high",
       "status": "open",
       "impact": "Every plan page renders ₦20 / ₦2. Blocked on Q2–Q6.",
-      "evidence": ["supabase/migrations/20260629000002_update_plans_data_exact.sql", "supabase/migrations/20260628000001_create_plans_table.sql", "lib/currency.ts"],
+      "evidence": [
+        "supabase/migrations/20260629000002_update_plans_data_exact.sql",
+        "supabase/migrations/20260628000001_create_plans_table.sql",
+        "lib/currency.ts"
+      ],
       "fix": "Add a currency column to plans and re-seed with Tobi's NGN figures once Q2–Q6 are answered.",
-      "changes": ["C20"],
-      "features": ["F-40", "F-30"]
+      "changes": [
+        "C20"
+      ],
+      "features": [
+        "F-40",
+        "F-30"
+      ]
     },
     {
       "id": "D2",
@@ -20,10 +29,19 @@
       "severity": "high",
       "status": "open",
       "impact": "Free users can exceed gallery caps via the chamber form.",
-      "evidence": ["app/directory/actions/submit-listing.ts", "app/directory/dashboard/chamber/chamber-form.tsx", "lib/directory/publishing.ts"],
+      "evidence": [
+        "app/directory/actions/submit-listing.ts",
+        "app/directory/dashboard/chamber/chamber-form.tsx",
+        "lib/directory/publishing.ts"
+      ],
       "fix": "Pass isFirm into galleryCapFor at submit-listing.ts:65,74 and move the chamber form onto a server action with the same validation.",
-      "changes": ["C10"],
-      "features": ["F-39", "F-07"]
+      "changes": [
+        "C10"
+      ],
+      "features": [
+        "F-39",
+        "F-07"
+      ]
     },
     {
       "id": "D3",
@@ -31,10 +49,17 @@
       "severity": "high",
       "status": "open",
       "impact": "The pricing page advertises an empty middle tier.",
-      "evidence": ["supabase/migrations/20261016000002_post_caps_and_credits.sql"],
+      "evidence": [
+        "supabase/migrations/20261016000002_post_caps_and_credits.sql"
+      ],
       "fix": "Fill features + price once Tobi answers Q8 (C21 contents).",
-      "changes": ["C02", "C21"],
-      "features": ["F-41"]
+      "changes": [
+        "C02",
+        "C21"
+      ],
+      "features": [
+        "F-41"
+      ]
     },
     {
       "id": "D4",
@@ -42,9 +67,13 @@
       "severity": "medium",
       "status": "open",
       "impact": "Must not ship to production pricing.",
-      "evidence": ["lib/corporate-posts.json"],
+      "evidence": [
+        "lib/corporate-posts.json"
+      ],
       "fix": "Replace with the real Basic price before launch.",
-      "features": ["F-27"]
+      "features": [
+        "F-27"
+      ]
     },
     {
       "id": "D5",
@@ -52,10 +81,17 @@
       "severity": "low",
       "status": "open",
       "impact": "'Saved Lawyers' is only usable from a profile page.",
-      "evidence": ["components/directory/LawyerCard.tsx", "app/directory/lawyer/[id]/page.tsx"],
+      "evidence": [
+        "components/directory/LawyerCard.tsx",
+        "app/directory/lawyer/[id]/page.tsx"
+      ],
       "fix": "Render BookmarkButton on LawyerCard using the bookmarked prop that is already passed in.",
-      "changes": ["C18"],
-      "features": ["F-42"]
+      "changes": [
+        "C18"
+      ],
+      "features": [
+        "F-42"
+      ]
     },
     {
       "id": "D6",
@@ -63,10 +99,17 @@
       "severity": "low",
       "status": "open",
       "impact": "Dead code; misleads future readers into thinking Calendly is supported.",
-      "evidence": ["components/directory/forms/LawyerForm.tsx", "app/directory/lawyer/[id]/page.tsx"],
+      "evidence": [
+        "components/directory/forms/LawyerForm.tsx",
+        "app/directory/lawyer/[id]/page.tsx"
+      ],
       "fix": "Delete the unused state/init/type fields; keep the DB column by decision.",
-      "changes": ["C16"],
-      "features": ["F-43"]
+      "changes": [
+        "C16"
+      ],
+      "features": [
+        "F-43"
+      ]
     },
     {
       "id": "D7",
@@ -74,9 +117,17 @@
       "severity": "low",
       "status": "open",
       "impact": "Harmless, but suggests shipped features; no nav links point at them.",
-      "evidence": ["app/directory/dashboard/chat", "app/directory/dashboard/wallet", "app/directory/dashboard/packages"],
+      "evidence": [
+        "app/directory/dashboard/chat",
+        "app/directory/dashboard/wallet",
+        "app/directory/dashboard/packages"
+      ],
       "fix": "Delete the dirs, or add a page.tsx when the feature is actually built.",
-      "features": ["F-46", "F-47", "F-48"]
+      "features": [
+        "F-46",
+        "F-47",
+        "F-48"
+      ]
     },
     {
       "id": "D8",
@@ -84,9 +135,13 @@
       "severity": "medium",
       "status": "open",
       "impact": "Tier 5 telemetry (signups, subscribers, revenue, funnel) is blocked.",
-      "evidence": ["app/admin/page.tsx"],
+      "evidence": [
+        "app/admin/page.tsx"
+      ],
       "fix": "Build app/admin/analytics on top of getAdminStats + revenue queries.",
-      "features": ["F-51"]
+      "features": [
+        "F-51"
+      ]
     },
     {
       "id": "D9",
@@ -94,9 +149,57 @@
       "severity": "low",
       "status": "open",
       "impact": "Admin and dashboard failures fall through to the root boundary.",
-      "evidence": ["app/error.tsx", "app/directory/error.tsx"],
+      "evidence": [
+        "app/error.tsx",
+        "app/directory/error.tsx"
+      ],
       "fix": "Add app/admin/error.tsx and a dashboard-level boundary.",
-      "features": ["F-45", "F-37"]
+      "features": [
+        "F-45",
+        "F-37"
+      ]
+    },
+    {
+      "id": "D10",
+      "title": "Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty",
+      "severity": "high",
+      "status": "fixed",
+      "impact": "`/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with \"malformed array literal\". Corporate Posts were invisible for the same reason.",
+      "evidence": [
+        "lib/api/articles.ts",
+        "app/(main)/insights/page.tsx",
+        "app/(main)/category/[slug]/page.tsx",
+        "app/directory/knowledge/category/[id]/page.tsx"
+      ],
+      "fix": "Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.",
+      "features": []
+    },
+    {
+      "id": "D11",
+      "title": "Corporate Posts listing fetched the 50 newest articles then filtered in JS",
+      "severity": "medium",
+      "status": "fixed",
+      "impact": "Any burst of ordinary published articles pushed Corporate Posts off the listing entirely.",
+      "evidence": [
+        "app/directory/corporate-posts/page.tsx",
+        "lib/api/articles.ts"
+      ],
+      "fix": "Filter server-side with `article_type = corporate_post` via the new `articleType` option on `getPublishedArticles()`.",
+      "features": []
+    },
+    {
+      "id": "D12",
+      "title": "Supabase auth email links land on the WordPress main domain and 404",
+      "severity": "high",
+      "status": "open",
+      "impact": "Signup confirmation / magic-link / recovery links open `www.lawyard.org/auth/callback`, which is WordPress — a 404 plus a WordPress search form that nobody reads. New users cannot verify.",
+      "evidence": [
+        "app/auth/callback/route.ts",
+        "app/directory/auth/callback/route.ts",
+        "middleware.ts"
+      ],
+      "fix": "Code done: `app/auth/callback` forwards the query to directory.lawyard.org. Remaining: allow `https://directory.lawyard.org/**` in Supabase Redirect URLs so emails stop falling back to Site URL. Dashboard only.",
+      "features": []
     }
   ]
 }

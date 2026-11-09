@@ -326,6 +326,7 @@ Re-verified every shipped item against the code after the changeset deployed (`1
 | D7 | — | Three empty dashboard dirs (chat, wallet, packages) |
 | D8 | — | No admin analytics route |
 | D9 | — | Error boundaries on only two routes |
+| D12 | — | Supabase auth email links land on the WordPress main domain and 404 |
 
 Full detail, severity and fix notes: [`docs/FEATURE-STATUS.md`](FEATURE-STATUS.md) §6.
 

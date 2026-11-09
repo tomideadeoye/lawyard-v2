@@ -226,7 +226,7 @@ function AddListingContent() {
               </li>
               <li className="flex gap-2">
                 <span className="text-accent font-semibold">✦</span>
-                Direct integration with the Orion legal technology ecosystem and automated placement.
+                Automated placement in the Lawyard directory and search results.
               </li>
             </ul>
           </div>

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { categoryCandidates } from '@/lib/api/articles';
 import Link from 'next/link';
 
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
@@ -7,7 +8,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
   const { data: articles } = await supabase
     .from('articles')
     .select('*')
-    .eq('category', id)
+    .overlaps('category', categoryCandidates(id))
     .eq('status', 'published');
 
   return (

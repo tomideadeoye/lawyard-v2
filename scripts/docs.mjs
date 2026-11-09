@@ -110,7 +110,7 @@ const questions = load("questions");
 
 const featureIds = checkIds(features.features, /^F-\d{2}$/, "features");
 const changeIds = checkIds(changeset.items, /^C\d{2}$/, "changeset");
-const defectIds = checkIds(defects.defects, /^D\d$/, "defects");
+const defectIds = checkIds(defects.defects, /^D\d{1,2}$/, "defects");
 const questionIds = checkIds(questions.questions, /^Q\d+$/, "questions");
 
 for (const f of features.features) {

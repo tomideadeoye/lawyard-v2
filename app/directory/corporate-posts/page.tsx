@@ -11,9 +11,13 @@ export const metadata = {
 
 export default async function CorporatePostsPage() {
   const supabase = await createClient()
-  const articles = await getPublishedArticles(supabase, { limit: 50 })
-
-  const corporatePostArticles = articles.filter(a => a.article_type === 'corporate_post')
+  // Filter in Postgres, not after the fact: fetching the 50 newest published
+  // articles and then discarding the non-corporate ones made corporate posts
+  // disappear whenever ordinary articles outran them.
+  const corporatePostArticles = await getPublishedArticles(supabase, {
+    articleType: 'corporate_post',
+    limit: 50,
+  })
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-24">

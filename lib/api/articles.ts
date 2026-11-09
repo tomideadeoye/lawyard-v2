@@ -32,6 +32,31 @@ const articleFields = 'id, title, slug, excerpt, featured_image, category, artic
 const articleDetailFields = '*, author:profiles(full_name, avatar_url)'
 const podcastFields = 'id, title, slug, description, media_url, media_type, duration, created_at, author:profiles(full_name)'
 
+// articles.category is a TEXT[] built from whichever label the submitter picked,
+// so the same concept is stored as "News" (WP import), "news" (slug) or
+// "Corporate Post" (corporate-post flow). Filtering it with `.eq()` is a hard
+// Postgres error — "malformed array literal" — which silently emptied every
+// category page. Build the plausible spellings and match with `overlaps` (&&)
+// instead, so old and new rows both resolve.
+const SMALL_WORDS = new Set(['and', 'or', 'of', 'for', 'the', 'in', 'to', 'a', 'an'])
+
+export function categoryCandidates(value: string): string[] {
+  const base = value.trim()
+  if (!base) return []
+
+  const spaced = base.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim()
+  const title = spaced
+    .split(' ')
+    .map((word, i) => {
+      const lower = word.toLowerCase()
+      if (i > 0 && SMALL_WORDS.has(lower)) return lower
+      return lower.charAt(0).toUpperCase() + lower.slice(1)
+    })
+    .join(' ')
+
+  return Array.from(new Set([base, spaced, title, title.toUpperCase(), spaced.toLowerCase(), base.toLowerCase()]))
+}
+
 export function formatDate(date: string, style: 'full' | 'short' = 'full'): string {
   const opts: Intl.DateTimeFormatOptions = style === 'full'
     ? { year: 'numeric', month: 'long', day: 'numeric' }
@@ -41,7 +66,7 @@ export function formatDate(date: string, style: 'full' | 'short' = 'full'): stri
 
 export async function getPublishedArticles(
   supabase: SupabaseClient,
-  opts?: { category?: string; excludeType?: string | string[]; limit?: number }
+  opts?: { category?: string; articleType?: string; excludeType?: string | string[]; limit?: number }
 ): Promise<ArticleWithAuthor[]> {
   let query = supabase
     .from('articles')
@@ -49,14 +74,19 @@ export async function getPublishedArticles(
     .eq('status', 'published')
     .order('created_at', { ascending: false })
 
-  if (opts?.category) query = query.eq('category', opts.category)
+  if (opts?.category) query = query.overlaps('category', categoryCandidates(opts.category))
+  if (opts?.articleType) query = query.eq('article_type', opts.articleType)
   if (opts?.excludeType) {
     const types = Array.isArray(opts.excludeType) ? opts.excludeType : [opts.excludeType]
     query = query.not('article_type', 'in', `(${types.join(',')})`)
   }
   if (opts?.limit) query = query.limit(opts.limit)
 
-  const { data } = await query
+  const { data, error } = await query
+  if (error) {
+    console.error('[articles] getPublishedArticles failed:', error.message, { category: opts?.category })
+    return []
+  }
   return (data || []) as unknown as ArticleWithAuthor[]
 }
 
@@ -82,7 +112,10 @@ export async function getRelatedArticles(
     .eq('status', 'published')
     .limit(limit)
 
-  if (category) query = query.eq('category', category)
+  if (category) {
+    const candidates = categoryCandidates(category)
+    if (candidates.length > 0) query = query.overlaps('category', candidates)
+  }
 
   const { data } = await query
   return data || []
