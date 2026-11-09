@@ -11,6 +11,7 @@ type Coupon = {
   discount_value: number | null
   frequency_days: number | null
   max_uses: number | null
+  per_user_limit: number | null
   is_active: boolean
   description: string | null
   created_at: string
@@ -96,6 +97,7 @@ async function CouponsTable({ search, page }: { search?: string; page?: number }
               <th style={thStyle}>Discount</th>
               <th style={thStyle}>Frequency</th>
               <th style={thStyle}>Max uses</th>
+              <th style={thStyle}>Per account</th>
               <th style={thStyle}>Used</th>
               <th style={thStyle}>Last used</th>
               <th style={thStyle}>Description</th>
@@ -106,7 +108,7 @@ async function CouponsTable({ search, page }: { search?: string; page?: number }
           </thead>
           <tbody>
             {coupons.length === 0 ? (
-              <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>{search ? 'No coupons match your search.' : 'No coupons yet.'}</td></tr>
+              <tr><td colSpan={11} style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>{search ? 'No coupons match your search.' : 'No coupons yet.'}</td></tr>
             ) : coupons.map((coupon) => (
               <tr key={coupon.id} style={{ borderBottom: '1px solid var(--card-border)', background: 'transparent' }}>
                 <td style={{ padding: '14px 16px', fontWeight: 600, fontSize: '0.85rem' }}>{coupon.code}</td>
@@ -118,6 +120,9 @@ async function CouponsTable({ search, page }: { search?: string; page?: number }
                 </td>
                 <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#64748B' }}>
                   {coupon.max_uses ?? '—'}
+                </td>
+                <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#64748B' }}>
+                  {coupon.per_user_limit ?? '—'}
                 </td>
                 <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#64748B' }}>
                   {coupon.usage_count}
@@ -219,6 +224,7 @@ export default function CouponsPage({
             <Field label="Discount %" name="discount_value" placeholder="e.g. 100" />
             <Field label="Frequency (days)" name="frequency_days" placeholder="e.g. 7" />
             <Field label="Max uses" name="max_uses" placeholder="e.g. 10" />
+            <Field label="Per account" name="per_user_limit" placeholder="e.g. 3" />
             <Field label="Description" name="description" placeholder="Short description" />
           </div>
           <div>

@@ -10,6 +10,7 @@ interface Coupon {
   discount_value: number | null
   frequency_days: number | null
   max_uses: number | null
+  per_user_limit: number | null
   description: string | null
 }
 
@@ -77,6 +78,10 @@ export function EditCouponDialog({ coupon }: { coupon: Coupon }) {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Frequency (days)</label>
               <input name="frequency_days" defaultValue={coupon.frequency_days ?? ''} type="number" min="1" className="input" style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--card-border)', background: 'transparent', fontSize: '0.9rem' }} />
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Per account</label>
+              <input name="per_user_limit" defaultValue={coupon.per_user_limit ?? ''} type="number" min="1" className="input" style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--card-border)', background: 'transparent', fontSize: '0.9rem' }} />
             </div>
           </div>
 

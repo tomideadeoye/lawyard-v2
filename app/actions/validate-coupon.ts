@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceRoleClient } from '@/lib/supabase/server'
+import { createServiceRoleClient, createClient } from '@/lib/supabase/server'
 
 interface CouponValid {
   valid: true
@@ -17,7 +17,25 @@ interface CouponInvalid {
   message: string
 }
 
-export async function validateCoupon(code: string, tierPrice: number): Promise<CouponValid | CouponInvalid> {
+// Resolve the submitting account. Every redemption is attributed through
+// transactions.metadata.submitter_id, so the per-account check needs this even
+// when the caller (a client component previewing a code) doesn't pass one.
+async function resolveUserId(explicit?: string | null): Promise<string | null> {
+  if (explicit) return explicit
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    return user?.id ?? null
+  } catch {
+    return null
+  }
+}
+
+export async function validateCoupon(
+  code: string,
+  tierPrice: number,
+  userId?: string | null
+): Promise<CouponValid | CouponInvalid> {
   const normalized = code.trim().toUpperCase()
 
   const sb = createServiceRoleClient()
@@ -29,6 +47,32 @@ export async function validateCoupon(code: string, tierPrice: number): Promise<C
     .single()
 
   if (!coupon) return { valid: false, message: 'Invalid coupon code' }
+
+  // Per-account cap — "useable only three times by an account".
+  if (coupon.per_user_limit) {
+    const account = await resolveUserId(userId)
+    if (!account) {
+      return {
+        valid: false,
+        message: 'This coupon is limited to one use per account. Please sign in to use it.',
+      }
+    }
+
+    const { count } = await sb
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .contains('metadata', { coupon_code: normalized, submitter_id: account })
+
+    if (count && count >= coupon.per_user_limit) {
+      return {
+        valid: false,
+        message:
+          coupon.per_user_limit === 1
+            ? 'This coupon has already been used by your account.'
+            : `This coupon can only be used ${coupon.per_user_limit} times per account.`,
+      }
+    }
+  }
 
   // Check max_uses (total global usage limit)
   if (coupon.max_uses) {

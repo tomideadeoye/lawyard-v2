@@ -194,6 +194,7 @@ export async function createCoupon(formData: FormData) {
   const discountValueRaw = formData.get('discount_value') as string;
   const frequencyDaysRaw = formData.get('frequency_days') as string;
   const maxUsesRaw = formData.get('max_uses') as string;
+  const perUserLimitRaw = formData.get('per_user_limit') as string;
   const description = (formData.get('description') as string) || '';
 
   if (!code || !discountType) return;
@@ -221,6 +222,11 @@ export async function createCoupon(formData: FormData) {
   if (maxUsesRaw) {
     const maxUses = parseInt(maxUsesRaw, 10);
     if (maxUses > 0) payload.max_uses = maxUses;
+  }
+
+  if (perUserLimitRaw) {
+    const perUserLimit = parseInt(perUserLimitRaw, 10);
+    if (perUserLimit > 0) payload.per_user_limit = perUserLimit;
   }
 
   const { error } = await supabase.from('coupons').insert([payload]);
@@ -256,6 +262,7 @@ export async function updateCoupon(formData: FormData) {
   const discountValueRaw = formData.get('discount_value') as string;
   const frequencyDaysRaw = formData.get('frequency_days') as string;
   const maxUsesRaw = formData.get('max_uses') as string;
+  const perUserLimitRaw = formData.get('per_user_limit') as string;
   const description = (formData.get('description') as string) || '';
 
   if (!code || !discountType) return;
@@ -287,6 +294,13 @@ export async function updateCoupon(formData: FormData) {
     payload.max_uses = maxUses > 0 ? maxUses : null;
   } else {
     payload.max_uses = null;
+  }
+
+  if (perUserLimitRaw) {
+    const perUserLimit = parseInt(perUserLimitRaw, 10);
+    payload.per_user_limit = perUserLimit > 0 ? perUserLimit : null;
+  } else {
+    payload.per_user_limit = null;
   }
 
   const { error } = await supabase.from('coupons').update(payload).eq('id', id);

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Per-account coupon caps (9 Nov)**: Tobi's partner codes need "useable three times by an account", which the table could not express — `max_uses` is a global total and `frequency_days` is a global cooldown. Added `coupons.per_user_limit` (`20261109000001_coupon_per_user_limit.sql`), enforced in `validateCoupon()` against `transactions.metadata->>submitter_id`, with a fallback to the caller's session so client-side previews check the right account. Admin create/edit/table gained a "Per account" field
 - **Product-owner board (28 Oct)**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
 - **`docs/AUDIT-2026-10-20.md`**: full-repo audit — 3 critical (self-service admin promotion via unrestricted `profiles.role` UPDATE; leaked keys in git history; unauthenticated `/api/auth/hook` mail relay with HTML injection), high/medium findings on cron + payments + RLS, plus a suggested fix order
 

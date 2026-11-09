@@ -79,7 +79,9 @@ export async function submitCorporatePost(formData: FormData) {
   } catch {} // Guest submission — no auth needed
 
   if (data.coupon_code) {
-    const validation = await validateCoupon(data.coupon_code, tier.price)
+    // submitterId is passed explicitly so the per-account coupon cap is checked
+    // against the account that will actually own the redemption.
+    const validation = await validateCoupon(data.coupon_code, tier.price, submitterId)
     if (validation.valid) {
       appliedCoupon = {
         code: validation.code,
