@@ -1,0 +1,779 @@
+{
+  "schema": 1,
+  "note": "Source of truth for CHANGELOG.md. One row per shipped change: date + type are fields, not headings, so entries can be grouped, filtered and graphed. Rendered by scripts/docs.mjs.",
+  "changelog": [
+    {
+      "id": "CH-001",
+      "date": "2026-11-09",
+      "type": "added",
+      "title": "Per-account coupon caps",
+      "detail": "Tobi's partner codes need \"useable three times by an account\", which the table could not express — `max_uses` is a global total and `frequency_days` is a global cooldown. Added `coupons.per_user_limit` (`20261109000001_coupon_per_user_limit.sql`), enforced in `validateCoupon()` against `transactions.metadata->>submitter_id`, with a fallback to the caller's session so client-side previews check the right account. Admin create/edit/table gained a \"Per account\" field",
+      "evidence": [
+        "20261109000001_coupon_per_user_limit.sql"
+      ]
+    },
+    {
+      "id": "CH-002",
+      "date": "2026-10-28",
+      "type": "added",
+      "title": "Product-owner board",
+      "detail": "token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)",
+      "evidence": [
+        "/product-owner",
+        "app/product-owner/",
+        "app/api/product-owner/route.ts",
+        "components/product-owner/ProductOwnerBoard.tsx",
+        "20261028000001_product_owner_questions.sql"
+      ],
+      "commits": [
+        "7454fc2",
+        "518a5e3"
+      ]
+    },
+    {
+      "id": "CH-003",
+      "date": "2026-10-20",
+      "type": "added",
+      "title": "`docs/AUDIT-2026-10-20.md`",
+      "detail": "full-repo audit — 3 critical (self-service admin promotion via unrestricted `profiles.role` UPDATE; leaked keys in git history; unauthenticated `/api/auth/hook` mail relay with HTML injection), high/medium findings on cron + payments + RLS, plus a suggested fix order",
+      "evidence": [
+        "docs/AUDIT-2026-10-20.md",
+        "/api/auth/hook"
+      ]
+    },
+    {
+      "id": "CH-004",
+      "date": "2026-11-09",
+      "type": "fixed",
+      "title": "Every category page was dead",
+      "detail": "`articles.category` became `TEXT[]` in `20260616000004`, but the query layer still filtered with `.eq('category', 'news')` — PostgREST answers `400 malformed array literal` and the error was swallowed, so `/insights?category=*` rendered empty and `/category/*` called `notFound()`. Added `categoryCandidates()` + `.overlaps()` in `lib/api/articles.ts` so a slug (`news`, `sports-law`) matches the label actually stored (`News`, `Sports Law`); applied at the insights page, category page, knowledge category page and related-articles query. Verified against production: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2",
+      "evidence": [
+        "/insights?category=*",
+        "/category/*",
+        "lib/api/articles.ts"
+      ]
+    },
+    {
+      "id": "CH-005",
+      "date": "2026-11-09",
+      "type": "fixed",
+      "title": "Corporate Posts listing starved by ordinary articles",
+      "detail": "`app/directory/corporate-posts/page.tsx` pulled the 50 newest published articles and filtered in JS. Now filtered in Postgres via a new `articleType` option on `getPublishedArticles()`",
+      "evidence": [
+        "app/directory/corporate-posts/page.tsx"
+      ]
+    },
+    {
+      "id": "CH-006",
+      "date": "2026-11-09",
+      "type": "fixed",
+      "title": "\"Corporate Posts\" missing from the site's Categories nav",
+      "detail": "the header dropdown (desktop + mobile) and the footer list were hardcoded to five/six legacy categories. Added Corporate Posts → `/category/corporate-post` in `components/Header.tsx` and `components/Footer.tsx`, plus a chips entry on `/insights`",
+      "evidence": [
+        "/category/corporate-post",
+        "components/Header.tsx",
+        "components/Footer.tsx",
+        "/insights"
+      ]
+    },
+    {
+      "id": "CH-007",
+      "date": "2026-11-09",
+      "type": "fixed",
+      "title": "Auth email links 404'd on the WordPress main domain",
+      "detail": "supabase confirmation/magic-link/recovery links open `www.lawyard.org/auth/callback`, which is still WordPress (404 + a search form nobody reads). Added `app/auth/callback/route.ts` — forwards the whole query to `directory.lawyard.org/auth/callback` so the code exchange can run. The remaining half is a dashboard change: allow-list the directory URL in Supabase → Redirect URLs (D12)",
+      "evidence": [
+        "www.lawyard.org/auth/callback",
+        "app/auth/callback/route.ts",
+        "directory.lawyard.org/auth/callback"
+      ],
+      "defects": [
+        "D12"
+      ]
+    },
+    {
+      "id": "CH-008",
+      "date": "2026-10-18",
+      "type": "fixed",
+      "title": "OAuth-only accounts at login",
+      "detail": "users who signed up with Google and had no password got a dead-end \"Incorrect email or password\" / \"log in instead\" on login/signup. Added `lib/auth/oauth-account.ts` (service-role lookup, fires only after a failed credential attempt — same enumeration surface as Clerk/Auth0 identifier-first flows) so they now see \"This account signs in with Google. Continue with Google, or use 'Forgot your password?' to set a password.\" (`app/directory/login/actions.ts`)",
+      "evidence": [
+        "lib/auth/oauth-account.ts",
+        "app/directory/login/actions.ts"
+      ]
+    },
+    {
+      "id": "CH-009",
+      "date": "2026-10-18",
+      "type": "fixed",
+      "title": "Auth email hook built 404 verify links",
+      "detail": "`buildConfirmationUrl()` used `emailData.site_url` (the app domain) as the base — GoTrue hosts `/auth/v1/verify` on the Supabase project domain, so every confirm/magic-link/reset link 404'd. Now always built on `NEXT_PUBLIC_SUPABASE_URL` (`app/api/auth/hook/route.ts`)",
+      "evidence": [
+        "/auth/v1/verify",
+        "app/api/auth/hook/route.ts"
+      ]
+    },
+    {
+      "id": "CH-010",
+      "date": "2026-11-05",
+      "type": "docs",
+      "title": "Living docs are now data",
+      "detail": "`docs/data/{features,changeset,defects,questions}.json` are the source of truth; `docs/FEATURE-STATUS.md` and `docs/TOBI-12SEP-CHANGES.md` are generated by `scripts/docs.mjs` (`pnpm run docs:render`). `docs:check` fails on drift, duplicate/dangling ids, or an evidence path that no longer exists; `docs:ask` prints Tobi's open questions. Changeset items now record `alternatives` — the option not taken and why it lost",
+      "evidence": [
+        "docs/data/{features,changeset,defects,questions}.json",
+        "docs/FEATURE-STATUS.md",
+        "docs/TOBI-12SEP-CHANGES.md",
+        "scripts/docs.mjs"
+      ]
+    },
+    {
+      "id": "CH-011",
+      "date": "2026-11-04",
+      "type": "docs",
+      "title": "`docs/FEATURE-STATUS.md` re-verified against code",
+      "detail": "20 features checked post-deploy, 15 clean, 5 shipped-with-gaps; new **§6 defect table D1–D9** — ledger-per-page pricing (plans seeded in USD but rendered ₦), unenforced firm/chamber gallery caps, ₦0 silver placeholder, ₦100 corporate-post test price, card-level bookmark gap, dead Calendly fields, empty dashboard dirs, missing admin analytics, two error boundaries",
+      "evidence": [
+        "docs/FEATURE-STATUS.md"
+      ],
+      "defects": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "D7",
+        "D8",
+        "D9"
+      ]
+    },
+    {
+      "id": "CH-012",
+      "date": "2026-11-04",
+      "type": "docs",
+      "title": "`docs/TOBI-12SEP-CHANGES.md` post-build verification",
+      "detail": "each gap mapped back to its C-item so the Tobi checklist and the code agree",
+      "evidence": [
+        "docs/TOBI-12SEP-CHANGES.md"
+      ]
+    },
+    {
+      "id": "CH-013",
+      "date": "2026-10-16",
+      "type": "docs",
+      "title": "`docs/TOBI-12SEP-CHANGES.md` added",
+      "detail": "item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`",
+      "evidence": [
+        "docs/TOBI-12SEP-CHANGES.md",
+        "docs/FEATURE-STATUS.md"
+      ],
+      "changeset": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22"
+      ]
+    },
+    {
+      "id": "CH-014",
+      "date": "2026-10-16",
+      "type": "docs",
+      "title": "`docs/FEATURE-STATUS.md` added",
+      "detail": "canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`",
+      "evidence": [
+        "docs/FEATURE-STATUS.md",
+        "docs/features.md"
+      ]
+    },
+    {
+      "id": "CH-015",
+      "date": "2026-10-16",
+      "type": "docs",
+      "title": "`HANDOFF.md` added",
+      "detail": "cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)",
+      "evidence": [
+        "HANDOFF.md"
+      ]
+    },
+    {
+      "id": "CH-016",
+      "date": "2026-10-16",
+      "type": "docs",
+      "title": "12 Sep transcript decoded",
+      "detail": "into `HANDOFF.md` §6 — monetization spine (enterprise > individual), chambers tier + admin role, silver/premium, post caps + paid extras, 1-min video, service requests (bookings must be paid; **no Calendly**), private pricing, directory-attribution removal, Lawyard Lens cross-sell, AWS move",
+      "evidence": [
+        "HANDOFF.md"
+      ]
+    },
+    {
+      "id": "CH-017",
+      "date": "2026-08-12",
+      "type": "fixed",
+      "title": "Login error masking by Supabase CAPTCHA",
+      "detail": "All auth flows (directory login, magic link, signup, password reset, admin login) failed with `captcha_failed` but fell through to a generic \"Something went wrong\". Root cause: Supabase Auth CAPTCHA enabled while admin login sent no `captchaToken`; error mapping had no `captcha` case. Added `captcha` handling everywhere + consolidated error mapping into single source of truth (`lib/auth/auth-errors.ts`)",
+      "evidence": [
+        "lib/auth/auth-errors.ts"
+      ]
+    },
+    {
+      "id": "CH-018",
+      "date": "2026-08-12",
+      "type": "fixed",
+      "title": "Admin login CAPTCHA support",
+      "detail": "Previously sent zero Turnstile — hardcoded \"Invalid email or password\" masked real errors. Now includes Turnstile widget + `captchaToken` passthrough on both password + magic link actions (`app/admin/login/actions.ts`, `app/admin/login/login-form.tsx`)",
+      "evidence": [
+        "app/admin/login/actions.ts",
+        "app/admin/login/login-form.tsx"
+      ]
+    },
+    {
+      "id": "CH-019",
+      "date": "2026-08-12",
+      "type": "fixed",
+      "title": "Corporate post image upload RLS",
+      "detail": "Guests could not upload images — route used `createClient()` (user-scoped) instead of service role, so Storage uploads failed under RLS (`app/api/upload/corporate-posts/route.ts`)",
+      "evidence": [
+        "app/api/upload/corporate-posts/route.ts"
+      ]
+    },
+    {
+      "id": "CH-020",
+      "date": "2026-08-12",
+      "type": "fixed",
+      "title": "`sync_profile_to_lawyer()` trigger",
+      "detail": "Ran unqualified `UPDATE lawyers` on raw user context where `public` not in search_path + fired for every profile insert including clients. Now role-gated to `lawyer`/`admin` and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)",
+      "evidence": [
+        "supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql"
+      ]
+    },
+    {
+      "id": "CH-021",
+      "date": "2026-08-12",
+      "type": "fixed",
+      "title": "`handle_new_user()` schema init",
+      "detail": "Added proper `LANGUAGE plpgsql SECURITY DEFINER` + COALESCE fallback chain (full_name → Google `name` → email local-part) + `first_name`/`last_name` split, fixing `full_name_length` violations on Google signups (`schema.sql`)",
+      "evidence": [
+        "schema.sql"
+      ]
+    },
+    {
+      "id": "CH-022",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Slack editorial pipeline",
+      "detail": "Podcasts now post with full review buttons (View/Approve/Deny/Editor) instead of plain text; shared `reviewActions()` builder for all three content types; corporate post Slack messages include submitter name (`lib/slack.ts`)",
+      "evidence": [
+        "lib/slack.ts"
+      ]
+    },
+    {
+      "id": "CH-023",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "WordPress integration",
+      "detail": "Posts now upload featured images to WP media, auto-create tags, set categories/authors — podcasts embed audio/video, corporate posts use author 4 (Lawyard Staff), category 7358, per-brand tags + meta (`lib/wordpress.ts`)",
+      "evidence": [
+        "lib/wordpress.ts"
+      ]
+    },
+    {
+      "id": "CH-024",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Approval UX",
+      "detail": "After approval Slack shows \"👁 View on WordPress\" + \"↩ Rescind\" — rescind reverts WP post to draft and moves article back to `pending_review` for all content types (`app/api/slack/interactions/route.ts`)",
+      "evidence": [
+        "app/api/slack/interactions/route.ts"
+      ]
+    },
+    {
+      "id": "CH-025",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Corporate posts moved",
+      "detail": "Routes relocated from `app/(main)/corporate-posts` to `app/directory/corporate-posts` with new submit/payment/success/[slug] pages; logged-in submitters now tracked (`author_id`, `submitter_name`); transactions record `currency: 'NGN'` explicitly",
+      "evidence": [
+        "app/(main)/corporate-posts",
+        "app/directory/corporate-posts"
+      ]
+    },
+    {
+      "id": "CH-026",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Article publishing gated on coupon",
+      "detail": "`publishArticle()` now requires a valid free coupon (`validateCoupon`) — no coupon, no publish (`app/directory/actions/content.ts`, `components/ui/coupon-input.tsx`)",
+      "evidence": [
+        "app/directory/actions/content.ts",
+        "components/ui/coupon-input.tsx"
+      ]
+    },
+    {
+      "id": "CH-027",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Article form",
+      "detail": "Auto-saves draft to localStorage (`lawyard_article_draft`), full scheduling UI (DatePicker + time + timezone Africa/Lagos), coupon field required (`components/directory/forms/PublishArticleForm.tsx`)",
+      "evidence": [
+        "components/directory/forms/PublishArticleForm.tsx"
+      ]
+    },
+    {
+      "id": "CH-028",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Search",
+      "detail": "New keyword box in sidebar filters (`q` param); `LawyerCard` extracted and reused on directory home + search (dedupe of duplicate card markup)"
+    },
+    {
+      "id": "CH-029",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Pricing page dark mode",
+      "detail": "Yellow-toned dark variants for prices, features, badges (`app/directory/pricing/page.tsx`)",
+      "evidence": [
+        "app/directory/pricing/page.tsx"
+      ]
+    },
+    {
+      "id": "CH-030",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "BREVO auth emails",
+      "detail": "New custom auth hook serves branded confirm/magic-link/reset/email-change emails via Brevo transactional (`app/api/auth/hook/route.ts`)",
+      "evidence": [
+        "app/api/auth/hook/route.ts"
+      ]
+    },
+    {
+      "id": "CH-031",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "Corporate post Basic tier",
+      "detail": "Still on TEST PRICE ₦100 — do not forget to revert after testing (`lib/corporate-posts.json`)",
+      "evidence": [
+        "lib/corporate-posts.json"
+      ]
+    },
+    {
+      "id": "CH-032",
+      "date": "2026-08-12",
+      "type": "changed",
+      "title": "ARCHITECTURE.md",
+      "detail": "Updated to reflect new auth + content pipeline layout"
+    },
+    {
+      "id": "CH-033",
+      "date": "2026-08-12",
+      "type": "added",
+      "title": "`lib/auth/auth-errors.ts`",
+      "detail": "Single `mapAuthError()` source of truth — replaces 3 duplicated copies (directory login, auth callback, admin login)",
+      "evidence": [
+        "lib/auth/auth-errors.ts"
+      ]
+    },
+    {
+      "id": "CH-034",
+      "date": "2026-08-12",
+      "type": "added",
+      "title": "`docs/CONTENT_WORKFLOW.md`",
+      "detail": "Canonical doc for the three content pipelines (Articles / Corporate Posts / Podcasts): Supabase → Slack review → WordPress",
+      "evidence": [
+        "docs/CONTENT_WORKFLOW.md"
+      ]
+    },
+    {
+      "id": "CH-035",
+      "date": "2026-08-12",
+      "type": "added",
+      "title": "`components/directory/LawyerCard.tsx`",
+      "detail": ", `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components",
+      "evidence": [
+        "components/directory/LawyerCard.tsx",
+        "components/ui/avatar.tsx",
+        "components/ui/section.tsx"
+      ]
+    },
+    {
+      "id": "CH-036",
+      "date": "2026-08-12",
+      "type": "added",
+      "title": "Podcast approval in Slack",
+      "detail": "`approve_podcast`/`deny_podcast` actions + `publishPodcastToWordPress()` (`lib/wordpress.ts`)",
+      "evidence": [
+        "lib/wordpress.ts"
+      ]
+    },
+    {
+      "id": "CH-037",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Lawyard Lens (C09)",
+      "detail": "thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`)",
+      "evidence": [
+        "/lens",
+        "/lens/[slug]",
+        "app/directory/actions/courses.ts"
+      ],
+      "changeset": [
+        "C09"
+      ]
+    },
+    {
+      "id": "CH-038",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Law-firm admin role + PR publishing (C17)",
+      "detail": "`chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them",
+      "evidence": [
+        "/dashboard/chamber"
+      ],
+      "changeset": [
+        "C17"
+      ]
+    },
+    {
+      "id": "CH-039",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Law-firm page parity (C11)",
+      "detail": "`20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page",
+      "evidence": [
+        "20261016000005_chambers_parity.sql"
+      ],
+      "changeset": [
+        "C11"
+      ]
+    },
+    {
+      "id": "CH-040",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Service requests (C14/C15)",
+      "detail": "`20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings)",
+      "evidence": [
+        "20261016000003_service_requests.sql",
+        "service-requests.ts"
+      ],
+      "changeset": [
+        "C14",
+        "C15"
+      ]
+    },
+    {
+      "id": "CH-041",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Post quotas + paid extras (C05)",
+      "detail": "`20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner`",
+      "evidence": [
+        "20261016000002_post_caps_and_credits.sql",
+        "lib/directory/publishing.ts"
+      ],
+      "changeset": [
+        "C05"
+      ]
+    },
+    {
+      "id": "CH-042",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Premium intro video (C08)",
+      "detail": "`20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated",
+      "evidence": [
+        "20261016000004_intro_videos_bucket.sql",
+        "upload-intro-video.ts"
+      ],
+      "changeset": [
+        "C08"
+      ]
+    },
+    {
+      "id": "CH-043",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "Private pricing (C12)",
+      "detail": "`20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows \"Contact for pricing\"",
+      "evidence": [
+        "20261016000001_add_hide_price_to_lawyers.sql"
+      ],
+      "changeset": [
+        "C12"
+      ]
+    },
+    {
+      "id": "CH-044",
+      "date": "2026-10-18",
+      "type": "added",
+      "title": "`lib/currency.ts`",
+      "detail": "NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20)",
+      "evidence": [
+        "lib/currency.ts"
+      ],
+      "changeset": [
+        "C20"
+      ]
+    },
+    {
+      "id": "CH-045",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "\"Chamber\" → \"Law Firm\" (C23)",
+      "detail": "all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged",
+      "evidence": [
+        "lib/constants.ts",
+        "/directory/chamber/*"
+      ],
+      "changeset": [
+        "C23"
+      ]
+    },
+    {
+      "id": "CH-046",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Three-tier pricing (C02)",
+      "detail": "Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing",
+      "evidence": [
+        "lib/directory/publishing.ts"
+      ],
+      "changeset": [
+        "C02"
+      ]
+    },
+    {
+      "id": "CH-047",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Featured placement (C03)",
+      "detail": "`.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards",
+      "changeset": [
+        "C03"
+      ]
+    },
+    {
+      "id": "CH-048",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Gallery caps (C10)",
+      "detail": "enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation",
+      "changeset": [
+        "C10"
+      ]
+    },
+    {
+      "id": "CH-049",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Calendly removed from UI (C16)",
+      "detail": "field dropped from `LawyerForm` and the profile display; `calendly_url` column retained",
+      "changeset": [
+        "C16"
+      ]
+    },
+    {
+      "id": "CH-050",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Bookmarks → \"Saved Lawyers\" (C18)",
+      "detail": "renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up",
+      "changeset": [
+        "C18"
+      ]
+    },
+    {
+      "id": "CH-051",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "Directory insights (C07)",
+      "detail": "`/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array",
+      "evidence": [
+        "/directory/insights"
+      ],
+      "changeset": [
+        "C07"
+      ]
+    },
+    {
+      "id": "CH-052",
+      "date": "2026-10-18",
+      "type": "changed",
+      "title": "NGN transactions (C20)",
+      "detail": "pricing/plans/currency flows record and display ₦ end-to-end",
+      "changeset": [
+        "C20"
+      ]
+    },
+    {
+      "id": "CH-053",
+      "date": "2026-10-18",
+      "type": "fixed",
+      "title": "Lint was dead repo-wide",
+      "detail": "`pnpm run lint` ran `next lint`, which fails with \"Invalid project directory provided\" on Next 16 (and no eslint config existed). Added `eslint.config.mjs` (eslint-config-next 16.2.0 flat config), switched the script to `eslint .`, and fixed all **58 errors** it surfaced (46 unused vars/imports, 11 from a `ToolBtn` nested inside render in the rich-text editor, 1 TDZ/immutability in `theme-provider`). Now 0 errors / 181 warnings",
+      "evidence": [
+        "eslint.config.mjs"
+      ]
+    },
+    {
+      "id": "CH-054",
+      "date": "2026-10-18",
+      "type": "fixed",
+      "title": "Silently unapplied migrations",
+      "detail": "added `scripts/migration-drift.mjs` + `pnpm run check:migrations` — parses `supabase migration list` and exits non-zero when local files are unapplied (or migrations exist only remotely). Also `pnpm run migrations:push`. Wired into `HANDOFF.md` §7 and the lawyard-ops skill's Verification Gates",
+      "evidence": [
+        "scripts/migration-drift.mjs",
+        "HANDOFF.md"
+      ]
+    },
+    {
+      "id": "CH-055",
+      "date": "2026-07-28",
+      "type": "fixed",
+      "title": "Paystack public key trailing newline",
+      "detail": "`echo` added `\\n` to `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` on Vercel, causing \"Please enter a valid Key\" from PaystackPop. Re-set with `printf` (no trailing newline)."
+    },
+    {
+      "id": "CH-056",
+      "date": "2026-07-28",
+      "type": "fixed",
+      "title": "New user signup blocked by `sync_profile_to_lawyer()` trigger",
+      "detail": "Trigger ran unqualified `UPDATE lawyers` for ALL profile inserts (including clients) in the auth trigger context where `public` is not in the search_path. Role-gated to `lawyer`/`admin` only and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)",
+      "evidence": [
+        "supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql"
+      ]
+    },
+    {
+      "id": "CH-057",
+      "date": "2026-07-28",
+      "type": "fixed",
+      "title": "`handle_new_user()` missing full_name fallback",
+      "detail": "Deployed version used direct `->>'full_name'` without fallback to Google's `name` field or email local-part. Caused `full_name_length` constraint violation when metadata lacked `full_name`. Added COALESCE fallback chain + `first_name`/`last_name` split from full_name."
+    },
+    {
+      "id": "CH-058",
+      "date": "2026-07-28",
+      "type": "fixed",
+      "title": "Email signup redirectTo double prefix",
+      "detail": "OAuth callback URL had `/directory/auth/callback` instead of `/auth/callback` — middleware already handles rewrite, causing double `/directory/directory/` prefix on production (`app/directory/login/actions.ts:117`)",
+      "evidence": [
+        "/directory/auth/callback",
+        "/auth/callback",
+        "/directory/directory/",
+        "app/directory/login/actions.ts:117"
+      ]
+    },
+    {
+      "id": "CH-059",
+      "date": "2026-07-28",
+      "type": "fixed",
+      "title": "Auth callback route double `/directory` prefix",
+      "detail": "Same issue — `redirectTo` was building URLs with double `/directory` prefix (`app/directory/auth/callback/route.ts`)",
+      "evidence": [
+        "/directory",
+        "app/directory/auth/callback/route.ts"
+      ]
+    },
+    {
+      "id": "CH-060",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "Paystack currency explicit NGN",
+      "detail": "`initializeTransaction()` now requires `currency` param (was implicitly NGN via account default). All callers pass `'NGN'` (`lib/api/paystack.ts`, `app/directory/actions/payments.ts`, `app/actions/shop.ts`, `app/actions/corporate-posts.ts`)",
+      "evidence": [
+        "lib/api/paystack.ts",
+        "app/directory/actions/payments.ts",
+        "app/actions/shop.ts",
+        "app/actions/corporate-posts.ts"
+      ]
+    },
+    {
+      "id": "CH-061",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "Transaction inserts record currency NGN",
+      "detail": "All three flows (subscription, shop, corporate post) now insert `currency: 'NGN'` explicitly instead of relying on table default `'USD'`"
+    },
+    {
+      "id": "CH-062",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "Live Paystack keys",
+      "detail": "`.env.local` + Vercel production switched from `sk_test_*`/`pk_test_*` to live keys. Test keys kept commented in `.env.local` for local dev",
+      "evidence": [
+        ".env.local"
+      ]
+    },
+    {
+      "id": "CH-063",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "`NEXT_PUBLIC_SITE_URL`",
+      "detail": "Set to `https://directory.lawyard.org` (was localhost)"
+    },
+    {
+      "id": "CH-064",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "Corporate post Basic tier price",
+      "detail": "Temporarily set to ₦100 for live testing (was ₦175,000) — REVERT AFTER TESTING (`lib/corporate-posts.json`)",
+      "evidence": [
+        "lib/corporate-posts.json"
+      ]
+    },
+    {
+      "id": "CH-065",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "README",
+      "detail": "Added \"Questions for Tobi\" section — 5 subscription prices in NGN unset + clash detection feature question"
+    },
+    {
+      "id": "CH-066",
+      "date": "2026-07-28",
+      "type": "changed",
+      "title": "Pricing page dark mode",
+      "detail": "All cards, tabs, notice section, and buttons now use yellow-toned dark mode variants for visibility (`app/directory/pricing/page.tsx`, `components/directory/paystack-button.tsx`)",
+      "evidence": [
+        "app/directory/pricing/page.tsx",
+        "components/directory/paystack-button.tsx"
+      ]
+    },
+    {
+      "id": "CH-067",
+      "date": "2026-07-28",
+      "type": "added",
+      "title": "Paystack webhook configured",
+      "detail": "`https://directory.lawyard.org/api/webhooks/paystack` set on Paystack dashboard (live mode)"
+    },
+    {
+      "id": "CH-068",
+      "date": "2026-07-28",
+      "type": "added",
+      "title": "Drive client folder",
+      "detail": "`Clients/Lawyard/` in Google Drive with `.env.local` + `lawyard-notes.md` (matches Avid and Grace format)",
+      "evidence": [
+        "Clients/Lawyard/",
+        ".env.local",
+        "lawyard-notes.md"
+      ]
+    }
+  ]
+}

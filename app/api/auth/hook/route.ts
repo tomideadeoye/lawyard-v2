@@ -2,14 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendTransactionalEmail } from '@/lib/api/brevo'
 
 const SITE_URL = 'https://directory.lawyard.org'
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://jayjejqjswxtksvwoqxp.supabase.co').replace(/\/$/, '')
 
+// Build a link our own app can redeem with verifyOtp({ type, token_hash }).
+//
+// The old shape pointed at GoTrue's /auth/v1/verify, which answers with a
+// PKCE `?code=` (useless in any browser that doesn't hold the code-verifier
+// cookie) or an implicit `#access_token` fragment (which a server route can
+// never read). Either way the user ends up verified but signed out.
+// token_hash needs no cookie, so the link works from any device.
 function buildConfirmationUrl(emailData: Record<string, any>): string {
   const tokenHash = emailData.token_hash
-  const type = emailData.email_action_type || ''
-  const redirectTo = emailData.redirect_to || SITE_URL
+  const type = emailData.email_action_type || 'signup'
   if (!tokenHash) return ''
-  return `${SUPABASE_URL}/auth/v1/verify?token=${tokenHash}&type=${type}&redirect_to=${encodeURIComponent(redirectTo)}`
+
+  // Carry the original intent through: /auth/callback?next=/add-listing&category=lawyer
+  let next = ''
+  try {
+    const redirect = new URL(emailData.redirect_to || SITE_URL)
+    const explicitNext = redirect.searchParams.get('next')
+    if (explicitNext) {
+      const category = redirect.searchParams.get('category')
+      next = category ? `${explicitNext}?category=${encodeURIComponent(category)}` : explicitNext
+    }
+  } catch {
+    next = ''
+  }
+
+  const params = new URLSearchParams({ token_hash: tokenHash, type })
+  if (next) params.set('next', next)
+  return `${SITE_URL}/auth/confirm?${params.toString()}`
 }
 
 function buildEmail(actionType: string, confirmationUrl: string, _siteUrl: string): { subject: string; html: string } {

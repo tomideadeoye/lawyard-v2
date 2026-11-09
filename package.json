@@ -12,6 +12,8 @@
     "check:migrations": "node scripts/migration-drift.mjs",
     "docs:render": "node scripts/docs.mjs render",
     "docs:check": "node scripts/docs.mjs render --check",
+    "docs:graph": "node scripts/docs.mjs graph",
+    "docs:graph:check": "node scripts/docs.mjs graph --check",
     "docs:ask": "node scripts/docs.mjs ask",
     "docs:stats": "node scripts/docs.mjs stats",
     "migrations:push": "supabase db push"

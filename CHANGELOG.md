@@ -1,37 +1,101 @@
 # Changelog
 
-## [Unreleased]
+> **GENERATED FILE — do not edit by hand.** Source of truth: `docs/data/changelog.json`.
+> Regenerate: `pnpm run docs:render` · Gate: `pnpm run docs:check` · Graph: `pnpm run docs:graph`.
+>
+> One row per change. `date` and `type` are fields, not headings, so the same rows render here
+> and appear as nodes in `docs/data/graph.json` — nothing is retyped into a second place.
+> **Newest first.** Add an entry to the JSON; it lands under the right date by itself.
+
+## 2026-11-09
 
 ### Added
-- **Per-account coupon caps (9 Nov)**: Tobi's partner codes need "useable three times by an account", which the table could not express — `max_uses` is a global total and `frequency_days` is a global cooldown. Added `coupons.per_user_limit` (`20261109000001_coupon_per_user_limit.sql`), enforced in `validateCoupon()` against `transactions.metadata->>submitter_id`, with a fallback to the caller's session so client-side previews check the right account. Admin create/edit/table gained a "Per account" field
-- **Product-owner board (28 Oct)**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
-- **`docs/AUDIT-2026-10-20.md`**: full-repo audit — 3 critical (self-service admin promotion via unrestricted `profiles.role` UPDATE; leaked keys in git history; unauthenticated `/api/auth/hook` mail relay with HTML injection), high/medium findings on cron + payments + RLS, plus a suggested fix order
+
+- **Per-account coupon caps**: Tobi's partner codes need "useable three times by an account", which the table could not express — `max_uses` is a global total and `frequency_days` is a global cooldown. Added `coupons.per_user_limit` (`20261109000001_coupon_per_user_limit.sql`), enforced in `validateCoupon()` against `transactions.metadata->>submitter_id`, with a fallback to the caller's session so client-side previews check the right account. Admin create/edit/table gained a "Per account" field
 
 ### Fixed
-- **Every category page was dead (9 Nov)**: `articles.category` became `TEXT[]` in `20260616000004`, but the query layer still filtered with `.eq('category', 'news')` — PostgREST answers `400 malformed array literal` and the error was swallowed, so `/insights?category=*` rendered empty and `/category/*` called `notFound()`. Added `categoryCandidates()` + `.overlaps()` in `lib/api/articles.ts` so a slug (`news`, `sports-law`) matches the label actually stored (`News`, `Sports Law`); applied at the insights page, category page, knowledge category page and related-articles query. Verified against production: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2
+
+- **Every category page was dead**: `articles.category` became `TEXT[]` in `20260616000004`, but the query layer still filtered with `.eq('category', 'news')` — PostgREST answers `400 malformed array literal` and the error was swallowed, so `/insights?category=*` rendered empty and `/category/*` called `notFound()`. Added `categoryCandidates()` + `.overlaps()` in `lib/api/articles.ts` so a slug (`news`, `sports-law`) matches the label actually stored (`News`, `Sports Law`); applied at the insights page, category page, knowledge category page and related-articles query. Verified against production: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2
 - **Corporate Posts listing starved by ordinary articles**: `app/directory/corporate-posts/page.tsx` pulled the 50 newest published articles and filtered in JS. Now filtered in Postgres via a new `articleType` option on `getPublishedArticles()`
 - **"Corporate Posts" missing from the site's Categories nav**: the header dropdown (desktop + mobile) and the footer list were hardcoded to five/six legacy categories. Added Corporate Posts → `/category/corporate-post` in `components/Header.tsx` and `components/Footer.tsx`, plus a chips entry on `/insights`
 - **Auth email links 404'd on the WordPress main domain**: supabase confirmation/magic-link/recovery links open `www.lawyard.org/auth/callback`, which is still WordPress (404 + a search form nobody reads). Added `app/auth/callback/route.ts` — forwards the whole query to `directory.lawyard.org/auth/callback` so the code exchange can run. The remaining half is a dashboard change: allow-list the directory URL in Supabase → Redirect URLs (D12)
-- **OAuth-only accounts at login (18 Oct)**: users who signed up with Google and had no password got a dead-end "Incorrect email or password" / "log in instead" on login/signup. Added `lib/auth/oauth-account.ts` (service-role lookup, fires only after a failed credential attempt — same enumeration surface as Clerk/Auth0 identifier-first flows) so they now see "This account signs in with Google. Continue with Google, or use 'Forgot your password?' to set a password." (`app/directory/login/actions.ts`)
-- **Auth email hook built 404 verify links**: `buildConfirmationUrl()` used `emailData.site_url` (the app domain) as the base — GoTrue hosts `/auth/v1/verify` on the Supabase project domain, so every confirm/magic-link/reset link 404'd. Now always built on `NEXT_PUBLIC_SUPABASE_URL` (`app/api/auth/hook/route.ts`)
+
+## 2026-11-05
 
 ### Docs
-- **Living docs are now data (2026-11-05)**: `docs/data/{features,changeset,defects,questions}.json` are the source of truth; `docs/FEATURE-STATUS.md` and `docs/TOBI-12SEP-CHANGES.md` are generated by `scripts/docs.mjs` (`pnpm run docs:render`). `docs:check` fails on drift, duplicate/dangling ids, or an evidence path that no longer exists; `docs:ask` prints Tobi's open questions. Changeset items now record `alternatives` — the option not taken and why it lost
-- **`docs/FEATURE-STATUS.md` re-verified against code (2026-11-04)**: 20 features checked post-deploy, 15 clean, 5 shipped-with-gaps; new **§6 defect table D1–D9** — ledger-per-page pricing (plans seeded in USD but rendered ₦), unenforced firm/chamber gallery caps, ₦0 silver placeholder, ₦100 corporate-post test price, card-level bookmark gap, dead Calendly fields, empty dashboard dirs, missing admin analytics, two error boundaries
-- **`docs/TOBI-12SEP-CHANGES.md` post-build verification**: each gap mapped back to its C-item so the Tobi checklist and the code agree
-- **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md`
-- **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`
-- **`HANDOFF.md` added**: cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)
-- **12 Sep transcript decoded** into `HANDOFF.md` §6 — monetization spine (enterprise > individual), chambers tier + admin role, silver/premium, post caps + paid extras, 1-min video, service requests (bookings must be paid; **no Calendly**), private pricing, directory-attribution removal, Lawyard Lens cross-sell, AWS move
 
-### Fixed
-- **Login error masking by Supabase CAPTCHA**: All auth flows (directory login, magic link, signup, password reset, admin login) failed with `captcha_failed` but fell through to a generic "Something went wrong". Root cause: Supabase Auth CAPTCHA enabled while admin login sent no `captchaToken`; error mapping had no `captcha` case. Added `captcha` handling everywhere + consolidated error mapping into single source of truth (`lib/auth/auth-errors.ts`)
-- **Admin login CAPTCHA support**: Previously sent zero Turnstile — hardcoded "Invalid email or password" masked real errors. Now includes Turnstile widget + `captchaToken` passthrough on both password + magic link actions (`app/admin/login/actions.ts`, `app/admin/login/login-form.tsx`)
-- **Corporate post image upload RLS**: Guests could not upload images — route used `createClient()` (user-scoped) instead of service role, so Storage uploads failed under RLS (`app/api/upload/corporate-posts/route.ts`)
-- **`sync_profile_to_lawyer()` trigger**: Ran unqualified `UPDATE lawyers` on raw user context where `public` not in search_path + fired for every profile insert including clients. Now role-gated to `lawyer`/`admin` and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)
-- **`handle_new_user()` schema init**: Added proper `LANGUAGE plpgsql SECURITY DEFINER` + COALESCE fallback chain (full_name → Google `name` → email local-part) + `first_name`/`last_name` split, fixing `full_name_length` violations on Google signups (`schema.sql`)
+- **Living docs are now data**: `docs/data/{features,changeset,defects,questions}.json` are the source of truth; `docs/FEATURE-STATUS.md` and `docs/TOBI-12SEP-CHANGES.md` are generated by `scripts/docs.mjs` (`pnpm run docs:render`). `docs:check` fails on drift, duplicate/dangling ids, or an evidence path that no longer exists; `docs:ask` prints Tobi's open questions. Changeset items now record `alternatives` — the option not taken and why it lost
+
+## 2026-11-04
+
+### Docs
+
+- **`docs/FEATURE-STATUS.md` re-verified against code**: 20 features checked post-deploy, 15 clean, 5 shipped-with-gaps; new **§6 defect table D1–D9** — ledger-per-page pricing (plans seeded in USD but rendered ₦), unenforced firm/chamber gallery caps, ₦0 silver placeholder, ₦100 corporate-post test price, card-level bookmark gap, dead Calendly fields, empty dashboard dirs, missing admin analytics, two error boundaries
+- **`docs/TOBI-12SEP-CHANGES.md` post-build verification**: each gap mapped back to its C-item so the Tobi checklist and the code agree
+
+## 2026-10-28
+
+### Added
+
+- **Product-owner board**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`) (commit 7454fc2, 518a5e3)
+
+## 2026-10-20
+
+### Added
+
+- **`docs/AUDIT-2026-10-20.md`**: full-repo audit — 3 critical (self-service admin promotion via unrestricted `profiles.role` UPDATE; leaked keys in git history; unauthenticated `/api/auth/hook` mail relay with HTML injection), high/medium findings on cron + payments + RLS, plus a suggested fix order
+
+## 2026-10-18
+
+### Added
+
+- **Lawyard Lens (C09)**: thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`) (changeset C09)
+- **Law-firm admin role + PR publishing (C17)**: `chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them (changeset C17)
+- **Law-firm page parity (C11)**: `20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page (changeset C11)
+- **Service requests (C14/C15)**: `20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings) (changeset C14, C15)
+- **Post quotas + paid extras (C05)**: `20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner` (changeset C05)
+- **Premium intro video (C08)**: `20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated (changeset C08)
+- **Private pricing (C12)**: `20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows "Contact for pricing" (changeset C12)
+- **`lib/currency.ts`**: NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20) (changeset C20)
 
 ### Changed
+
+- **"Chamber" → "Law Firm" (C23)**: all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged (changeset C23)
+- **Three-tier pricing (C02)**: Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing (changeset C02)
+- **Featured placement (C03)**: `.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards (changeset C03)
+- **Gallery caps (C10)**: enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation (changeset C10)
+- **Calendly removed from UI (C16)**: field dropped from `LawyerForm` and the profile display; `calendly_url` column retained (changeset C16)
+- **Bookmarks → "Saved Lawyers" (C18)**: renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up (changeset C18)
+- **Directory insights (C07)**: `/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array (changeset C07)
+- **NGN transactions (C20)**: pricing/plans/currency flows record and display ₦ end-to-end (changeset C20)
+
+### Fixed
+
+- **OAuth-only accounts at login**: users who signed up with Google and had no password got a dead-end "Incorrect email or password" / "log in instead" on login/signup. Added `lib/auth/oauth-account.ts` (service-role lookup, fires only after a failed credential attempt — same enumeration surface as Clerk/Auth0 identifier-first flows) so they now see "This account signs in with Google. Continue with Google, or use 'Forgot your password?' to set a password." (`app/directory/login/actions.ts`)
+- **Auth email hook built 404 verify links**: `buildConfirmationUrl()` used `emailData.site_url` (the app domain) as the base — GoTrue hosts `/auth/v1/verify` on the Supabase project domain, so every confirm/magic-link/reset link 404'd. Now always built on `NEXT_PUBLIC_SUPABASE_URL` (`app/api/auth/hook/route.ts`)
+- **Lint was dead repo-wide**: `pnpm run lint` ran `next lint`, which fails with "Invalid project directory provided" on Next 16 (and no eslint config existed). Added `eslint.config.mjs` (eslint-config-next 16.2.0 flat config), switched the script to `eslint .`, and fixed all **58 errors** it surfaced (46 unused vars/imports, 11 from a `ToolBtn` nested inside render in the rich-text editor, 1 TDZ/immutability in `theme-provider`). Now 0 errors / 181 warnings
+- **Silently unapplied migrations**: added `scripts/migration-drift.mjs` + `pnpm run check:migrations` — parses `supabase migration list` and exits non-zero when local files are unapplied (or migrations exist only remotely). Also `pnpm run migrations:push`. Wired into `HANDOFF.md` §7 and the lawyard-ops skill's Verification Gates
+
+## 2026-10-16
+
+### Docs
+
+- **`docs/TOBI-12SEP-CHANGES.md` added**: item-by-item walkthrough checklist (C01–C22) of Tobi's 12 Sep requests — index table + per-item decision/checkbox, anchored to the transcript + `docs/FEATURE-STATUS.md` (changeset C01, C02, C03, C04, C05, C06, C07, C08, C09, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22)
+- **`docs/FEATURE-STATUS.md` added**: canonical feature status board (✅ shipped · 🟡 partial · 🟦 scaffolded · 🔴 not started · 💬 spec'd-only), verified against code 2026-10-16 — supersedes the README §Status table + `docs/features.md`
+- **`HANDOFF.md` added**: cold-start handoff (locations, people, the uncommitted changeset, the 18 Oct call, the email-signing bug, open work, blocking prices, 12 Sep decisions)
+- **12 Sep transcript decoded**: into `HANDOFF.md` §6 — monetization spine (enterprise > individual), chambers tier + admin role, silver/premium, post caps + paid extras, 1-min video, service requests (bookings must be paid; **no Calendly**), private pricing, directory-attribution removal, Lawyard Lens cross-sell, AWS move
+
+## 2026-08-12
+
+### Added
+
+- **`lib/auth/auth-errors.ts`**: Single `mapAuthError()` source of truth — replaces 3 duplicated copies (directory login, auth callback, admin login)
+- **`docs/CONTENT_WORKFLOW.md`**: Canonical doc for the three content pipelines (Articles / Corporate Posts / Podcasts): Supabase → Slack review → WordPress
+- **`components/directory/LawyerCard.tsx`**: , `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components
+- **Podcast approval in Slack**: `approve_podcast`/`deny_podcast` actions + `publishPodcastToWordPress()` (`lib/wordpress.ts`)
+
+### Changed
+
 - **Slack editorial pipeline**: Podcasts now post with full review buttons (View/Approve/Deny/Editor) instead of plain text; shared `reviewActions()` builder for all three content types; corporate post Slack messages include submitter name (`lib/slack.ts`)
 - **WordPress integration**: Posts now upload featured images to WP media, auto-create tags, set categories/authors — podcasts embed audio/video, corporate posts use author 4 (Lawyard Staff), category 7358, per-brand tags + meta (`lib/wordpress.ts`)
 - **Approval UX**: After approval Slack shows "👁 View on WordPress" + "↩ Rescind" — rescind reverts WP post to draft and moves article back to `pending_review` for all content types (`app/api/slack/interactions/route.ts`)
@@ -44,44 +108,23 @@
 - **Corporate post Basic tier**: Still on TEST PRICE ₦100 — do not forget to revert after testing (`lib/corporate-posts.json`)
 - **ARCHITECTURE.md**: Updated to reflect new auth + content pipeline layout
 
+### Fixed
+
+- **Login error masking by Supabase CAPTCHA**: All auth flows (directory login, magic link, signup, password reset, admin login) failed with `captcha_failed` but fell through to a generic "Something went wrong". Root cause: Supabase Auth CAPTCHA enabled while admin login sent no `captchaToken`; error mapping had no `captcha` case. Added `captcha` handling everywhere + consolidated error mapping into single source of truth (`lib/auth/auth-errors.ts`)
+- **Admin login CAPTCHA support**: Previously sent zero Turnstile — hardcoded "Invalid email or password" masked real errors. Now includes Turnstile widget + `captchaToken` passthrough on both password + magic link actions (`app/admin/login/actions.ts`, `app/admin/login/login-form.tsx`)
+- **Corporate post image upload RLS**: Guests could not upload images — route used `createClient()` (user-scoped) instead of service role, so Storage uploads failed under RLS (`app/api/upload/corporate-posts/route.ts`)
+- **`sync_profile_to_lawyer()` trigger**: Ran unqualified `UPDATE lawyers` on raw user context where `public` not in search_path + fired for every profile insert including clients. Now role-gated to `lawyer`/`admin` and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)
+- **`handle_new_user()` schema init**: Added proper `LANGUAGE plpgsql SECURITY DEFINER` + COALESCE fallback chain (full_name → Google `name` → email local-part) + `first_name`/`last_name` split, fixing `full_name_length` violations on Google signups (`schema.sql`)
+
+## 2026-07-28
+
 ### Added
-- **`lib/auth/auth-errors.ts`**: Single `mapAuthError()` source of truth — replaces 3 duplicated copies (directory login, auth callback, admin login)
-- **`docs/CONTENT_WORKFLOW.md`**: Canonical doc for the three content pipelines (Articles / Corporate Posts / Podcasts): Supabase → Slack review → WordPress
-- **`components/directory/LawyerCard.tsx`**, `components/ui/avatar.tsx`, `components/ui/section.tsx` — shared presentational components
-- **Podcast approval in Slack**: `approve_podcast`/`deny_podcast` actions + `publishPodcastToWordPress()` (`lib/wordpress.ts`)
 
-### Added (sync: 2026-10-18 — 12 Sep changeset build pass)
-- **Lawyard Lens (C09)**: thin bespoke courses — `courses` + `course_enrollments` tables (AI Governance seeded at ₦200k / ₦150k for subscribers), `/lens` + `/lens/[slug]` pages, Paystack checkout with the subscriber discount computed server-side from `profiles.subscription_tier`; `course_enrollment` handled in both the webhook and `verifyPayment` (`app/directory/actions/courses.ts`)
-- **Law-firm admin role + PR publishing (C17)**: `chamber_admins` (owner/admin, multi-user, RLS-managed; creator auto-registers on chamber create) — delegates manage the listing via `/dashboard/chamber`; `publishPressRelease()` inserts `article_type='press_release'` as `pending_review` and posts to Slack for editorial approval; the public firm page renders published PRs, the main Insights feed excludes them
-- **Law-firm page parity (C11)**: `20261016000005_chambers_parity.sql` adds `working_hours`, `faqs`, `gallery_images`, `intro_video_url`, reusing the lawyer editors; display sections added to the public page
-- **Service requests (C14/C15)**: `20261016000003_service_requests.sql` + `service-requests.ts` + `ServiceRequestForm` — structured service type/scope/budget request, **payable** via Paystack before the slot is confirmed (no free bookings)
-- **Post quotas + paid extras (C05)**: `20261016000002_post_caps_and_credits.sql` + `lib/directory/publishing.ts` quota model (free 1 total → paid 3/month → extra posts as one-off credits) + `PublishQuotaBanner`
-- **Premium intro video (C08)**: `20261016000004_intro_videos_bucket.sql` + `upload-intro-video.ts` + `IntroVideoField` (self-hosted upload **or** external URL), tier-gated
-- **Private pricing (C12)**: `20261016000001_add_hide_price_to_lawyers.sql` + `LawyerForm` toggle → profile shows "Contact for pricing"
-- **`lib/currency.ts`**: NGN formatter as the single source of truth — hardcoded `$` stripped from the pricing fallback, `getPlans()` and the `Price` component (C20)
+- **Paystack webhook configured**: `https://directory.lawyard.org/api/webhooks/paystack` set on Paystack dashboard (live mode)
+- **Drive client folder**: `Clients/Lawyard/` in Google Drive with `.env.local` + `lawyard-notes.md` (matches Avid and Grace format)
 
-### Changed (sync: 2026-10-18 — 12 Sep changeset build pass)
-- **"Chamber" → "Law Firm" (C23)**: all user-facing labels switched through centralized `TERMS` (`lib/constants.ts`) — nav, dashboard, forms, pricing, help; the `chambers` table and `/directory/chamber/*` routes unchanged
-- **Three-tier pricing (C02)**: Free → Silver → Premium ladder in `lib/directory/publishing.ts`, wired into plans/pricing
-- **Featured placement (C03)**: `.order('is_featured', desc)` on `getLawyers`/`getChambers` + a visible Featured badge on cards
-- **Gallery caps (C10)**: enforced by tier (free 3 / premium 6, higher for law firms) with image type/size validation
-- **Calendly removed from UI (C16)**: field dropped from `LawyerForm` and the profile display; `calendly_url` column retained
-- **Bookmarks → "Saved Lawyers" (C18)**: renamed in sidebar, mobile nav and page title; subscription/history duplication cleaned up
-- **Directory insights (C07)**: `/directory/insights` now surfaces published articles instead of a ComingSoon stub; `getPublishedArticles()` `excludeType` accepts an array
-- **NGN transactions (C20)**: pricing/plans/currency flows record and display ₦ end-to-end
+### Changed
 
-### Fixed (sync: 2026-10-18 — tooling)
-- **Lint was dead repo-wide**: `pnpm run lint` ran `next lint`, which fails with "Invalid project directory provided" on Next 16 (and no eslint config existed). Added `eslint.config.mjs` (eslint-config-next 16.2.0 flat config), switched the script to `eslint .`, and fixed all **58 errors** it surfaced (46 unused vars/imports, 11 from a `ToolBtn` nested inside render in the rich-text editor, 1 TDZ/immutability in `theme-provider`). Now 0 errors / 181 warnings
-- **Silently unapplied migrations**: added `scripts/migration-drift.mjs` + `pnpm run check:migrations` — parses `supabase migration list` and exits non-zero when local files are unapplied (or migrations exist only remotely). Also `pnpm run migrations:push`. Wired into `HANDOFF.md` §7 and the lawyard-ops skill's Verification Gates
-
-### Fixed (sync: 2026-07-28)
-- **Paystack public key trailing newline**: `echo` added `\n` to `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` on Vercel, causing "Please enter a valid Key" from PaystackPop. Re-set with `printf` (no trailing newline).
-- **New user signup blocked by `sync_profile_to_lawyer()` trigger**: Trigger ran unqualified `UPDATE lawyers` for ALL profile inserts (including clients) in the auth trigger context where `public` is not in the search_path. Role-gated to `lawyer`/`admin` only and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)
-- **`handle_new_user()` missing full_name fallback**: Deployed version used direct `->>'full_name'` without fallback to Google's `name` field or email local-part. Caused `full_name_length` constraint violation when metadata lacked `full_name`. Added COALESCE fallback chain + `first_name`/`last_name` split from full_name.
-- **Email signup redirectTo double prefix**: OAuth callback URL had `/directory/auth/callback` instead of `/auth/callback` — middleware already handles rewrite, causing double `/directory/directory/` prefix on production (`app/directory/login/actions.ts:117`)
-- **Auth callback route double `/directory` prefix**: Same issue — `redirectTo` was building URLs with double `/directory` prefix (`app/directory/auth/callback/route.ts`)
-
-### Changed (sync: 2026-07-28)
 - **Paystack currency explicit NGN**: `initializeTransaction()` now requires `currency` param (was implicitly NGN via account default). All callers pass `'NGN'` (`lib/api/paystack.ts`, `app/directory/actions/payments.ts`, `app/actions/shop.ts`, `app/actions/corporate-posts.ts`)
 - **Transaction inserts record currency NGN**: All three flows (subscription, shop, corporate post) now insert `currency: 'NGN'` explicitly instead of relying on table default `'USD'`
 - **Live Paystack keys**: `.env.local` + Vercel production switched from `sk_test_*`/`pk_test_*` to live keys. Test keys kept commented in `.env.local` for local dev
@@ -90,6 +133,18 @@
 - **README**: Added "Questions for Tobi" section — 5 subscription prices in NGN unset + clash detection feature question
 - **Pricing page dark mode**: All cards, tabs, notice section, and buttons now use yellow-toned dark mode variants for visibility (`app/directory/pricing/page.tsx`, `components/directory/paystack-button.tsx`)
 
-### Added (sync: 2026-07-28)
-- **Paystack webhook configured**: `https://directory.lawyard.org/api/webhooks/paystack` set on Paystack dashboard (live mode)
-- **Drive client folder**: `Clients/Lawyard/` in Google Drive with `.env.local` + `lawyard-notes.md` (matches Avid and Grace format)
+### Fixed
+
+- **Paystack public key trailing newline**: `echo` added `\n` to `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` on Vercel, causing "Please enter a valid Key" from PaystackPop. Re-set with `printf` (no trailing newline).
+- **New user signup blocked by `sync_profile_to_lawyer()` trigger**: Trigger ran unqualified `UPDATE lawyers` for ALL profile inserts (including clients) in the auth trigger context where `public` is not in the search_path. Role-gated to `lawyer`/`admin` only and qualified `public.lawyers` (`supabase/migrations/20260630000001_sync_profiles_to_lawyers.sql`)
+- **`handle_new_user()` missing full_name fallback**: Deployed version used direct `->>'full_name'` without fallback to Google's `name` field or email local-part. Caused `full_name_length` constraint violation when metadata lacked `full_name`. Added COALESCE fallback chain + `first_name`/`last_name` split from full_name.
+- **Email signup redirectTo double prefix**: OAuth callback URL had `/directory/auth/callback` instead of `/auth/callback` — middleware already handles rewrite, causing double `/directory/directory/` prefix on production (`app/directory/login/actions.ts:117`)
+- **Auth callback route double `/directory` prefix**: Same issue — `redirectTo` was building URLs with double `/directory` prefix (`app/directory/auth/callback/route.ts`)
+
+---
+
+## Maintenance
+
+- **Never edit this file.** Add a row to `docs/data/changelog.json` (`date`, `type`, `title`, `detail`, optional `evidence`/`commits`), then run `pnpm run docs:render`.
+- The whole history is available as data: filter by `type`, group by `date`, or load it into a graph with `pnpm run docs:graph`.
+- Dates are ISO (`YYYY-MM-DD`). A row whose date has no matching timeline session is flagged by the renderer.

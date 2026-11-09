@@ -1,19 +1,25 @@
 # Timeline
 
+> **GENERATED FILE — do not edit by hand.** Source of truth: `docs/data/timeline.json`.
+> Regenerate: `pnpm run docs:render` · Gate: `pnpm run docs:check` · Graph: `pnpm run docs:graph`.
+>
+> One row per session: what was asked, what changed, why, and what is still blocked.
+> Changeset items, defects and commit SHAs found in the text are extracted into fields, so the
+> same session becomes a node with edges to the work it delivered. Oldest first — read it as history.
+
 ## 2026-06-16
 
 ### Focus
 Category taxonomy alignment, TanStack Query migration for publish forms
 
 ### What Changed
-- **CategoryMultiselect** rewritten to load options from `specialties.json` — articles and podcasts now use the same practice area taxonomy as lawyer specialties
-- **PublishPodcastForm** rewritten: `useMutation` replaces `useTransition`/`startTransition`; controlled state instead of raw FormData; matches `LawyerForm` pattern
-- **PublishArticleForm** rewritten: same migration to `useMutation` + controlled state; old single-select category dropdown replaced with `CategoryMultiselect`
-- **Migration default** changed from `'documentation'` to `'general-practice'` in `20260616000004_multiselect_categories.sql`
+- **CategoryMultiselect**: rewritten to load options from `specialties.json` — articles and podcasts now use the same practice area taxonomy as lawyer specialties
+- **PublishPodcastForm**: rewritten: `useMutation` replaces `useTransition`/`startTransition`; controlled state instead of raw FormData; matches `LawyerForm` pattern
+- **PublishArticleForm**: rewritten: same migration to `useMutation` + controlled state; old single-select category dropdown replaced with `CategoryMultiselect`
+- **Migration default**: changed from `'documentation'` to `'general-practice'` in `20260616000004_multiselect_categories.sql`
 
 ### Rationale
-- Practice areas are what users search by; internal content categories were meaningless to readers
-- TanStack Query provides consistent error/success/pending state across all directory forms
+- Practice areas are what users search by; internal content categories were meaningless to readers - TanStack Query provides consistent error/success/pending state across all directory forms
 
 ### Related Files
 - `components/directory/forms/CategoryMultiselect.tsx`
@@ -36,9 +42,7 @@ Client inquiry system, listing detail page rewrite, inquiry inbox
 - **Dashboard**: Inquiries stat card now shows live count + unread badge; Quick Actions now includes Inquiries card with badge
 
 ### Rationale
-- Lawyers need to receive and manage client inquiries from their directory listing
-- The listing detail page needed the full set of extended fields to match the live site's feature set
-- Inbox follows the established dashboard layout pattern with sidebar navigation
+- Lawyers need to receive and manage client inquiries from their directory listing - The listing detail page needed the full set of extended fields to match the live site's feature set - Inbox follows the established dashboard layout pattern with sidebar navigation
 
 ### Related Files
 - `supabase/migrations/20260616000005_create_lawyer_inquiries.sql`
@@ -55,13 +59,12 @@ Client inquiry system, listing detail page rewrite, inquiry inbox
 ## 2026-06-16 (Session End)
 
 ### Blockers
-Content pipeline integration is blocked pending clarification from Shefiu:
-
-1. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear
-2. **Payload structure** — Expected JSON for article vs podcast vs corporate post
-3. **Auth method** — API key, HMAC, or IP whitelist
-4. **Other entry points** — External sources (direct brand submissions, scrapers) feeding the pipeline
-5. **Full data flow**: source → [?] → Slack bot → distribution
+1. Content pipeline integration is blocked pending clarification from Shefiu:
+2. **API endpoint before Slack bot?** — URL to POST to when directory articles/podcasts are published, and when corporate post payments clear
+3. **Payload structure** — Expected JSON for article vs podcast vs corporate post
+4. **Auth method** — API key, HMAC, or IP whitelist
+5. **Other entry points** — External sources (direct brand submissions, scrapers) feeding the pipeline
+6. **Full data flow**: source → [?] → Slack bot → distribution
 
 ### Next Steps
 1. Get answers from Shefiu on content pipeline
@@ -86,7 +89,7 @@ Subscription expiry enforcement, chamber subscription model, bug fixes
 ### Rationale
 Closing the loop on payments — subscriptions now have real expiry enforcement so featured listings degrade properly. Chambers get parity with lawyers: subscription-backed featured status, a public detail page, and owner management. Four bugs caught in a single review pass and fixed.
 
-### Related files
+### Related Files
 - `supabase/migrations/20260616000007_subscription_expiry.sql`
 - `supabase/migrations/20260622000001_extend_chambers.sql`
 - `app/api/webhooks/paystack/route.ts`
@@ -111,13 +114,13 @@ Closing the loop on payments — subscriptions now have real expiry enforcement 
 New user signup blocked by trigger chain, pricing page dark mode
 
 ### What Changed
-- **Root cause:** `sync_profile_to_lawyer()` ran on EVERY profile INSERT (clients included) with unqualified `UPDATE lawyers`. In Supabase Auth's session context, `public` is not in the search_path → "relation 'lawyers' does not exist" → transaction rollback → "Database error creating new user".
-- **Fix 1:** Role-gated `sync_profile_to_lawyer()` to `'lawyer'`/`'admin'` only + qualified `public.lawyers` prefix to survive any search_path context.
-- **Fix 2:** `handle_new_user()` deployed version was missing the `full_name` COALESCE fallback chain (only had direct `->>'full_name'`). Added fallback: `full_name` → `name` (Google OAuth field) → `split_part(email, '@', 1)`.
-- **Fix 3:** `handle_new_user()` now also splits `full_name` into `first_name`/`last_name` (splits on first space) — previously only set `full_name`, leaving `first_name`/`last_name` NULL for new users.
-- **Fix 4:** Email signup `emailRedirectTo` had `/directory/auth/callback` instead of `/auth/callback` — middleware already rewrites, causing double prefix on production.
-- **Fix 5:** Auth callback route `redirectTo` had same double `/directory` prefix issue.
-- **Dark mode:** Pricing page cards, tabs, notice section, and payment buttons now render with yellow-toned colors in dark mode for proper visibility.
+- **Root cause:**: `sync_profile_to_lawyer()` ran on EVERY profile INSERT (clients included) with unqualified `UPDATE lawyers`. In Supabase Auth's session context, `public` is not in the search_path → "relation 'lawyers' does not exist" → transaction rollback → "Database error creating new user".
+- **Fix 1:**: Role-gated `sync_profile_to_lawyer()` to `'lawyer'`/`'admin'` only + qualified `public.lawyers` prefix to survive any search_path context.
+- **Fix 2:**: `handle_new_user()` deployed version was missing the `full_name` COALESCE fallback chain (only had direct `->>'full_name'`). Added fallback: `full_name` → `name` (Google OAuth field) → `split_part(email, '@', 1)`.
+- **Fix 3:**: `handle_new_user()` now also splits `full_name` into `first_name`/`last_name` (splits on first space) — previously only set `full_name`, leaving `first_name`/`last_name` NULL for new users.
+- **Fix 4:**: Email signup `emailRedirectTo` had `/directory/auth/callback` instead of `/auth/callback` — middleware already rewrites, causing double prefix on production.
+- **Fix 5:**: Auth callback route `redirectTo` had same double `/directory` prefix issue.
+- **Dark mode:**: Pricing page cards, tabs, notice section, and payment buttons now render with yellow-toned colors in dark mode for proper visibility.
 
 ### Rationale
 New user signups were completely broken — anyone attempting to create an account (email, Google OAuth, or admin API) would get "Database error creating new user." The `sync_profile_to_lawyer()` trigger was the culprit: it ran in the auth session context where `public` is not in the search_path, causing an unresolvable table reference. The role gate also prevents unnecessary `lawyers` table writes for client accounts.
@@ -201,8 +204,8 @@ The content pipeline was already live for articles; podcasts and corporate posts
 Session handoff + decode of the 12 Sep feature/design call (Tobi) — establishing a clean decision record ahead of the Sun 18 Oct 7pm call.
 
 ### What Changed
-- **`HANDOFF.md` created** — 8-section cold-start doc: locations, people, the uncommitted changeset (last commit 2026-08-12), the Sunday call, Tobi's email-signing bug, open work, the 5 blocking NGN prices, and the 12 Sep decisions.
-- **12 Sep transcript decoded** (`~40% usable`; phone recording, noisy room). HANDOFF §6 rewritten from summary → decoded readout:
+- **`HANDOFF.md` created**: 8-section cold-start doc: locations, people, the uncommitted changeset (last commit 2026-08-12), the Sunday call, Tobi's email-signing bug, open work, the 5 blocking NGN prices, and the 12 Sep decisions.
+- **12 Sep transcript decoded**: (`~40% usable`; phone recording, noisy room). HANDOFF §6 rewritten from summary → decoded readout:
   - **Spine = monetization architecture.** Enterprise (law firms/chambers) > individual lawyers. Tobi cites a competitor directory forced to focus on law firms.
   - **Chambers tier** — separate pricing; chamber subscribes; a **site administrator** manages the chamber page + publishes PR (e.g. IPO work).
   - **Tiering** silver/premium; **enterprise ₦3–5M/annum** vs ₦155k individual.
@@ -212,7 +215,7 @@ Session handoff + decode of the 12 Sep feature/design call (Tobi) — establishi
   - **Courses (Lawyard Lens)** — AI-governance ₦200k, ₦150k for directory subscribers (cross-sell).
   - **Dashboard cleanup** (bookmarks/history); **move to AWS**; NGN for Nigeria, foreign listings TBD.
 - **New vs prior summary**: no-Calendly decision, remove-attribution, private-pricing option, service-request rename, chamber admin role, post-cap-as-revenue + 1-free-then-subscribe funnel, currency handling, Tobi's silver-category note.
-- **Telemetry scope confirmed** (Tomide): Tier 5 = admin-facing product analytics (signups, subscribers, revenue, funnel) — distinct from the shipped per-lawyer widgets.
+- **Telemetry scope confirmed**: (Tomide): Tier 5 = admin-facing product analytics (signups, subscribers, revenue, funnel) — distinct from the shipped per-lawyer widgets.
 
 ### Rationale
 The auto-transcript is too noisy to trust as-is, but the decisions inside it gate phase-2 scope and the pricing questions on the Sunday call. Decoding it now gives Tobi a clean decision record to confirm/deny, and separates confirmed decisions from ASR-garbled items (competitor "case study" name, "$20/quota" competitor remark, the "$10,000 premium" line — almost certainly a ₦ figure).
@@ -230,8 +233,8 @@ The auto-transcript is too noisy to trust as-is, but the decisions inside it gat
 Canonical feature status board — reconcile README §Status, `CHANGELOG`, `docs/features.md`, and the 12 Sep decisions into one glanceable, code-verified artifact.
 
 ### What Changed
-- **`docs/FEATURE-STATUS.md` created** — single status board. Sections: Shipped ✅ · Partial 🟡 · Scaffolded-but-empty 🟦 · Not started 🔴 · Spec'd-only from 12 Sep 💬 · Conflicts/cleanup 🗑❓ · Launch checklist · Open questions.
-- **Verified against code, not docs.** Corrections to the stale README table: WorkingHoursEditor + GalleryUpload are **built and wired** (`LawyerForm.tsx:365,374`); intro video is **partial** (URL/YouTube embed only, no upload UI); Verified badge shipped; per-lawyer analytics (profile views + sparkline) shipped.
+- **`docs/FEATURE-STATUS.md` created**: single status board. Sections: Shipped ✅ · Partial 🟡 · Scaffolded-but-empty 🟦 · Not started 🔴 · Spec'd-only from 12 Sep 💬 · Conflicts/cleanup 🗑❓ · Launch checklist · Open questions.
+- **Verified against code, not docs.**: Corrections to the stale README table: WorkingHoursEditor + GalleryUpload are **built and wired** (`LawyerForm.tsx:365,374`); intro video is **partial** (URL/YouTube embed only, no upload UI); Verified badge shipped; per-lawyer analytics (profile views + sparkline) shipped.
 - **Empty route dirs found**: `dashboard/bookings`, `dashboard/chat`, `dashboard/wallet`, `dashboard/packages` contain no `page.tsx` (scaffolded stubs).
 - **Conflict surfaced**: Calendly is **built** (`calendly_url` migration + field + display) but the 12 Sep call decided to **remove** it.
 - **Pointers wired**: README §Status + `docs/features.md` now redirect to `docs/FEATURE-STATUS.md` as canonical.
@@ -251,7 +254,7 @@ Three overlapping status sources had drifted (README ~3 months stale; `features.
 Build the 12 Sep changeset — execute `docs/TOBI-12SEP-CHANGES.md` decisions as working code ahead of the Sun 18 Oct 7pm call with Tobi.
 
 ### What Changed
-- **18 of 23 items shipped, build + TypeScript green.** Open: C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build").
+- **18 of 23 items shipped, build + TypeScript green.**: Open: C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build").
 - **Seven migrations**: `hide_price` toggle · post caps + credits · service requests · intro-videos bucket · chambers parity · lens courses · chamber admins.
 - **Pricing/commerce**: three-tier Free→Silver→Premium; NGN end-to-end via `lib/currency.ts` (removed the last hardcoded `$`); post quotas (free 1 total → paid 3/mo → extra posts as one-off credits) with a `PublishQuotaBanner`; paid, payable service requests replacing free bookings; Calendly UI removed (column kept).
 - **Directory listing**: featured-first ranking + Featured badge in `getLawyers`/`getChambers`; "Contact for pricing" privacy toggle; gallery caps by tier with image validation; full law-firm page parity (working hours, FAQs, gallery, intro video) reusing the lawyer editors; "Chamber" → "Law Firm" in UI labels through centralized `TERMS`.
@@ -268,6 +271,10 @@ Tobi asked for a reviewable pass rather than a prototype: build the changes, he 
 - `app/directory/{lens,actions/{courses,press-releases,service-requests,upload-intro-video}}`
 - `lib/{currency.ts,directory/publishing.ts,constants.ts}`
 
+> changeset C01 C04 C09 C13 C17 C19 C21
+
+---
+
 ## 2026-10-18 (Evening — auth fix + deploy)
 
 ### Focus
@@ -277,7 +284,7 @@ Tobi's report: "email login doesn't work, only Google works."
 - **Root cause (two bugs, one report)**: (1) Tobi's account is Google-identity-only with no password, so `signInWithPassword` always failed — and our error said "Incorrect email or password", a dead end; (2) the Brevo auth-email hook built `/auth/v1/verify` URLs on the **app domain**, which 404s — GoTrue hosts verify on the Supabase project domain (proved via `admin/generate_link` ground truth).
 - **Fixes**: `lib/auth/oauth-account.ts` detects OAuth-only accounts after a failed login/signup and points users at the provider + the set-password path; `app/api/auth/hook/route.ts` always builds verify URLs on `NEXT_PUBLIC_SUPABASE_URL`.
 - **Deployed**: commit `05caa76` → pushed → Vercel production (SHA verified against live deployment); `check:migrations` clean (40, in sync).
-- **Industry grounding** (researched): Auth0 keeps identities separate by default, Clerk auto-links on verified email both-sides, Google says key on `sub` not email, Ory/WorkOS document pre-account-takeover from unverified-email auto-linking — so: tell them which provider owns the account + set-password from an authenticated surface, never blind auto-merge.
+- **Industry grounding**: (researched): Auth0 keeps identities separate by default, Clerk auto-links on verified email both-sides, Google says key on `sub` not email, Ory/WorkOS document pre-account-takeover from unverified-email auto-linking — so: tell them which provider owns the account + set-password from an authenticated surface, never blind auto-merge.
 
 ### Rationale
 A user with no password cannot be told "wrong password" — the message must name the real fix. The hook fix was on the critical path because "Forgot your password?" is how a Google-only user sets their first password.
@@ -285,16 +292,20 @@ A user with no password cannot be told "wrong password" — the message must nam
 ### Related Files
 - `lib/auth/oauth-account.ts` (new), `app/directory/login/actions.ts`, `app/api/auth/hook/route.ts`
 
+> commits 05caa76
+
+---
+
 ## 2026-10-20
 
 ### Focus
 Full-repo read-through after the changeset deploy — static checks, auth/RLS/middleware review, payment-flow and repo-hygiene review.
 
 ### What Changed
-- **`docs/AUDIT-2026-10-20.md` created** — 75-commit history audited; `tsc --noEmit` clean, `eslint` 0 errors/181 warnings.
+- **`docs/AUDIT-2026-10-20.md` created**: 75-commit history audited; `tsc --noEmit` clean, `eslint` 0 errors/181 warnings.
 - **3 Critical**: C1 any logged-in user can self-promote to admin (`profiles.role` UPDATE policy has no `WITH CHECK`/column restriction + role→JWT trigger); C2 leaked keys in git history (rotate); C3 `/api/auth/hook` is an unauthenticated mail relay with HTML injection.
 - **High**: cron path broken (subscription expiry never fires), `verifyPayment` missing ownership/idempotency checks, dual-webhook overlap, `service_requests` RLS gaps, upload-route auth.
-- **Suggested order of work** recorded in the doc (rotate keys → lock role → secure hook → cron → payments → RLS → CI).
+- **Suggested order of work**: recorded in the doc (rotate keys → lock role → secure hook → cron → payments → RLS → CI).
 
 ### Rationale
 Architecture/authorization/process findings, not build breakage — an action isn't done until its effect is read back, and the same applies to the security posture.
@@ -302,21 +313,27 @@ Architecture/authorization/process findings, not build breakage — an action is
 ### Related Files
 - `docs/AUDIT-2026-10-20.md` (new)
 
+---
+
 ## 2026-10-28
 
 ### Focus
 Product-owner workflow for Tobi — surface pending questions/insights, then move to the multi-client system.
 
 ### What Changed
-- **`/product-owner` board** (`153014d`): token-gated API route + board component + `product_owner_questions` migration — pending questions + insight dump.
-- **Replaced by MerisLabs PM board embed** (`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page.
-- **Middleware exemption** (`518a5e3`): `/product-owner` removed from the directory rewrite so the route resolves.
+- **`/product-owner` board**: (`153014d`): token-gated API route + board component + `product_owner_questions` migration — pending questions + insight dump.
+- **Replaced by MerisLabs PM board embed**: (`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page.
+- **Middleware exemption**: (`518a5e3`): `/product-owner` removed from the directory rewrite so the route resolves.
 
 ### Rationale
 The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two.
 
 ### Related Files
 - `app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`
+
+> commits 153014d 7454fc2 518a5e3
+
+---
 
 ## 2026-11-04 (Evening — changeset shipped + status board re-verified)
 
@@ -325,7 +342,7 @@ Commit/push the 12 Sep changeset, then re-verify the feature board against code 
 
 ### What Changed
 - **Changeset pushed**: `164510d` — 121 files, +5890/−839 (C02 tiers, C03 featured ranking, C05 post caps, C07 insights, C08 intro video, C09 Lens, C10 gallery caps, C11 chamber parity, C12 private pricing, C14/C15 service requests, corporate-posts moved under `/directory`, migrations `20261016000001..07`, eslint flat config). Pre-push secret scan clean.
-- **`docs/FEATURE-STATUS.md` re-verified 2026-11-04** (was last verified 2026-10-16): 20 items checked in code, 15 confirmed shipped clean, 5 shipped-with-gaps, plus a new **§6 defect table (D1–D9)** so the gaps live in one place instead of evaporating into a session.
+- **`docs/FEATURE-STATUS.md` re-verified 2026-11-04**: (was last verified 2026-10-16): 20 items checked in code, 15 confirmed shipped clean, 5 shipped-with-gaps, plus a new **§6 defect table (D1–D9)** so the gaps live in one place instead of evaporating into a session.
 - **Headline defects**: plans still seeded in USD but formatted as NGN (every plan page renders "₦20 / ₦2"); firm/chamber gallery caps unenforced server-side; silver tier is a ₦0 placeholder; corporate-posts Basic still on the ₦100 test price; bookmark button only on profile pages; dead Calendly fields; three empty dashboard dirs; no admin analytics; only two error boundaries.
 - **`docs/TOBI-12SEP-CHANGES.md`**: added a *Post-build verification* subsection mapping each gap back to its C-item, so Tobi's checklist and the code stop disagreeing.
 
@@ -337,16 +354,20 @@ A checklist that says ✅ and code that can't enforce the cap is the same false-
 - `lib/directory/publishing.ts`, `app/directory/actions/submit-listing.ts`, `app/directory/dashboard/chamber/chamber-form.tsx`
 - `supabase/migrations/20260629000002_update_plans_data_exact.sql` (root of D1)
 
+> changeset C02 C03 C05 C07 C08 C09 C10 C11 C12 C14 C15 · defects D1 D2 D3 D4 D5 D6 D7 D8 D9 · commits 164510d
+
+---
+
 ## 2026-11-05 — Docs become data (registry + render gate)
 
 ### Focus
 Stop letting markdown drift from the code: make the living docs machine-readable, the way Orion's design register already works.
 
 ### What Changed
-- **`docs/data/{features,changeset,defects,questions}.json`** added as the source of truth: 54 features, 23 changeset items (with `alternatives` — the rejected option and why), 9 defects, 11 questions.
-- **`scripts/docs.mjs`** renders `docs/FEATURE-STATUS.md` + `docs/TOBI-12SEP-CHANGES.md` and validates: id formats/uniqueness, status vocabularies, cross-references in both directions (feature ↔ change ↔ defect ↔ question), and **every evidence pointer against the real filesystem**.
+- **`docs/data/{features,changeset,defects,questions}.json`**: added as the source of truth: 54 features, 23 changeset items (with `alternatives` — the rejected option and why), 9 defects, 11 questions.
+- **`scripts/docs.mjs`**: renders `docs/FEATURE-STATUS.md` + `docs/TOBI-12SEP-CHANGES.md` and validates: id formats/uniqueness, status vocabularies, cross-references in both directions (feature ↔ change ↔ defect ↔ question), and **every evidence pointer against the real filesystem**.
 - **Commands**: `pnpm run docs:render` · `docs:check` (fails on drift, dangling refs, deleted evidence) · `docs:ask` (open questions for Tobi) · `docs:stats`.
-- **`alternatives`** added to changeset items — the fork not taken, and why it lost (e.g. C15: routing the lawyer's fee rejected for escrow/payment-intermediary exposure).
+- **`alternatives`**: added to changeset items — the fork not taken, and why it lost (e.g. C15: routing the lawyer's fee rejected for escrow/payment-intermediary exposure).
 - Verified the gate both ways: a hand edit to the md fails `--check` with the first differing line; a missing evidence path fails validation.
 
 ### Rationale
@@ -356,6 +377,10 @@ The same failure mode as a lint script that exits 0 without running: a doc that 
 - `docs/data/*.json`, `scripts/docs.mjs`, `package.json` (docs scripts)
 - `docs/FEATURE-STATUS.md`, `docs/TOBI-12SEP-CHANGES.md` (now generated)
 
+> changeset C15
+
+---
+
 ## 2026-11-09 — Tobi's 8 Nov messages: category filter was dead sitewide
 
 ### Focus
@@ -364,9 +389,9 @@ Triage Tobi's last Beeper thread (8 Nov, 14:31–15:26) and close what was real 
 ### What Changed
 - **Diagnosis first, then code**: `www.lawyard.org` is still WordPress on Bluehost — the Next app only serves `directory.lawyard.org`. That single fact explains "published post not on the website", "Categories dropdown doesn't list Corporate Post", "verification link 404 + a form" (WordPress search form nobody reads), and why "the redesign" is the actual unblocker.
 - **`lib/api/articles.ts`**: added `categoryCandidates()` (slug ↔ label spellings, with small-word casing) and replaced `.eq('category', …)` with `.overlaps()`. `articles.category` is `TEXT[]`; the old filter was a 400 every time and the error was swallowed. Also added an `articleType` option and surfaced query errors instead of silently returning `[]`.
-- **`app/(main)/insights/page.tsx`**, **`app/(main)/category/[slug]/page.tsx`**, **`app/directory/knowledge/category/[id]/page.tsx`**, **`getRelatedArticles()`**: all now resolve categories through the new matcher.
+- **`app/(main)/insights/page.tsx`**: , **`app/(main)/category/[slug]/page.tsx`**, **`app/directory/knowledge/category/[id]/page.tsx`**, **`getRelatedArticles()`**: all now resolve categories through the new matcher.
 - **`app/directory/corporate-posts/page.tsx`**: server-side `article_type = corporate_post` instead of fetch-50-then-filter.
-- **`app/auth/callback/route.ts`** added: forwards auth-link queries landing on a non-directory host to `directory.lawyard.org`, where the exchange handler lives.
+- **`app/auth/callback/route.ts`**: added: forwards auth-link queries landing on a non-directory host to `directory.lawyard.org`, where the exchange handler lives.
 - **`app/directory/add-listing/page.tsx`**: removed the last user-visible "Orion" reference (Tobi's explicit ask).
 - **Docs**: defects D10 (category filter, fixed), D11 (listing starvation, fixed), D12 (auth links on WP domain, open — needs a Supabase dashboard change); `scripts/docs.mjs` defect id regex widened to `D\d{1,2}`.
 
@@ -383,3 +408,13 @@ Two of Tobi's five items were not bugs in the new app — they were him auditing
 - `lib/api/articles.ts`, `app/auth/callback/route.ts`, `app/directory/corporate-posts/page.tsx`
 - `app/(main)/insights/page.tsx`, `app/(main)/category/[slug]/page.tsx`, `app/directory/knowledge/category/[id]/page.tsx`
 - `docs/data/defects.json`, `docs/FEATURE-STATUS.md` (generated), `CHANGELOG.md`
+
+> defects D10 D11 D12
+
+---
+
+## Maintenance
+
+- **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.
+- `S-YYYY-MM-DD-NN` ids are stable references; the graph links a session to the changelog entries dated the same day.
+- `changeset` / `defects` / `commits` are the edges the graph is built from — keep them as arrays of ids.
