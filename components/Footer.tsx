@@ -85,6 +85,7 @@ export default function Footer() {
             {[
               { name: "Blog", href: "/category/blog" },
               { name: "Blog Articles", href: "/category/blog-articles" },
+              { name: "Corporate Posts", href: "/category/corporate-post" },
               { name: "Downloads", href: "/category/downloads" },
               { name: "Events", href: "/category/events" },
               { name: "Features", href: "/category/features" },

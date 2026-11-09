@@ -335,6 +335,7 @@ export default function Header() {
                   <Link href="/category/lawyard-spotlight" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Spotlight</Link>
                   <Link href="/category/sports-law" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Sports Law</Link>
                   <Link href="/category/judgements" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Judgements</Link>
+                  <Link href="/category/corporate-post" className={`transition-colors no-underline py-1 block ${scrolled ? 'hover:text-[#a77c5c]' : 'hover:text-primary'}`}>Corporate Posts</Link>
                 </div>
               </div>
             </div>
@@ -416,12 +417,13 @@ export default function Header() {
                   <span>Categories</span>
                   <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${categoriesOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${categoriesOpen ? 'max-h-60 mt-3.5' : 'max-h-0'}`}>
+                <div className={`pl-4 flex flex-col gap-3.5 normal-case font-semibold text-muted-foreground/90 overflow-hidden transition-all duration-300 ${categoriesOpen ? 'max-h-72 mt-3.5' : 'max-h-0'}`}>
                   <Link href="/category/news" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">News</Link>
                   <Link href="/category/opinions" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Opinions</Link>
                   <Link href="/category/lawyard-spotlight" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Spotlight</Link>
                   <Link href="/category/sports-law" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Sports Law</Link>
                   <Link href="/category/judgements" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Judgements</Link>
+                  <Link href="/category/corporate-post" onClick={() => setMobileMenuOpen(false)} className="hover:text-foreground transition-colors no-underline">Corporate Posts</Link>
                 </div>
               </div>
 
