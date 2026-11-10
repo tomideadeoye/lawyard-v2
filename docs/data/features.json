@@ -558,32 +558,29 @@
     {
       "id": "F-46",
       "name": "Live chat dashboard",
-      "status": "scaffolded",
+      "status": "not_started",
       "area": "messaging",
-      "evidence": [
-        "app/directory/dashboard/chat"
-      ],
-      "gap": "Directory exists with no page.tsx; no nav link points at it."
+      "evidence": [],
+      "gap": "Directory exists with no page.tsx; no nav link points at it.",
+      "note": "Nothing was built — the \"scaffold\" was three empty route folders, removed on 10 Nov (D7)."
     },
     {
       "id": "F-47",
       "name": "Wallet",
-      "status": "scaffolded",
+      "status": "not_started",
       "area": "commerce",
-      "evidence": [
-        "app/directory/dashboard/wallet"
-      ],
-      "gap": "Empty dir; no nav link."
+      "evidence": [],
+      "gap": "Empty dir; no nav link.",
+      "note": "Nothing was built — the \"scaffold\" was three empty route folders, removed on 10 Nov (D7)."
     },
     {
       "id": "F-48",
       "name": "Packages",
-      "status": "scaffolded",
+      "status": "not_started",
       "area": "commerce",
-      "evidence": [
-        "app/directory/dashboard/packages"
-      ],
-      "gap": "Empty dir; no nav link."
+      "evidence": [],
+      "gap": "Empty dir; no nav link.",
+      "note": "Nothing was built — the \"scaffold\" was three empty route folders, removed on 10 Nov (D7)."
     },
     {
       "id": "F-49",

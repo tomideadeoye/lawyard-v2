@@ -82,15 +82,15 @@ Route directories exist but contain **no `page.tsx`**. Confirmed 2026-11-04 that
 
 | Feature | Path | Note |
 |---|---|---|
-| Live chat dashboard | `app/directory/dashboard/chat` | Directory exists with no page.tsx; no nav link points at it. |
-| Wallet | `app/directory/dashboard/wallet` | Empty dir; no nav link. |
-| Packages | `app/directory/dashboard/packages` | Empty dir; no nav link. |
 | Legislations archive | `app/directory/legislations/page.tsx` | ComingSoon stub only. |
 
 ## 4. Not started 🔴
 
 | Feature | Tier | Notes |
 |---|---|---|
+| Live chat dashboard | — | Directory exists with no page.tsx; no nav link points at it. |
+| Wallet | — | Empty dir; no nav link. |
+| Packages | — | Empty dir; no nav link. |
 | Live chat | 4 | Pricing page advertises live chat; no code. |
 | Admin product analytics — signups, subscribers, revenue, funnel | 5 | No app/admin/analytics; stats live as a block on the dashboard. |
 | Admin enhancements — CSV export, growth charts, multi-admin, audit log, WYSIWYG | 6 | No work started. |
@@ -115,7 +115,7 @@ Agreed with Tobi on 2026-09-12. Full context: `HANDOFF.md` §6. Item-by-item wal
 | C20 | Currency — Naira for Nigeria | 🟡 | Q2 — Premium Single (Lawyer, 365d) — NGN price?<br>Q3 — Premium Package (Lawyer, 365d) — NGN price?<br>Q4 — Premium Single (Client, 90d) — NGN price?<br>Q5 — Premium Package (Client, 90d) — NGN price?<br>Q6 — Premium (Chamber / Law Firm, 365d) — NGN price? |
 | C21 | Silver category (which items stay/add) | 💬 | Q8 — Silver category — which items stay vs get added? |
 
-## 6. Known defects (8 open)
+## 6. Known defects (3 open)
 
 Found by the 2026-11-04 code verification. Security findings are **not** duplicated here — see [`docs/AUDIT-2026-10-20.md`](AUDIT-2026-10-20.md).
 
@@ -127,7 +127,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 | D4 | Corporate-posts Basic tier shipped on the ₦100 test price | medium | Every Corporate Posts surface advertised ₦100, and Paystack would have charged ₦100 for the Basic tier. | `lib/corporate-posts.json` · `app/directory/corporate-posts/page.tsx` · `app/directory/corporate-posts/submit/page.tsx` |
 | D5 | Bookmark affordance absent from cards | low | 'Saved Lawyers' is only usable from a profile page. | `components/directory/LawyerCard.tsx` · `app/directory/lawyer/[id]/page.tsx` |
 | D6 | Dead Calendly state/type fields after UI removal | low | Dead code; misleads future readers into thinking Calendly is supported. | `components/directory/forms/LawyerForm.tsx` · `app/directory/lawyer/[id]/page.tsx` |
-| D7 | Three empty dashboard dirs (chat, wallet, packages) | low | Harmless, but suggests shipped features; no nav links point at them. | `app/directory/dashboard/chat` · `app/directory/dashboard/wallet` · `app/directory/dashboard/packages` |
+| D7 | Three empty dashboard dirs (chat, wallet, packages) | low | Harmless, but suggests shipped features; no nav links point at them. | `app/directory/dashboard` |
 | D8 | No admin analytics route | medium | Tier 5 telemetry (signups, subscribers, revenue, funnel) is blocked. | `app/admin/page.tsx` |
 | D9 | Error boundaries on only two routes | low | Admin and dashboard failures fall through to the root boundary. | `app/error.tsx` · `app/directory/error.tsx` |
 | D10 | Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty | high | `/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with "malformed array literal". Corporate Posts were invisible for the same reason. | `lib/api/articles.ts` · `app/(main)/insights/page.tsx` · `app/(main)/category/[slug]/page.tsx` · `app/directory/knowledge/category/[id]/page.tsx` |
@@ -137,14 +137,14 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 **Fix notes**
 
 - **D1** — Add a currency column to plans and re-seed with Tobi's NGN figures once Q2–Q6 are answered.
-- **D2** — Pass isFirm into galleryCapFor at submit-listing.ts:65,74 and move the chamber form onto a server action with the same validation.
+- **D2** — Firm gallery cap now applied server-side (chamber role or chamber_id); the chamber form writes through a server action that clamps the gallery, gates the intro video and checks chamber_admin membership.
 - **D3** — Fill features + price once Tobi answers Q8 (C21 contents).
 - **D4** — Set Basic to ₦100,000 in lib/corporate-posts.json (price + formatted_price) and dropped the "TEST PRICE" description. Deployed and verified in the live HTML.
-- **D5** — Render BookmarkButton on LawyerCard using the bookmarked prop that is already passed in.
-- **D6** — Delete the unused state/init/type fields; keep the DB column by decision.
-- **D7** — Delete the dirs, or add a page.tsx when the feature is actually built.
+- **D5** — LawyerCard renders BookmarkButton when signed in, on both grid and list variants; the list variant stops click propagation so bookmarking does not navigate.
+- **D6** — Removed the leftover calendly_url field from LawyerForm state and the public profile type.
+- **D7** — Deleted the empty dashboard directories (chat, wallet, packages) so no nav-less shells imply shipped features.
 - **D8** — Build app/admin/analytics on top of getAdminStats + revenue queries.
-- **D9** — Add app/admin/error.tsx and a dashboard-level boundary.
+- **D9** — Added route-level error boundaries at app/admin/error.tsx and app/directory/dashboard/error.tsx, so admin and dashboard failures no longer fall through to the root boundary.
 - **D10** — Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.
 - **D11** — Filter server-side with `article_type = corporate_post` via the new `articleType` option on `getPublishedArticles()`.
 - **D12** — Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.

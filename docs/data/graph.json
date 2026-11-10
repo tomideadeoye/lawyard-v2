@@ -947,19 +947,19 @@
       "id": "F-46",
       "type": "feature",
       "label": "Live chat dashboard",
-      "status": "scaffolded"
+      "status": "not_started"
     },
     {
       "id": "F-47",
       "type": "feature",
       "label": "Wallet",
-      "status": "scaffolded"
+      "status": "not_started"
     },
     {
       "id": "F-48",
       "type": "feature",
       "label": "Packages",
-      "status": "scaffolded"
+      "status": "not_started"
     },
     {
       "id": "F-49",
@@ -1008,7 +1008,7 @@
       "id": "D2",
       "type": "defect",
       "label": "Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated",
-      "status": "open",
+      "status": "fixed",
       "detail": "high"
     },
     {
@@ -1029,21 +1029,21 @@
       "id": "D5",
       "type": "defect",
       "label": "Bookmark affordance absent from cards",
-      "status": "open",
+      "status": "fixed",
       "detail": "low"
     },
     {
       "id": "D6",
       "type": "defect",
       "label": "Dead Calendly state/type fields after UI removal",
-      "status": "open",
+      "status": "fixed",
       "detail": "low"
     },
     {
       "id": "D7",
       "type": "defect",
       "label": "Three empty dashboard dirs (chat, wallet, packages)",
-      "status": "open",
+      "status": "fixed",
       "detail": "low"
     },
     {
@@ -1057,7 +1057,7 @@
       "id": "D9",
       "type": "defect",
       "label": "Error boundaries on only two routes",
-      "status": "open",
+      "status": "fixed",
       "detail": "low"
     },
     {

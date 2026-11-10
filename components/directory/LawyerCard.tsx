@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Avatar } from '@/components/ui/avatar'
+import BookmarkButton from '@/components/directory/BookmarkButton'
 
 interface LawyerCardProps {
   id: string
@@ -24,7 +25,7 @@ interface LawyerCardProps {
 export function LawyerCard({
   id, name, role, image, specialties, rating, reviews,
   location, experience, verified, featured, variant = 'grid',
-  isAuthenticated: _isAuthenticated, bookmarked: _bookmarked, onBookmark: _onBookmark,
+  isAuthenticated, bookmarked,
 }: LawyerCardProps) {
   if (variant === 'list') {
     return (
@@ -38,6 +39,11 @@ export function LawyerCard({
                 <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500 mt-0.5">{role}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {isAuthenticated && (
+                  <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                    <BookmarkButton lawyerId={id} initialBookmarked={bookmarked} />
+                  </span>
+                )}
                 {featured && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-accent/15 text-accent uppercase tracking-wider">★ Featured</span>}
                 {experience && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{experience}</span>}
                 {verified && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500">✓ Verified</span>}
@@ -64,6 +70,11 @@ export function LawyerCard({
       <div className="flex items-start justify-between gap-3 mb-3">
         <Avatar src={image} name={name} size="sm" className="rounded-lg" />
         <div className="flex items-center gap-1.5 shrink-0">
+          {isAuthenticated && (
+            <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              <BookmarkButton lawyerId={id} initialBookmarked={bookmarked} />
+            </span>
+          )}
           {featured && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-accent/15 text-accent uppercase tracking-wider">★ Featured</span>}
           {experience && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{experience}</span>}
           {verified && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500">✓ Verified</span>}

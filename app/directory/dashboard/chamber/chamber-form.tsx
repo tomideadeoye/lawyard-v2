@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TERMS } from '@/lib/constants';
-import { createClient } from '@/lib/supabase/client';
+import { saveChamber } from '@/app/directory/actions/save-chamber';
 import { galleryCapFor, isPaidTier } from '@/lib/directory/publishing';
 import FaqEditor from '@/components/directory/forms/listing/FaqEditor';
 import GalleryUpload from '@/components/directory/forms/listing/GalleryUpload';
@@ -47,34 +47,22 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    setError(null);
 
-    const payload = { ...form, user_id: user.id };
-
-    if (initial?.id) {
-      await supabase.from('chambers').update(payload).eq('id', initial.id);
-    } else {
-      const { data: created } = await supabase
-        .from('chambers')
-        .insert(payload)
-        .select('id')
-        .single();
-      // Register the creator as owner-admin so multiple admins can manage later.
-      if (created?.id) {
-        await supabase.from('chamber_admins').insert({
-          chamber_id: created.id,
-          user_id: user.id,
-          role: 'owner',
-        });
-      }
-    }
+    // Validation and the gallery/video caps live in the server action, so the
+    // browser can't skip them (D2).
+    const result = await saveChamber({ ...form, chamber_id: initial?.id ?? null });
 
     setSaving(false);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
     router.refresh();
   };
 
@@ -123,6 +111,10 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
         onChange={v => update('intro_video_url', v)}
         isPremium={isPremium}
       />
+
+      {error && (
+        <p className="text-xs font-medium text-destructive">{error}</p>
+      )}
 
       <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-lg bg-[#a77c5c] hover:bg-[#906b4e] disabled:opacity-50 text-white text-xs font-bold transition-colors">
         {saving ? 'Saving...' : initial?.id ? `Update ${TERMS.firm.singular}` : `Create ${TERMS.firm.singular}`}

@@ -39,7 +39,6 @@ interface LawyerRow {
   intro_video_url: string | null;
   hide_contact_form: boolean;
   verification_status: string;
-  calendly_url: string | null;
   price_range: string | null;
   hide_price: boolean | null;
   address: string | null;

@@ -52,6 +52,7 @@ export async function submitLawyerListing(data: ListingFormData) {
     faqs,
     gallery_images,
     working_hours,
+    chamber_id,
     ...lawyerFields
   } = data;
 
@@ -59,16 +60,20 @@ export async function submitLawyerListing(data: ListingFormData) {
     // Enforce the plan gallery cap server-side (C10).
     const { data: profile } = await supabase
       .from('profiles')
-      .select('subscription_tier')
+      .select('subscription_tier, role')
       .eq('id', user.id)
       .maybeSingle();
-    const galleryCap = galleryCapFor(profile?.subscription_tier);
+    // Firm listings get the higher ceiling (C10/D2): either the account is a
+    // chamber, or the listing is being filed under a chamber.
+    const isFirm = profile?.role === 'chamber' || Boolean(chamber_id);
+    const galleryCap = galleryCapFor(profile?.subscription_tier, isFirm);
 
     const { error: upsertError } = await supabase
       .from('lawyers')
       .upsert({
         id: user.id,
         ...lawyerFields,
+        chamber_id: chamber_id ?? null,
         social_links: social_links ?? [],
         faqs: faqs ?? [],
         gallery_images: (gallery_images ?? []).slice(0, galleryCap),

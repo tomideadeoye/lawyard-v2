@@ -27,14 +27,14 @@
       "id": "D2",
       "title": "Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated",
       "severity": "high",
-      "status": "open",
+      "status": "fixed",
       "impact": "Free users can exceed gallery caps via the chamber form.",
       "evidence": [
         "app/directory/actions/submit-listing.ts",
         "app/directory/dashboard/chamber/chamber-form.tsx",
         "lib/directory/publishing.ts"
       ],
-      "fix": "Pass isFirm into galleryCapFor at submit-listing.ts:65,74 and move the chamber form onto a server action with the same validation.",
+      "fix": "Firm gallery cap now applied server-side (chamber role or chamber_id); the chamber form writes through a server action that clamps the gallery, gates the intro video and checks chamber_admin membership.",
       "changes": [
         "C10"
       ],
@@ -81,13 +81,13 @@
       "id": "D5",
       "title": "Bookmark affordance absent from cards",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "impact": "'Saved Lawyers' is only usable from a profile page.",
       "evidence": [
         "components/directory/LawyerCard.tsx",
         "app/directory/lawyer/[id]/page.tsx"
       ],
-      "fix": "Render BookmarkButton on LawyerCard using the bookmarked prop that is already passed in.",
+      "fix": "LawyerCard renders BookmarkButton when signed in, on both grid and list variants; the list variant stops click propagation so bookmarking does not navigate.",
       "changes": [
         "C18"
       ],
@@ -99,13 +99,13 @@
       "id": "D6",
       "title": "Dead Calendly state/type fields after UI removal",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "impact": "Dead code; misleads future readers into thinking Calendly is supported.",
       "evidence": [
         "components/directory/forms/LawyerForm.tsx",
         "app/directory/lawyer/[id]/page.tsx"
       ],
-      "fix": "Delete the unused state/init/type fields; keep the DB column by decision.",
+      "fix": "Removed the leftover calendly_url field from LawyerForm state and the public profile type.",
       "changes": [
         "C16"
       ],
@@ -117,14 +117,12 @@
       "id": "D7",
       "title": "Three empty dashboard dirs (chat, wallet, packages)",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "impact": "Harmless, but suggests shipped features; no nav links point at them.",
       "evidence": [
-        "app/directory/dashboard/chat",
-        "app/directory/dashboard/wallet",
-        "app/directory/dashboard/packages"
+        "app/directory/dashboard"
       ],
-      "fix": "Delete the dirs, or add a page.tsx when the feature is actually built.",
+      "fix": "Deleted the empty dashboard directories (chat, wallet, packages) so no nav-less shells imply shipped features.",
       "features": [
         "F-46",
         "F-47",
@@ -149,13 +147,13 @@
       "id": "D9",
       "title": "Error boundaries on only two routes",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "impact": "Admin and dashboard failures fall through to the root boundary.",
       "evidence": [
         "app/error.tsx",
         "app/directory/error.tsx"
       ],
-      "fix": "Add app/admin/error.tsx and a dashboard-level boundary.",
+      "fix": "Added route-level error boundaries at app/admin/error.tsx and app/directory/dashboard/error.tsx, so admin and dashboard failures no longer fall through to the root boundary.",
       "features": [
         "F-45",
         "F-37"

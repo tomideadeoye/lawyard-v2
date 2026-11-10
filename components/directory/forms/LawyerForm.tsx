@@ -73,7 +73,6 @@ interface FormState {
   hide_price: boolean;
   hide_contact_form: boolean;
   listing_type: string;
-  calendly_url: string;
 }
 
 const INITIAL_STATE: FormState = {
@@ -83,7 +82,7 @@ const INITIAL_STATE: FormState = {
   education: [], organization_memberships: [], publications: [], awards: [], volunteer_pro_bono: [],
   image_url: null, intro_video_url: '', gallery_images: [],
   faqs: [], social_links: [], working_hours: [],
-  address: '', zip_code: '', price_range: '', hide_price: false, hide_contact_form: false, listing_type: 'general', calendly_url: '',
+  address: '', zip_code: '', price_range: '', hide_price: false, hide_contact_form: false, listing_type: 'general',
 };
 
 
@@ -160,7 +159,6 @@ export default function LawyerForm() {
         hide_price: (ls.hide_price as boolean) || false,
         hide_contact_form: (ls.hide_contact_form as boolean) || false,
         listing_type: (ls.listing_type as string) || 'general',
-        calendly_url: (ls.calendly_url as string) || '',
       });
       const specs = ls.lawyer_specialties as { specialty_id: string }[] | undefined;
       if (specs) setSelectedSpecialties(specs.map(s => s.specialty_id));
