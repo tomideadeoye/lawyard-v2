@@ -121,7 +121,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 
 | # | Defect | Severity | Impact | Evidence |
 |---|---|---|---|---|
-| D1 | Plans still seeded in USD but formatted as NGN | high | Every plan page renders ₦20 / ₦2. Blocked on Q2–Q6. | `supabase/migrations/20260629000002_update_plans_data_exact.sql` · `supabase/migrations/20260628000001_create_plans_table.sql` · `lib/currency.ts` |
+| D1 | Plans still seeded in USD but formatted as NGN | high | Every plan renders the dollar-era figure as naira — Premium Single shows ₦2 for 365 days, Package ₦20 — and Paystack would charge exactly that. Blocked on Q2–Q6. | `supabase/migrations/20260629000002_update_plans_data_exact.sql` · `supabase/migrations/20260628000001_create_plans_table.sql` · `lib/currency.ts` |
 | D2 | Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated | high | Free users can exceed gallery caps via the chamber form. | `app/directory/actions/submit-listing.ts` · `app/directory/dashboard/chamber/chamber-form.tsx` · `lib/directory/publishing.ts` |
 | D3 | Silver plan rows are ₦0 with no features | high | The pricing page advertises an empty middle tier. | `supabase/migrations/20261016000002_post_caps_and_credits.sql` |
 | D4 | Corporate-posts Basic tier shipped on the ₦100 test price | medium | Every Corporate Posts surface advertised ₦100, and Paystack would have charged ₦100 for the Basic tier. | `lib/corporate-posts.json` · `app/directory/corporate-posts/page.tsx` · `app/directory/corporate-posts/submit/page.tsx` |
@@ -136,7 +136,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 
 **Fix notes**
 
-- **D1** — Add a currency column to plans and re-seed with Tobi's NGN figures once Q2–Q6 are answered.
+- **D1** — Checkout guard added: a non-zero price below ₦1,000 is treated as a placeholder, so the plan renders "Pricing under review" + "Enquire" and cannot be bought. Real NGN figures in plans.price flip it back on with no deploy.
 - **D2** — Firm gallery cap now applied server-side (chamber role or chamber_id); the chamber form writes through a server action that clamps the gallery, gates the intro video and checks chamber_admin membership.
 - **D3** — Fill features + price once Tobi answers Q8 (C21 contents).
 - **D4** — Set Basic to ₦100,000 in lib/corporate-posts.json (price + formatted_price) and dropped the "TEST PRICE" description. Deployed and verified in the live HTML.

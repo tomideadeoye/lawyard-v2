@@ -257,9 +257,16 @@ function FeatureItem({ name, included }: { name: string; included: boolean }) {
   );
 }
 
+// The plans table is still seeded with the dollar-era figures ($2 for a
+// 365-day premium listing), which format as ₦2. Until Tobi's NGN numbers land
+// (Q2–Q6), a non-zero price below this floor is treated as a placeholder: the
+// plan stays visible, but it cannot be bought. Real prices flip it back on.
+const PRICE_PLACEHOLDER_FLOOR = 1000
+
 function PricingCard({ tier, role }: { tier: any; role: string }) {
   const amount = parseAmount(tier.price)
-  const isPaid = amount > 0
+  const priceUnset = amount > 0 && amount < PRICE_PLACEHOLDER_FLOOR
+  const isPaid = amount > 0 && !priceUnset
 
   return (
     <Card className={`relative flex flex-col bg-white dark:bg-yellow-950/40 border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
@@ -277,6 +284,10 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
         {tier.comingSoon ? (
           <div className="flex flex-col items-center mb-5">
             <span className="text-2xl font-bold text-slate-500 dark:text-yellow-200/80 tracking-tight">Coming soon</span>
+          </div>
+        ) : priceUnset ? (
+          <div className="flex flex-col items-center mb-5">
+            <span className="text-2xl font-bold text-slate-500 dark:text-yellow-200/80 tracking-tight">Pricing under review</span>
           </div>
         ) : (
           <Price price={tier.price} period={tier.period} name={tier.name} />
@@ -299,6 +310,13 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
           <span className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-100 dark:bg-yellow-900/30 text-slate-400 dark:text-yellow-200/50 block cursor-not-allowed">
             Coming soon
           </span>
+        ) : priceUnset ? (
+          <Link
+            href="/contact"
+            className="w-full py-3 text-center text-sm font-semibold rounded-lg border border-[#a77c5c] text-[#a77c5c] hover:bg-[#a77c5c] hover:text-white transition-colors block"
+          >
+            Enquire about this plan
+          </Link>
         ) : isPaid ? (
           <PaystackButton
             amount={amount}
