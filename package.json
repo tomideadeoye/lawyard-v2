@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --test scripts/*.test.mjs",
+    "test": "npm run test:unit && npm run test:docs",
     "test:docs": "node --test scripts/docs.test.mjs",
     "check:migrations": "node scripts/migration-drift.mjs",
     "docs:render": "node scripts/docs.mjs render",
@@ -18,7 +18,9 @@
     "docs:graph:check": "node scripts/docs.mjs graph --check",
     "docs:ask": "node scripts/docs.mjs ask",
     "docs:stats": "node scripts/docs.mjs stats",
-    "migrations:push": "supabase db push"
+    "migrations:push": "supabase db push",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -64,6 +66,7 @@
     "postcss": "^8.5.10",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.4",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^5.1.0"
   }
 }
