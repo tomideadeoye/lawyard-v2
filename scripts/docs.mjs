@@ -39,7 +39,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// DOCS_ROOT lets the test suite point the gate at a fixture tree instead of the
+// real repo, so a failing registry can be exercised without touching real data.
+const ROOT = path.resolve(
+  process.env.DOCS_ROOT ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "..")
+);
 const DATA = path.join(ROOT, "docs", "data");
 const OUT = {
   features: path.join(ROOT, "docs", "FEATURE-STATUS.md"),
