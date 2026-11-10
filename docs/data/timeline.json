@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema/timeline.schema.json",
   "schema": 1,
   "note": "Source of truth for TIMELINE.md. One row per session: what was asked, what changed, why, what is still blocked. Changeset/defect/commit references are extracted into fields for the graph.",
   "sessions": [
@@ -618,7 +619,6 @@
           "detail": "added to changeset items — the fork not taken, and why it lost (e.g. C15: routing the lawyer's fee rejected for escrow/payment-intermediary exposure)."
         },
         {
-          "title": "",
           "detail": "Verified the gate both ways: a hand edit to the md fails `--check` with the first differing line; a missing evidence path fails validation."
         }
       ],

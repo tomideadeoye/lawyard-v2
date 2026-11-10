@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema/questions.schema.json",
   "schema": 1,
   "note": "Questions blocking build decisions. Rendered into docs/TOBI-12SEP-CHANGES.md. 'answered' questions keep their answer here — the record is the point.",
   "questions": [

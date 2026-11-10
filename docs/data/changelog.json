@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema/changelog.schema.json",
   "schema": 1,
   "note": "Source of truth for CHANGELOG.md. One row per shipped change: date + type are fields, not headings, so entries can be grouped, filtered and graphed. Rendered by scripts/docs.mjs.",
   "changelog": [

@@ -9,6 +9,13 @@
  * disagree, so the page a human (or Tobi) reads can never silently drift from
  * the data that holds the truth.
  *
+ * Shape is declared, not remembered: docs/data/schema/<registry>.schema.json
+ * holds the JSON Schema for each file, and every data file points at its schema
+ * via `$schema`, so an editor autocompletes the fields and flags typos, wrong
+ * enums and over-length strings as you type. This script runs the same schemas
+ * through ajv and then adds what a schema cannot see — duplicate ids,
+ * cross-file references, and evidence paths checked against the filesystem.
+ *
  * Evidence pointers in the CURRENT-state registries (features/changeset/defects)
  * are checked against the real filesystem — a dead row fails the gate. The
  * historical logs (changelog/timeline) record what happened, so deleted paths
@@ -30,6 +37,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import Ajv from "ajv";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(ROOT, "docs", "data");
@@ -65,16 +73,30 @@ const STATUS_ICON = {
   parked: "⏸",
 };
 const STATUSES = Object.keys(STATUS_ICON);
-const SEVERITIES = ["high", "medium", "low"];
-const DECISION_TYPES = ["build", "park", "reject", "confirm", "done"];
-const QUESTION_STATUSES = ["open", "answered", "parked"];
-const CHANGE_TYPES = ["added", "changed", "fixed", "docs", "removed"];
 const CHANGE_TYPE_ORDER = ["added", "changed", "fixed", "docs", "removed"];
 
-const LIMITS = { name: 120, title: 120, note: 400, gap: 400, impact: 240, fix: 240, detail: 800 };
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /* ── validation ─────────────────────────────────────────────────────────── */
+//
+// Shape, enums and length caps live in docs/data/schema/*.schema.json. That is
+// the source of truth: it is what gives an editor autocomplete and red
+// squiggles while the data is being written, and this script just runs it.
+// Checks that need other files or the filesystem stay in code: duplicate ids,
+// cross-references, evidence paths, and the few semantic rules a schema cannot
+// express ("answered" needs an answer, a session must record something).
+
+const ajv = new Ajv({ allErrors: true, strict: false });
+
+function validateRegistry(name, data) {
+  const schemaPath = path.join(DATA, "schema", `${name}.schema.json`);
+  const validate = ajv.compile(JSON.parse(fs.readFileSync(schemaPath, "utf8")));
+  if (validate(data)) return;
+  for (const err of validate.errors ?? []) {
+    const at = err.instancePath || "(root)";
+    const params = err.params && Object.keys(err.params).length ? ` ${JSON.stringify(err.params)}` : "";
+    fail(`${name}${at}: ${err.message}${params}`);
+  }
+}
 
 function pathExists(pointer) {
   const clean = pointer
@@ -84,16 +106,6 @@ function pathExists(pointer) {
     return fs.existsSync(path.join(ROOT, clean.slice(0, clean.indexOf("*"))));
   }
   return fs.existsSync(path.join(ROOT, clean));
-}
-
-function checkIds(rows, pattern, label) {
-  const seen = new Set();
-  for (const row of rows) {
-    if (!pattern.test(row.id)) fail(`${label}: bad id "${row.id}" (expected ${pattern})`);
-    if (seen.has(row.id)) fail(`${label}: duplicate id ${row.id}`);
-    seen.add(row.id);
-  }
-  return seen;
 }
 
 function checkEvidence(row, label) {
@@ -108,17 +120,19 @@ function checkEvidence(row, label) {
   }
 }
 
-function checkLength(row, field, label) {
-  const value = row[field];
-  if (value && value.length > LIMITS[field]) {
-    fail(`${label} ${row.id}: ${field} is ${value.length} chars (max ${LIMITS[field]})`);
-  }
-}
-
 function checkRefs(ids, refs, label) {
   for (const ref of refs ?? []) {
     if (!ids.has(ref)) fail(`${label}: references unknown ${ref}`);
   }
+}
+
+function uniqueIds(rows, label) {
+  const ids = new Set();
+  for (const row of rows) {
+    if (ids.has(row.id)) fail(`${label}: duplicate id ${row.id}`);
+    ids.add(row.id);
+  }
+  return ids;
 }
 
 const features = load("features");
@@ -128,130 +142,50 @@ const questions = load("questions");
 const changelog = load("changelog");
 const timeline = load("timeline");
 
-const featureIds = checkIds(features.features, /^F-\d{2}$/, "features");
-const changeIds = checkIds(changeset.items, /^C\d{2}$/, "changeset");
-const defectIds = checkIds(defects.defects, /^D\d{1,2}$/, "defects");
-const questionIds = checkIds(questions.questions, /^Q\d+$/, "questions");
+for (const [name, data] of Object.entries({ features, changeset, defects, questions, changelog, timeline })) {
+  validateRegistry(name, data);
+}
+
+const featureIds = uniqueIds(features.features, "features");
+const changeIds = uniqueIds(changeset.items, "changeset");
+const defectIds = uniqueIds(defects.defects, "defects");
+const questionIds = uniqueIds(questions.questions, "questions");
 
 for (const f of features.features) {
-  if (!STATUSES.includes(f.status)) fail(`features ${f.id}: unknown status "${f.status}"`);
-  checkLength(f, "name", "features");
-  checkLength(f, "note", "features");
-  checkLength(f, "gap", "features");
   checkEvidence(f, "features");
   checkRefs(changeIds, f.changes, `features ${f.id} changes`);
   checkRefs(defectIds, f.defects, `features ${f.id} defects`);
 }
 
 for (const c of changeset.items) {
-  if (!STATUSES.includes(c.status)) fail(`changeset ${c.id}: unknown status "${c.status}"`);
-  if (!DECISION_TYPES.includes(c.decision_type)) {
-    fail(`changeset ${c.id}: unknown decision_type "${c.decision_type}"`);
-  }
-  for (const field of ["title", "requested", "decision"]) {
-    if (!c[field]) fail(`changeset ${c.id}: missing ${field}`);
-  }
-  checkLength(c, "title", "changeset");
-  for (const alt of c.alternatives ?? []) {
-    if (!alt.option || !alt.why_rejected) {
-      fail(`changeset ${c.id}: every alternative needs option + why_rejected`);
-      continue;
-    }
-    if (alt.option.length > 80) fail(`changeset ${c.id}: alternative option too long`);
-    if (alt.why_rejected.length > 200) fail(`changeset ${c.id}: alternative why_rejected too long`);
-  }
   checkRefs(featureIds, c.features, `changeset ${c.id} features`);
   checkRefs(defectIds, c.defects, `changeset ${c.id} defects`);
   checkRefs(questionIds, c.questions, `changeset ${c.id} questions`);
 }
 
 for (const d of defects.defects) {
-  if (!SEVERITIES.includes(d.severity)) fail(`defects ${d.id}: unknown severity "${d.severity}"`);
-  if (!["open", "fixed", "wontfix"].includes(d.status)) {
-    fail(`defects ${d.id}: unknown status "${d.status}"`);
-  }
-  for (const field of ["title", "impact", "fix"]) {
-    if (!d[field]) fail(`defects ${d.id}: missing ${field}`);
-  }
-  checkLength(d, "title", "defects");
-  checkLength(d, "impact", "defects");
-  checkLength(d, "fix", "defects");
   checkEvidence(d, "defects");
   checkRefs(changeIds, d.changes, `defects ${d.id} changes`);
   checkRefs(featureIds, d.features, `defects ${d.id} features`);
 }
 
 for (const q of questions.questions) {
-  if (!QUESTION_STATUSES.includes(q.status)) fail(`questions ${q.id}: unknown status "${q.status}"`);
-  if (!q.question) fail(`questions ${q.id}: missing question`);
   if (q.status === "answered" && !q.answer) fail(`questions ${q.id}: answered without an answer`);
   checkRefs(changeIds, q.from, `questions ${q.id} from`);
 }
 
 for (const row of features.launch_checklist) {
-  if (!STATUSES.includes(row.status)) fail(`launch_checklist "${row.item}": unknown status`);
   checkRefs(defectIds, row.defects, `launch_checklist "${row.item}"`);
 }
 
-/* ── historical logs: shape + cross-refs, not filesystem existence ──────── */
-
-const isStringArray = (value) =>
-  Array.isArray(value) && value.every((v) => typeof v === "string" && v.trim().length > 0);
-
-checkIds(changelog.changelog, /^CH-\d{3}$/, "changelog");
-checkIds(timeline.sessions, /^S-\d{4}-\d{2}-\d{2}-\d{2}$/, "timeline");
-
 for (const c of changelog.changelog) {
-  if (!ISO_DATE.test(c.date)) fail(`changelog ${c.id}: date "${c.date}" is not YYYY-MM-DD`);
-  if (!CHANGE_TYPES.includes(c.type)) fail(`changelog ${c.id}: unknown type "${c.type}"`);
-  for (const field of ["title", "detail"]) {
-    if (!c[field]) fail(`changelog ${c.id}: missing ${field}`);
-  }
-  checkLength(c, "title", "changelog");
-  checkLength(c, "detail", "changelog");
-  if (c.evidence !== undefined && !isStringArray(c.evidence)) fail(`changelog ${c.id}: evidence must be a string list`);
-  for (const sha of c.commits ?? []) {
-    if (!/^[0-9a-f]{7,40}$/.test(sha)) fail(`changelog ${c.id}: commit "${sha}" is not a sha`);
-  }
   checkRefs(changeIds, c.changeset, `changelog ${c.id} changeset`);
   checkRefs(defectIds, c.defects, `changelog ${c.id} defects`);
 }
 
 for (const s of timeline.sessions) {
-  if (!ISO_DATE.test(s.date)) fail(`timeline ${s.id}: date "${s.date}" is not YYYY-MM-DD`);
-  if (s.label !== undefined && (typeof s.label !== "string" || !s.label.trim())) {
-    fail(`timeline ${s.id}: label must be a non-empty string when present`);
-  }
-  if (s.label !== undefined && !["paren", "dash"].includes(s.labelStyle)) {
-    fail(`timeline ${s.id}: labelStyle must be "paren" or "dash"`);
-  }
   const hasBody = Boolean(s.focus) || (s.whatChanged ?? []).length > 0 || (s.blockers ?? []).length > 0;
   if (!hasBody) fail(`timeline ${s.id}: session records nothing (no focus, changes or blockers)`);
-  if ((s.focus ?? "").length > LIMITS.note) fail(`timeline ${s.id}: focus is too long (max ${LIMITS.note})`);
-  if (s.rationale !== undefined && !isStringArray(s.rationale)) {
-    fail(`timeline ${s.id}: rationale must be a list of paragraphs`);
-  }
-  for (const para of s.rationale ?? []) {
-    if (para.length > LIMITS.detail) fail(`timeline ${s.id}: rationale paragraph is too long (max ${LIMITS.detail})`);
-  }
-  for (const item of s.whatChanged ?? []) {
-    if (!item || typeof item.detail !== "string" || !item.detail.trim()) {
-      fail(`timeline ${s.id}: every whatChanged row needs a detail`);
-      continue;
-    }
-    if (item.detail.length > LIMITS.detail) fail(`timeline ${s.id}: whatChanged detail too long (max ${LIMITS.detail})`);
-    if (item.title && item.title.length > LIMITS.title) fail(`timeline ${s.id}: whatChanged title too long`);
-    if (item.sub !== undefined && !isStringArray(item.sub)) fail(`timeline ${s.id}: whatChanged sub must be a string list`);
-  }
-  if (s.blockersNote !== undefined && (typeof s.blockersNote !== "string" || !s.blockersNote.trim())) {
-    fail(`timeline ${s.id}: blockersNote must be a non-empty string`);
-  }
-  for (const field of ["files", "blockers", "nextSteps", "verification"]) {
-    if (s[field] !== undefined && !isStringArray(s[field])) fail(`timeline ${s.id}: ${field} must be a string list`);
-  }
-  for (const sha of s.commits ?? []) {
-    if (!/^[0-9a-f]{7,40}$/.test(sha)) fail(`timeline ${s.id}: commit "${sha}" is not a sha`);
-  }
   checkRefs(changeIds, s.changeset, `timeline ${s.id} changeset`);
   checkRefs(defectIds, s.defects, `timeline ${s.id} defects`);
 }
@@ -265,7 +199,7 @@ if (failures > 0) {
   console.error(`\n${failures} problem(s) — docs not rendered.`);
   process.exit(1);
 }
-ok("data valid: ids, statuses, cross-references, filesystem pointers");
+ok("data valid: schema, ids, cross-references, filesystem pointers");
 
 /* ── render helpers ─────────────────────────────────────────────────────── */
 

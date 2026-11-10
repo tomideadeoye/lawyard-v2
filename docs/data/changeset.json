@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema/changeset.schema.json",
   "schema": 1,
   "call_date": "2026-09-12",
   "transcript": "/Users/mac/Downloads/20260912_142011.transcript.md",

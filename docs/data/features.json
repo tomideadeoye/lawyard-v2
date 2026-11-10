@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema/features.schema.json",
   "schema": 1,
   "verified": "2026-11-04",
   "note": "Source of truth for 'is it built?'. Rendered to docs/FEATURE-STATUS.md. Evidence paths are checked against the filesystem by scripts/docs.mjs.",
@@ -598,7 +599,8 @@
       "status": "not_started",
       "area": "messaging",
       "gap": "Pricing page advertises live chat; no code.",
-      "tier": 4
+      "tier": 4,
+      "evidence": []
     },
     {
       "id": "F-51",
@@ -609,7 +611,8 @@
       "tier": 5,
       "defects": [
         "D8"
-      ]
+      ],
+      "evidence": []
     },
     {
       "id": "F-52",
@@ -617,7 +620,8 @@
       "status": "not_started",
       "area": "admin",
       "tier": 6,
-      "gap": "No work started."
+      "gap": "No work started.",
+      "evidence": []
     },
     {
       "id": "F-53",
@@ -625,14 +629,16 @@
       "status": "not_started",
       "area": "platform",
       "tier": 7,
-      "gap": "No work started."
+      "gap": "No work started.",
+      "evidence": []
     },
     {
       "id": "F-54",
       "name": "Unit + E2E tests, CI/CD, monitoring, backup strategy",
       "status": "not_started",
       "area": "platform",
-      "gap": "README 'Testing & Infra' section only."
+      "gap": "README 'Testing & Infra' section only.",
+      "evidence": []
     }
   ],
   "launch_checklist": [
