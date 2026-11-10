@@ -63,14 +63,16 @@
     },
     {
       "id": "D4",
-      "title": "Corporate-posts Basic tier still on test price ₦100",
+      "title": "Corporate-posts Basic tier shipped on the ₦100 test price",
       "severity": "medium",
-      "status": "open",
-      "impact": "Must not ship to production pricing.",
+      "status": "fixed",
+      "impact": "Every Corporate Posts surface advertised ₦100, and Paystack would have charged ₦100 for the Basic tier.",
       "evidence": [
-        "lib/corporate-posts.json"
+        "lib/corporate-posts.json",
+        "app/directory/corporate-posts/page.tsx",
+        "app/directory/corporate-posts/submit/page.tsx"
       ],
-      "fix": "Replace with the real Basic price before launch.",
+      "fix": "Set Basic to ₦100,000 in lib/corporate-posts.json (price + formatted_price) and dropped the \"TEST PRICE\" description. Deployed and verified in the live HTML.",
       "features": [
         "F-27"
       ]

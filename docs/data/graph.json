@@ -1021,8 +1021,8 @@
     {
       "id": "D4",
       "type": "defect",
-      "label": "Corporate-posts Basic tier still on test price ₦100",
-      "status": "open",
+      "label": "Corporate-posts Basic tier shipped on the ₦100 test price",
+      "status": "fixed",
       "detail": "medium"
     },
     {

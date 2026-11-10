@@ -115,7 +115,7 @@ Agreed with Tobi on 2026-09-12. Full context: `HANDOFF.md` §6. Item-by-item wal
 | C20 | Currency — Naira for Nigeria | 🟡 | Q2 — Premium Single (Lawyer, 365d) — NGN price?<br>Q3 — Premium Package (Lawyer, 365d) — NGN price?<br>Q4 — Premium Single (Client, 90d) — NGN price?<br>Q5 — Premium Package (Client, 90d) — NGN price?<br>Q6 — Premium (Chamber / Law Firm, 365d) — NGN price? |
 | C21 | Silver category (which items stay/add) | 💬 | Q8 — Silver category — which items stay vs get added? |
 
-## 6. Known defects (9 open)
+## 6. Known defects (8 open)
 
 Found by the 2026-11-04 code verification. Security findings are **not** duplicated here — see [`docs/AUDIT-2026-10-20.md`](AUDIT-2026-10-20.md).
 
@@ -124,7 +124,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 | D1 | Plans still seeded in USD but formatted as NGN | high | Every plan page renders ₦20 / ₦2. Blocked on Q2–Q6. | `supabase/migrations/20260629000002_update_plans_data_exact.sql` · `supabase/migrations/20260628000001_create_plans_table.sql` · `lib/currency.ts` |
 | D2 | Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated | high | Free users can exceed gallery caps via the chamber form. | `app/directory/actions/submit-listing.ts` · `app/directory/dashboard/chamber/chamber-form.tsx` · `lib/directory/publishing.ts` |
 | D3 | Silver plan rows are ₦0 with no features | high | The pricing page advertises an empty middle tier. | `supabase/migrations/20261016000002_post_caps_and_credits.sql` |
-| D4 | Corporate-posts Basic tier still on test price ₦100 | medium | Must not ship to production pricing. | `lib/corporate-posts.json` |
+| D4 | Corporate-posts Basic tier shipped on the ₦100 test price | medium | Every Corporate Posts surface advertised ₦100, and Paystack would have charged ₦100 for the Basic tier. | `lib/corporate-posts.json` · `app/directory/corporate-posts/page.tsx` · `app/directory/corporate-posts/submit/page.tsx` |
 | D5 | Bookmark affordance absent from cards | low | 'Saved Lawyers' is only usable from a profile page. | `components/directory/LawyerCard.tsx` · `app/directory/lawyer/[id]/page.tsx` |
 | D6 | Dead Calendly state/type fields after UI removal | low | Dead code; misleads future readers into thinking Calendly is supported. | `components/directory/forms/LawyerForm.tsx` · `app/directory/lawyer/[id]/page.tsx` |
 | D7 | Three empty dashboard dirs (chat, wallet, packages) | low | Harmless, but suggests shipped features; no nav links point at them. | `app/directory/dashboard/chat` · `app/directory/dashboard/wallet` · `app/directory/dashboard/packages` |
@@ -139,7 +139,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 - **D1** — Add a currency column to plans and re-seed with Tobi's NGN figures once Q2–Q6 are answered.
 - **D2** — Pass isFirm into galleryCapFor at submit-listing.ts:65,74 and move the chamber form onto a server action with the same validation.
 - **D3** — Fill features + price once Tobi answers Q8 (C21 contents).
-- **D4** — Replace with the real Basic price before launch.
+- **D4** — Set Basic to ₦100,000 in lib/corporate-posts.json (price + formatted_price) and dropped the "TEST PRICE" description. Deployed and verified in the live HTML.
 - **D5** — Render BookmarkButton on LawyerCard using the bookmarked prop that is already passed in.
 - **D6** — Delete the unused state/init/type fields; keep the DB column by decision.
 - **D7** — Delete the dirs, or add a page.tsx when the feature is actually built.

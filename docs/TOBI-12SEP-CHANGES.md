@@ -320,7 +320,6 @@ Re-verified every shipped item against the code after the changeset deployed (`1
 | D1 | C20 | Plans still seeded in USD but formatted as NGN |
 | D2 | C10 | Firm/law-firm gallery cap not enforced server-side; chamber gallery unvalidated |
 | D3 | C02, C21 | Silver plan rows are ₦0 with no features |
-| D4 | — | Corporate-posts Basic tier still on test price ₦100 |
 | D5 | C18 | Bookmark affordance absent from cards |
 | D6 | C16 | Dead Calendly state/type fields after UI removal |
 | D7 | — | Three empty dashboard dirs (chat, wallet, packages) |
