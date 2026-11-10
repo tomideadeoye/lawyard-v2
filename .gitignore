@@ -39,3 +39,9 @@ yarn-error.log*
 .env*.local
 .omo
 *.tsbuildinfo
+
+# Playwright artifacts
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

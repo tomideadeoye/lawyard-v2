@@ -20,7 +20,9 @@
     "docs:stats": "node scripts/docs.mjs stats",
     "migrations:push": "supabase db push",
     "test:unit": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -54,6 +56,7 @@
   },
   "devDependencies": {
     "@locator/webpack-loader": "^0.5.1",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
