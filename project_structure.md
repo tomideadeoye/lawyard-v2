@@ -226,6 +226,15 @@ lawyard-v2/
 - **URL**: `https://jayjejqjswxtksvwoqxp.supabase.co`
 - **Dashboard**: https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp
 
+### Console pages worth bookmarking
+| Page | URL | Why |
+|------|-----|-----|
+| SQL editor | https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp/sql/new | Run a migration when `db push` isn't available. The editor tab holds no state — the durable copy is `supabase/migrations/` |
+| URL configuration | https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp/auth/url-configuration | Site URL + redirect allow-list; a missing entry is what breaks email links |
+| Auth hooks | https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp/auth/hooks | Send Email hook → `https://directory.lawyard.org/api/auth/hook` (templates are bypassed while it's active) |
+| Users | https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp/auth/users | Confirm/delete accounts by hand |
+| Table editor → `coupons` | https://supabase.com/dashboard/project/jayjejqjswxtksvwoqxp/editor | Inspect codes; prefer `/admin/coupons` for normal edits |
+
 ### Clients
 | File | Purpose |
 |------|---------|
