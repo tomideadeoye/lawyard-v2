@@ -6,82 +6,6 @@ import NewsletterBanner from "@/components/NewsletterBanner"
 
 export const dynamic = "force-dynamic"
 
-const SPOTLIGHT_MOCK_ARTICLES = [
-  {
-    id: "spotlight-1",
-    title: "African Development Bank approves USD 125 million investment to expand risk insurance capacity",
-    slug: "african-development-bank-approves-usd-125-million-investment-to-expand-risk-insurance-capacity",
-    featured_image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=600",
-    category: "BLOG, LAWYARD SPOTLIGHT, NEWS",
-    created_at: "2026-06-12T20:00:00.000Z"
-  },
-  {
-    id: "spotlight-2",
-    title: "MTN targets Nigeria's lending market as it seeks fintech licences",
-    slug: "mtn-targets-nigerias-lending-market-as-it-seeks-fintech-licences",
-    featured_image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=600",
-    category: "BLOG, LAWYARD SPOTLIGHT, NEWS",
-    created_at: "2026-06-12T20:00:00.000Z"
-  },
-  {
-    id: "spotlight-3",
-    title: "Texas Governor Recommends Sweeping Data Center Regulation",
-    slug: "texas-governor-recommends-sweeping-data-center-regulation",
-    featured_image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=600",
-    category: "LAWYARD SPOTLIGHT, NEWS",
-    created_at: "2026-06-12T20:00:00.000Z"
-  },
-  {
-    id: "spotlight-4",
-    title: "Call for Feedback on the Final DRAFT GUIDELINES FOR LEGAL PRACTITIONERS/LAWYERS PROVIDING PROFESSIONAL SERVICES IN THE CAPITAL MARKET in Ghana",
-    slug: "call-for-feedback-on-the-final-draft-guidelines-for-legal-practitioners-lawyers-providing-professional-services-in-the-capital-market-in-ghana",
-    featured_image: null,
-    category: "LAWYARD SPOTLIGHT",
-    created_at: "2026-06-12T20:00:00.000Z"
-  }
-]
-
-const SPORTS_LAW_FEATURES = {
-  featured: {
-    title: "Unsafe Grounds: What Nigeria Must Learn to Promote Stadium Safety by Ayomide Eribake",
-    category: "FEATURES, OPINIONS, SPORTS LAW",
-    slug: "unsafe-grounds-what-nigeria-must-learn-to-promote-stadium-safety-by-ayomide-eribake",
-    image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=800"
-  },
-  list: [
-    {
-      id: "sl-1",
-      title: "CJN Approves 2025 National Judiciary Games in Uyo as Over 10,000 Athletes Set to Compete",
-      category: "SPORTS LAW",
-      date: "OCTOBER 30, 2025",
-      readTime: "1 MIN READ",
-      shares: "0 SHARES",
-      image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=200",
-      slug: "cjn-approves-2025-national-judiciary-games-in-uyo-as-over-10000-athletes-set-to-compete"
-    },
-    {
-      id: "sl-2",
-      title: "Football Evolution: Assessing the Creation of Salary Caps by Eribake Ayomide & Al-Ameen Sulyman.",
-      category: "SPORTS LAW",
-      date: "JULY 29, 2020",
-      readTime: "5 MINS READ",
-      shares: "2 SHARES",
-      image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=200",
-      slug: "football-evolution-assessing-the-creation-of-salary-caps-by-eribake-ayomide-al-ameen-sulyman"
-    },
-    {
-      id: "sl-3",
-      title: "The Need for a National Dispute Resolution Chamber in Nigeria",
-      category: "SPORTS LAW",
-      date: "JUNE 29, 2020",
-      readTime: "5 MINS READ",
-      shares: "0 SHARES",
-      image: "https://images.unsplash.com/photo-1505664194779-8bebcb95c02e?auto=format&fit=crop&q=80&w=200",
-      slug: "the-need-for-a-national-dispute-resolution-chamber-in-nigeria"
-    }
-  ]
-}
-
 const LEGISLATIONS_LIST = [
   { id: "l-1", title: "INSTITUTE OF CHARTERED ACCOUNTANTS OF NIGERIA ACT" },
   { id: "l-2", title: "INDUSTRIAL TRAINING FUND ACT" },
@@ -105,27 +29,10 @@ export default async function CategoryPage({
     // Fallback if db query fails
   }
 
-  // Combine DB articles and mock fallback articles
+  // Pure database read. The old mock fallbacks put invented articles under a
+  // real category heading — a page that looked populated while showing content
+  // nobody published.
   const finalArticles = [...dbArticles]
-  
-  // Only insert mock articles if they correspond to the requested category or if database is empty
-  const isSpotlight = slug === "lawyard-spotlight"
-  const fallbacks = isSpotlight ? SPOTLIGHT_MOCK_ARTICLES : []
-
-  for (const mock of fallbacks) {
-    if (finalArticles.length >= 4) break
-    if (!finalArticles.some(a => a.title.toLowerCase() === mock.title.toLowerCase())) {
-      finalArticles.push({
-        id: mock.id,
-        title: mock.title,
-        slug: mock.slug,
-        featured_image: mock.featured_image,
-        category: mock.category,
-        created_at: mock.created_at,
-        author: [{ full_name: "Lawyard Staff" }]
-      } as any)
-    }
-  }
 
   if (finalArticles.length === 0) {
     notFound()
@@ -238,74 +145,70 @@ export default async function CategoryPage({
           </Link>
         </div>
 
-        {/* NEXT SECTION AFTER ADS: Features & Sports Law */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 my-16 pt-8 border-t border-border/20">
-          {/* Left Column: Featured Card */}
-          <div className="lg:col-span-8">
-            <Link 
-              href={`/insights/${SPORTS_LAW_FEATURES.featured.slug}`} 
-              className="group relative w-full aspect-[16/10] sm:aspect-[16/9.5] lg:aspect-[16/9.8] rounded-lg overflow-hidden border border-border/40 shadow-sm flex flex-col justify-center items-center text-center p-6 sm:p-10 no-underline hover:shadow-md transition-all duration-300"
-            >
-              <img 
-                src={SPORTS_LAW_FEATURES.featured.image} 
-                alt={SPORTS_LAW_FEATURES.featured.title} 
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/60 z-10" />
-              
-              <div className="relative z-20 space-y-4 max-w-xl">
-                <span className="text-[10px] font-bold text-white/75 uppercase tracking-widest block">
-                  {SPORTS_LAW_FEATURES.featured.category}
-                </span>
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-serif tracking-tight leading-tight group-hover:text-accent transition-colors">
-                  {SPORTS_LAW_FEATURES.featured.title}
-                </h3>
-                <div className="pt-2">
-                  <span className="bg-white hover:bg-white/95 text-zinc-900 font-extrabold text-[10px] uppercase tracking-widest px-6 py-2.5 rounded-full shadow-sm transition-colors inline-block">
-                    READ MORE
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </div>
-
-          {/* Right Column: Stacked list of 3 horizontal items */}
-          <div className="lg:col-span-4 flex flex-col gap-6 justify-between">
-            {SPORTS_LAW_FEATURES.list.map((item) => (
-              <Link 
-                key={item.id} 
-                href={`/insights/${item.slug}`} 
-                className="group flex gap-4 items-center bg-card border border-border/40 rounded-lg p-3 shadow-sm hover:shadow-md hover:scale-[1.003] transition-all duration-300 no-underline h-full"
+        {/* NEXT SECTION AFTER ADS: more from this category (real rows only) */}
+        {finalArticles.length > 1 && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 my-16 pt-8 border-t border-border/20">
+            <div className="lg:col-span-8">
+              <Link
+                href={`/insights/${finalArticles[0].slug}`}
+                className="group relative w-full aspect-[16/10] sm:aspect-[16/9.5] lg:aspect-[16/9.8] rounded-lg overflow-hidden border border-border/40 shadow-sm flex flex-col justify-center items-center text-center p-6 sm:p-10 no-underline hover:shadow-md transition-all duration-300"
               >
-                {/* Square Left Thumbnail */}
-                <div className="w-24 h-20 sm:w-28 sm:h-24 md:w-32 md:h-24 lg:w-28 lg:h-22 xl:w-32 xl:h-24 overflow-hidden rounded bg-muted shrink-0">
-                  <img 
-                    src={item.image} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                  />
-                </div>
-
-                {/* Right Details */}
-                <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-                  <span className="text-[9px] font-extrabold text-accent uppercase tracking-widest block">
-                    {item.category}
+                <img
+                  src={finalArticles[0].featured_image ?? ""}
+                  alt={finalArticles[0].title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/60 z-10" />
+                <div className="relative z-20 space-y-4 max-w-xl">
+                  <span className="text-[10px] font-bold text-white/75 uppercase tracking-widest block">
+                    {(Array.isArray(finalArticles[0].category) ? finalArticles[0].category[0] : finalArticles[0].category) ?? categoryLabel}
                   </span>
-                  <h4 className="text-xs sm:text-sm font-bold text-foreground font-serif leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {item.title}
-                  </h4>
-                  <div className="text-[8px] font-semibold text-muted-foreground/60 uppercase tracking-wider flex items-center gap-1 mt-0.5 flex-wrap">
-                    <span>{item.date}</span>
-                    <span>•</span>
-                    <span>{item.readTime}</span>
-                    <span>•</span>
-                    <span>{item.shares}</span>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-serif tracking-tight leading-tight group-hover:text-accent transition-colors">
+                    {finalArticles[0].title}
+                  </h3>
+                  <div className="pt-2">
+                    <span className="bg-white hover:bg-white/95 text-zinc-900 font-extrabold text-[10px] uppercase tracking-widest px-6 py-2.5 rounded-full shadow-sm transition-colors inline-block">
+                      READ MORE
+                    </span>
                   </div>
                 </div>
               </Link>
-            ))}
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col gap-6 justify-between">
+              {finalArticles.slice(1, 4).map((item: any) => (
+                <Link
+                  key={item.id}
+                  href={`/insights/${item.slug}`}
+                  className="group flex gap-4 items-center bg-card border border-border/40 rounded-lg p-3 shadow-sm hover:shadow-md hover:scale-[1.003] transition-all duration-300 no-underline h-full"
+                >
+                  <div className="w-24 h-20 sm:w-28 sm:h-24 md:w-32 md:h-24 lg:w-28 lg:h-22 xl:w-32 xl:h-24 overflow-hidden rounded bg-muted shrink-0">
+                    <img
+                      src={item.featured_image ?? ""}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
+                    <span className="text-[9px] font-extrabold text-accent uppercase tracking-widest block">
+                      {(Array.isArray(item.category) ? item.category[0] : item.category) ?? categoryLabel}
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-foreground font-serif leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h4>
+                    <div className="text-[8px] font-semibold text-muted-foreground/60 uppercase tracking-wider flex items-center gap-1 mt-0.5 flex-wrap">
+                      <span>{new Date(item.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }).toUpperCase()}</span>
+                      <span>•</span>
+                      <span>{"4 MINS READ"}</span>
+                      <span>•</span>
+                      <span>{"0 SHARES"}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* BRACKET DIVIDER: { LEGISLATIONS } */}
         <div className="flex items-center justify-center gap-6 mt-20 mb-12 w-full">
