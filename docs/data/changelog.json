@@ -861,6 +861,75 @@
       "evidence": [
         "scripts/migration-drift.mjs"
       ]
+    },
+    {
+      "id": "CH-075",
+      "date": "2026-11-21",
+      "type": "added",
+      "title": "Firm pages can carry practice areas and matters",
+      "detail": "chambers.focus was a single TEXT tagline, so a firm's practice areas existed only as an aggregate of its member lawyers — empty for a firm with no members, which is every firm today. Practice areas are now a chamber_specialties relation, backfilled from each focus line by exact taxonomy match, and chamber_matters holds cases, arbitrations, advisory and transactional work with court, suit number, citation, year, side, role and outcome. Naming a client requires recorded consent, enforced by a constraint; matters default to anonymised. The public page renders matters, links each area into search, and no longer shows \"0 Lawyers\".",
+      "evidence": [
+        "supabase/migrations/20261122000002_firm_areas_and_matters.sql",
+        "lib/directory/practice-areas.ts",
+        "components/directory/FirmMatters.tsx",
+        "app/directory/chamber/[id]/page.tsx"
+      ]
+    },
+    {
+      "id": "CH-076",
+      "date": "2026-11-21",
+      "type": "added",
+      "title": "Chambers bill per seat; membership became a real relation",
+      "detail": "Being in a firm was one mutable column (`lawyers.chamber_id`): no firm could add a lawyer, no lawyer could leave, and the price sheet's \"Maximum of 15 lawyers\" was copy. Added `chamber_members` (pending/active/ended history, one open membership per lawyer), `chamber_invites` (14-day token), `chambers.seat_limit`, and `chamber_accept_seat()` — a SECURITY DEFINER activation that row-locks the chamber so two accepts cannot take the same last seat. Firm plans now require the chamber they upgrade, charge price × seats and write `seat_limit`; renewal extends a running term. New Team & seats page, public \"request to join\", and leave/withdraw states.",
+      "evidence": [
+        "supabase/migrations/20261122000001_chamber_members_and_seats.sql",
+        "app/directory/actions/chamber-members.ts",
+        "app/directory/dashboard/chamber/team/page.tsx",
+        "components/directory/seat-checkout.tsx",
+        "lib/directory/seats.ts",
+        "lib/directory/entitlements.ts"
+      ]
+    },
+    {
+      "id": "CH-077",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "Account role was asked twice, then rewritten silently",
+      "detail": "Signup asked Lawyer/Client, the category cards asked again, and each form submission overwrote `profiles.role`: a client who applied as a law firm became `lawyer` silently, and `'chamber'` was a role the CHECK constraint forbids, so two branches could never run. Signup radios removed — the `/add-listing` category sets the role once, in `signup` and for OAuth in `auth/callback`; form-level writes deleted; a firm seat promotes `client → lawyer` only. Editing a listing no longer nulls `chamber_id` or resets verification, a delegate admin save no longer takes `chambers.user_id`, and a firm's gallery/video caps read the firm's plan.",
+      "evidence": [
+        "components/directory/auth/signup-form.tsx",
+        "app/directory/login/actions.ts",
+        "app/directory/auth/callback/route.ts",
+        "lib/directory/roles.ts",
+        "app/directory/actions/submit-listing.ts",
+        "app/directory/actions/save-chamber.ts"
+      ]
+    },
+    {
+      "id": "CH-076",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "Draft firm pages render with noindex instead of 404",
+      "detail": "The publish gate hid unpublished firms from every listing surface but the detail page returned 404 for them, so the only firm in the directory was unreachable by direct link. A draft now renders in full with a banner naming what is still missing, a complete/claim route, and robots noindex, follow. Discovery is still gated: search, the homepage and the sitemap all filter on published_at, so a draft is reachable but never indexed. The page also gained generateMetadata (title, description, canonical, OG) and the directory layout now sets metadataBase to the directory host, so canonicals no longer point at the news site.",
+      "evidence": [
+        "app/directory/chamber/[id]/page.tsx",
+        "app/directory/layout.tsx",
+        "lib/directory/api.ts"
+      ]
+    },
+    {
+      "id": "CH-077",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "Specialty taxonomy had drifted from the database",
+      "detail": "data/specialties.json, which drives the header, the category picker and search slug mapping, offered five ids the specialties table does not contain (banking-and-finance, mediation-and-arbitration, privacy-and-data-protection, dispute-resolution-law, commercial-law) and omitted intellectual property, maritime and taxation. Both junction tables point at the table, so the ids the UI offered could not be saved, and a firm could not record the area named in its own tagline. The two advertised-but-missing areas now exist, the JSON matches the table, and the focus backfill was corrected — it stripped the taxonomy suffix case-sensitively, so it had matched nothing and left chamber_specialties empty.",
+      "evidence": [
+        "supabase/migrations/20261122000002_firm_areas_and_matters.sql",
+        "supabase/migrations/20261122000003_backfill_chamber_areas_case.sql",
+        "supabase/migrations/20261122000004_align_specialties.sql",
+        "data/specialties.json",
+        "lib/directory/practice-areas.ts"
+      ]
     }
   ]
 }

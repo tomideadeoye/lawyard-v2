@@ -10,7 +10,7 @@ Single Next.js app with three route groups:
 lawyard-v2/
 ├── app/
 │   ├── (main)/         # lawyard.org — Media platform (articles, podcasts, TV, Corporate Posts)
-│   ├── admin/          # /admin — Dashboard (lawyer verification, content, subscribers)
+│   ├── admin/          # /admin — Dashboard (lawyer verification, content, subscribers, ads)
 │   └── directory/      # /directory — Legal marketplace (lawyers, chambers, search)
 ├── lib/                # Shared utilities, Supabase clients, API helpers
 ├── components/         # Shared UI components
@@ -137,6 +137,7 @@ Admin dashboard for managing lawyers, content, and subscribers.
 - **Lawyers Directory**: View, search, verify/reject
 - **Content Manager**: Articles, Podcasts, Corporate Posts tabs with approve/reject
 - **Subscribers**: View, search, export, broadcast
+- **Ads**: House inventory by placement, flight windows, 7/28-day delivery (views, clicks, CTR)
 - **Settings**: Auto-approve hours, brand press clash window from DB
 - **Auth**: Supabase Auth with admin role enforcement
 

@@ -40,6 +40,36 @@ export default async function ChamberPage() {
 
   const pressReleases = chamber ? await getPressReleasesForChamber(chamber.id) : [];
 
+  // Practice areas and matters live in their own tables, so the form has to be
+  // handed them alongside the chamber row.
+  const [areaRows, matterRows] = chamber
+    ? await Promise.all([
+        supabase.from('chamber_specialties').select('specialty_id').eq('chamber_id', chamber.id),
+        supabase.from('chamber_matters').select('*').eq('chamber_id', chamber.id).order('sort_order'),
+      ])
+    : [{ data: [] as { specialty_id: string }[] }, { data: [] as Record<string, unknown>[] }];
+
+  const initialAreas = (areaRows.data ?? []).map((row) => row.specialty_id as string);
+  const initialMatters = (matterRows.data ?? []).map((row) => {
+    const matter = row as Record<string, unknown>;
+    return {
+      title: (matter.title as string) ?? '',
+      kind: (matter.kind as string) ?? 'advisory',
+      practice_area_id: (matter.practice_area_id as string) ?? '',
+      court: (matter.court as string) ?? '',
+      suit_number: (matter.suit_number as string) ?? '',
+      citation: (matter.citation as string) ?? '',
+      year: matter.year == null ? '' : String(matter.year),
+      role: (matter.role as string) ?? '',
+      side: (matter.side as string) ?? '',
+      outcome: (matter.outcome as string) ?? '',
+      summary: (matter.summary as string) ?? '',
+      client_name: (matter.client_name as string) ?? '',
+      client_consent: matter.client_consent === true,
+      visibility: (matter.visibility as string) ?? 'anonymised',
+    };
+  });
+
   // A lawyer who holds a seat but does not manage the firm gets a member view,
   // not "create a firm" — the seat is theirs, the page is not.
   if (!chamber) {
@@ -162,7 +192,7 @@ export default async function ChamberPage() {
         </div>
       )}
 
-      <ChamberForm initial={chamber} />
+      <ChamberForm initial={chamber ? { ...chamber, practice_area_ids: initialAreas, matters: initialMatters } : null} />
 
       {chamber && (
         <div className="pt-8 border-t border-border/40 space-y-5">

@@ -1,9 +1,13 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getChamberById } from '@/lib/directory/api';
+import { derivePracticeAreas, type PracticeArea } from '@/lib/directory/practice-areas';
+import { chamberPublishCheck } from '@/lib/directory/publishability';
 import { ListingAvatar } from '@/components/directory/ListingAvatar';
 import RequestSeat from '@/components/directory/request-seat';
+import FirmMatters, { type MatterRow } from '@/components/directory/FirmMatters';
 import { TERMS } from '@/lib/constants';
 
 interface ChamberLawyer {
@@ -15,7 +19,31 @@ interface ChamberLawyer {
   rating: number;
   reviews_count: number;
   location: string | null;
-  specialties: { specialty: { name: string } | null }[];
+  specialties: { specialty: { name: string; slug: string } | null }[];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const chamber = await getChamberById(id);
+
+  if (!chamber) return { title: 'Firm not found' };
+
+  // `published_at` is null for a draft. Drafts stay reachable by direct link
+  // but must never enter an index — a page nobody has filled in should not be
+  // the search result for the firm's name.
+  const isDraft = !chamber.published_at;
+  const title = chamber.focus ? `${chamber.name} — ${chamber.focus}` : chamber.name;
+  const description =
+    (chamber.description ?? '').trim().slice(0, 160) ||
+    `${chamber.name}${chamber.location ? `, ${chamber.location}` : ''}. Practice areas and selected matters on Lawyard Directory.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/chamber/${id}` },
+    robots: isDraft ? { index: false, follow: true } : undefined,
+    openGraph: { title, description, type: 'profile', url: `/chamber/${id}` },
+  };
 }
 
 export default async function ChamberPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,16 +51,38 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
   const chamber = await getChamberById(id);
   if (!chamber) notFound();
 
+  const isDraft = !chamber.published_at;
+
   const supabase = await createClient();
 
   const { data: lawyers } = await supabase
     .from('lawyers')
     .select(`
       id, name, role, image_url, verification_status, rating, reviews_count, location,
-      specialties:lawyer_specialties(specialty:specialties(name))
+      specialties:lawyer_specialties(specialty:specialties(name, slug))
     `)
     .eq('chamber_id', id)
     .returns<ChamberLawyer[]>();
+
+  // Practice areas are a relation now. `chambers.focus` is only the tagline, so
+  // a firm with no members still gets areas — parsed from focus until an editor
+  // saves the canonical list.
+  const { data: areaRows } = await supabase
+    .from('chamber_specialties')
+    .select('specialty:specialties(name, slug)')
+    .eq('chamber_id', id);
+
+  const { data: matterRows } = await supabase
+    .from('chamber_matters')
+    .select('id, title, kind, court, suit_number, citation, year, role, side, outcome, summary, client_name, visibility, is_verified')
+    .eq('chamber_id', id)
+    .neq('visibility', 'private')
+    .order('year', { ascending: false, nullsFirst: false })
+    .order('sort_order', { ascending: true })
+    .limit(20);
+
+  const matters = (matterRows ?? []) as MatterRow[];
+
 
   const { data: pressReleases } = await supabase
     .from('articles')
@@ -59,15 +109,52 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
     seatState = seat?.status === 'active' ? 'member' : seat?.status === 'pending' ? 'pending' : 'eligible'
   }
 
-  // Aggregate practice areas across all member lawyers
-  const practiceAreas = new Map<string, number>();
-  const verifiedCount = lawyers?.filter((l) => l.verification_status === 'verified').length ?? 0;
+  // A draft is reachable by direct link, so it has to say so. Owners get a way
+  // to finish it; everyone else gets a claim route.
+  let canEdit = false
+  if (isDraft && user) {
+    if (chamber.user_id === user.id) {
+      canEdit = true
+    } else {
+      const { data: adminRow } = await supabase
+        .from('chamber_admins')
+        .select('chamber_id')
+        .eq('chamber_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      canEdit = !!adminRow
+    }
+  }
+
+  // Practice areas come from three sources, in order of authority: the saved
+  // relation, the tagline, then what the member lawyers actually practise.
+  const areaMap = new Map<string, PracticeArea & { count: number }>();
+  const addArea = (area: PracticeArea | null, count = 0) => {
+    if (!area) return;
+    const existing = areaMap.get(area.slug);
+    if (existing) {
+      existing.count += count;
+      return;
+    }
+    areaMap.set(area.slug, { ...area, count });
+  };
+
+  (areaRows ?? []).forEach((row) => {
+    const specialty = (row as unknown as { specialty?: { name: string; slug: string } | null }).specialty;
+    if (specialty) addArea({ id: specialty.slug, name: specialty.name, slug: specialty.slug });
+  });
+  derivePracticeAreas(chamber.focus).forEach((area) => addArea(area));
   (lawyers ?? []).forEach((l) => {
     (l.specialties ?? []).forEach((s) => {
-      const name = s.specialty?.name;
-      if (name) practiceAreas.set(name, (practiceAreas.get(name) ?? 0) + 1);
+      const specialty = s.specialty;
+      if (specialty) addArea({ id: specialty.slug, name: specialty.name, slug: specialty.slug }, 1);
     });
   });
+
+  const areas = [...areaMap.values()];
+  const verifiedCount = lawyers?.filter((l) => l.verification_status === 'verified').length ?? 0;
+
+  const publishCheck = chamberPublishCheck({ ...chamber, matters: matters.length, practiceAreas: areas.length });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -82,6 +169,23 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
         >
           &larr; Back to Directory
         </Link>
+
+        {/* Draft banner */}
+        {isDraft && (
+          <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
+            <span className="font-bold uppercase tracking-wider">Draft</span>
+            <span>
+              This profile is not published yet.
+              {publishCheck.blockers.length > 0 && ` Still needed: ${publishCheck.blockers.join(', ')}.`}
+            </span>
+            <Link
+              href={canEdit ? '/dashboard/chamber' : '/add-listing?category=chamber'}
+              className="font-bold underline underline-offset-2 hover:no-underline"
+            >
+              {canEdit ? 'Complete it in your dashboard' : 'Is this your firm? Claim it'}
+            </Link>
+          </div>
+        )}
 
         {/* Hero Card */}
         <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md overflow-hidden">
@@ -104,14 +208,22 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
                   {chamber.location}
                 </span>
               )}
-              <span className="flex items-center gap-1.5">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/></svg>
-                {lawyers?.length ?? 0} {(lawyers?.length ?? 0) === 1 ? 'Lawyer' : 'Lawyers'}
-              </span>
-              {practiceAreas.size > 0 && (
+              {(lawyers?.length ?? 0) > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/></svg>
+                  {lawyers!.length} {lawyers!.length === 1 ? 'Lawyer' : 'Lawyers'}
+                </span>
+              )}
+              {areas.length > 0 && (
                 <span className="flex items-center gap-1.5">
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 0C4 2.2 5.8 4 8 4s4-1.8 4-4h2v16H2V0h2zm3 8H3v6h4V8zm6 0H9v6h4V8z"/></svg>
-                  {practiceAreas.size} {(practiceAreas.size === 1) ? 'Practice Area' : 'Practice Areas'}
+                  {areas.length} {areas.length === 1 ? 'Practice Area' : 'Practice Areas'}
+                </span>
+              )}
+              {matters.length > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1h12a1 1 0 011 1v2H1V2a1 1 0 011-1zM1 5h14v9a1 1 0 01-1 1H2a1 1 0 01-1-1V5zm4 3v2h6V8H5z"/></svg>
+                  {matters.length} {matters.length === 1 ? 'Matter' : 'Matters'}
                 </span>
               )}
               {verifiedCount > 0 && (
@@ -138,22 +250,26 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
             )}
 
             {/* Practice Areas */}
-            {practiceAreas.size > 0 && (
+            {areas.length > 0 && (
               <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
                 <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Practice Areas</h2>
                 <div className="flex flex-wrap gap-2">
-                  {[...practiceAreas.entries()].map(([name, count]) => (
-                    <span
-                      key={name}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-xs font-bold border border-[#a77c5c]/20"
+                  {areas.map((area) => (
+                    <Link
+                      key={area.slug}
+                      href={`/search?specialty=${area.slug}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-xs font-bold border border-[#a77c5c]/20 hover:bg-[#a77c5c]/20 transition-colors no-underline"
                     >
-                      {name}
-                      <span className="text-[10px] opacity-60">({count})</span>
-                    </span>
+                      {area.name}
+                      {area.count > 0 && <span className="text-[10px] opacity-60">({area.count})</span>}
+                    </Link>
                   ))}
                 </div>
               </section>
             )}
+
+            {/* Selected Matters */}
+            <FirmMatters matters={matters} />
 
             {/* Intro Video */}
             {chamber.intro_video_url && (
@@ -335,20 +451,28 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
               <h3 className="text-sm font-bold mb-3">Quick Info</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Lawyers</span>
-                  <span className="font-medium">{lawyers?.length ?? 0}</span>
-                </div>
+                {(lawyers?.length ?? 0) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Lawyers</span>
+                    <span className="font-medium">{lawyers!.length}</span>
+                  </div>
+                )}
                 {verifiedCount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Verified</span>
                     <span className="font-medium text-emerald-600">{verifiedCount}</span>
                   </div>
                 )}
-                {practiceAreas.size > 0 && (
+                {areas.length > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Practice Areas</span>
-                    <span className="font-medium">{practiceAreas.size}</span>
+                    <span className="font-medium">{areas.length}</span>
+                  </div>
+                )}
+                {matters.length > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Matters listed</span>
+                    <span className="font-medium">{matters.length}</span>
                   </div>
                 )}
                 {chamber.is_featured && (

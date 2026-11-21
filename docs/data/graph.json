@@ -129,6 +129,13 @@
       "detail": "Kredete post showed its own markup — render the body, then make rendering it safe"
     },
     {
+      "id": "S-2026-11-21-18",
+      "type": "session",
+      "label": "Does the category chosen on /add-listing do anything after signup, and how is a law fir…",
+      "date": "2026-11-21",
+      "detail": "Firms had no teams — seats, invites, and one answer about what an account is"
+    },
+    {
       "id": "CH-001",
       "type": "change",
       "label": "Per-account coupon caps",
@@ -716,6 +723,30 @@
       "id": "CH-074",
       "type": "change",
       "label": "`check:migrations` called a duplicate version clean",
+      "date": "2026-11-21",
+      "detail": "fixed",
+      "status": "fixed"
+    },
+    {
+      "id": "CH-075",
+      "type": "change",
+      "label": "Firm pages can carry practice areas and matters",
+      "date": "2026-11-21",
+      "detail": "added",
+      "status": "added"
+    },
+    {
+      "id": "CH-076",
+      "type": "change",
+      "label": "Chambers bill per seat; membership became a real relation",
+      "date": "2026-11-21",
+      "detail": "added",
+      "status": "added"
+    },
+    {
+      "id": "CH-077",
+      "type": "change",
+      "label": "Account role was asked twice, then rewritten silently",
       "date": "2026-11-21",
       "detail": "fixed",
       "status": "fixed"
@@ -2100,6 +2131,11 @@
     },
     {
       "from": "CH-070",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-070",
       "to": "D13",
       "kind": "fixes"
     },
@@ -2114,8 +2150,18 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-071",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
       "from": "CH-072",
       "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-072",
+      "to": "S-2026-11-21-18",
       "kind": "logged-in"
     },
     {
@@ -2124,8 +2170,48 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-073",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
       "from": "CH-074",
       "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-074",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-075",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-075",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-076",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-076",
+      "to": "S-2026-11-21-18",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-077",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-077",
+      "to": "S-2026-11-21-18",
       "kind": "logged-in"
     },
     {
@@ -2721,6 +2807,16 @@
     {
       "from": "S-2026-11-21-17",
       "to": "F-56",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-18",
+      "to": "F-09",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-18",
+      "to": "F-39",
       "kind": "touches"
     }
   ]

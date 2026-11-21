@@ -51,7 +51,8 @@ Do this before anything else:
 1. Mirror the uploads directory to durable storage — Supabase Storage (already
    provisioned) or Vercel Blob.
 2. Rewrite every `featured_image` (and any inline `<img src>` inside article
-   `content`) to the new host.
+   `content`) to the new host. **Ad creatives count too** — the seeded
+   `ad_slots.image_url` values point at the same WordPress uploads.
 3. Keep the old `wp-content/uploads/**` paths answering for at least 12 months
    via a redirect rule, so external backlinks and social embeds do not rot.
 
@@ -62,6 +63,10 @@ remaining `www.lawyard.org` image reference as a release blocker:
 select count(*) from articles
 where status = 'published' and featured_image like 'https://www.lawyard.org%';
 -- must be 0 before cutover
+
+select count(*) from ad_slots
+where image_url like 'https://www.lawyard.org%';
+-- must be 0 before cutover, or the sold banners break with the news site
 ```
 
 ---
@@ -189,6 +194,7 @@ and record it here.
 ## 7. Before you flip: definition of done
 
 - [ ] `select count(*) from articles where featured_image like 'https://www.lawyard.org%'` = 0
+- [ ] `select count(*) from ad_slots where image_url like 'https://www.lawyard.org%'` = 0
 - [ ] `/sitemap.xml` returns XML with >10k URLs; `/robots.txt` points at it
 - [ ] 20 sampled WordPress URLs 301 to the right new URL
 - [ ] Paystack webhook delivers to the new host (one live test transaction)

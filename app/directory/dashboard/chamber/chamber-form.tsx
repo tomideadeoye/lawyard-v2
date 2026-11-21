@@ -9,6 +9,8 @@ import FaqEditor from '@/components/directory/forms/listing/FaqEditor';
 import GalleryUpload from '@/components/directory/forms/listing/GalleryUpload';
 import WorkingHoursEditor from '@/components/directory/forms/listing/WorkingHoursEditor';
 import IntroVideoField from '@/components/directory/forms/listing/IntroVideoField';
+import MattersEditor, { type MatterDraft } from '@/components/directory/forms/listing/MattersEditor';
+import CategoryMultiselect from '@/components/directory/forms/CategoryMultiselect';
 
 interface FormState {
   name: string;
@@ -22,6 +24,8 @@ interface FormState {
   faqs: { question: string; answer: string }[];
   gallery_images: string[];
   intro_video_url: string;
+  practice_area_ids: string[];
+  matters: MatterDraft[];
 }
 
 export default function ChamberForm({ initial }: { initial: ChamberData | null }) {
@@ -38,6 +42,8 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
     faqs: initial?.faqs || [],
     gallery_images: initial?.gallery_images || [],
     intro_video_url: initial?.intro_video_url || '',
+    practice_area_ids: initial?.practice_area_ids || [],
+    matters: initial?.matters || [],
   });
   const [saving, setSaving] = useState(false);
 
@@ -86,7 +92,17 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
 
       <Field label="Focus Areas">
         <input value={form.focus} onChange={e => update('focus', e.target.value)} placeholder="e.g. Corporate, Energy & Dispute Resolution" className={inputClass} />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          A one-line tagline for the page. The practice areas below are what the directory filters on.
+        </p>
       </Field>
+
+      <div>
+        <label className="text-xs uppercase tracking-wider text-[#a77c5c] font-bold">Practice Areas</label>
+        <div className="mt-1">
+          <CategoryMultiselect value={form.practice_area_ids} onChange={v => update('practice_area_ids', v)} />
+        </div>
+      </div>
 
       <Field label="Description">
         <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={4} className={`${inputClass} resize-y`} />
@@ -107,6 +123,8 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
       <WorkingHoursEditor value={form.working_hours} onChange={v => update('working_hours', v)} />
 
       <FaqEditor items={form.faqs} onChange={v => update('faqs', v)} />
+
+      <MattersEditor items={form.matters} onChange={v => update('matters', v)} />
 
       <GalleryUpload
         value={form.gallery_images}
@@ -163,4 +181,6 @@ interface ChamberData {
   faqs?: { question: string; answer: string }[];
   gallery_images?: string[];
   intro_video_url?: string;
+  practice_area_ids?: string[];
+  matters?: MatterDraft[];
 }

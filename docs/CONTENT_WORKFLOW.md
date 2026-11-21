@@ -39,7 +39,7 @@ All three converge on: **Supabase → Slack notification with Approve/Deny → W
 | Auth detection | `app/actions/corporate-posts.ts` | Checks if user is logged in — captures `author_id`, `submitterName` for lawyers |
 | Clash detection | `app/actions/corporate-posts.ts` | Checks 60-min window around scheduled date for conflicts |
 | Coupon/Payment | `app/actions/corporate-posts.ts` | Validates coupon, routes to Paystack or free submission |
-| Create | `app/actions/corporate-posts.ts` → `submitCorporatePost()` | Inserts article + transaction record, sends Slack notification |
+| Create | `app/actions/corporate-posts.ts` → `submitCorporatePost()` | Sanitises the submitted HTML (`lib/sanitize.ts` — editor tag allowlist, safe URL schemes, forced `rel`), inserts article + transaction record, sends Slack notification |
 | Slack | `lib/slack.ts` → `postCorporatePostToSlackWithButtons()` | Shows submitter name if lawyer, brand + tier info |
 | Approve | `app/api/slack/interactions/route.ts` → `approve_corporate_post` | Calls `publishCorporatePostToWordPress()`, sends approval email |
 | WordPress | `lib/wordpress.ts` → `publishCorporatePostToWordPress()` | Author: 4 (Lawyard Staff), Category: 7358 (Corporate Posts), Tags: `corporate-posts`, brand name, tier. Meta: `brand_name`, `tier`, `contact_email`, `author_name` |

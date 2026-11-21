@@ -7,6 +7,8 @@
  * that cannot rank and cannot convert.
  */
 export const MIN_DESCRIPTION = 120;
+/** Matters are the alternative to a written description: facts instead of prose. */
+export const MIN_MATTERS = 3;
 
 export interface PublishableChamber {
   name?: string | null;
@@ -18,6 +20,10 @@ export interface PublishableChamber {
   website?: string | null;
   image_url?: string | null;
   gallery_images?: string[] | null;
+  /** Number of matters listed; a firm can publish on matters alone. */
+  matters?: number | null;
+  /** Saved practice areas. A firm can publish on these without a tagline. */
+  practiceAreas?: number | null;
 }
 
 export interface PublishCheck {
@@ -30,11 +36,21 @@ export interface PublishCheck {
 const filled = (value?: string | null) => Boolean(value && value.trim().length > 0);
 
 export function chamberPublishCheck(chamber: PublishableChamber): PublishCheck {
+  const matterCount = chamber.matters ?? 0;
+
   const checks: Array<{ key: string; ok: boolean; label: string }> = [
     { key: "name", ok: filled(chamber.name), label: "Firm name" },
-    { key: "description", ok: (chamber.description ?? "").trim().length >= MIN_DESCRIPTION, label: `Description (${MIN_DESCRIPTION}+ characters)` },
+    {
+      key: "substance",
+      ok: (chamber.description ?? "").trim().length >= MIN_DESCRIPTION || matterCount >= MIN_MATTERS,
+      label: `A description (${MIN_DESCRIPTION}+ characters) or ${MIN_MATTERS} matters`,
+    },
     { key: "location", ok: filled(chamber.location), label: "Location" },
-    { key: "focus", ok: filled(chamber.focus), label: "Practice areas" },
+    {
+      key: "focus",
+      ok: filled(chamber.focus) || (chamber.practiceAreas ?? 0) > 0,
+      label: "Practice areas",
+    },
     { key: "contact", ok: filled(chamber.email) || filled(chamber.phone), label: "A contact email or phone" },
     {
       key: "image",

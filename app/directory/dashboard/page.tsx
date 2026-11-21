@@ -64,6 +64,15 @@ export default async function DirectoryDashboardPage() {
     ...podcasts.map(p => ({ type: 'podcast' as const, id: p.id, title: p.title, status: p.status, date: p.created_at })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
 
+  const verificationLabel =
+    lawyer?.verification_status === 'verified'
+      ? 'Verified'
+      : lawyer?.verification_status === 'rejected'
+        ? 'Changes needed'
+        : lawyer?.verification_status
+          ? 'Under review'
+          : 'Not submitted';
+
   return (
     <div className="space-y-8 animate-fade-in px-4 sm:px-6">
       <WelcomeBanner createdAt={user.created_at} />
@@ -102,7 +111,7 @@ export default async function DirectoryDashboardPage() {
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{isLawyer ? 'Verification' : 'Spent'}</span>
-              <p className="text-sm font-semibold">{isLawyer ? (lawyer?.verification_status || '—') : `₦${totalSpent.toLocaleString()}`}</p>
+              <p className="text-sm font-semibold">{isLawyer ? verificationLabel : `₦${totalSpent.toLocaleString()}`}</p>
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Member Since</span>
@@ -113,6 +122,31 @@ export default async function DirectoryDashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {isLawyer && lawyer?.verification_status !== 'verified' && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold">
+                {lawyer?.verification_status === 'rejected'
+                  ? 'Your listing needs changes before it can go live'
+                  : 'Your listing is under review'}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Profiles appear in search and the directory only after verification, so clients cannot find you yet.
+                {lawyer?.verification_status === 'rejected'
+                  ? ' Update the details below and resubmit.'
+                  : ' We review new listings as they come in.'}
+              </p>
+            </div>
+            <Link href="/dashboard/profile">
+              <Button size="sm" variant="outline" className="text-xs">
+                Review your profile
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {isLawyer ? (
         <>

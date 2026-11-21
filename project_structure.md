@@ -10,6 +10,8 @@ lawyard-v2/
 │   ├── not-found.tsx           # Global 404
 │   ├── feed.xml/route.ts       # RSS feed
 │   ├── sitemap.xml/route.ts    # Sitemap
+│   ├── ads/click/[id]/route.ts # Ad click counter, then 302 to the advertiser
+│   ├── api/ads/impression/     # Impression beacon endpoint (POST, silent)
 │   ├── fonts/                  # GeistVF.woff, GeistMonoVF.woff
 │   ├── actions/                # Shared server actions (corporate-posts, newsletter, shop)
 │   │
@@ -37,7 +39,8 @@ lawyard-v2/
 │   │   ├── content/            # page.tsx, content-filter, create-dialog
 │   │   ├── lawyers/            # page.tsx, lawyers-filters, edit-dialog
 │   │   ├── subscribers/        # page.tsx, subscribers-client, actions
-│   │   ├── actions.ts          # verifyLawyer, rejectLawyer
+│   │   ├── ads/                # House ad inventory + delivery report
+│   │   ├── actions.ts          # verifyLawyer, rejectLawyer, ad CRUD
 │   │   └── not-found.tsx
 │   │
 │   └── directory/              # Route group: /directory legal marketplace
@@ -91,6 +94,10 @@ lawyard-v2/
 │   │   ├── lawyers-filters.tsx
 │   │   └── subscribers-client.tsx
 │   │
+│   ├── ads/                    # House ads
+│   │   ├── ad-slot.tsx         # Server-rendered slot (creative or nothing)
+│   │   └── ad-beacon.tsx       # Counts an impression when the creative is seen
+│   │
 │   └── directory/              # Directory-specific components
 │       ├── Header.tsx, Footer.tsx, HeroSearchBar.tsx
 │       ├── NavDropdown.tsx, ListingAvatar.tsx, ComingSoon.tsx
@@ -102,6 +109,9 @@ lawyard-v2/
 │
 ├── lib/                        # Shared utilities & API helpers
 │   ├── utils.ts                # cn() utility
+│   ├── ads.ts                  # Ad slots: live-window, destination, totals
+│   ├── sanitize.ts             # Stored-HTML allowlist (write + read)
+│   ├── images.ts               # coverUrl / placeholder for legacy covers
 │   ├── corporate-posts.json        # Corporate Posts tier config
 │   ├── legislations.ts
 │   │
@@ -207,6 +217,9 @@ lawyard-v2/
 | `/admin/content` | admin | Content manager |
 | `/admin/lawyers` | admin | Lawyer directory |
 | `/admin/subscribers` | admin | Newsletter subscribers |
+| `/admin/ads` | admin | House ad inventory + delivery (7/28-day) |
+| `/ads/click/[id]` | — | Ad click counter, then 302 to the advertiser |
+| `/api/ads/impression` | — | Impression beacon endpoint |
 | `/directory` | directory | Homepage |
 | `/directory/search` | directory | Lawyer search |
 | `/directory/lawyer/[id]` | directory | Lawyer profile |
@@ -217,6 +230,10 @@ lawyard-v2/
 | `/directory/signup` | directory | Signup |
 | `/directory/pricing` | directory | Pricing page |
 | `/directory/add-listing` | directory | Listing wizard |
+| `/directory/corporate-posts` | directory | Corporate Posts listing |
+| `/directory/corporate-posts/[slug]` | directory | Corporate Post article |
+| `/directory/insights/[slug]` | directory | Article (directory host) |
+| `/directory/knowledge/[slug]` | directory | Knowledge article |
 
 ---
 

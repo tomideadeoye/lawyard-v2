@@ -31,7 +31,7 @@
 
 **Seven migrations APPLIED to production** (`20261016000001..07`): hide_price · post caps/credits · service_requests · intro-videos bucket · chambers parity · lens courses (AI Governance seeded ₦200k/₦150k) · chamber_admins — verified via REST read-back. Schema and code match; `pnpm run check:migrations` is the gate (40, in sync).
 
-**Still open from the changeset:** C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build" — stay on Supabase). ⚠ **Corporate-posts Basic tier still on test price ₦100** — revert once real prices land.
+**Still open from the changeset:** C01/C04/C21 (need Tobi's figures), C13 (intent unclear), C19 (decided "no build" — stay on Supabase). ⚠ **Corporate-posts Basic tier still on test price ₦100** — revert once real prices land. Ad inventory now lives in `ad_slots` (`/admin/ads`) with first-party delivery counts; see `docs/OPERATIONS.md` §1.
 
 ## 2. The 18 Oct call — what Tobi actually wants
 
@@ -134,6 +134,8 @@ pnpm run docs:ask      # print the open questions for Tobi
 - [ ] Get Tobi's verdict on C13 (remove directory attribution?) and C21 (silver contents) — the two undecided items
 - [ ] Confirm the Brevo email hook is **enabled** in Supabase dashboard (Auth → Hooks) — magic-link/reset emails depend on it; no management token to read it programmatically
 - [ ] Revert corporate-posts Basic tier from test price ₦100 once real prices land
+- [ ] **Repoint the seeded ad creatives** — `ad_slots.image_url` still points at `www.lawyard.org/wp-content/...`; copy them into Supabase Storage before WordPress is retired (`docs/CUTOVER.md` §1 has the SQL check)
+- [ ] **Push the pending migration** `20261121000004_chamber_publish_gate.sql` (written by the chamber session, unapplied — `pnpm check:migrations` reports it)
 - [ ] End-to-end smoke test: course checkout, PR publish → Slack review, service-request payment
 - [ ] **Fix D1 — plans priced in NGN**: `plans` is still seeded with dollar-era values but formatted as NGN, so every plan page shows ₦20/₦2 (`20260629000002`; no currency column). Needs Tobi's Q2–Q6 figures; add a currency column while doing it
 - [ ] **Fix D2 — gallery caps**: pass `isFirm` at `submit-listing.ts:65,74` and validate the chamber form server-side (it currently writes straight from the browser client)

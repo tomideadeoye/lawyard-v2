@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { chamberPublishCheck, MIN_DESCRIPTION } from "@/lib/directory/publishability";
+import { chamberPublishCheck, MIN_DESCRIPTION, MIN_MATTERS } from "@/lib/directory/publishability";
 
 // A firm may be registered by an administrator who is not a lawyer, so a member
 // lawyer is deliberately not required. These are the other gates.
@@ -40,6 +40,17 @@ describe("chamberPublishCheck", () => {
 
   it("blocks a description that is too short to be useful", () => {
     const result = chamberPublishCheck({ ...complete, description: "We are a law firm." });
+    expect(result.ready).toBe(false);
+    expect(result.blockers.join(" ")).toMatch(/description/i);
+  });
+
+  it("accepts listed matters in place of a written description", () => {
+    const result = chamberPublishCheck({ ...complete, description: null, matters: MIN_MATTERS });
+    expect(result.ready).toBe(true);
+  });
+
+  it("still blocks a firm with a token description and too few matters", () => {
+    const result = chamberPublishCheck({ ...complete, description: null, matters: MIN_MATTERS - 1 });
     expect(result.ready).toBe(false);
     expect(result.blockers.join(" ")).toMatch(/description/i);
   });

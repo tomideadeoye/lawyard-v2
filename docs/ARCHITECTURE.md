@@ -27,6 +27,20 @@ Legal directory + legal media platform for Nigeria. Dual-site on a single Vercel
 - Middleware also handles host rewrite via `x-forwarded-host`
 - Production URL: `https://directory.lawyard.org`
 
+## Article rendering
+
+Article bodies are stored as editor HTML, and two rules hold everywhere they are rendered:
+
+- **Sanitise on write, and again on read.** `lib/sanitize.ts` (`sanitizeRichHtml`) keeps only the tags the Tiptap editor can produce, limits URL schemes to `http`/`https`/`mailto`/`tel`, forces `rel="noopener noreferrer nofollow"` on links and drops the empty paragraphs the editor leaves behind. `lib/sanitize.test.ts` covers the cases that matter.
+- **Render through `dangerouslySetInnerHTML`.** Passing stored HTML as a React child escapes it — a Corporate Post once printed its own markup to readers because of exactly that. `.prose` styling comes from `@tailwindcss/typography`, configured once in `app/globals.css`.
+
+## Advertising
+
+- Inventory is data: `ad_slots` holds placement, creative, destination, flight window and intrinsic image size; `/admin/ads` is the only editor.
+- `components/ads/ad-slot.tsx` is a server component — it resolves the live creative (highest weight, inside its flight window) and renders nothing when there is none.
+- Delivery is counted first-party: clicks through `/ads/click/[id]` (counted server-side, destination re-validated), impressions through a viewport beacon to `/api/ads/impression`. Both write to `ad_events` as a daily rollup via `record_ad_event`.
+- AdSense stays authorised through `public/ads.txt` but is not wired into a page; see `docs/OPERATIONS.md` §1 for the decision.
+
 ## Auth Flow
 **4-hop Delayed Auth Chain** preserves user journey through signup:
 1. `/directory/add-listing` → `/directory/signup?redirect=...&category=X`

@@ -213,7 +213,7 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
   let { data: chambers, error } = await query;
 
   if (error && /published_at/i.test(error.message)) {
-    console.warn('chambers.published_at is missing — apply 20261121000002_chamber_publish_gate.sql');
+    console.warn('chambers.published_at is missing — apply 20261121000004_chamber_publish_gate.sql');
     ({ data: chambers, error } = await plainQuery());
   }
 
@@ -241,23 +241,26 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
   return formattedData;
 }
 
+/**
+ * A firm page is readable by direct link even while it is a draft, so the firm
+ * can share it and search engines are told not to index it (the page sets
+ * `noindex`). Listing surfaces — search, homepage, sitemap — filter drafts out
+ * via `published_at`, so a draft is not discoverable, only reachable.
+ */
 export async function getChamberById(id: string) {
   const supabase = await createClient();
-  const gated = await supabase
+  const { data, error } = await supabase
     .from('chambers')
     .select('*')
     .eq('id', id)
-    .not('published_at', 'is', null)
-    .single();
+    .maybeSingle();
 
-  if (!gated.error) return gated.data ?? null;
-
-  if (/published_at/i.test(gated.error.message)) {
-    const fallback = await supabase.from('chambers').select('*').eq('id', id).single();
-    return fallback.data ?? null;
+  if (error) {
+    console.error('Error fetching chamber by ID:', error.message);
+    return null;
   }
 
-  return null;
+  return data ?? null;
 }
 
 export async function getArticles(options: { authorId?: string; limit?: number } = {}) {

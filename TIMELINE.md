@@ -469,6 +469,41 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 
 ---
 
+## 2026-11-21 — Firms had no teams — seats, invites, and one answer about what an account is
+
+### Focus
+Does the category chosen on /add-listing do anything after signup, and how is a law firm supposed to add its lawyers? Tracing the auth chain showed the category was pure UI state with a four-hop journey, while firm membership was a column nobody could write from the UI.
+
+### What Changed
+- **Membership is a row, not a column**: `chamber_members` holds a seat with history (pending/active/ended, who invited, who ended), one open membership per lawyer. `lawyers.chamber_id` stays only as a read cache, written by `chamber_accept_seat()` / cleared by `chamber_end_seat()`.
+- **Seats are enforced where they are spent**: `chambers.seat_limit` is what the firm bought. Activation row-locks the chamber, counts active seats and refuses at the cap with `seat_limit_reached`; the firm gets a buy-more prompt instead of a silent failure. Per-seat checkout charges price × seats and re-clamps the count server-side.
+- **Join and leave both exist**: Invite by email (Brevo, plus a copy-link for WhatsApp), accept in one click, self-request from the public firm page, approve/decline on Team & seats, leave or be removed without losing the listing. Leaving or a lapsed firm subscription drops the firm-conferred tier only.
+- **One answer about the account**: `profiles.role` stays client | lawyer | admin; firm ownership is a membership, not a role, so a managing partner can be both. Signup radios deleted; the /add-listing category sets the role in `signup` and in `auth/callback` for OAuth; the silent role flip on form submission is gone.
+- **Firm checkout stopped taking money for nothing**: `paystack-button` never sent `chamber_id`, and `verifyPayment` only upgrades a chamber when it has one — so an Enterprise purchase recorded a receipt and provisioned nothing. Checkout now requires the chamber, verifies the caller manages it, and terms follow the plan (90 days for client plans, was a hardcoded 365).
+
+### Next Steps
+1. Apply `20261122000001_chamber_members_and_seats.sql` (`pnpm migrations:push` / `supabase db push`) — the features are inert until it runs.
+2. Tobi's firm numbers: price per seat per year, and the Enterprise annual figure (Q6/Q9). Until they land the firm card shows "Contact sales" and checkout stays off.
+3. Split the 06:43 commit: `e5e7279` ("feat(observability)") swept in `seats.ts`, `entitlements.ts`, `save-chamber.ts`, `submit-listing.ts` and the migration under an unrelated message.
+
+### Verification
+- `tsc --noEmit` clean; `vitest run lib/directory` 21/21 (effective tier, seat state, seat clamping); `eslint` 0 errors on every touched file.
+- Firm tab renders in dark at 1280px with no horizontal overflow, price unit reads "Per seat / year", free tier "Owner seat included"; signup shows 0 role radios and the contextual account line; `/invite/<bad-token>` renders its unavailable state.
+- Not yet exercised end to end: the three new tables and two functions are unapplied, so activation, invites and seat enforcement have not run against a real database.
+
+### Rationale
+- The category question and the firm question are the same model. A `role` column cannot say "lawyer who owns a firm", which is why adding `'chamber'` to the constraint would have forced a false choice and re-created the silent flip.
+- Seat accounting belongs in the database, not the action: the count and the activation have to share a lock or two accepts can both take the last seat.
+- A firm seat is only worth paying for if it confers the firm's tier, so entitlement became `max(own plan, firm plan)` in one helper instead of five scattered reads of `profiles.subscription_tier`.
+
+### Related Files
+- `supabase/migrations/20261122000001_chamber_members_and_seats.sql` · `lib/directory/seats.ts` · `lib/directory/entitlements.ts` · `lib/directory/roles.ts`
+- `app/directory/actions/chamber-members.ts` · `app/directory/actions/payments.ts` · `app/directory/actions/save-chamber.ts` · `app/directory/actions/submit-listing.ts`
+- `app/directory/dashboard/chamber/team/{page,team-client}.tsx` · `app/directory/invite/[token]/{page,accept-invite}.tsx` · `components/directory/{seat-checkout,request-seat}.tsx`
+- `app/directory/pricing/page.tsx` · `components/directory/paystack-button.tsx` · `app/directory/chamber/[id]/page.tsx` · `components/directory/auth/signup-form.tsx` · `app/directory/auth/callback/route.ts`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.
