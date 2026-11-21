@@ -4,6 +4,8 @@ import SearchFilters from "@/components/directory/search/SearchFilters";
 import { LawyerCard } from "@/components/directory/LawyerCard";
 import { Lawyer, Specialty } from '@/lib/api';
 import { createClient } from '@/lib/supabase/server';
+import Link from 'next/link';
+import { TERMS } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +28,7 @@ export default async function SearchPage(props: SearchPageProps) {
 
   let bookmarkedIds: string[] = []
   let isAuthenticated = false
+  let hasAnyListing = false
 
   try {
     const supabase = await createClient()
@@ -40,6 +43,16 @@ export default async function SearchPage(props: SearchPageProps) {
     }
   } catch (e) {
     console.error('Failed to fetch bookmarks:', e)
+  }
+
+  try {
+    const supabase = await createClient()
+    const { count } = await supabase
+      .from('lawyers')
+      .select('id', { count: 'exact', head: true })
+    hasAnyListing = (count ?? 0) > 0
+  } catch {
+    hasAnyListing = false
   }
 
   try {
@@ -94,8 +107,36 @@ export default async function SearchPage(props: SearchPageProps) {
               />
             )) : (
               <div className={styles.noResults}>
-                <h3>No experts found</h3>
-                <p>Try adjusting your filters or search terms.</p>
+                {hasAnyListing ? (
+                  <>
+                    <h3>Nothing matches that search yet</h3>
+                    <p>Try a different practice area or location — or tell us what you need and we will route it to counsel.</p>
+                    <Link href="/contact" className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">
+                      Send us a brief →
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <h3>The directory is filling up</h3>
+                    <p>
+                      No {TERMS.lawyer.lowerPlural} have been listed yet. If you practise law, claim a free listing and
+                      you will appear here from launch day.
+                    </p>
+                    <Link
+                      href="/add-listing?category=lawyer"
+                      className="mt-4 inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
+                    >
+                      Claim your free listing
+                    </Link>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Looking for counsel instead?{" "}
+                      <Link href="/contact" className="font-semibold text-accent hover:underline">
+                        Send us a brief
+                      </Link>
+                      .
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -106,17 +106,29 @@ export default function SearchFilters({ specialties }: SearchFiltersProps) {
 
       <div className={styles.filterSection}>
         <h4>Price Range</h4>
-        <div className={styles.priceToggles}>
-          {['₦', '₦₦', '₦₦₦', '₦₦₦₦'].map(p => (
-            <button 
-              key={p} 
-              className={`${styles.priceBtn} ${priceRange === p ? styles.activePrice : ''}`}
-              onClick={() => setPriceRange(priceRange === p ? '' : p)}
+        <div className={styles.priceToggles} role="group" aria-label="Price range">
+          {[
+            { value: '₦', label: 'Budget' },
+            { value: '₦₦', label: 'Moderate' },
+            { value: '₦₦₦', label: 'Premium' },
+            { value: '₦₦₦₦', label: 'Enterprise' },
+          ].map((band) => (
+            <button
+              key={band.value}
+              type="button"
+              aria-pressed={priceRange === band.value}
+              aria-label={`${band.label} price range`}
+              title={band.label}
+              className={`${styles.priceBtn} ${priceRange === band.value ? styles.activePrice : ''}`}
+              onClick={() => setPriceRange(priceRange === band.value ? '' : band.value)}
             >
-              {p}
+              {band.value}
             </button>
           ))}
         </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          ₦ budget · ₦₦ moderate · ₦₦₦ premium · ₦₦₦₦ enterprise
+        </p>
       </div>
 
       <Button className="w-full mt-6" onClick={handleApply}>

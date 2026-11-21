@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getLawyers, getChambers, getSpecialties } from "@/lib/directory/api";
 import { Lawyer, Chamber, Specialty } from "@/lib/api";
 import { TERMS } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/server";
 import { HeroSearchBar } from "@/components/directory/HeroSearchBar";
 import { ListingAvatar } from "@/components/directory/ListingAvatar";
 import { LawyerCard } from "@/components/directory/LawyerCard";
@@ -13,6 +14,29 @@ export default async function Home() {
   let specialties: Specialty[] = [];
   let lawyers: Lawyer[] = [];
   let chambers: Chamber[] = [];
+  let counts = { lawyers: 0, chambers: 0, cities: 0 };
+
+  try {
+    const supabase = await createClient();
+    const [{ count: lawyerCount }, { count: chamberCount }, { data: locations }] = await Promise.all([
+      supabase.from("lawyers").select("id", { count: "exact", head: true }),
+      supabase.from("chambers").select("id", { count: "exact", head: true }),
+      supabase.from("chambers").select("location"),
+    ]);
+
+    const cities = new Set(
+      (locations ?? [])
+        .map((row) => (row.location ?? "").split(",")[0]?.trim().toLowerCase())
+        .filter(Boolean)
+    );
+
+    counts = { lawyers: lawyerCount ?? 0, chambers: chamberCount ?? 0, cities: cities.size };
+  } catch (error) {
+    console.error("Error counting directory inventory:", error);
+  }
+
+  // Below this, a count bar reads as "nobody is here" — show the invitation instead.
+  const isThin = counts.lawyers < 25;
 
   try {
     [specialties, lawyers, chambers] = await Promise.all([
@@ -126,25 +150,39 @@ export default async function Home() {
       {/* ============== TRUST METRICS BAR ============== */}
       <section className="relative -mt-16 z-30">
         <div className="max-w-7xl w-full mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/30 rounded-2xl overflow-hidden shadow-2xl border border-border/40 bg-card">
-            {[
-              { value: "2,500+", label: `Verified ${TERMS.lawyer.plural}` },
-              { value: "180+", label: TERMS.firm.plural },
-              { value: "24", label: "Practice Areas" },
-              { value: "6", label: "Cities Covered" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="bg-card px-6 py-7 text-center hover:bg-accent/5 transition-colors"
-              >
-                <div className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-                  {stat.value}
+          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border/40 bg-card">
+            {isThin ? (
+              <div className="flex flex-col items-center gap-3 px-6 py-7 text-center sm:flex-row sm:justify-between sm:text-left">
+                <div>
+                  <p className="text-base font-bold text-foreground">Founding listings are open</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    The directory is new. {counts.chambers > 0
+                      ? `${counts.chambers} ${counts.chambers === 1 ? TERMS.firm.singular : TERMS.firm.plural} listed so far`
+                      : "No firms listed yet"} — early listings keep their badge and pricing for the first year.
+                  </p>
                 </div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mt-1">
-                  {stat.label}
-                </div>
+                <Link
+                  href="/add-listing?category=lawyer"
+                  className="shrink-0 rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
+                >
+                  Add your listing
+                </Link>
               </div>
-            ))}
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/30">
+                {[
+                  { value: `${counts.lawyers}`, label: `Verified ${TERMS.lawyer.plural}` },
+                  { value: `${counts.chambers}`, label: TERMS.firm.plural },
+                  { value: `${specialties.length}`, label: "Practice Areas" },
+                  { value: `${counts.cities}`, label: counts.cities === 1 ? "City Covered" : "Cities Covered" },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-card px-6 py-7 text-center hover:bg-accent/5 transition-colors">
+                    <div className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{stat.value}</div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
