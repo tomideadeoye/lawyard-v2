@@ -5,6 +5,9 @@ import { ThemeProvider } from "../components/theme-provider";
 import { QueryProvider } from "../components/query-provider";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ErrorReporter } from "@/components/observability/error-reporter";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -83,6 +86,9 @@ export default function RootLayout({
           <QueryProvider>
             {children}
           </QueryProvider>
+          <Analytics />
+          <SpeedInsights />
+          <ErrorReporter />
         </ThemeProvider>
       </body>
     </html>

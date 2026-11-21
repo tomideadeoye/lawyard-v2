@@ -1,41 +1,79 @@
 # Running Lawyard in production
 
 The things that keep the platform alive: the directory application on
-`directory.lawyard.org` and the WordPress news site on `www.lawyard.org`, which
-remain separate. Advertising and news SEO belong to the WordPress side; the
-database and marketplace operations belong to this application.
+`directory.lawyard.org` and the WordPress news site on `www.lawyard.org`. They
+are converging: the article templates in this application now carry the news
+site's advertising inventory, and the marketplace operations (database, payments,
+editorial pipeline) already live here.
 
 ---
 
 ## 1. Advertising
 
-**The news site monetises through Google AdSense** — `www.lawyard.org/ads.txt`
-carries publisher `pub-4277067372936546`. `public/ads.txt` in this repository
-carries the same line for the directory host.
+**Decision (21 Nov 2026): direct-sold house inventory, held in the database.**
+Google AdSense stays authorised on both hosts — `public/ads.txt` carries
+publisher `pub-4277067372936546` — but **no AdSense unit is wired into a page**.
+The previous site's three banner slots were hand-edited WordPress theme regions
+(`ad_before_content`, `ad_after_content`, `ad_container_bottom`); inventory is
+now data in `ad_slots`, edited at `/admin/ads`.
 
-Advertising lives on the WordPress side. This application only needs slots if
-the directory is ever monetised directly; `components/ads/ad-slot.tsx` exists for
-that but is not wired into marketplace pages.
+**How it works**
 
-Decide one of these before cutover:
+- One row per creative: placement, image, destination, alt text, intrinsic
+  width/height, weight, active flag, start/end flight.
+- `<AdSlot placement="…" />` (`components/ads/ad-slot.tsx`) resolves the live
+  creative on the server and renders image → link → its label (default
+  "Advertisement"). An empty, paused or expired slot renders **nothing** — no
+  placeholder, no gap.
+- Four placements: `article-before`, `article-after`, `footer-banner`,
+  `sidebar`, wired into the Corporate Post and Insight article templates.
+- Several live creatives in one placement: highest weight wins, ties go to the
+  newest booking.
+- Destinations are restricted to absolute `http(s)` or site-relative paths;
+  external links carry `rel="sponsored nofollow noopener noreferrer"`.
 
-| Model | What it needs | Trade-off |
+**Models considered**
+
+| Model | What it needs | Verdict |
 |---|---|---|
-| **AdSense (status quo)** | Script in `app/layout.tsx`, fixed slots in the article template and sidebar, `ads.txt`, consent banner | Zero sales effort, low CPM, no control over creative |
-| **Direct-sold** | Inventory in the DB (slot, flight dates, creative URL, target URL), a small scheduler, impression/click logging | Higher CPM, real work, needs someone selling |
-| **Both** | AdSense as fill, direct-sold as priority | Standard for news; needs a simple ad server |
+| AdSense | Script in the layout, fixed slots, consent banner | Kept as an authorisation, not as in-article inventory |
+| **Direct-sold** | Inventory rows, flight dates, creative + target URL | **Chosen** — the banners already on the site are sold, not filled |
+| Both | AdSense as fill behind direct-sold | Revisit for the sidebar only, once there is traffic data |
 
-Whatever you choose, the non-negotiables:
+**Why not AdSense in the article**: direct-sold placement is the higher-value
+product and it is what proves the page can carry paid inventory. A Google unit
+above and below a *paid* Corporate Post devalues the page a client forwards to
+their own board. If Google revenue returns, put it in the sidebar — the one
+position with no direct booking — not in the reading column.
 
-- **Reserve space** for every slot (fixed height) — ads that shift layout cost
-  Core Web Vitals, which costs search ranking.
-- **Label sponsored content.** Corporate posts already carry a tier and brand
-  name; the page must say "Sponsored" above the fold — a regulatory expectation
-  and an AdSense policy one.
-- **Consent before personalised ads.** Nigeria's NDPA and AdSense's EU/UK rules
-  both require it; the site already has a cookie-consent component, extend it.
-- **Keep `ads.txt` authoritative.** If you add a second network, append its line;
-  never replace AdSense's while it is still serving.
+**Non-negotiables, and how each is met**
+
+- **Reserve space for every slot.** The row stores the creative's width and
+  height, and the component renders them as `width`/`height`, so the box is
+  reserved before the image arrives. Nothing shifts when an ad loads.
+- **Label sponsored content.** Every slot renders its own label, and Corporate
+  Posts carry brand name and tier above the fold — a regulatory expectation in
+  a legal market, and an AdSense policy one.
+- **Consent before personalised ads.** House ads are first-party images with no
+  cookies and no third-party script, so they need no consent. **Any AdSense
+  unit reopens this** and must not ship before the consent banner covers it
+  (NDPA, plus AdSense's EU/UK rules).
+- **Keep `ads.txt` authoritative.** `public/ads.txt` mirrors the WordPress
+  line. Append a second network's line; never replace AdSense's while it is
+  still serving.
+
+**Open**
+
+- **Measurement is not built.** The application carries no analytics at all, so
+  delivery cannot be reported to an advertiser — the one fact that renews a
+  booking. Impressions and clicks per creative, plus a site-level analytics
+  tool, are the next piece of work.
+- **The seeded creatives hotlink `www.lawyard.org/wp-content/…`.** They work
+  only while WordPress runs; copy them into Supabase Storage and repoint the
+  rows before cutover.
+- **Direct-sold and the paid tiers are still two steps.** The Core and Pro
+  Corporate Post tiers promise homepage placement; today that placement is
+  booked separately in `/admin/ads`.
 
 ---
 
@@ -98,12 +136,16 @@ auth. It is the single point of failure for everything.
 
 **Measurement**
 
-- No analytics is installed. Add Vercel Analytics (or GA4) plus Search Console and
-  Bing/IndexNow before launch — otherwise you cannot tell whether the cutover
-  cost you traffic.
-- Add error tracking (Sentry or similar). Right now a failed server render is
-  invisible unless a user complains.
-- Uptime monitoring on `/`, `/insights` and the Paystack webhook.
+- **Web Analytics + Speed Insights are installed** (`@vercel/analytics`,
+  `@vercel/speed-insights`, mounted in the root layout). Traffic and Core Web
+  Vitals appear under the project's Analytics tab in Vercel.
+- **Error tracking is in-house**: `app_errors` table, `/api/errors` sink,
+  `ErrorReporter` for uncaught exceptions and rejections, and the error
+  boundaries report through the same channel. Review at `/admin/errors`.
+  Provision it with `supabase/migrations/20261121000001_app_errors.sql`.
+- Still to add: Search Console and Bing/IndexNow (so search visibility is
+  measured, not assumed), and uptime monitoring on `/`, `/search` and the
+  Paystack webhook.
 
 **Search and discovery**
 

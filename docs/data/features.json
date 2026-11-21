@@ -651,7 +651,7 @@
         "components/ads/ad-slot.tsx",
         "app/admin/ads/page.tsx"
       ],
-      "note": "Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots and the AdSense widget."
+      "note": "Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots. The AdSense unit is not carried over; `ads.txt` keeps the publisher authorised (see docs/OPERATIONS.md §1)."
     }
   ],
   "launch_checklist": [

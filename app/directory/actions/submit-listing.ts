@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { galleryCapFor } from '@/lib/directory/publishing';
+import { resolveListingEntitlement } from '@/lib/directory/entitlements';
 
 export interface ListingFormData {
   name: string;
@@ -57,28 +58,40 @@ export async function submitLawyerListing(data: ListingFormData) {
   } = data;
 
   try {
-    // Enforce the plan gallery cap server-side (C10).
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('subscription_tier, role')
+    // Enforce the plan gallery cap server-side (C10). A firm seat counts: the
+    // entitlement is the better of the lawyer's own plan and the firm's plan.
+    const entitlement = await resolveListingEntitlement(supabase, user.id);
+    const isFirm = Boolean(entitlement.chamberId);
+    const galleryCap = galleryCapFor(entitlement.tier, isFirm);
+
+    // The firm link is owned by the membership table, not by this form. A lawyer
+    // who holds an active seat keeps it; a lawyer with no seat cannot acquire one
+    // by posting a chamber_id from the browser.
+    const { data: existing } = await supabase
+      .from('lawyers')
+      .select('chamber_id, verification_status')
       .eq('id', user.id)
       .maybeSingle();
-    // Firm listings get the higher ceiling (C10/D2): either the account is a
-    // chamber, or the listing is being filed under a chamber.
-    const isFirm = profile?.role === 'chamber' || Boolean(chamber_id);
-    const galleryCap = galleryCapFor(profile?.subscription_tier, isFirm);
+
+    const existingLink = existing?.chamber_id ?? null;
+    const requestedLink = chamber_id && chamber_id === entitlement.chamberId ? chamber_id : null;
+    const chamberLink = existingLink ?? requestedLink;
+
+    const verified = existing?.verification_status === 'verified';
 
     const { error: upsertError } = await supabase
       .from('lawyers')
       .upsert({
         id: user.id,
         ...lawyerFields,
-        chamber_id: chamber_id ?? null,
+        chamber_id: chamberLink,
         social_links: social_links ?? [],
         faqs: faqs ?? [],
         gallery_images: (gallery_images ?? []).slice(0, galleryCap),
         working_hours: working_hours ?? [],
-        verification_status: 'pending',
+        // Editing a listing must not silently revoke a verification an admin
+        // already granted — pending is the state of a new or rejected listing.
+        verification_status: verified ? 'verified' : 'pending',
       });
 
     if (upsertError) throw upsertError;

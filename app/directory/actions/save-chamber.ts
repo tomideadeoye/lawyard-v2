@@ -8,7 +8,7 @@
 // own profile, so the browser can't opt out (D2).
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { galleryCapFor, canUseIntroVideo } from '@/lib/directory/publishing'
 
 export interface ChamberFormInput {
@@ -50,14 +50,35 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
     .eq('id', user.id)
     .maybeSingle()
 
+  // Editing an existing firm: its own subscription is the entitlement. Reading
+  // the editor's personal plan meant an Enterprise firm whose owner had no
+  // personal plan was capped at the free gallery ceiling (C22).
+  let firmTier = profile?.subscription_tier
+  if (input.chamber_id) {
+    const { data: existingChamber } = await supabase
+      .from('chambers')
+      .select('subscription_tier, subscription_status, subscription_expires_at')
+      .eq('id', input.chamber_id)
+      .maybeSingle()
+
+    const active =
+      existingChamber?.subscription_status === 'active' &&
+      (!existingChamber?.subscription_expires_at ||
+        new Date(existingChamber.subscription_expires_at) > new Date())
+
+    if (active && existingChamber?.subscription_tier) {
+      firmTier = existingChamber.subscription_tier
+    }
+  }
+
   // Chambers are firm listings: they get the firm gallery ceiling.
-  const galleryCap = galleryCapFor(profile?.subscription_tier, true)
+  const galleryCap = galleryCapFor(firmTier, true)
   const gallery = Array.isArray(input.gallery_images) ? input.gallery_images : []
   if (gallery.some((url) => typeof url !== 'string' || !url.startsWith('http'))) {
     return { error: 'Gallery images must be uploaded files' }
   }
 
-  const introVideo = canUseIntroVideo(profile?.subscription_tier)
+  const introVideo = canUseIntroVideo(firmTier)
     ? (input.intro_video_url || null)
     : null
 
@@ -73,7 +94,6 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
     faqs: input.faqs ?? [],
     gallery_images: gallery.slice(0, galleryCap),
     intro_video_url: introVideo,
-    user_id: user.id,
   }
 
   if (input.chamber_id) {
@@ -87,6 +107,8 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
 
     if (!membership) return { error: 'You do not have access to this chamber' }
 
+    // user_id is the billing owner and must never move because a delegate admin
+    // saved the form (it used to be written on every update).
     const { error } = await supabase.from('chambers').update(payload).eq('id', input.chamber_id)
     if (error) return { error: error.message }
 
@@ -96,17 +118,58 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
 
   const { data: created, error } = await supabase
     .from('chambers')
-    .insert(payload)
+    .insert({ ...payload, user_id: user.id })
     .select('id')
     .single()
 
   if (error || !created) return { error: error?.message || 'Could not create the chamber' }
 
-  await supabase.from('chamber_admins').insert({
+  // Membership tables are service-role-only by design: the browser must never be
+  // able to write a seat or an admin row directly. The caller has just been
+  // authorised as the creator, so the two bootstrap rows are safe to write here.
+  const admin = createServiceRoleClient()
+
+  // One open membership at a time: a lawyer cannot own a second firm while
+  // holding a seat in another one. They have to leave first.
+  const { data: openSeat } = await admin
+    .from('chamber_members')
+    .select('chamber_id, status')
+    .eq('lawyer_id', user.id)
+    .in('status', ['pending', 'active'])
+    .maybeSingle()
+
+  if (openSeat && openSeat.chamber_id !== created.id) {
+    await supabase.from('chambers').delete().eq('id', created.id)
+    return {
+      error:
+        openSeat.status === 'active'
+          ? 'You already hold a seat in another firm. Leave it before creating a new firm page.'
+          : 'You have a pending firm request. Resolve that before creating a new firm page.',
+    }
+  }
+
+  await admin.from('chamber_admins').insert({
     chamber_id: created.id,
     user_id: user.id,
     role: 'owner',
   })
+
+  // The owner occupies the firm's first seat, so the free tier's single seat is
+  // used by the person who created the firm rather than sitting empty.
+  await admin.from('chamber_members').insert({
+    chamber_id: created.id,
+    lawyer_id: user.id,
+    seat_role: 'partner',
+    status: 'active',
+    joined_at: new Date().toISOString(),
+  })
+
+  // Link their listing if one already exists; if not, the row appears the first
+  // time they submit a lawyer listing.
+  await supabase
+    .from('lawyers')
+    .update({ chamber_id: created.id })
+    .eq('id', user.id)
 
   revalidatePath('/dashboard/chamber')
   return {}

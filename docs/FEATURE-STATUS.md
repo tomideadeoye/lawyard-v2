@@ -62,7 +62,7 @@
 | Route restructure (clean URLs) + middleware subdomain routing | `middleware.ts` |
 | Error boundary — root + directory | `app/error.tsx` · `app/directory/error.tsx` |
 | Auth UX polish — password toggles, forgot-password modal, email footer | `components/directory/auth` |
-| House ads — database-backed slots with admin CRUD | `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx` — Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots and the AdSense widget. |
+| House ads — database-backed slots with admin CRUD | `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx` — Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots. The AdSense unit is not carried over; `ads.txt` keeps the publisher authorised (see docs/OPERATIONS.md §1). |
 
 ## 2. Partial 🟡
 

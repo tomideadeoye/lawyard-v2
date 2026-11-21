@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportError } from '@/lib/observability/report';
 
 export default function RootError({
   error,
@@ -11,6 +12,7 @@ export default function RootError({
 }) {
   useEffect(() => {
     console.error('Application error:', error);
+    reportError({ message: error.message || 'Application error', stack: error.stack, digest: error.digest });
   }, [error]);
 
   return (

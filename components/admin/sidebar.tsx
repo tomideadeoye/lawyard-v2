@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/subscribers', label: 'Subscribers' },
   { href: '/admin/content', label: 'Content Manager' },
   { href: '/admin/transactions', label: 'Transactions' },
+  { href: '/admin/errors', label: 'Errors' },
   { href: '/admin/settings', label: 'Settings' },
   { href: '/admin/coupons', label: 'Coupons' },
   { href: '/admin/ads', label: 'Ads' },

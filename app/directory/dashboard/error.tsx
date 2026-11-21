@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportError } from '@/lib/observability/report';
 
 export default function DashboardError({
   error,
@@ -11,6 +12,7 @@ export default function DashboardError({
 }) {
   useEffect(() => {
     console.error('[dashboard] route error:', error);
+    reportError({ message: error.message || 'Dashboard route error', stack: error.stack, digest: error.digest });
   }, [error]);
 
   return (

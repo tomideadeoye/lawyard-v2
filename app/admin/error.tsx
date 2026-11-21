@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportError } from '@/lib/observability/report';
 
 export default function AdminError({
   error,
@@ -11,6 +12,7 @@ export default function AdminError({
 }) {
   useEffect(() => {
     console.error('[admin] route error:', error);
+    reportError({ message: error.message || 'Admin route error', stack: error.stack, digest: error.digest });
   }, [error]);
 
   return (
