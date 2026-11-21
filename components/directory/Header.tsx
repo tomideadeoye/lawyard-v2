@@ -158,7 +158,7 @@ export default function Header() {
         ? "bg-[#111129] border-b border-white/10 shadow-lg" 
         : "bg-background border-b border-border/50 shadow-sm"
     )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-3 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center gap-3 lg:gap-4 xl:gap-8">
         
         {/* Left Block: Hamburger + Logo & Badge */}
         <div className="shrink-0 flex items-center">
@@ -198,7 +198,7 @@ export default function Header() {
         </div>
         
         {/* Center Block: Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
           {navItems.map(item => (
              <NavDropdown key={item.name} item={item} scrolled={scrolled} />
           ))}

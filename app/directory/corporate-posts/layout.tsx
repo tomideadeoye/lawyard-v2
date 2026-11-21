@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
@@ -9,11 +8,9 @@ export const metadata: Metadata = {
   description: 'Paid press releases and brand announcements on Lawyard — Nigeria\'s leading legal media platform.',
 }
 
+// The Paystack inline script lives on the submit page, the only place that
+// uses it. Loading it for the whole section threw "put your Paystack Inline
+// javascript file inside of a form element" on every article and listing.
 export default function CorporatePostsLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
-      {children}
-    </>
-  )
+  return <>{children}</>
 }

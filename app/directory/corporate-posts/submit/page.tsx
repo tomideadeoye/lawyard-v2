@@ -11,6 +11,7 @@ import { corporatePostSchema, type CorporatePostFormValues } from '@/lib/validat
 import config from '@/lib/corporate-posts.json'
 import { PricingCard } from '@/components/PricingCard'
 import dynamic from 'next/dynamic'
+import Script from 'next/script'
 
 const RichTextEditor = dynamic(
   () => import('@/components/corporate-posts/rich-text-editor').then(m => m.RichTextEditor),
@@ -164,6 +165,7 @@ function SubmitForm() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Script src="https://js.paystack.co/v1/inline.js" strategy="afterInteractive" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="mb-12">
           <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Post</h1>

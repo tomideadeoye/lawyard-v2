@@ -211,9 +211,25 @@
       "impact": "Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version.",
       "evidence": [
         "app/directory/corporate-posts/[slug]/page.tsx",
+        "app/directory/knowledge/[slug]/page.tsx",
         "app/(main)/insights/[slug]/page.tsx"
       ],
-      "fix": "Render through `dangerouslySetInnerHTML` like the insights page, with `lib/sanitize.ts` cleaning the HTML on save (tag allowlist, safe URL schemes, forced `rel`) and again on read for older rows; excerpt fallbacks are plain text now.",
+      "fix": "Render through `dangerouslySetInnerHTML` like the insights page and rebuild the template to match it; `lib/sanitize.ts` cleans the HTML on save and again on read; excerpt fallbacks are plain text. Same fix on `/directory/knowledge/[slug]`.",
+      "features": [
+        "F-27"
+      ]
+    },
+    {
+      "id": "D14",
+      "title": "`.prose` was a no-op — article bodies had no typography",
+      "severity": "medium",
+      "status": "fixed",
+      "impact": "The typography plugin was never installed, so every `.prose` class did nothing: paragraphs flush together, headings at body size, no list markers, no link colour — on terms, privacy, knowledge and every article body.",
+      "evidence": [
+        "app/globals.css",
+        "package.json"
+      ],
+      "fix": "Added `@tailwindcss/typography` with Lawyard's register via the plugin's variables (bronze links, serif headings), then fixed what it exposed: `prose-invert` used unconditionally on two light pages, and near-white `text-accent` headings.",
       "features": []
     }
   ]

@@ -433,25 +433,28 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 - **`lib/sanitize.ts`**: `sanitizeRichHtml()` — allowlist of exactly the tags TipTap produces, `http`/`https`/`mailto`/`tel` only, `rel="noopener noreferrer nofollow"` forced on links, empty editor paragraphs dropped; `stripHtml()` and `excerptFromHtml()` for plain-text excerpts. Cleaned on save in `submitCorporatePost()` and again on read for rows written earlier.
 - **Excerpts were cut out of the HTML**: The fallback was `data.content.substring(0,160)` — the raw markup, which then surfaced on cards and in the Slack preview. Now `excerptFromHtml()`; `ArticleCard` also strips legacy HTML excerpts at render.
 - **`lib/sanitize.test.ts`**: 11 cases: kept markup, stripped script/style/`onclick`, refused `javascript:` and `data:` URLs, forced `rel`, dropped empty paragraphs, kept image-only paragraphs, treated null as empty.
+- **The page, rebuilt to the WordPress standard**: Same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover with brand caption, body, paid-announcement disclosure, related posts, and a sticky sidebar (search, recent posts, submit CTA priced from the tier config). Read time is computed from the body, not hardcoded. `generateMetadata` adds title, description, canonical and OG image — the page had none.
+- **Typography actually exists now**: `@tailwindcss/typography` was never installed, so every `.prose` in the repo was inert. Added it, set Lawyard's register through the plugin's variables (bronze links, serif headings), then fixed what the change exposed: `prose-invert` used unconditionally on the light terms/privacy pages, and `text-accent` headings that were near-white on white. `.prose` in the submission editor gets the same styles, so submitters now see what they will get.
 
 ### Next Steps
 1. Confirm the Kredete post renders as an article on production after deploy.
 2. Not a backfill: legacy rows render correctly because the page sanitises on read.
 
 ### Verification
-- `vitest run lib/sanitize.test.ts` — 11/11 pass.
-- `tsc --noEmit` clean; `eslint` 0 errors on the five touched files.
-- `pnpm docs:check` passes after the changelog/defect/timeline entries.
+- `vitest run` — 62/62 pass, including 12 sanitiser cases.
+- `tsc --noEmit` clean; `eslint` 0 errors; `pnpm build` succeeds; `pnpm docs:check` passes.
+- Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, body, disclosure, sidebar and footer all read; article column 805px, matching the WordPress 800px reference.
 
 ### Rationale
 - The bug was a renderer decision, not bad data — the HTML was stored correctly, which is why the WordPress copy read fine while the Next page did not. Escaped markup is always the render path.
 - The moment the page renders HTML, submitted HTML becomes live, so the sanitizer belongs on the write path where it is checked once — with a second pass at read so the fix covers rows already in the table.
 
 ### Related Files
-- `app/directory/corporate-posts/[slug]/page.tsx` · `app/actions/corporate-posts.ts` · `components/ui/article-card.tsx`
-- `lib/sanitize.ts` · `lib/sanitize.test.ts` · `package.json` (`sanitize-html`)
+- `app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` · `app/actions/corporate-posts.ts` · `components/ui/article-card.tsx`
+- `lib/sanitize.ts` · `lib/sanitize.test.ts` · `app/globals.css` · `app/directory/{terms,privacy}/page.tsx`
+- `package.json` (`sanitize-html`, `@tailwindcss/typography`)
 
-> defects D13
+> defects D13 D14
 
 ---
 

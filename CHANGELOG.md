@@ -11,7 +11,7 @@
 
 ### Fixed
 
-- **Corporate Post page printed its own HTML as visible text**: `app/directory/corporate-posts/[slug]/page.tsx` rendered `{article.content}` as a React child, so React escaped the body and the post showed `<p><a target="_blank"…` instead of the announcement. Now injected via `dangerouslySetInnerHTML`, matching `/insights/[slug]`. Because that makes submitted HTML live, the write path sanitises it once in `lib/sanitize.ts` (allowlist of editor tags, `http`/`https`/`mailto`/`tel` schemes only, `rel="noopener noreferrer nofollow"` forced on links, empty editor paragraphs dropped) and the page sanitises again for rows written earlier. Excerpts were cut straight out of the HTML body, so cards and Slack previews showed tags — the fallback is now plain text (`excerptFromHtml`) and `ArticleCard` strips any legacy excerpt at render.
+- **Corporate Post page printed its own HTML as visible text**: `app/directory/corporate-posts/[slug]/page.tsx` rendered `{article.content}` as a React child, so React escaped the body and the post showed `<p><a target="_blank"…` instead of the announcement. It now injects the body and follows the same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover, 8/4 grid with a sticky sidebar (search, recent posts, submit CTA), paid-announcement disclosure and related posts. `lib/sanitize.ts` cleans submitted HTML on save (tag allowlist, safe schemes, forced `rel`, empty paragraphs dropped) and again on read; excerpt fallbacks are plain text. `/directory/knowledge/[slug]` had the same escaped body and was fixed with it.
 
 ## 2026-11-09
 

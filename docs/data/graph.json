@@ -1104,6 +1104,13 @@
       "detail": "medium"
     },
     {
+      "id": "D14",
+      "type": "defect",
+      "label": "`.prose` was a no-op — article bodies had no typography",
+      "status": "fixed",
+      "detail": "medium"
+    },
+    {
       "id": "C01",
       "type": "changeset",
       "label": "Chambers subscribe — separate pricing",
@@ -2053,6 +2060,11 @@
       "kind": "fixes"
     },
     {
+      "from": "CH-070",
+      "to": "D14",
+      "kind": "fixes"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2210,6 +2222,11 @@
     {
       "from": "S-2026-11-21-17",
       "to": "D13",
+      "kind": "found"
+    },
+    {
+      "from": "S-2026-11-21-17",
+      "to": "D14",
       "kind": "found"
     },
     {
@@ -2440,6 +2457,11 @@
     {
       "from": "D9",
       "to": "F-37",
+      "kind": "affects"
+    },
+    {
+      "from": "D13",
+      "to": "F-27",
       "kind": "affects"
     },
     {
