@@ -235,3 +235,19 @@ input:-webkit-autofill:active {
   font-style: normal;
   font-family: var(--font-serif);
 }
+
+/* Editorial drop cap on the opening paragraph — the mechanism the WordPress
+   theme uses: the first letter of the first `<p>`, floated, uppercase, in the
+   brand colour. No extra markup, so submitted content cannot break it, and it
+   falls back to an ordinary first letter if the body starts with an image or
+   heading. */
+.dropcap > p:first-of-type::first-letter {
+  float: left;
+  font-size: 5.333em;
+  line-height: 0.68;
+  font-weight: 400;
+  margin: 0.1em 0.12em 0.05em 0;
+  color: var(--brand);
+  text-transform: uppercase;
+  font-style: normal;
+}

@@ -720,7 +720,7 @@
         },
         {
           "title": "The page, rebuilt to the WordPress standard",
-          "detail": "Same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover with brand caption, body, paid-announcement disclosure, related posts, and a sticky sidebar (search, recent posts, submit CTA priced from the tier config). Read time is computed from the body, not hardcoded. `generateMetadata` adds title, description, canonical and OG image — the page had none."
+          "detail": "Same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover with brand caption, body, paid-announcement disclosure, related posts, and a sticky sidebar (search, recent posts, submit CTA priced from the tier config). Read time is computed from the body, not hardcoded. `generateMetadata` adds title, description, canonical and OG image — the page had none. Includes the opening drop cap (`::first-letter`, floated, 5.333em / 0.68 line-height) at the same metrics as the WordPress theme."
         },
         {
           "title": "Typography actually exists now",

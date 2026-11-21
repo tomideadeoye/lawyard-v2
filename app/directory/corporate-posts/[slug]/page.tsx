@@ -132,7 +132,7 @@ export default async function CorporatePostPage({ params }: PageProps) {
             )}
 
             <div
-              className="prose prose-lg dark:prose-invert max-w-none leading-relaxed py-6 border-b border-border/10"
+              className="prose prose-lg dark:prose-invert max-w-none leading-relaxed py-6 border-b border-border/10 dropcap"
               dangerouslySetInnerHTML={{ __html: content }}
             />
 

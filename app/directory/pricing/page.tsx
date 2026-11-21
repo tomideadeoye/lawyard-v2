@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Users, Building } from "lucide-react";
 import { getPlans } from "@/app/directory/actions/plans";
@@ -223,7 +223,7 @@ function Price({ price, period, name }: { price: string; period: string; name: s
   // The price is the decision number on the page: biggest weight, quietest colour.
   // Everything around it (currency, period, unit) is muted so the figure lands first.
   return (
-    <div className="mb-5 flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2">
       <div className="flex items-baseline justify-center gap-1">
         <span className="text-lg font-medium text-muted-foreground">{CURRENCY.symbol}</span>
         <span className="text-[2.75rem] font-semibold leading-none tracking-tight tabular-nums text-stone-900 dark:text-neutral-50">
@@ -251,79 +251,91 @@ function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; co
   const priceUnset = amount > 0 && amount < PRICE_PLACEHOLDER_FLOOR
   const isPaid = amount > 0 && !priceUnset
 
+  // The action sits directly under the positioning line, before the feature list —
+  // the order OpenAI, Stripe and Notion all use. A button at the bottom of a
+  // variable-length list can never line up across tiers; one under a fixed-height
+  // header always does.
+  const action = priceUnset ? (
+    <Link
+      href="/contact"
+      className={
+        tier.recommended
+          ? 'block w-full rounded-lg border border-transparent bg-brand py-3 text-center text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand/90'
+          : 'block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted'
+      }
+    >
+      Contact sales
+    </Link>
+  ) : isPaid ? (
+    <PaystackButton amount={amount} planName={tier.name} planRole={role} recommended={tier.recommended} />
+  ) : (
+    <Link
+      href="/dashboard"
+      className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
+    >
+      Get started free
+    </Link>
+  )
+
   // Phones get a divided list inside one surface (guide: P-01 — boxes become rows
   // once the box carries nothing the hairline doesn't). The card shell, border and
-  // shadow return at md, where three tiers sit side by side and need their own edges.
+  // shadow return at sm, before two tiers can ever sit side by side.
   return (
     <Card
-      className={`relative flex flex-col overflow-hidden p-0 transition-all duration-300 md:hover:-translate-y-0.5 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none ${
+      className={`relative flex flex-col overflow-hidden p-0 transition-all duration-300 sm:hover:-translate-y-0.5 max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:shadow-none ${
         tier.recommended
-          ? 'z-10 max-md:border-l-2 max-md:border-l-brand md:rounded-xl md:border md:border-brand/70 md:ring-1 md:ring-brand/15 md:shadow-[0_18px_45px_-25px_rgba(138,98,71,0.45)]'
-          : 'max-md:border-l-2 max-md:border-l-transparent md:rounded-xl md:border md:border-stone-200/90 md:bg-white md:shadow-sm md:hover:border-stone-300 dark:md:bg-neutral-900 dark:md:border-white/10 dark:md:hover:border-white/20'
+          ? 'z-10 max-sm:border-l-2 max-sm:border-l-brand sm:rounded-xl sm:border sm:border-brand/70 sm:ring-1 sm:ring-brand/15 sm:shadow-[0_18px_45px_-25px_rgba(138,98,71,0.45)]'
+          : 'max-sm:border-l-2 max-sm:border-l-transparent sm:rounded-xl sm:border sm:border-stone-200/90 sm:bg-white sm:shadow-sm sm:hover:border-stone-300 dark:sm:bg-neutral-900 dark:sm:border-white/10 dark:sm:hover:border-white/20'
       }`}
     >
-      {tier.recommended && (
-        <div className="hidden bg-brand px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-brand-foreground md:block">
+      {tier.recommended ? (
+        <div className="hidden bg-brand px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-brand-foreground sm:block">
           Recommended
         </div>
+      ) : (
+        // Reserve the ribbon's height on every card, or the recommended tier's badge
+        // pushes its whole column down and the buttons stop lining up.
+        <div aria-hidden className="hidden h-[26px] sm:block" />
       )}
-      <CardHeader className="border-b border-stone-100 px-0 pb-5 pt-0 text-center md:px-5 md:pt-6 max-md:pt-6 dark:border-white/[0.07]">
-        <CardTitle className="mb-3 flex flex-wrap items-center justify-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-stone-500 md:mb-4 dark:text-neutral-400">
+      <CardHeader className="border-b border-stone-100 px-0 pb-5 pt-0 text-center max-sm:pt-6 sm:px-5 sm:pt-6 dark:border-white/[0.07]">
+        <CardTitle className="mb-3 flex min-h-[16px] flex-wrap items-center justify-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-stone-500 sm:mb-4 dark:text-neutral-400">
           <span>{tier.name}</span>
           {tier.recommended && (
-            <span className="rounded-full bg-brand px-2 py-0.5 text-[9px] font-bold tracking-[0.14em] text-brand-foreground md:hidden">
+            <span className="rounded-full bg-brand px-2 py-0.5 text-[9px] font-bold tracking-[0.14em] text-brand-foreground sm:hidden">
               Recommended
             </span>
           )}
         </CardTitle>
-        {tier.comingSoon ? (
-          <div className="mb-5 flex flex-col items-center">
+
+        {/* Fixed-height price slot: a plan showing "Pricing under review" and a plan
+            showing ₦0 must put their buttons on the same line. */}
+        <div className="flex h-[4.75rem] items-center justify-center">
+          {tier.comingSoon ? (
             <span className="text-xl font-semibold tracking-tight text-stone-500 dark:text-neutral-400">Coming soon</span>
-          </div>
-        ) : priceUnset ? (
-          <div className="mb-5 flex flex-col items-center">
+          ) : priceUnset ? (
             <span className="text-xl font-semibold tracking-tight text-stone-500 dark:text-neutral-400">Pricing under review</span>
-          </div>
-        ) : (
-          <Price price={tier.price} period={tier.period} name={tier.name} />
-        )}
-        <p className="mx-auto mt-1 min-h-[40px] max-w-[240px] text-xs leading-relaxed text-muted-foreground">
+          ) : (
+            <Price price={tier.price} period={tier.period} name={tier.name} />
+          )}
+        </div>
+
+        <p className="mx-auto mt-1 min-h-[3.25rem] max-w-[260px] text-xs leading-relaxed text-muted-foreground">
           {tier.desc}
         </p>
+
+        <div className="mt-4">{action}</div>
       </CardHeader>
 
-      <CardContent className="flex-1 px-0 py-5 md:px-5">
-        <PlanFeatures features={tier.features} collapseFrom={collapseFrom} />
-      </CardContent>
-
-      <CardFooter className="px-0 pb-6 pt-2 md:px-5">
-        {tier.comingSoon ? (
-          <span className="block w-full rounded-lg border border-stone-200 py-3 text-center text-sm font-semibold text-stone-400 dark:border-white/10 dark:text-neutral-500">
-            Coming soon
-          </span>
-        ) : priceUnset ? (
-          <Link
-            href="/contact"
-            className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
-          >
-            Enquire about this plan
-          </Link>
-        ) : isPaid ? (
-          <PaystackButton
-            amount={amount}
-            planName={tier.name}
-            planRole={role}
-            recommended={tier.recommended}
-          />
-        ) : (
-          <Link
-            href="/dashboard"
-            className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
-          >
-            Continue with Free
-          </Link>
+      <CardContent className="flex-1 px-0 py-5 sm:px-5">
+        {tier.features.length > 0 && (
+          <>
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400 dark:text-neutral-500">
+              What&rsquo;s included
+            </p>
+            <PlanFeatures features={tier.features} collapseFrom={collapseFrom} />
+          </>
         )}
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }
@@ -334,7 +346,7 @@ export default async function PricingPage() {
   return (
     <div className="min-h-screen bg-stone-50 pb-24 dark:bg-neutral-950">
       {/* Hero is dark in both themes — it belongs to the site chrome, not to the theme. */}
-      <div className="relative overflow-hidden border-b border-white/[0.06] bg-neutral-950 py-14 text-center md:py-24">
+      <div className="relative overflow-hidden border-b border-white/[0.06] bg-neutral-950 py-10 text-center sm:py-14 md:py-24">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(167,124,92,0.18),transparent_62%)]" />
         <div className="relative z-10 px-6">
@@ -428,7 +440,7 @@ export default async function PricingPage() {
                 return (
                   <TabsContent key={r.value} value={r.value} className="mt-0 outline-none">
                     <div
-                      className={`grid grid-cols-1 items-start gap-6 max-md:gap-0 max-md:divide-y max-md:divide-stone-200 max-md:overflow-hidden max-md:rounded-2xl max-md:border max-md:border-stone-200 max-md:bg-white max-md:px-5 dark:max-md:divide-white/10 dark:max-md:border-white/10 dark:max-md:bg-neutral-900 ${gridClass}`}
+                      className={`grid grid-cols-1 gap-6 max-sm:gap-0 max-sm:divide-y max-sm:divide-stone-200 max-sm:overflow-hidden max-sm:rounded-2xl max-sm:border max-sm:border-stone-200 max-sm:bg-white max-sm:px-5 dark:max-sm:divide-white/10 dark:max-sm:border-white/10 dark:max-sm:bg-neutral-900 ${gridClass}`}
                     >
                       {buyableTiers.map((tier: any) => (
                         <PricingCard

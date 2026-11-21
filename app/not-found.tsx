@@ -12,8 +12,8 @@ export default function NotFound() {
       suggestions={[
         { label: "Go to Directory", href: "/directory" },
         { label: "Search Lawyers", href: "/directory/search" },
-        { label: "Browse News & Insights", href: "/(main)/insights" },
-        { label: "Visit Lawyard Home", href: "/(main)" },
+        { label: "Browse News & Insights", href: "/insights" },
+        { label: "Visit Lawyard Home", href: "/" },
       ]}
     />
   )

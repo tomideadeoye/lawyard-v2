@@ -13,7 +13,7 @@ function SubmitButton({ recommended }: { recommended: boolean }) {
       disabled={pending}
       className={`h-11 w-full rounded-lg text-sm font-semibold transition-colors ${
         recommended
-          ? 'bg-brand text-brand-foreground hover:bg-brand/90'
+          ? 'border border-transparent bg-brand text-brand-foreground hover:bg-brand/90'
           : 'border border-stone-300 bg-transparent text-stone-700 hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted'
       }`}
     >
