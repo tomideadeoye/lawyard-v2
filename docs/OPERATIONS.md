@@ -1,19 +1,21 @@
 # Running Lawyard in production
 
-The things that keep the site alive after the WordPress cutover: advertising,
-the database, and the operational surface nobody writes down until it breaks.
+The things that keep the platform alive: the directory application on
+`directory.lawyard.org` and the WordPress news site on `www.lawyard.org`, which
+remain separate. Advertising and news SEO belong to the WordPress side; the
+database and marketplace operations belong to this application.
 
 ---
 
 ## 1. Advertising
 
-**Today the site monetises through Google AdSense** — the old host serves
-`/ads.txt` with publisher `pub-4277067372936546`. `public/ads.txt` now carries the
-same line so the authorisation survives the move.
+**The news site monetises through Google AdSense** — `www.lawyard.org/ads.txt`
+carries publisher `pub-4277067372936546`. `public/ads.txt` in this repository
+carries the same line for the directory host.
 
-What is missing in this application: **there are no ad slots and no ad script.**
-The "Place your Ad here!" panels are static markup. Unless slots are built, ad
-revenue stops the day WordPress stops serving pages.
+Advertising lives on the WordPress side. This application only needs slots if
+the directory is ever monetised directly; `components/ads/ad-slot.tsx` exists for
+that but is not wired into marketplace pages.
 
 Decide one of these before cutover:
 

@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/features.schema.json",
   "schema": 1,
-  "verified": "2026-11-04",
+  "verified": "2026-11-21",
   "note": "Source of truth for 'is it built?'. Rendered to docs/FEATURE-STATUS.md. Evidence paths are checked against the filesystem by scripts/docs.mjs.",
   "features": [
     {
@@ -330,12 +330,12 @@
     {
       "id": "F-28",
       "name": "Shop + cart + checkout + orders",
-      "status": "shipped",
+      "status": "remove",
       "area": "commerce",
       "evidence": [
-        "app/(main)/shop",
         "app/dashboard/orders/page.tsx"
-      ]
+      ],
+      "note": "Storefront and cart stay on WordPress. The Next implementation was removed on 21 Nov when the news/shop front end was split off."
     },
     {
       "id": "F-29",
@@ -639,6 +639,19 @@
       "area": "platform",
       "gap": "README 'Testing & Infra' section only.",
       "evidence": []
+    },
+    {
+      "id": "F-55",
+      "name": "House ads — database-backed slots with admin CRUD",
+      "status": "shipped",
+      "area": "revenue",
+      "evidence": [
+        "supabase/migrations/20261121000001_ad_slots.sql",
+        "lib/ads.ts",
+        "components/ads/ad-slot.tsx",
+        "app/admin/ads/page.tsx"
+      ],
+      "note": "Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots and the AdSense widget."
     }
   ],
   "launch_checklist": [

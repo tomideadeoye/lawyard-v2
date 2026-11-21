@@ -19,7 +19,17 @@ import ChamberForm from "@/components/directory/forms/ChamberForm";
 import CorporateForm from "@/components/directory/forms/CorporateForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Scale, Landmark, Briefcase, Target, type LucideIcon } from 'lucide-react';
+
+// One badge shape for every category: emoji rendered at four different weights and
+// colours, so the grid read as four unrelated stickers instead of one set of choices.
+function CategoryIcon({ icon: Icon }: { icon: LucideIcon }) {
+  return (
+    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-brand-muted">
+      <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden="true" />
+    </div>
+  )
+}
 import { createClient } from '@/lib/supabase/client';
 import { TERMS } from "@/lib/constants";
 import { useQuery } from '@tanstack/react-query';
@@ -104,31 +114,34 @@ function AddListingContent() {
     <main className="max-w-4xl mx-auto py-10 px-4 md:px-6 space-y-8 text-foreground animate-fade-in">
        <div className="flex justify-between items-center border-b border-border/40 pb-6 mb-6">
           <div className="flex gap-4 md:gap-8 flex-wrap">
-            <div className={`text-xs font-mono uppercase tracking-widest ${!selectedCategory ? 'text-accent font-bold' : 'text-emerald-500 font-bold'}`}>1. Category</div>
-            <div className={`text-xs font-mono uppercase tracking-widest ${selectedCategory ? 'text-accent font-bold' : 'text-muted-foreground'}`}>2. Details</div>
+            <div className={`text-xs font-mono uppercase tracking-widest ${!selectedCategory ? 'text-brand-muted font-bold' : 'text-emerald-600 dark:text-emerald-500 font-bold'}`}>1. Category</div>
+            <div className={`text-xs font-mono uppercase tracking-widest ${selectedCategory ? 'text-brand-muted font-bold' : 'text-muted-foreground'}`}>2. Details</div>
             <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">3. Verification</div>
-            <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">4. Capitalize</div>
+            <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">4. Publish</div>
           </div>
        </div>
 
         {!selectedCategory ? (
           <>
             <section className="text-center space-y-3 mb-10">
-              <h1 className="text-4xl font-extrabold tracking-tight">Join the <span className="gradient-text">Elite</span>.</h1>
-              <p className="text-muted-foreground text-sm max-w-lg mx-auto">The Lawyard Directory is a curated platform for top-tier legal talent. Start your application below.</p>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Start your listing.</h1>
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+                Choose what you&rsquo;re listing: a practice, a firm, a legal team, or a brief you need
+                counsel on.
+              </p>
             </section>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
               {/* Individual Lawyer Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
-                  <div className="text-5xl mb-4">🎓</div>
+                  <CategoryIcon icon={Scale} />
                   <CardTitle className="text-xl font-bold tracking-tight text-foreground">Individual {TERMS.lawyer.singular}</CardTitle>
                   <CardDescription className="text-sm">For independent practitioners, specialized solicitors, and legal engineers.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('lawyer')}>
-                    Select Individual
+                  <Button className="h-11 w-full max-w-[220px]" onClick={() => handleCategorySelect('lawyer')}>
+                    Apply as a lawyer
                   </Button>
                 </CardFooter>
               </Card>
@@ -136,13 +149,13 @@ function AddListingContent() {
               {/* Law Chamber Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
-                  <div className="text-5xl mb-4">🏛️</div>
+                  <CategoryIcon icon={Landmark} />
                   <CardTitle className="text-xl font-bold tracking-tight text-foreground">{TERMS.firm.singular}</CardTitle>
                   <CardDescription className="text-sm">For established {TERMS.firm.lowerPlural}, multi-partner practices, and specialized {TERMS.firm.lowerPlural}.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('chamber')}>
-                    Select Institution
+                  <Button className="h-11 w-full max-w-[220px]" onClick={() => handleCategorySelect('chamber')}>
+                    Apply as a law firm
                   </Button>
                 </CardFooter>
               </Card>
@@ -150,13 +163,13 @@ function AddListingContent() {
               {/* Corporate Legal Dept Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
-                  <div className="text-5xl mb-4">💼</div>
+                  <CategoryIcon icon={Briefcase} />
                   <CardTitle className="text-xl font-bold tracking-tight text-foreground">Corporate Legal Dept</CardTitle>
                   <CardDescription className="text-sm">For in-house legal departments, compliance units, and legal counsels hiring external experts.</CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('corporate')}>
-                    Select Corporate
+                  <Button className="h-11 w-full max-w-[220px]" onClick={() => handleCategorySelect('corporate')}>
+                    Apply as a legal team
                   </Button>
                 </CardFooter>
               </Card>
@@ -164,7 +177,7 @@ function AddListingContent() {
               {/* Post Client Need Selection */}
               <Card className="hover:-translate-y-1 hover:border-accent/40 hover:bg-card/60 transition-all duration-300 border-border/40 bg-card/30 backdrop-blur-md flex flex-col justify-between">
                 <CardHeader className="text-center pb-2">
-                  <div className="text-5xl mb-4">🎯</div>
+                  <CategoryIcon icon={Target} />
                   <CardTitle className="text-xl font-bold tracking-tight text-foreground">
                     {isLawyer ? 'Refer a Brief / Find Agent' : 'Post Client Need'}
                   </CardTitle>
@@ -175,8 +188,8 @@ function AddListingContent() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-4 pb-6 flex justify-center">
-                  <Button className="w-full max-w-[200px]" onClick={() => handleCategorySelect('need')}>
-                    {isLawyer ? 'Select Referral' : 'Post Brief'}
+                  <Button className="h-11 w-full max-w-[220px]" onClick={() => handleCategorySelect('need')}>
+                    {isLawyer ? 'Post a referral' : 'Post a brief'}
                   </Button>
                 </CardFooter>
               </Card>

@@ -810,6 +810,21 @@
         "D13",
         "D14"
       ]
+    },
+    {
+      "id": "CH-071",
+      "date": "2026-11-21",
+      "type": "added",
+      "title": "House ad inventory moved from theme slots to the database",
+      "detail": "The live WordPress page carried `ad_before_content`, `ad_after_content` and `ad_container_bottom` as hand-edited theme slots plus an AdSense widget — swapping a creative meant editing a post body. Added `ad_slots` (placement, creative, destination, flight window, weight, intrinsic image size) with an admin CRUD page at `/admin/ads`, and a server `<AdSlot>` that renders the live creative or nothing. Four placements wired into the corporate-post and insight article templates; destinations are restricted to http(s) or site-relative links and marked `rel=\"sponsored nofollow noopener noreferrer\"`; the stored image size reserves the box so an ad load cannot shift the article.",
+      "evidence": [
+        "supabase/migrations/20261121000001_ad_slots.sql",
+        "lib/ads.ts",
+        "components/ads/ad-slot.tsx",
+        "app/admin/ads/page.tsx",
+        "app/directory/corporate-posts/[slug]/page.tsx",
+        "app/(main)/insights/[slug]/page.tsx"
+      ]
     }
   ]
 }

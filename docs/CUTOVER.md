@@ -1,13 +1,18 @@
-# Moving Lawyard off WordPress
+# Moving Lawyard off WordPress (parked)
+
+**Status: parked — not the current plan.** The decision taken in November 2026 is
+to keep the news site on WordPress and run this application as the directory
+only. Keep this document as the costed plan if that decision is ever revisited;
+do not treat it as a to-do list.
 
 Everything needed to point `www.lawyard.org` at this application and retire the
 WordPress install. Written to be followed in order; each section says what
 breaks if it is skipped.
 
-**Current state:** the application serves `directory.lawyard.org` and is deployed
-on Vercel. `www.lawyard.org` is still WordPress on Bluehost. Content flows
-one-way from WordPress into Supabase (every 15 minutes), so WordPress is still
-the editorial source until the cutover.
+**Current state:** this application serves `directory.lawyard.org` only.
+`www.lawyard.org` is WordPress on Bluehost and remains the editorial source and
+the news site. The news front end that was built here has been removed; corporate
+posts are still sold and reviewed in this app and published to WordPress.
 
 ---
 
@@ -21,17 +26,11 @@ pnpm dev
 | What you want | URL |
 |---|---|
 | The directory | http://localhost:3000 |
-| The news site | http://127.0.0.1:3000 |
+| A directory route directly | http://127.0.0.1:3000/search |
 
 The middleware rewrites any request whose host starts with `localhost` to
-`/directory`, which is why the plain `localhost` URL shows the directory. Use
-`127.0.0.1` to see the news site, or add a hosts entry:
-
-```
-127.0.0.1   news.lawyard.local
-```
-
-and open http://news.lawyard.local:3000.
+`/directory`, so plain `localhost` shows the marketplace. `127.0.0.1` bypasses
+that rewrite and serves the same routes at their unprefixed paths.
 
 `pnpm dev` reads `.env.local`, which points at the **production** Supabase
 project and the live Paystack keys. Anything you submit locally writes to real
@@ -172,16 +171,18 @@ and record it here.
 ## 6. Retiring WordPress
 
 1. Freeze editing in WordPress at cutover time (announce it to the editors).
-2. Run the final sync: `node scripts/import-wordpress.mjs --since <cutover-date>`
-   and confirm the counts match `wp-json/wp/v2/posts` totals.
+2. Take a final content export: `wp-json/wp/v2/posts` in pages, plus the uploads
+   directory. The import script used for the pilot lives in git history —
+   restore it before starting, or write a fresh one against the export.
 3. Keep the WordPress install **read-only and reachable** for 90 days — it is the
    rollback and the image archive (until section 1 is done).
 4. After 90 days: export a final database dump, archive it, then decommission.
    Cancel the Bluehost *hosting* plan only after the DNS and mail records are
    proven stable; keep the domain registration.
-5. Delete the WordPress sync workflow and `/api/sync/wordpress` once editorial
-   moves into the new system — they become dead weight and a write path you no
-   longer review.
+5. Once editorial moves into the new system, keep the publish-to-WordPress path
+   only as long as articles are still authored there. Corporate posts publish to
+   WordPress today (`lib/wordpress.ts`); that integration is the last thing to
+   retire.
 
 ---
 

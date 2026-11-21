@@ -168,11 +168,9 @@
       "impact": "`/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with \"malformed array literal\". Corporate Posts were invisible for the same reason.",
       "evidence": [
         "lib/api/articles.ts",
-        "app/(main)/insights/page.tsx",
-        "app/(main)/category/[slug]/page.tsx",
         "app/directory/knowledge/category/[id]/page.tsx"
       ],
-      "fix": "Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.",
+      "fix": "Added `categoryCandidates()` and switched category filtering to `.overlaps()`; still used by the directory knowledge pages. The news front end that surfaced the bug was removed when the site split.",
       "features": []
     },
     {
@@ -211,8 +209,7 @@
       "impact": "Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version.",
       "evidence": [
         "app/directory/corporate-posts/[slug]/page.tsx",
-        "app/directory/knowledge/[slug]/page.tsx",
-        "app/(main)/insights/[slug]/page.tsx"
+        "app/directory/knowledge/[slug]/page.tsx"
       ],
       "fix": "Render through `dangerouslySetInnerHTML` like the insights page and rebuild the template to match it; `lib/sanitize.ts` cleans the HTML on save and again on read; excerpt fallbacks are plain text. Same fix on `/directory/knowledge/[slug]`.",
       "features": [

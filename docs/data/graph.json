@@ -689,6 +689,14 @@
       "status": "fixed"
     },
     {
+      "id": "CH-071",
+      "type": "change",
+      "label": "House ad inventory moved from theme slots to the database",
+      "date": "2026-11-21",
+      "detail": "added",
+      "status": "added"
+    },
+    {
       "id": "F-01",
       "type": "feature",
       "label": "Auth — email/password, Google OAuth, magic link, password recovery",
@@ -854,7 +862,7 @@
       "id": "F-28",
       "type": "feature",
       "label": "Shop + cart + checkout + orders",
-      "status": "shipped"
+      "status": "remove"
     },
     {
       "id": "F-29",
@@ -1011,6 +1019,12 @@
       "type": "feature",
       "label": "Unit + E2E tests, CI/CD, monitoring, backup strategy",
       "status": "not_started"
+    },
+    {
+      "id": "F-55",
+      "type": "feature",
+      "label": "House ads — database-backed slots with admin CRUD",
+      "status": "shipped"
     },
     {
       "id": "D1",
@@ -2065,6 +2079,11 @@
       "kind": "fixes"
     },
     {
+      "from": "CH-071",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2642,6 +2661,11 @@
     {
       "from": "S-2026-11-21-17",
       "to": "F-27",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-17",
+      "to": "F-55",
       "kind": "touches"
     }
   ]

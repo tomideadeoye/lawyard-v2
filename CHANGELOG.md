@@ -9,6 +9,10 @@
 
 ## 2026-11-21
 
+### Added
+
+- **House ad inventory moved from theme slots to the database**: The live WordPress page carried `ad_before_content`, `ad_after_content` and `ad_container_bottom` as hand-edited theme slots plus an AdSense widget — swapping a creative meant editing a post body. Added `ad_slots` (placement, creative, destination, flight window, weight, intrinsic image size) with an admin CRUD page at `/admin/ads`, and a server `<AdSlot>` that renders the live creative or nothing. Four placements wired into the corporate-post and insight article templates; destinations are restricted to http(s) or site-relative links and marked `rel="sponsored nofollow noopener noreferrer"`; the stored image size reserves the box so an ad load cannot shift the article.
+
 ### Fixed
 
 - **Corporate Post page printed its own HTML as visible text**: `app/directory/corporate-posts/[slug]/page.tsx` rendered `{article.content}` as a React child, so React escaped the body and the post showed `<p><a target="_blank"…` instead of the announcement. It now injects the body and follows the same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover, 8/4 grid with a sticky sidebar (search, recent posts, submit CTA), paid-announcement disclosure and related posts. `lib/sanitize.ts` cleans submitted HTML on save (tag allowlist, safe schemes, forced `rel`, empty paragraphs dropped) and again on read; excerpt fallbacks are plain text. `/directory/knowledge/[slug]` had the same escaped body and was fixed with it.

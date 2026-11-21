@@ -11,7 +11,7 @@ test.describe("public pages render", () => {
 
     // The dollar-era rows must be parked, not purchasable (D1).
     await expect(page.getByText("Pricing under review").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /enquire about this plan/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /contact sales/i }).first()).toBeVisible();
 
     // A ₦2 / ₦20 buy button would mean the guard regressed.
     await expect(page.getByRole("button", { name: /pay|checkout|buy/i })).toHaveCount(0);

@@ -5,7 +5,7 @@
 > Regenerate: `pnpm run docs:render` · Gate: `pnpm run docs:check`.
 >
 > Reconciled from README §Status, `CHANGELOG.md`, `docs/features.md`, `HANDOFF.md` §6 (12 Sep decisions).
-> **Re-verified against the codebase: 2026-11-04** — after the 12 Sep changeset shipped (`164510d`).
+> **Re-verified against the codebase: 2026-11-21** — after the 12 Sep changeset shipped (`164510d`).
 > Replaces the README status table and `docs/features.md` as the source of truth for "is it built?".
 
 ## Legend
@@ -52,7 +52,6 @@
 | WordPress publishing + media/tags/categories sync | `lib/wordpress.ts` |
 | Coupon-gated article publishing | `app/directory/actions/content.ts` · `components/ui/coupon-input.tsx` |
 | Corporate posts — 3 tiers, Paystack, admin review, scheduling | `app/directory/corporate-posts/page.tsx` · `app/directory/corporate-posts/submit/page.tsx` · `app/actions/corporate-posts.ts` |
-| Shop + cart + checkout + orders | `app/(main)/shop` · `app/dashboard/orders/page.tsx` |
 | Paystack payments + webhook (HMAC-SHA512) | `lib/api/paystack.ts` · `app/directory/api/webhooks/paystack/route.ts` |
 | Plans table (DB-managed pricing) | `app/directory/actions/plans.ts` · `supabase/migrations/20260628000001_create_plans_table.sql` — Mechanism works; the seeded values are dollar-era — see D1. |
 | Coupons — server-side enforced + admin UI | `app/admin/coupons/page.tsx` · `app/actions/validate-coupon.ts` |
@@ -63,6 +62,7 @@
 | Route restructure (clean URLs) + middleware subdomain routing | `middleware.ts` |
 | Error boundary — root + directory | `app/error.tsx` · `app/directory/error.tsx` |
 | Auth UX polish — password toggles, forgot-password modal, email footer | `components/directory/auth` |
+| House ads — database-backed slots with admin CRUD | `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx` — Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots and the AdSense widget. |
 
 ## 2. Partial 🟡
 
@@ -78,7 +78,7 @@
 
 ## 3. Scaffolded but empty 🟦
 
-Route directories exist but contain **no `page.tsx`**. Confirmed 2026-11-04 that no nav link points at them.
+Route directories exist but contain **no `page.tsx`**. Confirmed 2026-11-21 that no nav link points at them.
 
 | Feature | Path | Note |
 |---|---|---|
@@ -130,10 +130,10 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 | D7 | Three empty dashboard dirs (chat, wallet, packages) | low | Harmless, but suggests shipped features; no nav links point at them. | `app/directory/dashboard` |
 | D8 | No admin analytics route | medium | Tier 5 telemetry (signups, subscribers, revenue, funnel) is blocked. | `app/admin/page.tsx` |
 | D9 | Error boundaries on only two routes | low | Admin and dashboard failures fall through to the root boundary. | `app/error.tsx` · `app/directory/error.tsx` |
-| D10 | Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty | high | `/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with "malformed array literal". Corporate Posts were invisible for the same reason. | `lib/api/articles.ts` · `app/(main)/insights/page.tsx` · `app/(main)/category/[slug]/page.tsx` · `app/directory/knowledge/category/[id]/page.tsx` |
+| D10 | Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty | high | `/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with "malformed array literal". Corporate Posts were invisible for the same reason. | `lib/api/articles.ts` · `app/directory/knowledge/category/[id]/page.tsx` |
 | D11 | Corporate Posts listing fetched the 50 newest articles then filtered in JS | medium | Any burst of ordinary published articles pushed Corporate Posts off the listing entirely. | `app/directory/corporate-posts/page.tsx` · `lib/api/articles.ts` |
 | D12 | Email verification links land signed-out (PKCE code / implicit hash) | high | Confirmation links went to GoTrue /auth/v1/verify, which redirects with ?code= (needs the code-verifier cookie, so it fails on a phone) or #access_token (a fragment no route can read). Users were verified but signed out. | `lib/auth/confirm.ts` · `app/auth/confirm/route.ts` · `app/directory/auth/confirm/route.ts` · `app/api/auth/hook/route.ts` |
-| D13 | Corporate Post detail page escaped its content instead of rendering it | medium | Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version. | `app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` · `app/(main)/insights/[slug]/page.tsx` |
+| D13 | Corporate Post detail page escaped its content instead of rendering it | medium | Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version. | `app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` |
 | D14 | `.prose` was a no-op — article bodies had no typography | medium | The typography plugin was never installed, so every `.prose` class did nothing: paragraphs flush together, headings at body size, no list markers, no link colour — on terms, privacy, knowledge and every article body. | `app/globals.css` · `package.json` |
 
 **Fix notes**
@@ -147,7 +147,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 - **D7** — Deleted the empty dashboard directories (chat, wallet, packages) so no nav-less shells imply shipped features.
 - **D8** — Build app/admin/analytics on top of getAdminStats + revenue queries.
 - **D9** — Added route-level error boundaries at app/admin/error.tsx and app/directory/dashboard/error.tsx, so admin and dashboard failures no longer fall through to the root boundary.
-- **D10** — Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.
+- **D10** — Added `categoryCandidates()` and switched category filtering to `.overlaps()`; still used by the directory knowledge pages. The news front end that surfaced the bug was removed when the site split.
 - **D11** — Filter server-side with `article_type = corporate_post` via the new `articleType` option on `getPublishedArticles()`.
 - **D12** — Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.
 - **D13** — Render through `dangerouslySetInnerHTML` like the insights page and rebuild the template to match it; `lib/sanitize.ts` cleans the HTML on save and again on read; excerpt fallbacks are plain text. Same fix on `/directory/knowledge/[slug]`.

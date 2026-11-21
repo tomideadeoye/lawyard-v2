@@ -725,6 +725,10 @@
         {
           "title": "Typography actually exists now",
           "detail": "`@tailwindcss/typography` was never installed, so every `.prose` in the repo was inert. Added it, set Lawyard's register through the plugin's variables (bronze links, serif headings), then fixed what the change exposed: `prose-invert` used unconditionally on the light terms/privacy pages, and `text-accent` headings that were near-white on white. `.prose` in the submission editor gets the same styles, so submitters now see what they will get."
+        },
+        {
+          "title": "House ads: from theme slots to data",
+          "detail": "The live page's three banner ads were hand-edited WordPress theme slots. Added `ad_slots` — placement, creative, destination, flight window, weight, intrinsic image size — with `/admin/ads` for CRUD and a server `<AdSlot>` that renders the live creative or nothing at all. Destinations limited to http(s) or site-relative; links carry `rel=\"sponsored nofollow noopener noopener noreferrer\"`; the stored width/height reserves the box so an ad loading cannot shift the article. Wired into both article templates; seeded with the live LawPavilion banners for parity."
         }
       ],
       "rationale": [
@@ -734,12 +738,14 @@
       "files": [
         "`app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` · `app/actions/corporate-posts.ts` · `components/ui/article-card.tsx`",
         "`lib/sanitize.ts` · `lib/sanitize.test.ts` · `app/globals.css` · `app/directory/{terms,privacy}/page.tsx`",
+        "`supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `lib/ads.test.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx`",
         "`package.json` (`sanitize-html`, `@tailwindcss/typography`)"
       ],
       "verification": [
-        "`vitest run` — 62/62 pass, including 12 sanitiser cases.",
-        "`tsc --noEmit` clean; `eslint` 0 errors; `pnpm build` succeeds; `pnpm docs:check` passes.",
-        "Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, body, disclosure, sidebar and footer all read; article column 805px, matching the WordPress 800px reference."
+        "`vitest run` — 76/76 pass, including 12 sanitiser and 14 ad-inventory cases.",
+        "`tsc --noEmit` clean; `eslint .` 0 errors; `pnpm build` succeeds (routes `/admin/ads`, `/directory/corporate-posts/[slug]`, `/insights/[slug]`); `pnpm docs:check` passes.",
+        "Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, drop cap, body, disclosure, sidebar and the three seeded banners all read; article column 805px, matching the WordPress 800px reference.",
+        "`pnpm migrations:push` applied the ad table to the linked project; `pnpm check:migrations` clean (44/44). Live rows confirmed through PostgREST."
       ],
       "defects": [
         "D13",
@@ -747,7 +753,8 @@
       ],
       "nextSteps": [
         "Confirm the Kredete post renders as an article on production after deploy.",
-        "Not a backfill: legacy rows render correctly because the page sanitises on read."
+        "House ads: promote `ad_slots` to production (`pnpm migrations:push` already applied) and let Tobi book creatives at `/admin/ads` instead of editing a WordPress post body.",
+        "Optional: wire an AdSense slot alongside house ads if Google inventory is wanted back."
       ]
     }
   ]

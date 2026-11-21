@@ -435,15 +435,18 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 - **`lib/sanitize.test.ts`**: 11 cases: kept markup, stripped script/style/`onclick`, refused `javascript:` and `data:` URLs, forced `rel`, dropped empty paragraphs, kept image-only paragraphs, treated null as empty.
 - **The page, rebuilt to the WordPress standard**: Same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover with brand caption, body, paid-announcement disclosure, related posts, and a sticky sidebar (search, recent posts, submit CTA priced from the tier config). Read time is computed from the body, not hardcoded. `generateMetadata` adds title, description, canonical and OG image — the page had none. Includes the opening drop cap (`::first-letter`, floated, 5.333em / 0.68 line-height) at the same metrics as the WordPress theme.
 - **Typography actually exists now**: `@tailwindcss/typography` was never installed, so every `.prose` in the repo was inert. Added it, set Lawyard's register through the plugin's variables (bronze links, serif headings), then fixed what the change exposed: `prose-invert` used unconditionally on the light terms/privacy pages, and `text-accent` headings that were near-white on white. `.prose` in the submission editor gets the same styles, so submitters now see what they will get.
+- **House ads: from theme slots to data**: The live page's three banner ads were hand-edited WordPress theme slots. Added `ad_slots` — placement, creative, destination, flight window, weight, intrinsic image size — with `/admin/ads` for CRUD and a server `<AdSlot>` that renders the live creative or nothing at all. Destinations limited to http(s) or site-relative; links carry `rel="sponsored nofollow noopener noopener noreferrer"`; the stored width/height reserves the box so an ad loading cannot shift the article. Wired into both article templates; seeded with the live LawPavilion banners for parity.
 
 ### Next Steps
 1. Confirm the Kredete post renders as an article on production after deploy.
-2. Not a backfill: legacy rows render correctly because the page sanitises on read.
+2. House ads: promote `ad_slots` to production (`pnpm migrations:push` already applied) and let Tobi book creatives at `/admin/ads` instead of editing a WordPress post body.
+3. Optional: wire an AdSense slot alongside house ads if Google inventory is wanted back.
 
 ### Verification
-- `vitest run` — 62/62 pass, including 12 sanitiser cases.
-- `tsc --noEmit` clean; `eslint` 0 errors; `pnpm build` succeeds; `pnpm docs:check` passes.
-- Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, body, disclosure, sidebar and footer all read; article column 805px, matching the WordPress 800px reference.
+- `vitest run` — 76/76 pass, including 12 sanitiser and 14 ad-inventory cases.
+- `tsc --noEmit` clean; `eslint .` 0 errors; `pnpm build` succeeds (routes `/admin/ads`, `/directory/corporate-posts/[slug]`, `/insights/[slug]`); `pnpm docs:check` passes.
+- Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, drop cap, body, disclosure, sidebar and the three seeded banners all read; article column 805px, matching the WordPress 800px reference.
+- `pnpm migrations:push` applied the ad table to the linked project; `pnpm check:migrations` clean (44/44). Live rows confirmed through PostgREST.
 
 ### Rationale
 - The bug was a renderer decision, not bad data — the HTML was stored correctly, which is why the WordPress copy read fine while the Next page did not. Escaped markup is always the render path.
@@ -452,6 +455,7 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 ### Related Files
 - `app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` · `app/actions/corporate-posts.ts` · `components/ui/article-card.tsx`
 - `lib/sanitize.ts` · `lib/sanitize.test.ts` · `app/globals.css` · `app/directory/{terms,privacy}/page.tsx`
+- `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `lib/ads.test.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx`
 - `package.json` (`sanitize-html`, `@tailwindcss/typography`)
 
 > defects D13 D14
