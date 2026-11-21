@@ -4,6 +4,7 @@ import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { initializeTransaction, verifyTransaction } from '@/lib/api/paystack'
 import { revalidatePath } from 'next/cache'
 import { getPlanByName } from '@/app/directory/actions/plans'
+import { clampSeats } from '@/lib/directory/seats'
 import { generatePaymentReference, getSiteUrl } from '@/lib/utils/payment'
 
 export async function createPayment(formData: FormData) {
@@ -14,6 +15,7 @@ export async function createPayment(formData: FormData) {
   const planName = formData.get('plan_name') as string
   const planRole = formData.get('plan_role') as string
   const chamberId = formData.get('chamber_id') as string | null
+  const seatsInput = formData.get('seats') as string | null
 
   if (!planName || !planRole) {
     return { error: 'Invalid plan details' }
@@ -25,7 +27,40 @@ export async function createPayment(formData: FormData) {
     return { error: 'Invalid plan selected or free tier cannot be paid' }
   }
 
-  const amount = dbPlan.price
+  const isChamber = planRole === 'chamber'
+
+  // C22: firm plans are billed per seat. The seat count is re-derived and clamped
+  // server-side — the browser only proposes a number.
+  const seats = isChamber ? clampSeats(Number(seatsInput ?? 1)) : 1
+
+  if (isChamber) {
+    // A firm subscription attaches to an existing firm listing. Without one there
+    // is nothing to upgrade, and the payment would be a receipt with no product.
+    if (!chamberId) {
+      return { error: 'Create your firm listing first, then buy seats for it.' }
+    }
+
+    const { data: chamber } = await supabase
+      .from('chambers')
+      .select('id, user_id')
+      .eq('id', chamberId)
+      .maybeSingle()
+
+    let manages = chamber?.user_id === user.id
+    if (!manages) {
+      const { data: adminRow } = await supabase
+        .from('chamber_admins')
+        .select('role')
+        .eq('chamber_id', chamberId)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      manages = Boolean(adminRow)
+    }
+
+    if (!manages) return { error: 'You do not manage this firm' }
+  }
+
+  const amount = dbPlan.price * seats
   const reference = generatePaymentReference('LWY')
 
   const { data: profile } = await supabase
@@ -33,8 +68,6 @@ export async function createPayment(formData: FormData) {
     .select('full_name')
     .eq('id', user.id)
     .single()
-
-  const isChamber = planRole === 'chamber'
 
   const init = await initializeTransaction({
     email: user.email!,
@@ -47,6 +80,7 @@ export async function createPayment(formData: FormData) {
       user_id: user.id,
       plan_name: planName,
       plan_role: planRole,
+      seats,
       full_name: profile?.full_name,
       ...(isChamber && chamberId ? { chamber_id: chamberId } : {}),
     },
@@ -159,20 +193,52 @@ export async function verifyPayment(reference: string) {
     const tierMap: Record<string, string> = {
       'Premium (Package)': 'premium_package',
       'Premium (Single)': 'premium_single',
+      'Premium': 'premium_single',
+      'Silver': 'silver',
       'Enterprise': 'enterprise',
     }
-    const tier = tierMap[tx.plan_name] || 'free'
-    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+
+    // A paid chamber plan is the firm rung; the plan's own name is not a profile
+    // tier, so it must not be mapped through the lawyer ladder.
+    const tier = isChamber
+      ? (tx.plan_role === 'chamber' && tx.plan_name !== 'Free' ? 'enterprise' : 'free')
+      : tierMap[tx.plan_name] || 'free'
+
+    // Term follows the plan, not a hardcoded year: client plans run 90 days.
+    const plan = await getPlanByName(tx.plan_name, tx.plan_role)
+    const days = /90/.test(plan?.period ?? '') ? 90 : 365
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
 
     if (isChamber) {
       const chamberId = meta?.chamber_id as string | null
       if (chamberId) {
+        const seats = clampSeats(Number(meta?.seats ?? 1))
+        // Renewal extends the running term instead of truncating it.
+        const { data: current } = await sbAdmin
+          .from('chambers')
+          .select('subscription_expires_at, subscription_status')
+          .eq('id', chamberId)
+          .maybeSingle()
+
+        const stillRunning =
+          current?.subscription_status === 'active' &&
+          current?.subscription_expires_at &&
+          new Date(current.subscription_expires_at) > new Date()
+
+        const start = stillRunning ? new Date(current!.subscription_expires_at as string) : new Date()
+        const extended = new Date(start.getTime() + days * 24 * 60 * 60 * 1000).toISOString()
+
         await sbAdmin.from('chambers').update({
           subscription_tier: tier,
           subscription_status: 'active',
-          subscription_expires_at: expiresAt,
+          subscription_expires_at: extended,
+          seat_limit: seats,
           is_featured: true,
         }).eq('id', chamberId)
+
+        // Seats bought can be fewer than seats in use. Nobody is ejected here —
+        // the firm sees the overage in Team & seats and either buys more or ends
+        // a membership deliberately.
       }
     } else {
       await sbAdmin.from('profiles').update({

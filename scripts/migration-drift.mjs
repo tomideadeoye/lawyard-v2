@@ -7,15 +7,69 @@
  * never been pushed; nothing in the workflow noticed because the files
  * existed locally. This script makes that drift a hard, visible failure.
  *
+ * Two local checks run first, before the CLI is touched:
+ *   1. Duplicate versions. Two sessions writing `20261121000002_a.sql` and
+ *      `20261121000002_b.sql` merge cleanly in git, and `supabase migration
+ *      list` prints a single row for the version — so one file becomes
+ *      invisible and the drift check reports "clean". That happened on
+ *      2026-11-21; uniqueness is the one thing the CLI cannot tell you about.
+ *   2. Filenames Supabase will silently ignore, because a migration that never
+ *      applies is the same failure with no error message.
+ *
  * Usage:  node scripts/migration-drift.mjs
- * Exit:   0 = no drift · 1 = drift (or the check itself failed)
+ * Exit:   0 = no drift · 1 = drift, duplicate versions, or a bad filename
  */
 
 import { spawnSync } from 'node:child_process'
+import { readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const migrationsDir = path.join(repoRoot, 'supabase', 'migrations')
+
+// The version is the 14-digit prefix; the slug after it is for humans.
+const VERSIONED = /^(\d{14})_.+\.sql$/
+
+const byVersion = new Map()
+const ignored = []
+
+for (const file of readdirSync(migrationsDir)) {
+  const match = file.match(VERSIONED)
+  if (!match) {
+    ignored.push(file)
+    continue
+  }
+  const files = byVersion.get(match[1]) ?? []
+  files.push(file)
+  byVersion.set(match[1], files)
+}
+
+const duplicates = [...byVersion.entries()].filter(([, files]) => files.length > 1)
+
+if (duplicates.length > 0) {
+  console.error('migration-drift: DUPLICATE MIGRATION VERSIONS\n')
+  for (const [version, files] of duplicates) {
+    console.error(`Version ${version} is claimed by ${files.length} files:`)
+    for (const file of files) console.error(`  - supabase/migrations/${file}`)
+    console.error('')
+  }
+  console.error('Only one file can hold a version. `supabase migration list` prints one row')
+  console.error('per version, so the other file is invisible to this check and to `db push`.')
+  console.error('')
+  console.error('Fix: rename the file that is NOT applied yet, using a free version —')
+  console.error('     `supabase migration new <name>` stamps a fresh timestamp.')
+  console.error('     Never rename an applied migration: the remote row is keyed to its version.')
+  process.exit(1)
+}
+
+if (ignored.length > 0) {
+  console.error('migration-drift: UNRECOGNISED FILES IN supabase/migrations\n')
+  for (const file of ignored) console.error(`  - ${file}`)
+  console.error('\nSupabase only applies files named <14-digit version>_<name>.sql.')
+  console.error('Anything else is skipped silently, which is drift with no error message.')
+  process.exit(1)
+}
 
 const res = spawnSync('supabase', ['migration', 'list', '--linked'], {
   cwd: repoRoot,

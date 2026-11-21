@@ -19,6 +19,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { mapAuthError } from '@/lib/auth/auth-errors'
+import { roleForCategory } from '@/lib/directory/roles'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -57,6 +58,17 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   let redirectTo = next
 
+  // OAuth accounts never pass through the signup form, so the category chosen on
+  // /add-listing is applied here. Only promotes out of the default role — it can
+  // never demote an admin or overwrite a deliberate choice.
+  if (user && category && roleForCategory(category) === 'lawyer') {
+    await supabase
+      .from('profiles')
+      .update({ role: 'lawyer' })
+      .eq('id', user.id)
+      .eq('role', 'client')
+  }
+
   if (!searchParams.has('next') && user) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -66,7 +78,7 @@ export async function GET(request: Request) {
 
     if (profile?.role === 'client') {
       redirectTo = '/search'
-    } else if (profile?.role === 'lawyer' || profile?.role === 'chamber') {
+    } else if (profile?.role === 'lawyer') {
       redirectTo = '/dashboard'
     }
   }

@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await supabase
       .from("chambers")
       .select("id, created_at")
+      .not("published_at", "is", null)
       .range(from, from + 999);
     if (!data?.length) break;
     chambers.push(...data);

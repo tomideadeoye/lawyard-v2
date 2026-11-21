@@ -56,11 +56,13 @@ export default function CorporateForm() {
       if (authError) throw authError;
 
       // 2. Update Database Profiles Row
+      // Role is not written here. A corporate legal team is a client account, but
+      // the account's role was decided when they chose what they were listing —
+      // a form submission must never silently change what an account can do.
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: `${repName} (${companyName})`,
-          role: 'client' // Corporate departments operate as clients searching/hiring lawyers
         })
         .eq('id', user.id);
 

@@ -63,6 +63,7 @@
 | Error boundary — root + directory | `app/error.tsx` · `app/directory/error.tsx` |
 | Auth UX polish — password toggles, forgot-password modal, email footer | `components/directory/auth` |
 | House ads — database-backed slots with admin CRUD | `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx` — Four placements (article-before, article-after, footer-banner, sidebar), flight windows, weights, intrinsic size for CLS. Creatives live in `ad_slots`, edited at /admin/ads — replaces the WordPress theme ad slots. The AdSense unit is not carried over; `ads.txt` keeps the publisher authorised (see docs/OPERATIONS.md §1). |
+| Ad delivery counters — impressions, clicks, CTR | `supabase/migrations/20261121000002_ad_events.sql` · `app/ads/click/[id]/route.ts` · `app/api/ads/impression/route.ts` · `components/ads/ad-beacon.tsx` · `app/admin/ads/page.tsx` — Impressions on viewport intersection (once per creative per session), clicks in a redirect route, daily rollup in `ad_events` via a SECURITY DEFINER function. 7/28-day figures on /admin/ads. First-party and unfiltered — directional, not audited. |
 
 ## 2. Partial 🟡
 

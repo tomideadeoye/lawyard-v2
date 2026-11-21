@@ -48,6 +48,7 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
   };
 
   const [error, setError] = useState<string | null>(null);
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +63,13 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
     if (result.error) {
       setError(result.error);
       return;
+    }
+    if (result.blockers?.length) {
+      setDraftNotice(
+        `Saved as a draft — it is not public yet. Still needed: ${result.blockers.join(', ')}.`
+      );
+    } else {
+      setDraftNotice(null);
     }
     router.refresh();
   };
@@ -114,6 +122,12 @@ export default function ChamberForm({ initial }: { initial: ChamberData | null }
 
       {error && (
         <p className="text-xs font-medium text-destructive">{error}</p>
+      )}
+
+      {draftNotice && (
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+          {draftNotice}
+        </p>
       )}
 
       <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-lg bg-[#a77c5c] hover:bg-[#906b4e] disabled:opacity-50 text-white text-xs font-bold transition-colors">

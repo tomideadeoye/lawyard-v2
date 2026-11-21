@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getChamberById } from '@/lib/directory/api';
 import { ListingAvatar } from '@/components/directory/ListingAvatar';
+import RequestSeat from '@/components/directory/request-seat';
 import { TERMS } from '@/lib/constants';
 
 interface ChamberLawyer {
@@ -41,6 +42,22 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(6);
+
+  // Join state for the viewer, so the firm page can offer "request to join"
+  // without a second round trip on the client.
+  const { data: { user } } = await supabase.auth.getUser()
+  let seatState: 'guest' | 'eligible' | 'pending' | 'member' = 'guest'
+  if (user) {
+    const { data: seat } = await supabase
+      .from('chamber_members')
+      .select('status')
+      .eq('chamber_id', id)
+      .eq('lawyer_id', user.id)
+      .in('status', ['pending', 'active'])
+      .maybeSingle()
+
+    seatState = seat?.status === 'active' ? 'member' : seat?.status === 'pending' ? 'pending' : 'eligible'
+  }
 
   // Aggregate practice areas across all member lawyers
   const practiceAreas = new Map<string, number>();
@@ -100,6 +117,10 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
               {verifiedCount > 0 && (
                 <span className="text-emerald-600 font-semibold">{verifiedCount} Verified</span>
               )}
+            </div>
+
+            <div className="mt-4">
+              <RequestSeat chamberId={id} state={seatState} />
             </div>
           </div>
         </div>

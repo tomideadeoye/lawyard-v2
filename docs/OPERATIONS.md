@@ -30,7 +30,26 @@ now data in `ad_slots`, edited at `/admin/ads`.
 - Several live creatives in one placement: highest weight wins, ties go to the
   newest booking.
 - Destinations are restricted to absolute `http(s)` or site-relative paths;
-  external links carry `rel="sponsored nofollow noopener noreferrer"`.
+  external links carry `rel="sponsored nofollow noopener noreferrer"` and are
+  reached through `/ads/click/[id]`, which counts the click server-side before
+  redirecting. An unvalidated destination falls back to the home page rather
+  than acting as an open redirect.
+
+**Delivery reporting**
+
+- An impression is counted when the creative is actually in view
+  (`IntersectionObserver`, once per creative per session), not when the page
+  renders — so a banner nobody scrolls to does not pad the report.
+- Clicks are counted in the redirect route, so they survive ad blockers and
+  browsers with JavaScript off.
+- Both land in `ad_events` as a daily rollup per creative per kind, written
+  through one `SECURITY DEFINER` function (`record_ad_event`); the table itself
+  has no policies and is readable only by the service role.
+- `/admin/ads` shows 7-day views and clicks with a 28-day CTR per creative.
+- **Read the numbers as directional, not audited.** The counters are
+  first-party and anonymous, with no bot filtering — fine for a house
+  inventory conversation, not for billing a third party by impression. If a
+  buyer demands audited numbers, that is what a third-party ad server is for.
 
 **Models considered**
 
@@ -64,10 +83,10 @@ position with no direct booking — not in the reading column.
 
 **Open**
 
-- **Measurement is not built.** The application carries no analytics at all, so
-  delivery cannot be reported to an advertiser — the one fact that renews a
-  booking. Impressions and clicks per creative, plus a site-level analytics
-  tool, are the next piece of work.
+- **No bot filtering on the ad counters.** Impressions are counted by the
+  beacon and clicks by the redirect; neither tries to separate a person from a
+  crawler or a scripted request. Add filtering only when a number is used for
+  billing.
 - **The seeded creatives hotlink `www.lawyard.org/wp-content/…`.** They work
   only while WordPress runs; copy them into Supabase Storage and repoint the
   rows before cutover.
@@ -103,7 +122,11 @@ auth. It is the single point of failure for everything.
 **Migrations**
 
 - Schema lives in `supabase/migrations/`. `pnpm run check:migrations` fails when
-  the folder and the applied schema drift; run it in CI.
+  the folder and the applied schema drift, when two files claim the same
+  version, and when a file's name is not `<14-digit version>_<name>.sql`; run it
+  in CI and before any push. The version prefix is the key in
+  `supabase_migrations.schema_migrations` — unique per file, never reused, never
+  changed once applied.
 - Never patch production through the dashboard SQL editor without a matching
   migration file — that is how drift starts.
 

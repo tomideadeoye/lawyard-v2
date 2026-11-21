@@ -436,6 +436,9 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 - **The page, rebuilt to the WordPress standard**: Same article layout as `/insights/[slug]`: serif headline, brand + tier line, date/read-time strip, share bar, 16:9 cover with brand caption, body, paid-announcement disclosure, related posts, and a sticky sidebar (search, recent posts, submit CTA priced from the tier config). Read time is computed from the body, not hardcoded. `generateMetadata` adds title, description, canonical and OG image — the page had none. Includes the opening drop cap (`::first-letter`, floated, 5.333em / 0.68 line-height) at the same metrics as the WordPress theme.
 - **Typography actually exists now**: `@tailwindcss/typography` was never installed, so every `.prose` in the repo was inert. Added it, set Lawyard's register through the plugin's variables (bronze links, serif headings), then fixed what the change exposed: `prose-invert` used unconditionally on the light terms/privacy pages, and `text-accent` headings that were near-white on white. `.prose` in the submission editor gets the same styles, so submitters now see what they will get.
 - **House ads: from theme slots to data**: The live page's three banner ads were hand-edited WordPress theme slots. Added `ad_slots` — placement, creative, destination, flight window, weight, intrinsic image size — with `/admin/ads` for CRUD and a server `<AdSlot>` that renders the live creative or nothing at all. Destinations limited to http(s) or site-relative, links carry `rel="sponsored nofollow noopener noreferrer"`, and the stored width/height reserves the box so an ad load cannot shift the article. Seeded with the live LawPavilion banners. `docs/OPERATIONS.md` §1 previously left the model as an open comparison; it now records the decision (direct-sold house inventory), how each of its own non-negotiables is met, and the two open gaps.
+- **Ad delivery counters**: Vercel Analytics and GA4 measure pages, not creatives — so the sold banners had no report. Added `ad_events` (daily rollup per creative per kind) through a `SECURITY DEFINER` function, `/ads/click/[id]` counting clicks before the redirect (destination re-validated, no open redirect), and a viewport beacon counting an impression only when the creative is seen, once per session. `/admin/ads` shows 7-day views/clicks and 28-day CTR. Verified end to end on the dev server: impression on scroll, 302 to the advertiser, both rows written; test rows deleted afterwards.
+- **Migration version collision**: The observability commit added `20261121000001_app_errors.sql` after `20261121000001_ad_slots.sql` was already applied, so every `db push` aborted on a duplicate `schema_migrations` key. Renumbered the unapplied file to `...000003`; applied history untouched. 47/47 in sync.
+- **Migration guard, and a live duplicate it caught**: `check:migrations` trusted `supabase migration list`, which prints one row per version — so two files sharing a version read as clean. The script now scans the directory first and fails on duplicate versions or filenames Supabase would silently ignore. On its first run it found `20261121000002` claimed by both `ad_events` (applied) and `chamber_publish_gate` (another session, unapplied); the unapplied file was renamed to `…000004`. The check then reported the honest state: one migration pending.
 
 ### Next Steps
 1. Confirm the Kredete post renders as an article on production after deploy.
@@ -447,6 +450,7 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 - `tsc --noEmit` clean; `eslint .` 0 errors; `pnpm build` succeeds (routes `/admin/ads`, `/directory/corporate-posts/[slug]`, `/insights/[slug]`); `pnpm docs:check` passes.
 - Rendered on the dev server at 1440px and 390px, light and dark: headline, cover, drop cap, body, disclosure, sidebar and the three seeded banners all read; article column 805px, matching the WordPress 800px reference.
 - `pnpm migrations:push` applied the ad table to the linked project; `pnpm check:migrations` clean (44/44). Live rows confirmed through PostgREST.
+- Ad counters verified live on the dev server: one impression on scroll, one click → 302 to lpstore.lawpavilion.com, both written to `ad_events`; synthetic rows removed. `pnpm check:migrations` 47/47 clean. `vitest run` 93/93.
 
 ### Rationale
 - The bug was a renderer decision, not bad data — the HTML was stored correctly, which is why the WordPress copy read fine while the Next page did not. Escaped markup is always the render path.
@@ -458,6 +462,8 @@ A live Corporate Post displayed `<p><a target="_blank"…` to readers. Find why 
 - `supabase/migrations/20261121000001_ad_slots.sql` · `lib/ads.ts` · `lib/ads.test.ts` · `components/ads/ad-slot.tsx` · `app/admin/ads/page.tsx`
 - `package.json` (`sanitize-html`, `@tailwindcss/typography`)
 - `docs/OPERATIONS.md` §1 (advertising decision)
+- `supabase/migrations/20261121000002_ad_events.sql` · `supabase/migrations/20261121000003_app_errors.sql` · `app/ads/click/[id]/route.ts` · `app/api/ads/impression/route.ts` · `components/ads/ad-beacon.tsx` · `middleware.ts`
+- `scripts/migration-drift.mjs`
 
 > defects D13 D14
 

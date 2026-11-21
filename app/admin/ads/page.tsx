@@ -1,7 +1,7 @@
 import type React from 'react'
 import { getAdminClient } from '@/lib/supabase/admin-auth'
 import { createAdSlot, updateAdSlot, toggleAdSlot, deleteAdSlot } from '../actions'
-import { AD_PLACEMENTS, type Ad } from '@/lib/ads'
+import { AD_PLACEMENTS, summariseAdEvents, ctr, type Ad, type AdEventTotals } from '@/lib/ads'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,6 +10,12 @@ const PLACEMENT_LABELS: Record<string, string> = {
   'article-after': 'Article — below the body',
   'footer-banner': 'Full-width strip under the article',
   sidebar: 'Sidebar',
+}
+
+function isoDaysAgo(days: number) {
+  const d = new Date()
+  d.setUTCDate(d.getUTCDate() - days)
+  return d.toISOString().slice(0, 10)
 }
 
 async function getAdSlots(): Promise<{ ads: Ad[]; error: string | null }> {
@@ -22,6 +28,26 @@ async function getAdSlots(): Promise<{ ads: Ad[]; error: string | null }> {
 
   if (error) return { ads: [], error: error.message }
   return { ads: (data ?? []) as Ad[], error: null }
+}
+
+/**
+ * Delivery, last 7 and 28 days. Counters are a daily rollup, so one row per
+ * creative per day per kind — the table stays small forever.
+ */
+async function getAdDelivery(): Promise<{ week: Map<string, AdEventTotals>; month: Map<string, AdEventTotals> }> {
+  const { supabase } = await getAdminClient()
+  const { data } = await supabase
+    .from('ad_events')
+    .select('ad_id, day, kind, count')
+    .gte('day', isoDaysAgo(28))
+
+  const rows = (data ?? []) as { ad_id: string; day: string; kind: string; count: number }[]
+  const weekStart = isoDaysAgo(7)
+
+  return {
+    week: summariseAdEvents(rows.filter((r) => r.day >= weekStart)),
+    month: summariseAdEvents(rows),
+  }
 }
 
 function flightLabel(ad: Ad) {
@@ -45,6 +71,7 @@ const label = 'block text-xs font-semibold uppercase tracking-wide text-slate-50
 
 export default async function AdsPage() {
   const { ads, error } = await getAdSlots()
+  const delivery = error ? { week: new Map(), month: new Map() } : await getAdDelivery()
 
   if (error) {
     return (
@@ -159,6 +186,21 @@ export default async function AdsPage() {
                     </div>
                     <p className="text-sm font-medium text-slate-800 truncate">{ad.alt || ad.label}</p>
                     <p className="text-xs text-slate-500 truncate">{ad.href}</p>
+
+                    <dl className="mt-3 grid grid-cols-3 gap-3 rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 text-center">
+                      <div>
+                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">7d views</dt>
+                        <dd className="text-sm font-bold text-slate-800">{(delivery.week.get(ad.id)?.impressions ?? 0).toLocaleString()}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">7d clicks</dt>
+                        <dd className="text-sm font-bold text-slate-800">{(delivery.week.get(ad.id)?.clicks ?? 0).toLocaleString()}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">CTR · 28d</dt>
+                        <dd className="text-sm font-bold text-slate-800">{ctr(delivery.month.get(ad.id))}</dd>
+                      </div>
+                    </dl>
 
                     <form action={updateAdSlot} className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2 items-end">
                       <input type="hidden" name="id" value={ad.id} />

@@ -18,6 +18,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { sendWelcomeEmail, addContact } from '@/lib/api/brevo'
 import { mapAuthError } from '@/lib/auth/auth-errors'
+import { roleForCategory } from '@/lib/directory/roles'
 import { getOAuthOnlyProvider, providerLabel } from '@/lib/auth/oauth-account'
 
 // Email/password login — used when login-form.tsx submits credentials.
@@ -116,10 +117,14 @@ export async function signup(formData: FormData) {
   const email = (formData.get('email') as string).trim()
   const password = (formData.get('password') as string).trim()
   const fullName = formData.get('fullName') as string
-  const role = formData.get('role') as string || 'client'
   const redirectParam = formData.get('redirect') as string | null
   const categoryParam = formData.get('category') as string | null
   const captchaToken = formData.get('captchaToken') as string | null
+
+  // The category the person chose on /add-listing decides their role. The signup
+  // form no longer asks a second time, so there is one answer instead of two
+  // that can disagree.
+  const role = roleForCategory(categoryParam)
 
   if (!email || !password || !fullName) {
     return redirect('/login?message=Please complete all required fields')

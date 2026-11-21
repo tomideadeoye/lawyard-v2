@@ -248,7 +248,7 @@ export const ARTICLES: Record<string, ArticleContent> = {
     category: `For ${TERMS.firm.plural}`,
     content: [
       `The ${TERMS.firm.lower} dashboard gives you comprehensive control over your firm's directory presence.`,
-      `From your dashboard: Manage your ${TERMS.firm.lower} profile and branding, Add or remove ${TERMS.lawyer.lowerPlural} from your ${TERMS.firm.lower} listing, View analytics and profile engagement, Handle ${TERMS.client.lower} inquiries and appointments, Manage job postings for open positions, Track featured listing status.`,
+      `From your dashboard: Manage your ${TERMS.firm.lower} profile and branding, Add or remove ${TERMS.lawyer.lowerPlural} from your ${TERMS.firm.lower} listing under Team & seats, View analytics and profile engagement, Handle ${TERMS.client.lower} inquiries and appointments, Track featured listing status.`,
       `Access the dashboard after signing in to your ${TERMS.firm.lower} account.`,
     ],
   },
@@ -257,8 +257,10 @@ export const ARTICLES: Record<string, ArticleContent> = {
     category: `For ${TERMS.firm.plural}`,
     content: [
       `Build out your ${TERMS.firm.lower}'s team by adding ${TERMS.lawyer.lower} profiles to your listing.`,
-      `To add ${TERMS.lawyer.lowerPlural}: Go to your ${TERMS.firm.lower} dashboard, Navigate to 'Team Management', Search for ${TERMS.lawyer.lowerPlural} by name or invite them via email, Assign their role and practice areas within your ${TERMS.firm.lower}.`,
-      `Added ${TERMS.lawyer.lowerPlural} will appear on your ${TERMS.firm.lower} profile. ${TERMS.lawyer.plural} must confirm the association. You can also create new ${TERMS.lawyer.lower} profiles directly from your dashboard.`,
+      `To add ${TERMS.lawyer.lowerPlural}: open your ${TERMS.firm.lower} dashboard, go to 'Team & seats', enter the ${TERMS.lawyer.lower}'s email address and pick their seat role, then send the invite. You can copy the invite link and share it directly instead of relying on email.`,
+      `Each invited ${TERMS.lawyer.lower} must accept before they appear on your ${TERMS.firm.lower} profile, and each accepted ${TERMS.lawyer.lower} uses one seat. Free ${TERMS.firm.lowerPlural} include one seat for the owner; additional seats are bought on the pricing page.`,
+      `A ${TERMS.lawyer.lower} can also find your ${TERMS.firm.lower} page and request to join. Requests appear in 'Team & seats' for you to approve.`,
+      `When someone leaves or is removed, their listing stays live under their own plan — only the ${TERMS.firm.lower} link and the ${TERMS.firm.lower}'s plan limits stop applying.`,
     ],
   },
   "setting-up-chamber-appointments": {

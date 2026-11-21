@@ -10,6 +10,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { galleryCapFor, canUseIntroVideo } from '@/lib/directory/publishing'
+import { chamberPublishCheck } from '@/lib/directory/publishability'
 
 export interface ChamberFormInput {
   chamber_id?: string | null
@@ -28,7 +29,13 @@ export interface ChamberFormInput {
 
 const MAX_TEXT = { name: 160, location: 160, focus: 300, description: 4000, email: 200, phone: 40, website: 300 }
 
-export async function saveChamber(input: ChamberFormInput): Promise<{ error?: string }> {
+export interface SaveChamberResult {
+  error?: string
+  /** Publish requirements still missing; the draft is saved regardless. */
+  blockers?: string[]
+}
+
+export async function saveChamber(input: ChamberFormInput): Promise<SaveChamberResult> {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return { error: 'Not authenticated' }
@@ -82,6 +89,19 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
     ? (input.intro_video_url || null)
     : null
 
+  const draft = {
+    name,
+    description: input.description || null,
+    location: input.location || null,
+    focus: input.focus || null,
+    email: input.email || null,
+    phone: input.phone || null,
+    website: input.website || null,
+    image_url: null as string | null,
+    gallery_images: gallery.slice(0, galleryCap),
+  };
+  const gate = chamberPublishCheck(draft);
+
   const payload = {
     name,
     location: input.location || null,
@@ -113,7 +133,8 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
     if (error) return { error: error.message }
 
     revalidatePath('/dashboard/chamber')
-    return {}
+    revalidatePath('/chamber')
+    return gate.ready ? {} : { blockers: gate.blockers }
   }
 
   const { data: created, error } = await supabase
@@ -172,5 +193,6 @@ export async function saveChamber(input: ChamberFormInput): Promise<{ error?: st
     .eq('id', user.id)
 
   revalidatePath('/dashboard/chamber')
-  return {}
+  revalidatePath('/chamber')
+  return gate.ready ? {} : { blockers: gate.blockers }
 }

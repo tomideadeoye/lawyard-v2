@@ -1,0 +1,319 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Lawyard Logo Directory" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Lawyard Logo" [ref=e7]
+        - generic [ref=e8]: Directory
+      - navigation [ref=e9]:
+        - button "Type Of Lawyers" [ref=e11] [cursor=pointer]
+        - button "Areas Of Specialty" [ref=e15] [cursor=pointer]
+        - link "Corporate Posts" [ref=e18] [cursor=pointer]:
+          - /url: /corporate-posts
+        - link "Pricing" [ref=e19] [cursor=pointer]:
+          - /url: /pricing
+        - link "Help" [ref=e20] [cursor=pointer]:
+          - /url: /help
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - button "Toggle theme" [ref=e23]
+          - link "Search" [ref=e26] [cursor=pointer]:
+            - /url: /search
+          - link "Login" [ref=e30] [cursor=pointer]:
+            - /url: /login
+        - link "+ Add Listing" [ref=e34] [cursor=pointer]:
+          - /url: /add-listing
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - link "Lawyard Logo Directory" [ref=e38] [cursor=pointer]:
+          - /url: /
+          - img "Lawyard Logo" [ref=e39]
+          - generic [ref=e40]: Directory
+        - button "Close Menu" [ref=e41]
+      - navigation [ref=e46]:
+        - generic [ref=e47]:
+          - button "Type Of Lawyers" [ref=e48]
+          - generic:
+            - link "Commercial Law" [ref=e52] [cursor=pointer]:
+              - /url: /search?type=commercial
+            - link "Dispute Resolution Law" [ref=e53] [cursor=pointer]:
+              - /url: /search?type=dispute-resolution
+        - generic [ref=e54]:
+          - button "Areas Of Specialty" [ref=e55]
+          - generic:
+            - link "Banking and Finance" [ref=e59] [cursor=pointer]:
+              - /url: /search?specialty=banking-and-finance
+            - link "Capital Markets" [ref=e60] [cursor=pointer]:
+              - /url: /search?specialty=capital-markets
+            - link "Construction Law" [ref=e61] [cursor=pointer]:
+              - /url: /search?specialty=construction-law
+            - link "Corporate Law" [ref=e62] [cursor=pointer]:
+              - /url: /search?specialty=corporate-law
+            - link "Criminal Law" [ref=e63] [cursor=pointer]:
+              - /url: /search?specialty=criminal-law
+            - link "Dispute Resolution Law" [ref=e64] [cursor=pointer]:
+              - /url: /search?specialty=dispute-resolution-law
+            - link "Divorce Law" [ref=e65] [cursor=pointer]:
+              - /url: /search?specialty=divorce-law
+            - link "Energy Law" [ref=e66] [cursor=pointer]:
+              - /url: /search?specialty=energy-law
+            - link "Family Law" [ref=e67] [cursor=pointer]:
+              - /url: /search?specialty=family-law
+            - link "FinTech" [ref=e68] [cursor=pointer]:
+              - /url: /search?specialty=fintech
+            - link "Immigration Law" [ref=e69] [cursor=pointer]:
+              - /url: /search?specialty=immigration-law
+            - link "Injury Law" [ref=e70] [cursor=pointer]:
+              - /url: /search?specialty=injury-law
+            - link "Litigation Law" [ref=e71] [cursor=pointer]:
+              - /url: /search?specialty=litigation-law
+            - link "Mediation and Arbitration" [ref=e72] [cursor=pointer]:
+              - /url: /search?specialty=mediation-and-arbitration
+            - link "Privacy and Data Protection" [ref=e73] [cursor=pointer]:
+              - /url: /search?specialty=privacy-and-data-protection
+            - link "Project Finance" [ref=e74] [cursor=pointer]:
+              - /url: /search?specialty=project-finance
+            - link "Real Estate Law" [ref=e75] [cursor=pointer]:
+              - /url: /search?specialty=real-estate-law
+            - link "Regulatory Compliance" [ref=e76] [cursor=pointer]:
+              - /url: /search?specialty=regulatory-compliance
+            - link "Commercial Law" [ref=e77] [cursor=pointer]:
+              - /url: /search?specialty=commercial-law
+        - link "Corporate Posts" [ref=e78] [cursor=pointer]:
+          - /url: /corporate-posts
+        - link "Pricing" [ref=e79] [cursor=pointer]:
+          - /url: /pricing
+        - link "Help" [ref=e80] [cursor=pointer]:
+          - /url: /help
+      - generic [ref=e81]:
+        - link "Sign In" [ref=e82] [cursor=pointer]:
+          - /url: /login
+        - link "+ Add Listing" [ref=e83] [cursor=pointer]:
+          - /url: /add-listing
+  - main [ref=e84]:
+    - generic [ref=e85]:
+      - generic [ref=e89]:
+        - paragraph [ref=e90]: Lawyard Directory
+        - heading "Select your plan" [level=1] [ref=e91]
+        - paragraph [ref=e92]: Choose the listing tier that best fits your legal business needs.
+      - generic [ref=e94]:
+        - generic [ref=e96]:
+          - heading "Notice & guidelines" [level=2] [ref=e97]
+          - list [ref=e98]:
+            - listitem [ref=e99]:
+              - strong [ref=e100]: "Clients:"
+              - text: Clients browse for free — no plan needed to search and contact lawyers.
+            - listitem [ref=e101]:
+              - strong [ref=e102]: "Lawyers:"
+              - text: listing plans for lawyer/law professionals
+            - listitem [ref=e103]:
+              - strong [ref=e104]: "Law Firms:"
+              - text: listing plans for law firms
+            - listitem [ref=e105]:
+              - text: Paid listing plans secure
+              - strong [ref=e106]: featured listings
+              - text: that receive the most user views, appear first, and rank higher in search results.
+        - generic [ref=e108]:
+          - tablist [ref=e109]:
+            - tab "Lawyers" [selected] [ref=e110]
+            - tab "Clients" [ref=e112]
+            - tab "Law Firms" [ref=e114]
+          - tabpanel "Lawyers" [ref=e116]:
+            - generic [ref=e117]:
+              - generic [ref=e118]:
+                - generic [ref=e120]:
+                  - generic [ref=e121]: Premium (Package)
+                  - generic [ref=e123]: Pricing under review
+                  - paragraph [ref=e125]: Best for a group of established lawyers seeking the best online visibility.
+                  - link "Contact sales" [ref=e127] [cursor=pointer]:
+                    - /url: /contact
+                - generic [ref=e128]:
+                  - paragraph [ref=e129]: What’s included
+                  - list [ref=e130]:
+                    - listitem [ref=e131]:
+                      - generic [ref=e134]: 15 Featured Listings
+                    - listitem [ref=e135]:
+                      - generic [ref=e138]: Website
+                    - listitem [ref=e139]:
+                      - generic [ref=e142]: Social Profile Links
+                    - listitem [ref=e143]:
+                      - generic [ref=e146]: Introductory Video
+                    - listitem [ref=e147]:
+                      - generic [ref=e150]: Pricing
+                    - listitem [ref=e151]:
+                      - generic [ref=e154]: Select Images (Maximum of 6)
+                    - listitem [ref=e155]:
+                      - generic [ref=e158]: Link Directory (Maximum of 5)
+                    - listitem [ref=e159]:
+                      - generic [ref=e162]: Contact Owner
+                    - listitem [ref=e163]:
+                      - generic [ref=e166]: Allow Customer Review
+                    - listitem [ref=e167]:
+                      - generic [ref=e170]: Claim Badge Included
+                    - listitem [ref=e171]:
+                      - generic [ref=e174]: Booking Included
+                    - listitem [ref=e175]:
+                      - generic [ref=e178]: Live Chat Included
+              - generic [ref=e179]:
+                - generic [ref=e180]: Recommended
+                - generic [ref=e181]:
+                  - generic [ref=e182]: Premium (Single)
+                  - generic [ref=e184]: Pricing under review
+                  - paragraph [ref=e186]: Best for established lawyers seeking the best online visibility.
+                  - link "Contact sales" [ref=e188] [cursor=pointer]:
+                    - /url: /contact
+                - generic [ref=e189]:
+                  - paragraph [ref=e190]: What’s included
+                  - list [ref=e191]:
+                    - listitem [ref=e192]:
+                      - generic [ref=e195]: Listing as featured
+                    - listitem [ref=e196]:
+                      - generic [ref=e199]: Website
+                    - listitem [ref=e200]:
+                      - generic [ref=e203]: Social Profile Links
+                    - listitem [ref=e204]:
+                      - generic [ref=e207]: Introductory Video
+                    - listitem [ref=e208]:
+                      - generic [ref=e211]: Pricing
+                    - listitem [ref=e212]:
+                      - generic [ref=e215]: Select Images (Maximum of 6)
+                    - listitem [ref=e216]:
+                      - generic [ref=e219]: Link Directory (Maximum of 5)
+                    - listitem [ref=e220]:
+                      - generic [ref=e223]: Contact Owner
+                    - listitem [ref=e224]:
+                      - generic [ref=e227]: Allow Customer Review
+                    - listitem [ref=e228]:
+                      - generic [ref=e231]: Claim Badge Included
+                    - listitem [ref=e232]:
+                      - generic [ref=e235]: Booking Included
+                    - listitem [ref=e236]:
+                      - generic [ref=e239]: Live Chat Included
+              - generic [ref=e240]:
+                - generic [ref=e242]:
+                  - generic [ref=e243]: Free
+                  - generic [ref=e246]:
+                    - generic [ref=e247]:
+                      - generic [ref=e248]: ₦
+                      - generic [ref=e249]: "0"
+                      - generic [ref=e250]: / Lifetime
+                    - generic [ref=e251]: Per listing
+                  - paragraph [ref=e252]: Plan for a lawyer just getting started with achieving online visibility
+                  - link "Get started free" [ref=e254] [cursor=pointer]:
+                    - /url: /dashboard
+                - generic [ref=e255]:
+                  - paragraph [ref=e256]: What’s included
+                  - list [ref=e257]:
+                    - listitem [ref=e258]:
+                      - generic [ref=e260]: Listing as featured
+                    - listitem [ref=e261]:
+                      - generic [ref=e263]: Website
+                    - listitem [ref=e264]:
+                      - generic [ref=e266]: Social Profile Links
+                    - listitem [ref=e267]:
+                      - generic [ref=e270]: Introductory Video
+                    - listitem [ref=e271]:
+                      - generic [ref=e273]: Pricing
+                    - listitem [ref=e274]:
+                      - generic [ref=e277]: Select Images (Maximum of 3)
+                    - listitem [ref=e278]:
+                      - generic [ref=e280]: Link Directory
+                    - listitem [ref=e281]:
+                      - generic [ref=e284]: Contact Owner
+                    - listitem [ref=e285]:
+                      - generic [ref=e287]: Allow Customer Review
+                    - listitem [ref=e288]:
+                      - generic [ref=e291]: Claim Badge Included
+                    - listitem [ref=e292]:
+                      - generic [ref=e294]: Booking Included
+                    - listitem [ref=e295]:
+                      - generic [ref=e297]: Live Chat Included
+            - paragraph [ref=e298]: Silver tier — coming soon.
+  - contentinfo [ref=e299]:
+    - generic [ref=e300]:
+      - generic [ref=e301]:
+        - heading "Directory Services" [level=4] [ref=e302]
+        - generic [ref=e303]:
+          - img "Lawyard Logo" [ref=e304]
+          - generic [ref=e305]: Directory
+        - paragraph [ref=e306]: Lawyard is Nigeria's premier legal media and services platform. This directory exists to provide access to legal professionals across Africa, bridging the gap between experts and those needing legal assistance. Part of the Lawyard institutional brand.
+      - generic [ref=e307]:
+        - heading "Important Links" [level=4] [ref=e308]
+        - generic [ref=e309]:
+          - link "How It Works" [ref=e310] [cursor=pointer]:
+            - /url: /about
+          - link "Legal Insights" [ref=e311] [cursor=pointer]:
+            - /url: /insights
+          - link "Add Listing" [ref=e312] [cursor=pointer]:
+            - /url: /add-listing
+          - link "User Dashboard" [ref=e313] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Compare Listings" [ref=e314] [cursor=pointer]:
+            - /url: /search
+          - link "Contact Us" [ref=e315] [cursor=pointer]:
+            - /url: mailto:contact@lawyard.org
+          - link "Legislations" [ref=e316] [cursor=pointer]:
+            - /url: /legislations
+          - link "Privacy Policy" [ref=e317] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms & Conditions" [ref=e318] [cursor=pointer]:
+            - /url: /terms
+          - link "Knowledge Base" [ref=e319] [cursor=pointer]:
+            - /url: /knowledge
+      - generic [ref=e320]:
+        - heading "Areas of Specialty" [level=4] [ref=e321]
+        - generic [ref=e322]:
+          - link "Corporate Law" [ref=e323] [cursor=pointer]:
+            - /url: /search?specialty=corporate-law
+          - link "Criminal Law" [ref=e324] [cursor=pointer]:
+            - /url: /search?specialty=criminal-law
+          - link "Divorce Law" [ref=e325] [cursor=pointer]:
+            - /url: /search?specialty=divorce-law
+          - link "Family Law" [ref=e326] [cursor=pointer]:
+            - /url: /search?specialty=family-law
+          - link "FinTech" [ref=e327] [cursor=pointer]:
+            - /url: /search?specialty=fintech
+          - link "Immigration Law" [ref=e328] [cursor=pointer]:
+            - /url: /search?specialty=immigration-law
+          - link "Real Estate Law" [ref=e329] [cursor=pointer]:
+            - /url: /search?specialty=real-estate-law
+          - link "Regulatory Compliance" [ref=e330] [cursor=pointer]:
+            - /url: /search?specialty=regulatory-compliance
+    - generic [ref=e332]:
+      - generic [ref=e333]:
+        - heading "Subscribe to Newsletter" [level=4] [ref=e334]
+        - paragraph [ref=e335]: Subscribe to get updates and information. Don't worry, we won't send spam!
+      - generic [ref=e336]:
+        - textbox "Enter your email" [ref=e337]
+        - button "Subscribe →" [ref=e338]
+    - generic [ref=e339]:
+      - generic [ref=e340]:
+        - generic [ref=e341]:
+          - link "Home" [ref=e342] [cursor=pointer]:
+            - /url: /directory
+          - link "Find Counsel" [ref=e343] [cursor=pointer]:
+            - /url: /search
+          - link "Register Profile" [ref=e344] [cursor=pointer]:
+            - /url: /add-listing
+          - link "Dashboard" [ref=e345] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Corporate Posts" [ref=e346] [cursor=pointer]:
+            - /url: /corporate-posts/submit
+        - link [ref=e348] [cursor=pointer]:
+          - /url: /
+          - img "Lawyard Logo" [ref=e349]
+        - generic [ref=e350]:
+          - link "Facebook" [ref=e351] [cursor=pointer]:
+            - /url: https://facebook.com/lawyardNG
+          - link "Twitter" [ref=e354] [cursor=pointer]:
+            - /url: https://twitter.com/lawyardOrg
+          - link "LinkedIn" [ref=e357] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/lawyard-nigeria/
+          - link "Instagram" [ref=e362] [cursor=pointer]:
+            - /url: https://instagram.com/lawyardorg
+          - link "YouTube" [ref=e366] [cursor=pointer]:
+            - /url: https://youtube.com/channel/UCSfulylPsd7fCNRh_4wWANQ/videos
+      - paragraph [ref=e371]:
+        - text: © COPYRIGHT 2026 ALL RIGHTS RESERVED | BUILT BY
+        - link "MERISLABS" [ref=e372] [cursor=pointer]:
+          - /url: https://merislabs-merislabs.vercel.app

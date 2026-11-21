@@ -22,7 +22,14 @@
 -- Free firms get exactly one seat: the owner. Legacy paid chambers inherit the
 -- 15 the old price sheet advertised; a real purchase overwrites it.
 ALTER TABLE chambers ADD COLUMN IF NOT EXISTS seat_limit INTEGER NOT NULL DEFAULT 1;
-ALTER TABLE chambers ADD CONSTRAINT chambers_seat_limit_positive CHECK (seat_limit >= 1);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'chambers_seat_limit_positive'
+  ) THEN
+    ALTER TABLE chambers ADD CONSTRAINT chambers_seat_limit_positive CHECK (seat_limit >= 1);
+  END IF;
+END $$;
 
 UPDATE chambers
 SET seat_limit = 15
@@ -248,6 +255,13 @@ BEGIN
 
   IF m.status = 'ended' THEN
     RETURN jsonb_build_object('ok', true, 'already_ended', true);
+  END IF;
+
+  -- The billing owner cannot be removed by a delegate admin. Only they can step
+  -- down, and that is a support conversation, not a button.
+  IF m.lawyer_id = (SELECT user_id FROM chambers WHERE id = m.chamber_id)
+     AND caller <> m.lawyer_id THEN
+    RETURN jsonb_build_object('error', 'owner_cannot_be_removed');
   END IF;
 
   UPDATE chamber_members

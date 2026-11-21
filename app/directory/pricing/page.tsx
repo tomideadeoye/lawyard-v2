@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Users, Building } from "lucide-react";
 import { getPlans } from "@/app/directory/actions/plans";
+import { createClient } from "@/lib/supabase/server";
 import { DirectoryRole } from "@/lib/api";
 import { CURRENCY, formatNGN, parseAmount } from "@/lib/currency";
 import { TERMS } from "@/lib/constants";
 import { PaystackButton } from "@/components/directory/paystack-button";
+import { SeatCheckout } from "@/components/directory/seat-checkout";
 import { PaymentMessage } from "./payment-message";
 import { PlanFeatures } from "./plan-features";
 import Link from "next/link";
@@ -16,6 +18,9 @@ const roles = [
   { label: TERMS.client.plural, value: DirectoryRole.CLIENT, icon: Users },
   { label: TERMS.firm.plural, value: DirectoryRole.CHAMBER, icon: Building },
 ];
+
+/** What the pricing page needs to sell firm seats. */
+type FirmSeats = { chamberId: string; seatLimit: number; seatsUsed: number }
 
 const FALLBACK_PLANS: Record<string, any[]> = {
   lawyer: [
@@ -164,10 +169,10 @@ const FALLBACK_PLANS: Record<string, any[]> = {
       price: formatNGN(2),
       period: "/ 365 days",
       recommended: true,
-      desc: "Best for large agencies that have more than 50 members",
+      desc: "Best for firms putting their whole team on the directory.",
       features: [
         { name: "Listing as featured", included: true },
-        { name: "Link Directory - Lawyers (Maximum of 15)", included: true },
+        { name: "Team seats for your lawyers — billed per seat", included: true },
         { name: "Working Hours", included: true },
         { name: "FAQs", included: true },
         { name: "Social Info", included: true },
@@ -190,7 +195,7 @@ const FALLBACK_PLANS: Record<string, any[]> = {
       desc: `Best for a ${TERMS.firm.lower} just getting started with our product.`,
       features: [
         { name: "Listing as featured", included: false },
-        { name: "Link Directory - Lawyers (Maximum of 1)", included: true },
+        { name: "One seat (the firm owner) included", included: true },
         { name: "Working Hours", included: true },
         { name: "FAQs", included: false },
         { name: "Social Info", included: false },
@@ -217,9 +222,16 @@ const FALLBACK_PLANS: Record<string, any[]> = {
   ]
 };
 
-function Price({ price, period, name }: { price: string; period: string; name: string }) {
+function Price({ price, period, name, role }: { price: string; period: string; name: string; role?: string }) {
   const amount = parseAmount(price)
-  const subtext = name.toLowerCase().includes('package') ? 'Per package' : 'Per listing'
+  const subtext =
+    role === 'chamber'
+      ? amount === 0
+        ? 'Owner seat included'
+        : 'Per seat / year'
+      : name.toLowerCase().includes('package')
+        ? 'Per package'
+        : 'Per listing'
   // The price is the decision number on the page: biggest weight, quietest colour.
   // Everything around it (currency, period, unit) is muted so the figure lands first.
   return (
@@ -246,7 +258,7 @@ function Price({ price, period, name }: { price: string; period: string; name: s
 // plan stays visible, but it cannot be bought. Real prices flip it back on.
 const PRICE_PLACEHOLDER_FLOOR = 1000
 
-function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; collapseFrom?: 'sm' | 'lg' }) {
+function PricingCard({ tier, role, collapseFrom, firm, memberFirm }: { tier: any; role: string; collapseFrom?: 'sm' | 'lg'; firm?: FirmSeats | null; memberFirm?: { name: string; chamberId: string } | null }) {
   const amount = parseAmount(tier.price)
   const priceUnset = amount > 0 && amount < PRICE_PLACEHOLDER_FLOOR
   const isPaid = amount > 0 && !priceUnset
@@ -266,14 +278,53 @@ function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; co
     >
       Contact sales
     </Link>
+  ) : isPaid && role === 'chamber' ? (
+    // A firm plan upgrades an existing firm listing and is priced per seat. With
+    // no firm there is nothing to upgrade — sending them to Paystack would take
+    // money and provision nothing.
+    firm ? (
+      <SeatCheckout
+        planName={tier.name}
+        seatPrice={amount}
+        chamberId={firm.chamberId}
+        currentSeats={firm.seatLimit}
+        usedSeats={firm.seatsUsed}
+        recommended={tier.recommended}
+      />
+    ) : memberFirm ? (
+      // A seated lawyer cannot buy the firm's plan — the firm buys seats. Sending
+      // them to Paystack would take their money and upgrade nothing.
+      <div className="space-y-2">
+        <p className="rounded-lg border border-stone-200 px-3 py-2 text-center text-[11px] leading-relaxed text-muted-foreground dark:border-white/10">
+          Your firm ({memberFirm.name}) buys the seats. Ask an admin to add one for you.
+        </p>
+        <Link
+          href={`/chamber/${memberFirm.chamberId}`}
+          className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
+        >
+          View your firm
+        </Link>
+      </div>
+    ) : (
+      <Link
+        href="/dashboard/chamber"
+        className={
+          tier.recommended
+            ? 'block w-full rounded-lg border border-transparent bg-brand py-3 text-center text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand/90'
+            : 'block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted'
+        }
+      >
+        Create your firm page first
+      </Link>
+    )
   ) : isPaid ? (
     <PaystackButton amount={amount} planName={tier.name} planRole={role} recommended={tier.recommended} />
   ) : (
     <Link
-      href="/dashboard"
+      href={role === 'chamber' ? '/dashboard/chamber' : '/dashboard'}
       className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
     >
-      Get started free
+      {role === 'chamber' ? 'Create your firm page' : 'Get started free'}
     </Link>
   )
 
@@ -315,7 +366,7 @@ function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; co
           ) : priceUnset ? (
             <span className="text-xl font-semibold tracking-tight text-stone-500 dark:text-neutral-400">Pricing under review</span>
           ) : (
-            <Price price={tier.price} period={tier.period} name={tier.name} />
+            <Price price={tier.price} period={tier.period} name={tier.name} role={role} />
           )}
         </div>
 
@@ -342,6 +393,61 @@ function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; co
 
 export default async function PricingPage() {
   const pricingData = await getPlans()
+
+  // Firm plans are sold per seat against an existing firm listing, so the page
+  // needs to know whether this visitor already has one.
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let firm: FirmSeats | null = null
+  let memberFirm: { chamberId: string; name: string } | null = null
+  if (user) {
+    const { data: owned } = await supabase
+      .from('chambers')
+      .select('id, seat_limit')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    let chamber = owned
+    if (!chamber) {
+      const { data: adminRow } = await supabase
+        .from('chamber_admins')
+        .select('chamber_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (adminRow?.chamber_id) {
+        const { data: delegated } = await supabase
+          .from('chambers')
+          .select('id, seat_limit')
+          .eq('id', adminRow.chamber_id)
+          .maybeSingle()
+        chamber = delegated
+      }
+    }
+
+    if (chamber) {
+      const { data: used } = await supabase.rpc('chamber_seats_used', { p_chamber_id: chamber.id })
+      firm = {
+        chamberId: chamber.id,
+        seatLimit: chamber.seat_limit ?? 1,
+        seatsUsed: Number(used ?? 0),
+      }
+    } else {
+      // Seated lawyer, not a firm admin: they cannot buy for the firm.
+      const { data: seat } = await supabase
+        .from('chamber_members')
+        .select('chamber_id, chambers:chambers(id, name)')
+        .eq('lawyer_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle()
+
+      const seatFirm = Array.isArray(seat?.chambers) ? seat?.chambers[0] : seat?.chambers
+      if (seatFirm?.id) {
+        memberFirm = { chamberId: seatFirm.id, name: seatFirm.name ?? 'your firm' }
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 pb-24 dark:bg-neutral-950">
@@ -447,6 +553,8 @@ export default async function PricingPage() {
                           key={tier.name}
                           tier={tier}
                           role={r.value}
+                          firm={firm}
+                          memberFirm={memberFirm}
                           collapseFrom={buyableTiers.length > 2 ? 'lg' : 'sm'}
                         />
                       ))}

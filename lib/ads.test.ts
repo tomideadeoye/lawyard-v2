@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { isAdLive, safeDestination, pickAd, isAdPlacement } from '@/lib/ads'
+import {
+  isAdLive,
+  safeDestination,
+  pickAd,
+  isAdPlacement,
+  summariseAdEvents,
+  ctr,
+  adClickPath,
+} from '@/lib/ads'
 
 // Ads are money and they are third-party destinations rendered as clickable
 // images on a public page. These are the cases that cost either revenue or
@@ -83,5 +91,43 @@ describe('isAdPlacement', () => {
   it('rejects anything else', () => {
     expect(isAdPlacement('article-middle')).toBe(false)
     expect(isAdPlacement(undefined)).toBe(false)
+  })
+})
+
+describe('summariseAdEvents', () => {
+  it('adds daily rows into a window per creative', () => {
+    const totals = summariseAdEvents([
+      { ad_id: 'a', kind: 'impression', count: 10 },
+      { ad_id: 'a', kind: 'impression', count: 5 },
+      { ad_id: 'a', kind: 'click', count: 2 },
+      { ad_id: 'b', kind: 'click', count: 1 },
+    ])
+    expect(totals.get('a')).toEqual({ impressions: 15, clicks: 2 })
+    expect(totals.get('b')).toEqual({ impressions: 0, clicks: 1 })
+  })
+
+  it('keeps a click that has no recorded impression', () => {
+    // A beacon that never fired must not erase the click: the advertiser was owed it.
+    const totals = summariseAdEvents([{ ad_id: 'a', kind: 'click', count: 3 }])
+    expect(totals.get('a')?.clicks).toBe(3)
+  })
+})
+
+describe('ctr', () => {
+  it('formats a rate from real numbers', () => {
+    expect(ctr({ impressions: 1000, clicks: 31 })).toBe('3.1%')
+  })
+
+  it('shows a dash rather than dividing by zero', () => {
+    expect(ctr({ impressions: 0, clicks: 0 })).toBe('—')
+    expect(ctr(undefined)).toBe('—')
+  })
+})
+
+describe('adClickPath', () => {
+  it('routes the click through our counter', () => {
+    expect(adClickPath('c1f4a3d2-0000-4000-8000-000000000000')).toBe(
+      '/ads/click/c1f4a3d2-0000-4000-8000-000000000000'
+    )
   })
 })

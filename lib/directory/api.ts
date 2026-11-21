@@ -74,6 +74,9 @@ export async function getLawyers(options: {
         specialty:specialties(name)
       )
     `)
+    // Only verified listings are public: a pending profile is a draft until an
+    // administrator has reviewed it.
+    .eq('verification_status', 'verified')
     .order('is_featured', { ascending: false })
     .order('rating', { ascending: false });
 
@@ -191,7 +194,14 @@ export async function getLawyerById(id: string): Promise<Lawyer | null> {
 export async function getChambers(options: { featured?: boolean } = {}): Promise<Chamber[]> {
   const supabase = await createClient();
 
-  let query = supabase.from('chambers').select('*').order('is_featured', { ascending: false });
+  // Draft firm pages stay out of the index until they meet the publish bar.
+  // The filter degrades to "show all" if the column has not been migrated yet,
+  // so a deployment ahead of a migration cannot blank the directory.
+  const gatedQuery = () =>
+    supabase.from('chambers').select('*').not('published_at', 'is', null).order('is_featured', { ascending: false });
+  const plainQuery = () => supabase.from('chambers').select('*').order('is_featured', { ascending: false });
+
+  let query = gatedQuery();
 
   if (options.featured) {
     query = query
@@ -200,7 +210,12 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
       .or('subscription_expires_at.is.null,subscription_expires_at.gt.' + new Date().toISOString());
   }
 
-  const { data: chambers, error } = await query;
+  let { data: chambers, error } = await query;
+
+  if (error && /published_at/i.test(error.message)) {
+    console.warn('chambers.published_at is missing — apply 20261121000002_chamber_publish_gate.sql');
+    ({ data: chambers, error } = await plainQuery());
+  }
 
   if (error) {
     console.error('Error fetching chambers:', error);
@@ -228,14 +243,21 @@ export async function getChambers(options: { featured?: boolean } = {}): Promise
 
 export async function getChamberById(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const gated = await supabase
     .from('chambers')
     .select('*')
     .eq('id', id)
+    .not('published_at', 'is', null)
     .single();
 
-  if (error || !data) return null;
-  return data;
+  if (!gated.error) return gated.data ?? null;
+
+  if (/published_at/i.test(gated.error.message)) {
+    const fallback = await supabase.from('chambers').select('*').eq('id', id).single();
+    return fallback.data ?? null;
+  }
+
+  return null;
 }
 
 export async function getArticles(options: { authorId?: string; limit?: number } = {}) {

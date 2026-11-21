@@ -92,3 +92,37 @@ export async function getAd(placement: AdPlacement): Promise<Ad | null> {
   const live = (data as Ad[]).filter((ad) => isAdLive(ad) && safeDestination(ad.href))
   return pickAd(live)
 }
+
+/** Every click goes through our own route, so the count cannot be lost client-side. */
+export function adClickPath(id: string): string {
+  return `/ads/click/${encodeURIComponent(id)}`
+}
+
+export interface AdEventTotals {
+  impressions: number
+  clicks: number
+}
+
+/**
+ * Roll daily counters into a window. Torn totals (a click with no recorded
+ * impression — a beacon that never fired) are kept as they are: understating a
+ * click is worse than an odd ratio.
+ */
+export function summariseAdEvents(
+  rows: { ad_id: string; kind: string; count: number }[]
+): Map<string, AdEventTotals> {
+  const totals = new Map<string, AdEventTotals>()
+  for (const row of rows) {
+    const entry = totals.get(row.ad_id) ?? { impressions: 0, clicks: 0 }
+    if (row.kind === 'click') entry.clicks += row.count
+    else if (row.kind === 'impression') entry.impressions += row.count
+    totals.set(row.ad_id, entry)
+  }
+  return totals
+}
+
+/** Click-through rate as a percentage, one decimal. No impressions means no rate. */
+export function ctr(totals: AdEventTotals | undefined): string {
+  if (!totals || totals.impressions <= 0) return '—'
+  return `${((totals.clicks / totals.impressions) * 100).toFixed(1)}%`
+}

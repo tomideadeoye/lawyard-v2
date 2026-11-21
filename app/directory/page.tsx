@@ -19,8 +19,8 @@ export default async function Home() {
   try {
     const supabase = await createClient();
     const [{ count: lawyerCount }, { count: chamberCount }, { data: locations }] = await Promise.all([
-      supabase.from("lawyers").select("id", { count: "exact", head: true }),
-      supabase.from("chambers").select("id", { count: "exact", head: true }),
+      supabase.from("lawyers").select("id", { count: "exact", head: true }).eq("verification_status", "verified"),
+      supabase.from("chambers").select("id", { count: "exact", head: true }).not("published_at", "is", null),
       supabase.from("chambers").select("location"),
     ]);
 

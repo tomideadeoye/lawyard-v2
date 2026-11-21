@@ -825,6 +825,42 @@
         "app/directory/corporate-posts/[slug]/page.tsx",
         "app/(main)/insights/[slug]/page.tsx"
       ]
+    },
+    {
+      "id": "CH-072",
+      "date": "2026-11-21",
+      "type": "added",
+      "title": "Ad delivery counters — the sold inventory finally has a report",
+      "detail": "Vercel Analytics covers pageviews, GA4 covers the WordPress host and AdSense reports only the units Google fills, so the house banners had no numbers at all. Added `ad_events` (daily rollup per creative per kind) written through a SECURITY DEFINER function, an `/ads/click/[id]` redirect that counts clicks server-side before sending the visitor on (destination re-validated — no open redirect), and a viewport beacon that counts an impression only when the creative is seen, once per session. `/admin/ads` now shows 7-day views and clicks with 28-day CTR.",
+      "evidence": [
+        "supabase/migrations/20261121000002_ad_events.sql",
+        "app/ads/click/[id]/route.ts",
+        "app/api/ads/impression/route.ts",
+        "components/ads/ad-beacon.tsx",
+        "app/admin/ads/page.tsx",
+        "lib/ads.ts"
+      ]
+    },
+    {
+      "id": "CH-073",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "Two migrations shared version 20261121000001, blocking every push",
+      "detail": "The observability work committed `20261121000001_app_errors.sql` after `20261121000001_ad_slots.sql` had already been applied, so `supabase db push` aborted on a duplicate `schema_migrations` key — and any later migration with it. Renumbered the unapplied file to `20261121000003_app_errors.sql`; history for the applied version is untouched. `pnpm check:migrations` is clean at 47.",
+      "evidence": [
+        "supabase/migrations/20261121000003_app_errors.sql",
+        "supabase/migrations/20261121000001_ad_slots.sql"
+      ]
+    },
+    {
+      "id": "CH-074",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "`check:migrations` called a duplicate version clean",
+      "detail": "Two files claimed version `20261121000002`; `supabase migration list` prints one row per version, so the drift check reported \"clean — 47\" while 48 files sat in the folder and one of them could never be applied. `scripts/migration-drift.mjs` now scans the directory before touching the CLI and fails on duplicate versions and on names Supabase would silently skip (`<14-digit>_<name>.sql` only). Caught a live duplicate on its first run.",
+      "evidence": [
+        "scripts/migration-drift.mjs"
+      ]
     }
   ]
 }

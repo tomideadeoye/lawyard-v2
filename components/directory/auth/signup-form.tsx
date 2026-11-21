@@ -21,7 +21,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import TurnstileWidget from '@/components/directory/auth/TurnstileWidget'
-import { AlertCircle, ArrowRight, User, ShieldCheck, Eye, EyeOff } from 'lucide-react'
+import { AlertCircle, ArrowRight, User, Eye, EyeOff } from 'lucide-react'
+import { roleForCategory } from '@/lib/directory/roles'
 
 // Hop 2 in the Delayed Auth Chain.
 // Reads `redirect` and `category` from URL params (passed from add-listing page),
@@ -155,6 +156,13 @@ function SignupFormContent() {
             <FieldSeparator>Or continue with</FieldSeparator>
 
             <form onSubmit={handleSubmit}>
+              {category && (
+                <p className="mb-4 rounded-xl border border-brand/30 bg-brand/5 px-3 py-2 text-xs text-muted-foreground">
+                  {roleForCategory(category) === 'lawyer'
+                    ? `Creating your ${category === 'chamber' ? 'law firm' : 'lawyer'} account — continue to your listing after this step.`
+                    : 'Creating your client account — continue to your brief after this step.'}
+                </p>
+              )}
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="fullName">
@@ -202,25 +210,6 @@ function SignupFormContent() {
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
-                  </div>
-                </Field>
-
-                <Field>
-                  <FieldLabel>
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Identification
-                  </FieldLabel>
-                  <div className="grid grid-cols-2 gap-3 mt-1">
-                    <label className="relative flex flex-col items-center justify-center p-4 border-2 border-border/50 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5 group">
-                      <input type="radio" name="role" value="lawyer" className="sr-only" required />
-                      <span className="text-sm font-bold mb-0.5 group-has-[:checked]:text-primary">Lawyer</span>
-                      <span className="text-[10px] text-muted-foreground group-has-[:checked]:text-primary/70">Verified Professional</span>
-                    </label>
-                    <label className="relative flex flex-col items-center justify-center p-4 border-2 border-border/50 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5 group">
-                      <input type="radio" name="role" value="client" className="sr-only" defaultChecked />
-                      <span className="text-sm font-bold mb-0.5 group-has-[:checked]:text-primary">Client</span>
-                      <span className="text-[10px] text-muted-foreground group-has-[:checked]:text-primary/70">Legal Consumer</span>
-                    </label>
                   </div>
                 </Field>
 

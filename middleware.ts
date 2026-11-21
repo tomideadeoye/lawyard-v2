@@ -5,7 +5,7 @@ const adminRoutes = ['/admin']
 const publicAdminRoutes = ['/admin/login', '/admin/auth/callback']
 // Files served from the app root on every host. Without these the directory
 // rewrite turns /robots.txt into /directory/robots.txt and it 404s.
-const NON_DIRECTORY_PREFIXES = ['/admin', '/_next', '/api', '/feed.xml', '/sitemap.xml', '/robots.txt', '/ads.txt', '/product-owner']
+const NON_DIRECTORY_PREFIXES = ['/admin', '/_next', '/api', '/ads', '/feed.xml', '/sitemap.xml', '/robots.txt', '/ads.txt', '/product-owner']
 const STATIC_EXT = /\.(?:png|jpg|jpeg|gif|ico|svg|css|js|woff2?|ttf|eot|pdf|webp|avif|mp4|webm|ogg|mp3|wav)$/i
 
 export async function middleware(request: NextRequest) {

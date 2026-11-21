@@ -697,6 +697,30 @@
       "status": "added"
     },
     {
+      "id": "CH-072",
+      "type": "change",
+      "label": "Ad delivery counters — the sold inventory finally has a report",
+      "date": "2026-11-21",
+      "detail": "added",
+      "status": "added"
+    },
+    {
+      "id": "CH-073",
+      "type": "change",
+      "label": "Two migrations shared version 20261121000001, blocking every push",
+      "date": "2026-11-21",
+      "detail": "fixed",
+      "status": "fixed"
+    },
+    {
+      "id": "CH-074",
+      "type": "change",
+      "label": "`check:migrations` called a duplicate version clean",
+      "date": "2026-11-21",
+      "detail": "fixed",
+      "status": "fixed"
+    },
+    {
       "id": "F-01",
       "type": "feature",
       "label": "Auth — email/password, Google OAuth, magic link, password recovery",
@@ -1024,6 +1048,12 @@
       "id": "F-55",
       "type": "feature",
       "label": "House ads — database-backed slots with admin CRUD",
+      "status": "shipped"
+    },
+    {
+      "id": "F-56",
+      "type": "feature",
+      "label": "Ad delivery counters — impressions, clicks, CTR",
       "status": "shipped"
     },
     {
@@ -2084,6 +2114,21 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-072",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-073",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-074",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2665,7 +2710,17 @@
     },
     {
       "from": "S-2026-11-21-17",
+      "to": "F-36",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-17",
       "to": "F-55",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-17",
+      "to": "F-56",
       "kind": "touches"
     }
   ]
