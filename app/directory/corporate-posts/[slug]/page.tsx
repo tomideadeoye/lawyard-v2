@@ -3,6 +3,7 @@ import { getPublishedArticles } from '@/lib/api/articles'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ShareBar from '@/components/ShareBar'
+import AdSlot from '@/components/ads/ad-slot'
 import { ArticleCard } from '@/components/ui/article-card'
 import { sanitizeRichHtml, stripHtml } from '@/lib/sanitize'
 import { coverUrl } from '@/lib/images'
@@ -131,10 +132,14 @@ export default async function CorporatePostPage({ params }: PageProps) {
               </figure>
             )}
 
+            <AdSlot placement="article-before" className="pt-2" />
+
             <div
               className="prose prose-lg dark:prose-invert max-w-none leading-relaxed py-6 border-b border-border/10 dropcap"
               dangerouslySetInnerHTML={{ __html: content }}
             />
+
+            <AdSlot placement="article-after" className="pt-2" />
 
             <p className="text-xs text-muted-foreground leading-relaxed">
               This is a paid corporate announcement published by {post.brand_name ?? 'the advertiser'}.
@@ -240,9 +245,14 @@ export default async function CorporatePostPage({ params }: PageProps) {
               </Link>
             </div>
 
+            <AdSlot placement="sidebar" />
+
           </aside>
 
         </div>
+
+        <AdSlot placement="footer-banner" className="mt-16" />
+
       </div>
     </div>
   )

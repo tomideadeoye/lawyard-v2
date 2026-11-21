@@ -13,6 +13,7 @@ const navItems = [
   { href: '/admin/transactions', label: 'Transactions' },
   { href: '/admin/settings', label: 'Settings' },
   { href: '/admin/coupons', label: 'Coupons' },
+  { href: '/admin/ads', label: 'Ads' },
 ]
 
 export function Sidebar() {

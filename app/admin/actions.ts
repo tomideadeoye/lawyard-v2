@@ -323,3 +323,102 @@ export async function deleteCoupon(formData: FormData) {
   if (error) console.error('Failed to delete coupon:', error);
   revalidatePath('/admin/coupons', 'layout');
 }
+
+/** Coerce an optional datetime-local / ISO string into a timestamptz or null. */
+function optionalDate(value: FormDataEntryValue | null): string | null {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+function optionalInt(value: FormDataEntryValue | null): number | null {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) return null;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export async function createAdSlot(formData: FormData) {
+  const { supabase } = await getAdminClient();
+  const placement = String(formData.get('placement') ?? '');
+  const image_url = String(formData.get('image_url') ?? '').trim();
+  const href = String(formData.get('href') ?? '').trim();
+
+  if (!placement || !image_url || !href) {
+    console.error('Ad slot needs a placement, an image and a destination');
+    return;
+  }
+
+  const { error } = await supabase.from('ad_slots').insert({
+    placement,
+    label: String(formData.get('label') ?? '').trim() || 'Advertisement',
+    image_url,
+    href,
+    alt: String(formData.get('alt') ?? '').trim() || null,
+    image_width: optionalInt(formData.get('image_width')),
+    image_height: optionalInt(formData.get('image_height')),
+    weight: optionalInt(formData.get('weight')) ?? 0,
+    is_active: formData.get('is_active') !== 'false',
+    starts_at: optionalDate(formData.get('starts_at')),
+    ends_at: optionalDate(formData.get('ends_at')),
+  });
+
+  if (error) console.error('Failed to create ad slot:', error);
+  revalidatePath('/admin/ads', 'layout');
+  revalidatePath('/', 'layout');
+}
+
+export async function updateAdSlot(formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) return;
+  const { supabase } = await getAdminClient();
+
+  const { error } = await supabase
+    .from('ad_slots')
+    .update({
+      label: String(formData.get('label') ?? '').trim() || 'Advertisement',
+      image_url: String(formData.get('image_url') ?? '').trim(),
+      href: String(formData.get('href') ?? '').trim(),
+      alt: String(formData.get('alt') ?? '').trim() || null,
+      image_width: optionalInt(formData.get('image_width')),
+      image_height: optionalInt(formData.get('image_height')),
+      weight: optionalInt(formData.get('weight')) ?? 0,
+      starts_at: optionalDate(formData.get('starts_at')),
+      ends_at: optionalDate(formData.get('ends_at')),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+
+  if (error) console.error('Failed to update ad slot:', error);
+  revalidatePath('/admin/ads', 'layout');
+  revalidatePath('/', 'layout');
+}
+
+export async function toggleAdSlot(formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) return;
+  const next = formData.get('next') === 'true';
+  const { supabase } = await getAdminClient();
+
+  const { error } = await supabase
+    .from('ad_slots')
+    .update({ is_active: next, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) console.error('Failed to toggle ad slot:', error);
+  revalidatePath('/admin/ads', 'layout');
+  revalidatePath('/', 'layout');
+}
+
+export async function deleteAdSlot(formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) return;
+  const { supabase } = await getAdminClient();
+
+  const { error } = await supabase.from('ad_slots').delete().eq('id', id);
+
+  if (error) console.error('Failed to delete ad slot:', error);
+  revalidatePath('/admin/ads', 'layout');
+  revalidatePath('/', 'layout');
+}

@@ -289,7 +289,7 @@ function PricingCard({ tier, role, collapseFrom }: { tier: any; role: string; co
       }`}
     >
       {tier.recommended ? (
-        <div className="hidden bg-brand px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-brand-foreground sm:block">
+        <div className="hidden h-[26px] items-center justify-center bg-brand px-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-brand-foreground sm:flex">
           Recommended
         </div>
       ) : (
