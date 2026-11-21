@@ -19,9 +19,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <h1 className="text-5xl font-black mb-4">{article.title}</h1>
           <p className="text-muted-foreground">By {article.author?.full_name} • {new Date(article.created_at).toLocaleDateString()}</p>
         </header>
-        <div className="prose prose-lg dark:prose-invert leading-relaxed">
-          {article.content}
-        </div>
+        <div
+          className="prose prose-lg dark:prose-invert max-w-none leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: article.content ?? '' }}
+        />
       </article>
     );
   }

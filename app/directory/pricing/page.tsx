@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check, X, User, Users, Building } from "lucide-react";
+import { Check, Minus, User, Users, Building } from "lucide-react";
 import { getPlans } from "@/app/directory/actions/plans";
 import { DirectoryRole } from "@/lib/api";
 import { CURRENCY, formatNGN, parseAmount } from "@/lib/currency";
@@ -223,34 +223,38 @@ const FALLBACK_PLANS: Record<string, any[]> = {
 
 function Price({ price, period, name }: { price: string; period: string; name: string }) {
   const amount = parseAmount(price)
-  const subtext = name.toLowerCase().includes('package') ? 'Per Package' : 'Per Listing'
+  const subtext = name.toLowerCase().includes('package') ? 'Per package' : 'Per listing'
+  // The price is the decision number on the page: biggest weight, quietest colour.
+  // Everything around it (currency, period, unit) is muted so the figure lands first.
   return (
-    <div className="flex flex-col items-center mb-5">
-      <div className="flex items-baseline justify-center gap-0.5">
-        <span className="text-xl font-light text-slate-400 dark:text-yellow-300/70 align-super">{CURRENCY.symbol}</span>
-        <span className="text-5xl font-bold text-slate-900 dark:text-yellow-50 tracking-tight">{amount.toLocaleString(CURRENCY.locale)}</span>
-        <span className="text-sm font-medium text-slate-400 dark:text-yellow-300/70 ml-1">{period}</span>
+    <div className="mb-5 flex flex-col items-center gap-2">
+      <div className="flex items-baseline justify-center gap-1">
+        <span className="text-lg font-medium text-muted-foreground">{CURRENCY.symbol}</span>
+        <span className="text-[2.75rem] font-semibold leading-none tracking-tight tabular-nums text-stone-900 dark:text-neutral-50">
+          {amount.toLocaleString(CURRENCY.locale)}
+        </span>
+        {period && (
+          <span className="text-xs font-medium text-muted-foreground">{period}</span>
+        )}
       </div>
-      <div className="text-[10px] font-bold text-[#a77c5c] dark:text-yellow-300 uppercase tracking-widest mt-2 bg-[#a77c5c]/5 dark:bg-yellow-400/10 px-2.5 py-0.5 rounded-full">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {subtext}
-      </div>
+      </span>
     </div>
   )
 }
 
 function FeatureItem({ name, included }: { name: string; included: boolean }) {
+  // Excluded features use a muted dash, not a red cross: red means "error" in every
+  // other product surface, and a plan simply not carrying something is not an error.
   return (
-    <li className="flex items-center gap-3 text-xs leading-relaxed">
+    <li className="flex items-start gap-2.5 text-[13px] leading-5">
       {included ? (
-        <span className="w-5 h-5 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-          <Check className="w-3 h-3" strokeWidth={3} />
-        </span>
+        <Check className="mt-[3px] h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2.75} />
       ) : (
-        <span className="w-5 h-5 shrink-0 rounded-full bg-rose-50/70 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 dark:text-rose-400">
-          <X className="w-3 h-3" strokeWidth={3} />
-        </span>
+        <Minus className="mt-[3px] h-3.5 w-3.5 shrink-0 text-stone-400 dark:text-neutral-600" strokeWidth={2.75} />
       )}
-      <span className={included ? "text-slate-700 dark:text-yellow-100" : "text-slate-400 dark:text-yellow-300/60 font-normal"}>
+      <span className={included ? 'text-stone-700 dark:text-neutral-300' : 'text-stone-500 dark:text-neutral-400'}>
         {name}
       </span>
     </li>
@@ -269,30 +273,34 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
   const isPaid = amount > 0 && !priceUnset
 
   return (
-    <Card className={`relative flex flex-col bg-white dark:bg-yellow-950/40 border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
-      tier.recommended 
-        ? 'border-orange-500 dark:border-yellow-400 shadow-[0_20px_50px_rgba(249,115,22,0.1)] dark:shadow-[0_20px_50px_rgba(234,179,8,0.15)] z-10 scale-[1.02] rounded-xl' 
-        : 'border-slate-200/80 dark:border-yellow-700/30 shadow-sm rounded-lg hover:shadow-lg hover:border-slate-300/80 dark:hover:border-yellow-600/40'
-    }`}>
+    <Card
+      className={`relative flex flex-col overflow-hidden rounded-xl border p-0 shadow-sm transition-all duration-300 md:hover:-translate-y-0.5 ${
+        tier.recommended
+          ? 'z-10 border-brand/70 ring-1 ring-brand/15 shadow-[0_18px_45px_-25px_rgba(138,98,71,0.45)]'
+          : 'border-stone-200/90 hover:border-stone-300 dark:border-white/10 dark:hover:border-white/20'
+      } bg-white dark:bg-neutral-900 dark:shadow-none`}
+    >
       {tier.recommended && (
-        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-yellow-500 dark:to-yellow-600 text-white text-center py-1.5 text-[9px] font-black uppercase tracking-widest">
+        <div className="bg-brand px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-brand-foreground">
           Recommended
         </div>
       )}
-      <CardHeader className={`text-center pb-4 px-5 border-b border-slate-100 dark:border-yellow-800/30 ${tier.recommended ? 'pt-8' : 'pt-6'}`}>
-        <CardTitle className="text-base font-bold text-slate-800 dark:text-yellow-100 mb-4">{tier.name}</CardTitle>
+      <CardHeader className="border-b border-stone-100 px-5 pb-5 pt-6 text-center dark:border-white/[0.07]">
+        <CardTitle className="mb-4 text-[13px] font-semibold uppercase tracking-[0.12em] text-stone-500 dark:text-neutral-400">
+          {tier.name}
+        </CardTitle>
         {tier.comingSoon ? (
           <div className="flex flex-col items-center mb-5">
-            <span className="text-2xl font-bold text-slate-500 dark:text-yellow-200/80 tracking-tight">Coming soon</span>
+            <span className="text-xl font-semibold tracking-tight text-stone-500 dark:text-neutral-400">Coming soon</span>
           </div>
         ) : priceUnset ? (
           <div className="flex flex-col items-center mb-5">
-            <span className="text-2xl font-bold text-slate-500 dark:text-yellow-200/80 tracking-tight">Pricing under review</span>
+            <span className="text-xl font-semibold tracking-tight text-stone-500 dark:text-neutral-400">Pricing under review</span>
           </div>
         ) : (
           <Price price={tier.price} period={tier.period} name={tier.name} />
         )}
-        <p className="text-[11px] text-slate-500 dark:text-yellow-200/70 max-w-[240px] mx-auto min-h-[33px] mt-1 leading-relaxed">
+        <p className="mx-auto mt-1 min-h-[40px] max-w-[240px] text-xs leading-relaxed text-muted-foreground">
           {tier.desc}
         </p>
       </CardHeader>
@@ -307,13 +315,13 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
 
       <CardFooter className="px-5 pb-6 pt-2">
         {tier.comingSoon ? (
-          <span className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-100 dark:bg-yellow-900/30 text-slate-400 dark:text-yellow-200/50 block cursor-not-allowed">
+          <span className="block w-full rounded-lg border border-stone-200 py-3 text-center text-sm font-semibold text-stone-400 dark:border-white/10 dark:text-neutral-500">
             Coming soon
           </span>
         ) : priceUnset ? (
           <Link
             href="/contact"
-            className="w-full py-3 text-center text-sm font-semibold rounded-lg border border-[#a77c5c] text-[#a77c5c] hover:bg-[#a77c5c] hover:text-white transition-colors block"
+            className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
           >
             Enquire about this plan
           </Link>
@@ -322,14 +330,14 @@ function PricingCard({ tier, role }: { tier: any; role: string }) {
             amount={amount}
             planName={tier.name}
             planRole={role}
-            recommended={true}
+            recommended={tier.recommended}
           />
         ) : (
           <Link
             href="/dashboard"
-            className="w-full py-3 text-center text-sm font-semibold rounded-lg bg-slate-700 dark:bg-yellow-700 hover:bg-slate-800 dark:hover:bg-yellow-600 text-white shadow-sm transition-colors block"
+            className="block w-full rounded-lg border border-stone-300 py-3 text-center text-sm font-semibold text-stone-700 transition-colors hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted"
           >
-            Continue
+            Continue with Free
           </Link>
         )}
       </CardFooter>
@@ -341,42 +349,50 @@ export default async function PricingPage() {
   const pricingData = await getPlans()
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950 pb-24">
-      <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-24 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
-        <div className="absolute inset-0 bg-radial-gradient from-slate-900/50 to-slate-950/80" />
-        <h1 className="text-4xl md:text-5xl font-bold text-white relative z-10 tracking-tight">
-          Select Your Plan
-        </h1>
-        <p className="text-slate-400 mt-3 text-sm md:text-base max-w-lg mx-auto relative z-10 font-medium">
-          Choose the listing tier that best fits your legal business needs.
-        </p>
+    <div className="min-h-screen bg-stone-50 pb-24 dark:bg-neutral-950">
+      {/* Hero is dark in both themes — it belongs to the site chrome, not to the theme. */}
+      <div className="relative overflow-hidden border-b border-white/[0.06] bg-neutral-950 py-20 text-center md:py-24">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(167,124,92,0.18),transparent_62%)]" />
+        <div className="relative z-10 px-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-muted">
+            Lawyard Directory
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white md:text-5xl">
+            Select your plan
+          </h1>
+          <p className="mx-auto mt-3 max-w-lg text-sm font-medium text-neutral-400 md:text-base">
+            Choose the listing tier that best fits your legal business needs.
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 -mt-10 relative z-10">
+      <div className="relative z-10 mx-auto -mt-10 max-w-5xl px-6">
         <Suspense fallback={null}>
           <PaymentMessage />
         </Suspense>
 
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-yellow-700/30 border-l-4 border-l-[#a77c5c] dark:border-l-yellow-400 p-5 mb-10 mt-4">
-          <h3 className="text-sm font-bold text-[#a77c5c] dark:text-yellow-300 uppercase tracking-wider mb-2">Notice & Guidelines</h3>
-          <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600 dark:text-yellow-200/70 font-medium">
-            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.client.plural}:</strong> {TERMS.client.plural} browse for free — no plan needed to search and contact {TERMS.lawyer.lowerPlural}.</li>
-            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.lawyer.plural}:</strong> listing plans for {TERMS.lawyer.lower}/law professionals</li>
-            <li><strong className="text-slate-800 dark:text-yellow-100">{TERMS.firm.plural}:</strong> listing plans for {TERMS.firm.lowerPlural}</li>
-            <li>Paid listing plans secure <strong className="text-slate-800 dark:text-yellow-100">featured listings</strong> that receive the most user views, appear first, and rank higher in search results.</li>
+        <div className="mb-10 mt-4 rounded-xl border border-stone-200/80 border-l-2 border-l-brand bg-white p-5 shadow-sm dark:border-white/10 dark:border-l-brand dark:bg-neutral-900">
+          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-muted">
+            Notice &amp; guidelines
+          </h3>
+          <ol className="list-decimal list-inside space-y-1 text-xs leading-relaxed text-muted-foreground">
+            <li><strong className="font-semibold text-stone-800 dark:text-neutral-200">{TERMS.client.plural}:</strong> {TERMS.client.plural} browse for free — no plan needed to search and contact {TERMS.lawyer.lowerPlural}.</li>
+            <li><strong className="font-semibold text-stone-800 dark:text-neutral-200">{TERMS.lawyer.plural}:</strong> listing plans for {TERMS.lawyer.lower}/law professionals</li>
+            <li><strong className="font-semibold text-stone-800 dark:text-neutral-200">{TERMS.firm.plural}:</strong> listing plans for {TERMS.firm.lowerPlural}</li>
+            <li>Paid listing plans secure <strong className="font-semibold text-stone-800 dark:text-neutral-200">featured listings</strong> that receive the most user views, appear first, and rank higher in search results.</li>
           </ol>
         </div>
 
         <Tabs defaultValue="lawyer" className="w-full">
-          <TabsList className="w-full max-w-md mx-auto flex h-11 items-center justify-between rounded-full bg-slate-100 dark:bg-slate-800 p-1 mb-10 border border-slate-200/40 dark:border-yellow-800/20">
+          <TabsList className="mx-auto mb-10 flex h-11 w-full max-w-md items-center gap-1 rounded-full border border-stone-200/80 bg-stone-100/80 p-1 dark:border-white/10 dark:bg-white/[0.04]">
             {roles.map((r) => {
               const Icon = r.icon;
               return (
                 <TabsTrigger
                   key={r.value}
                   value={r.value}
-                  className="flex-1 flex items-center justify-center gap-2 h-full rounded-full text-xs font-semibold text-slate-400 dark:text-yellow-300/50 hover:text-slate-700 dark:hover:text-yellow-200 transition-all duration-200 data-[state=active]:bg-white dark:data-[state=active]:bg-yellow-700/40 data-[state=active]:text-[#a77c5c] dark:data-[state=active]:text-yellow-200 data-[state=active]:shadow-sm"
+                  className="flex h-full flex-1 items-center justify-center gap-2 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-stone-800 data-[state=active]:bg-white data-[state=active]:text-stone-900 data-[state=active]:shadow-sm dark:text-neutral-400 dark:hover:text-neutral-200 dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-50"
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span>{r.label}</span>
@@ -405,15 +421,25 @@ export default async function PricingPage() {
               return fallbackPlan;
             });
 
-            const gridClass = tiers.length === 1 ? "md:grid-cols-1 max-w-sm mx-auto" : tiers.length === 2 ? "md:grid-cols-2 max-w-3xl mx-auto" : "md:grid-cols-3";
+            // Coming-soon tiers are a footnote, not a card: a fourth card in a
+            // three-column grid orphans itself on the next row and reads as a bug.
+            const buyableTiers = tiers.filter((t: any) => !t.comingSoon);
+            const soonTiers = tiers.filter((t: any) => t.comingSoon);
+
+            const gridClass = buyableTiers.length === 1 ? "md:grid-cols-1 max-w-sm mx-auto" : buyableTiers.length === 2 ? "md:grid-cols-2 max-w-3xl mx-auto" : "md:grid-cols-3";
 
             return (
               <TabsContent key={r.value} value={r.value} className="mt-0 outline-none">
                 <div className={`grid grid-cols-1 ${gridClass} gap-6 items-start`}>
-                  {tiers.map((tier: any) => (
+                  {buyableTiers.map((tier: any) => (
                     <PricingCard key={tier.name} tier={tier} role={r.value} />
                   ))}
                 </div>
+                {soonTiers.length > 0 && (
+                  <p className="mt-8 text-center text-xs text-muted-foreground">
+                    {soonTiers.map((t: any) => t.name).join(', ')} tier — coming soon.
+                  </p>
+                )}
               </TabsContent>
             );
           })}

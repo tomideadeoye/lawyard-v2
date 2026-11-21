@@ -791,6 +791,22 @@
       "commits": [
         "04532c1"
       ]
+    },
+    {
+      "id": "CH-070",
+      "date": "2026-11-21",
+      "type": "fixed",
+      "title": "Corporate Post page printed its own HTML as visible text",
+      "detail": "`app/directory/corporate-posts/[slug]/page.tsx` rendered `{article.content}` as a React child, so React escaped the body and the post showed `<p><a target=\"_blank\"…` instead of the announcement. Now injected via `dangerouslySetInnerHTML`, matching `/insights/[slug]`. Because that makes submitted HTML live, the write path sanitises it once in `lib/sanitize.ts` (allowlist of editor tags, `http`/`https`/`mailto`/`tel` schemes only, `rel=\"noopener noreferrer nofollow\"` forced on links, empty editor paragraphs dropped) and the page sanitises again for rows written earlier. Excerpts were cut straight out of the HTML body, so cards and Slack previews showed tags — the fallback is now plain text (`excerptFromHtml`) and `ArticleCard` strips any legacy excerpt at render.",
+      "evidence": [
+        "app/directory/corporate-posts/[slug]/page.tsx",
+        "app/actions/corporate-posts.ts",
+        "lib/sanitize.ts",
+        "components/ui/article-card.tsx"
+      ],
+      "defects": [
+        "D13"
+      ]
     }
   ]
 }

@@ -1,0 +1,1057 @@
+- generic [active] [ref=f18e1]:
+  - generic [ref=f18e2]:
+    - link [ref=f18e3] [cursor=pointer]:
+      - /url: "#main"
+      - paragraph [ref=f18e4]: Skip to main content
+    - banner [ref=f18e6]:
+      - generic [ref=f18e7]:
+        - link [ref=f18e8] [cursor=pointer]:
+          - /url: https://www.figma.com/
+          - img "Homepage" [ref=f18e9]
+        - generic [ref=f18e17]:
+          - list [ref=f18e18]:
+            - listitem
+            - listitem [ref=f18e19]:
+              - link "Get started for free" [ref=f18e20] [cursor=pointer]:
+                - /url: https://www.figma.com/signup
+          - navigation "Main" [ref=f18e23]:
+            - button "Open navigation menu" [ref=f18e24] [cursor=pointer]
+    - main [ref=f18e27]:
+      - complementary "New" [ref=f18e29]:
+        - generic [ref=f18e30]:
+          - generic [ref=f18e31]: New
+          - paragraph [ref=f18e33]: AI add-ons are now available for all plans.
+      - generic [ref=f18e35]:
+        - heading "Pick your plan, choose your seats" [level=1] [ref=f18e36]
+        - generic [ref=f18e37]:
+          - list "Figma products" [ref=f18e39]:
+            - listitem [ref=f18e40]:
+              - generic [ref=f18e44]: Figma Design
+            - listitem [ref=f18e45]:
+              - generic [ref=f18e49]: Figma Make
+            - listitem [ref=f18e50]:
+              - generic [ref=f18e54]: Figma Draw
+            - listitem [ref=f18e55]:
+              - generic [ref=f18e59]: Dev Mode
+            - listitem [ref=f18e60]:
+              - generic [ref=f18e64]: FigJam
+            - listitem [ref=f18e65]:
+              - generic [ref=f18e69]: Figma Slides
+            - listitem [ref=f18e70]:
+              - generic [ref=f18e74]: Figma Motion
+            - listitem [ref=f18e75]:
+              - generic [ref=f18e79]: Figma Specs
+            - listitem [ref=f18e80]:
+              - generic [ref=f18e84]: Figma Sites
+            - listitem [ref=f18e85]:
+              - generic [ref=f18e90]: Figma Buzz
+          - paragraph [ref=f18e91]: Prices in USD
+        - region "Plans" [ref=f18e92]:
+          - heading "Plans" [level=2] [ref=f18e93]
+          - list "Plans" [ref=f18e94]:
+            - listitem [ref=f18e95]:
+              - article "Starter Plan" [ref=f18e96]:
+                - region "Purchase options for Starter Plan" [ref=f18e97]:
+                  - heading "Starter Plan" [level=3] [ref=f18e99]: Starter
+                  - generic [ref=f18e101]:
+                    - heading "Free" [level=4] [ref=f18e102]
+                    - paragraph [ref=f18e104]: Free limited access to Figma products
+                  - link "Select Starter plan" [ref=f18e107] [cursor=pointer]:
+                    - /url: https://www.figma.com/signup
+                    - generic [ref=f18e108]: Select plan
+                - region "Details for Starter Plan" [ref=f18e110]:
+                  - button "Why choose Starter?" [ref=f18e111] [cursor=pointer]
+            - listitem [ref=f18e115]:
+              - article "Professional Plan" [ref=f18e116]:
+                - region "Purchase options for Professional Plan" [ref=f18e117]:
+                  - generic [ref=f18e118]:
+                    - heading "Professional Plan" [level=3] [ref=f18e119]: Professional
+                    - 'button "Show annual billing prices: Annual selected" [ref=f18e121] [cursor=pointer]':
+                      - generic [aria-hidden] [ref=f18e123]:
+                        - generic [ref=f18e124]: Monthly
+                        - generic [ref=f18e125]: Annual
+                  - generic [ref=f18e126]:
+                    - generic [ref=f18e128]:
+                      - generic [ref=f18e129]:
+                        - heading "Full seat" [level=4] [ref=f18e130]
+                        - paragraph [ref=f18e133]: $16/mo
+                      - list "Full seat products" [ref=f18e134]:
+                        - listitem [ref=f18e135]:
+                          - img "Figma Design" [ref=f18e136]
+                        - listitem [ref=f18e140]:
+                          - img "Figma Make" [ref=f18e141]
+                        - listitem [ref=f18e145]:
+                          - img "Figma Draw" [ref=f18e146]
+                        - listitem [ref=f18e150]:
+                          - img "Dev Mode" [ref=f18e151]
+                        - listitem [ref=f18e155]:
+                          - img "FigJam" [ref=f18e156]
+                        - listitem [ref=f18e160]:
+                          - img "Figma Slides" [ref=f18e161]
+                        - listitem [ref=f18e165]:
+                          - img "Figma Motion" [ref=f18e166]
+                        - listitem [ref=f18e170]:
+                          - img "Figma Specs" [ref=f18e171]
+                        - listitem [ref=f18e175]:
+                          - img "Figma Sites" [ref=f18e176]
+                        - listitem [ref=f18e180]:
+                          - img "Figma Buzz" [ref=f18e181]
+                      - paragraph [ref=f18e187]: + 3,000 AI credits/mo
+                    - generic [ref=f18e189]:
+                      - generic [ref=f18e190]:
+                        - heading "Dev seat" [level=4] [ref=f18e191]
+                        - paragraph [ref=f18e194]: $12/mo
+                      - list "Dev seat products" [ref=f18e195]:
+                        - listitem [ref=f18e196]:
+                          - img "Dev Mode" [ref=f18e197]
+                        - listitem [ref=f18e201]:
+                          - img "FigJam" [ref=f18e202]
+                        - listitem [ref=f18e206]:
+                          - img "Figma Slides" [ref=f18e207]
+                        - listitem [ref=f18e211]:
+                          - img "Figma Specs" [ref=f18e212]
+                        - listitem [ref=f18e216]:
+                          - img "Figma Buzz" [ref=f18e217]
+                      - paragraph [ref=f18e223]: + 500 AI credits/mo
+                    - generic [ref=f18e225]:
+                      - generic [ref=f18e226]:
+                        - heading "Collab seat" [level=4] [ref=f18e227]
+                        - paragraph [ref=f18e230]: $3/mo
+                      - list "Collab seat products" [ref=f18e231]:
+                        - listitem [ref=f18e232]:
+                          - img "FigJam" [ref=f18e233]
+                        - listitem [ref=f18e237]:
+                          - img "Figma Slides" [ref=f18e238]
+                        - listitem [ref=f18e242]:
+                          - img "Figma Specs" [ref=f18e243]
+                        - listitem [ref=f18e247]:
+                          - img "Figma Buzz" [ref=f18e248]
+                      - paragraph [ref=f18e254]: + 500 AI credits/mo
+                  - link "Select Professional plan" [ref=f18e257] [cursor=pointer]:
+                    - /url: https://www.figma.com/purchase-professional?entryPoint=4
+                    - generic [ref=f18e258]: Select plan
+                - region "Details for Professional Plan" [ref=f18e260]:
+                  - button "Why choose Professional?" [ref=f18e261] [cursor=pointer]
+            - listitem [ref=f18e265]:
+              - article "Organization Plan" [ref=f18e266]:
+                - region "Purchase options for Organization Plan" [ref=f18e267]:
+                  - generic [ref=f18e268]:
+                    - heading "Organization Plan" [level=3] [ref=f18e269]: Organization
+                    - paragraph [ref=f18e271]: Billed annually
+                  - generic [ref=f18e272]:
+                    - generic [ref=f18e274]:
+                      - generic [ref=f18e275]:
+                        - heading "Full seat" [level=4] [ref=f18e276]
+                        - paragraph [ref=f18e279]: $55/mo
+                      - list "Full seat products" [ref=f18e280]:
+                        - listitem [ref=f18e281]:
+                          - img "Figma Design" [ref=f18e282]
+                        - listitem [ref=f18e286]:
+                          - img "Figma Make" [ref=f18e287]
+                        - listitem [ref=f18e291]:
+                          - img "Figma Draw" [ref=f18e292]
+                        - listitem [ref=f18e296]:
+                          - img "Dev Mode" [ref=f18e297]
+                        - listitem [ref=f18e301]:
+                          - img "FigJam" [ref=f18e302]
+                        - listitem [ref=f18e306]:
+                          - img "Figma Slides" [ref=f18e307]
+                        - listitem [ref=f18e311]:
+                          - img "Figma Motion" [ref=f18e312]
+                        - listitem [ref=f18e316]:
+                          - img "Figma Specs" [ref=f18e317]
+                        - listitem [ref=f18e321]:
+                          - img "Figma Sites" [ref=f18e322]
+                        - listitem [ref=f18e326]:
+                          - img "Figma Buzz" [ref=f18e327]
+                      - paragraph [ref=f18e333]: + 3,500 AI credits/mo
+                    - generic [ref=f18e335]:
+                      - generic [ref=f18e336]:
+                        - heading "Dev seat" [level=4] [ref=f18e337]
+                        - paragraph [ref=f18e340]: $25/mo
+                      - list "Dev seat products" [ref=f18e341]:
+                        - listitem [ref=f18e342]:
+                          - img "Dev Mode" [ref=f18e343]
+                        - listitem [ref=f18e347]:
+                          - img "FigJam" [ref=f18e348]
+                        - listitem [ref=f18e352]:
+                          - img "Figma Slides" [ref=f18e353]
+                        - listitem [ref=f18e357]:
+                          - img "Figma Specs" [ref=f18e358]
+                        - listitem [ref=f18e362]:
+                          - img "Figma Buzz" [ref=f18e363]
+                      - paragraph [ref=f18e369]: + 500 AI credits/mo
+                    - generic [ref=f18e371]:
+                      - generic [ref=f18e372]:
+                        - heading "Collab seat" [level=4] [ref=f18e373]
+                        - paragraph [ref=f18e376]: $5/mo
+                      - list "Collab seat products" [ref=f18e377]:
+                        - listitem [ref=f18e378]:
+                          - img "FigJam" [ref=f18e379]
+                        - listitem [ref=f18e383]:
+                          - img "Figma Slides" [ref=f18e384]
+                        - listitem [ref=f18e388]:
+                          - img "Figma Specs" [ref=f18e389]
+                        - listitem [ref=f18e393]:
+                          - img "Figma Buzz" [ref=f18e394]
+                      - paragraph [ref=f18e400]: + 500 AI credits/mo
+                  - link "Select Organization plan" [ref=f18e403] [cursor=pointer]:
+                    - /url: https://www.figma.com/purchase-organization?entryPoint=4
+                    - generic [ref=f18e404]: Select plan
+                - region "Details for Organization Plan" [ref=f18e406]:
+                  - button "Why choose Organization?" [ref=f18e407] [cursor=pointer]
+                  - generic [ref=f18e411]:
+                    - paragraph [ref=f18e413]: Want more information?
+                    - link "Contact sales" [ref=f18e415] [cursor=pointer]:
+                      - /url: https://www.figma.com/
+            - listitem [ref=f18e417]:
+              - article "Enterprise Plan" [ref=f18e418]:
+                - region "Purchase options for Enterprise Plan" [ref=f18e419]:
+                  - generic [ref=f18e420]:
+                    - heading "Enterprise Plan" [level=3] [ref=f18e421]: Enterprise
+                    - paragraph [ref=f18e423]: Billed annually
+                  - generic [ref=f18e424]:
+                    - generic [ref=f18e426]:
+                      - generic [ref=f18e427]:
+                        - heading "Full seat" [level=4] [ref=f18e428]
+                        - paragraph [ref=f18e431]: $90/mo
+                      - list "Full seat products" [ref=f18e432]:
+                        - listitem [ref=f18e433]:
+                          - img "Figma Design" [ref=f18e434]
+                        - listitem [ref=f18e438]:
+                          - img "Figma Make" [ref=f18e439]
+                        - listitem [ref=f18e443]:
+                          - img "Figma Draw" [ref=f18e444]
+                        - listitem [ref=f18e448]:
+                          - img "Dev Mode" [ref=f18e449]
+                        - listitem [ref=f18e453]:
+                          - img "FigJam" [ref=f18e454]
+                        - listitem [ref=f18e458]:
+                          - img "Figma Slides" [ref=f18e459]
+                        - listitem [ref=f18e463]:
+                          - img "Figma Motion" [ref=f18e464]
+                        - listitem [ref=f18e468]:
+                          - img "Figma Specs" [ref=f18e469]
+                        - listitem [ref=f18e473]:
+                          - img "Figma Sites" [ref=f18e474]
+                        - listitem [ref=f18e478]:
+                          - img "Figma Buzz" [ref=f18e479]
+                      - paragraph [ref=f18e485]: + 4,250 AI credits/mo
+                    - generic [ref=f18e487]:
+                      - generic [ref=f18e488]:
+                        - heading "Dev seat" [level=4] [ref=f18e489]
+                        - paragraph [ref=f18e492]: $35/mo
+                      - list "Dev seat products" [ref=f18e493]:
+                        - listitem [ref=f18e494]:
+                          - img "Dev Mode" [ref=f18e495]
+                        - listitem [ref=f18e499]:
+                          - img "FigJam" [ref=f18e500]
+                        - listitem [ref=f18e504]:
+                          - img "Figma Slides" [ref=f18e505]
+                        - listitem [ref=f18e509]:
+                          - img "Figma Specs" [ref=f18e510]
+                        - listitem [ref=f18e514]:
+                          - img "Figma Buzz" [ref=f18e515]
+                      - paragraph [ref=f18e521]: + 500 AI credits/mo
+                    - generic [ref=f18e523]:
+                      - generic [ref=f18e524]:
+                        - heading "Collab seat" [level=4] [ref=f18e525]
+                        - paragraph [ref=f18e528]: $5/mo
+                      - list "Collab seat products" [ref=f18e529]:
+                        - listitem [ref=f18e530]:
+                          - img "FigJam" [ref=f18e531]
+                        - listitem [ref=f18e535]:
+                          - img "Figma Slides" [ref=f18e536]
+                        - listitem [ref=f18e540]:
+                          - img "Figma Specs" [ref=f18e541]
+                        - listitem [ref=f18e545]:
+                          - img "Figma Buzz" [ref=f18e546]
+                      - paragraph [ref=f18e552]: + 500 AI credits/mo
+                  - link "Contact sales" [ref=f18e555] [cursor=pointer]:
+                    - /url: https://www.figma.com/
+                - region "Details for Enterprise Plan" [ref=f18e558]:
+                  - button "Why choose Enterprise?" [ref=f18e559] [cursor=pointer]
+          - generic [ref=f18e565]:
+            - paragraph [ref=f18e566]: If you're on a paid plan, you can let others view and comment on your files without purchasing extra seats.
+            - paragraph [ref=f18e567]:
+              - strong [ref=f18e571]: Figma Motion
+              - text: beta is available on Full seats.
+            - paragraph [ref=f18e572]:
+              - strong [ref=f18e576]: Figma Sites
+              - text: beta is available on Full seats.
+            - paragraph [ref=f18e577]:
+              - strong [ref=f18e581]: Figma Specs
+              - text: beta is available on all seats.
+            - paragraph [ref=f18e582]:
+              - strong [ref=f18e587]: Figma Buzz
+              - text: beta is available on all seats.
+      - region "Add-ons" [ref=f18e588]:
+        - generic [ref=f18e590]:
+          - generic [ref=f18e591]:
+            - heading "Add-ons" [level=2] [ref=f18e593]
+            - paragraph [ref=f18e595]: Customize your plan with optional add-ons
+          - list [ref=f18e596]:
+            - listitem [ref=f18e597]:
+              - article [ref=f18e598]:
+                - heading "AI credits" [level=3] [ref=f18e600]
+                - paragraph [ref=f18e602]: Purchase additional AI credits for your whole team to share—enable pay-as-you-go for flexibility and/or subscribe to save.
+                - link "Learn more about AI Credits" [ref=f18e605] [cursor=pointer]:
+                  - /url: https://help.figma.com/hc/en-us/articles/35865276858647
+                  - generic [ref=f18e606]: Learn more
+            - listitem [ref=f18e607]:
+              - article [ref=f18e608]:
+                - heading "Governance+" [level=3] [ref=f18e610]
+                - paragraph [ref=f18e612]: Manage your organization’s unique security requirements with advanced access, sharing, and compliance tools.
+                - generic [ref=f18e613]:
+                  - paragraph [ref=f18e614]: Only available on Enterprise plan
+                  - link "Contact sales" [ref=f18e616] [cursor=pointer]:
+                    - /url: https://www.figma.com/
+      - region "Compare all features" [ref=f18e618]:
+        - generic [ref=f18e619]:
+          - heading "Compare all features" [level=2] [ref=f18e620]
+          - generic [ref=f18e621]:
+            - generic [ref=f18e622]:
+              - generic: Seat
+              - combobox "Seat" [ref=f18e623] [cursor=pointer]: Full seat
+            - switch "Show only key features" [checked] [ref=f18e624] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f18e626]:
+                - generic [ref=f18e627]: All features
+                - generic [ref=f18e628]: Key features
+          - table "Compare all features" [ref=f18e629]:
+            - rowgroup [ref=f18e630]:
+              - row [ref=f18e631]:
+                - columnheader "Features"
+                - columnheader "Starter" [ref=f18e632]
+                - columnheader "Professional" [ref=f18e633]
+                - columnheader "Organization" [ref=f18e635]
+                - columnheader "Enterprise" [ref=f18e637]
+            - rowgroup [ref=f18e638]:
+              - row [ref=f18e639]:
+                - cell [ref=f18e640]:
+                  - button "Figma Design" [expanded] [ref=f18e641] [cursor=pointer]
+              - row [ref=f18e648]:
+                - rowheader "Components" [ref=f18e649]:
+                  - button [ref=f18e650] [cursor=pointer]:
+                    - paragraph [ref=f18e653]: Components
+                - cell [ref=f18e654]:
+                  - img "Included" [ref=f18e656]
+                - cell [ref=f18e659]:
+                  - img "Included" [ref=f18e661]
+                - cell [ref=f18e664]:
+                  - img "Included" [ref=f18e666]
+                - cell [ref=f18e669]:
+                  - img "Included" [ref=f18e671]
+              - row [ref=f18e674]:
+                - rowheader "Auto layout" [ref=f18e675]:
+                  - button [ref=f18e676] [cursor=pointer]:
+                    - paragraph [ref=f18e679]: Auto layout
+                - cell [ref=f18e680]:
+                  - img "Included" [ref=f18e682]
+                - cell [ref=f18e685]:
+                  - img "Included" [ref=f18e687]
+                - cell [ref=f18e690]:
+                  - img "Included" [ref=f18e692]
+                - cell [ref=f18e695]:
+                  - img "Included" [ref=f18e697]
+              - row [ref=f18e700]:
+                - rowheader "Advanced drawing tools" [ref=f18e701]:
+                  - button [ref=f18e702] [cursor=pointer]:
+                    - paragraph [ref=f18e705]: Advanced drawing tools
+                - cell [ref=f18e706]:
+                  - img "Included" [ref=f18e708]
+                - cell [ref=f18e711]:
+                  - img "Included" [ref=f18e713]
+                - cell [ref=f18e716]:
+                  - img "Included" [ref=f18e718]
+                - cell [ref=f18e721]:
+                  - img "Included" [ref=f18e723]
+              - row [ref=f18e726]:
+                - rowheader "Styles" [ref=f18e727]:
+                  - button [ref=f18e728] [cursor=pointer]:
+                    - paragraph [ref=f18e731]: Styles
+                - cell [ref=f18e732]:
+                  - img "Included" [ref=f18e734]
+                - cell [ref=f18e737]:
+                  - img "Included" [ref=f18e739]
+                - cell [ref=f18e742]:
+                  - img "Included" [ref=f18e744]
+                - cell [ref=f18e747]:
+                  - img "Included" [ref=f18e749]
+              - row [ref=f18e752]:
+                - rowheader "Interactive prototypes" [ref=f18e753]:
+                  - button [ref=f18e754] [cursor=pointer]:
+                    - paragraph [ref=f18e757]: Interactive prototypes
+                - cell [ref=f18e758]:
+                  - img "Included" [ref=f18e760]
+                - cell [ref=f18e763]:
+                  - img "Included" [ref=f18e765]
+                - cell [ref=f18e768]:
+                  - img "Included" [ref=f18e770]
+                - cell [ref=f18e773]:
+                  - img "Included" [ref=f18e775]
+              - row [ref=f18e778]:
+                - rowheader "Video in prototypes" [ref=f18e779]:
+                  - button [ref=f18e780] [cursor=pointer]:
+                    - paragraph [ref=f18e783]: Video in prototypes
+                - cell "Choose videos from the Figma Community" [ref=f18e784]
+                - cell "Upload your own videos" [ref=f18e787]
+                - cell [ref=f18e790]:
+                  - img "Included" [ref=f18e792]
+                - cell [ref=f18e795]:
+                  - img "Included" [ref=f18e797]
+              - row [ref=f18e800]:
+                - rowheader "Variables" [ref=f18e801]:
+                  - button [ref=f18e802] [cursor=pointer]:
+                    - paragraph [ref=f18e805]: Variables
+                - cell [ref=f18e806]:
+                  - img "Included" [ref=f18e808]
+                - cell [ref=f18e811]:
+                  - img "Included" [ref=f18e813]
+                - cell [ref=f18e816]:
+                  - img "Included" [ref=f18e818]
+                - cell [ref=f18e821]:
+                  - img "Included" [ref=f18e823]
+              - row [ref=f18e826]:
+                - rowheader "3D transforms (Beta)" [ref=f18e827]:
+                  - button [ref=f18e828] [cursor=pointer]:
+                    - paragraph [ref=f18e831]: 3D transforms (Beta)
+                - cell [ref=f18e832]:
+                  - img "Included" [ref=f18e834]
+                - cell [ref=f18e837]:
+                  - img "Included" [ref=f18e839]
+                - cell [ref=f18e842]:
+                  - img "Included" [ref=f18e844]
+                - cell [ref=f18e847]:
+                  - img "Included" [ref=f18e849]
+              - row [ref=f18e852]:
+                - rowheader "Image editing (AI)" [ref=f18e853]:
+                  - button [ref=f18e854] [cursor=pointer]:
+                    - paragraph [ref=f18e857]: Image editing (AI)
+                - cell [ref=f18e858]:
+                  - img "Included" [ref=f18e860]
+                - cell [ref=f18e863]:
+                  - img "Included" [ref=f18e865]
+                - cell [ref=f18e868]:
+                  - img "Included" [ref=f18e870]
+                - cell [ref=f18e873]:
+                  - img "Included" [ref=f18e875]
+              - row [ref=f18e878]:
+                - rowheader "Variable modes" [ref=f18e879]:
+                  - button [ref=f18e880] [cursor=pointer]:
+                    - paragraph [ref=f18e883]: Variable modes
+                - cell [ref=f18e884]:
+                  - img "Not included" [ref=f18e886]
+                - cell "10 modes" [ref=f18e889]
+                - cell "20 modes" [ref=f18e892]
+                - cell "Unlimited modes (via extended collections)" [ref=f18e895]
+              - row [ref=f18e898]:
+                - rowheader "Team libraries" [ref=f18e899]:
+                  - button [ref=f18e900] [cursor=pointer]:
+                    - paragraph [ref=f18e903]: Team libraries
+                - cell [ref=f18e904]:
+                  - img "Not included" [ref=f18e906]
+                - cell [ref=f18e909]:
+                  - img "Included" [ref=f18e911]
+                - cell [ref=f18e914]:
+                  - img "Included" [ref=f18e916]
+                - cell [ref=f18e919]:
+                  - img "Included" [ref=f18e921]
+              - row [ref=f18e924]:
+                - rowheader "Advanced prototyping" [ref=f18e925]:
+                  - button [ref=f18e926] [cursor=pointer]:
+                    - paragraph [ref=f18e929]: Advanced prototyping
+                - cell [ref=f18e930]:
+                  - img "Not included" [ref=f18e932]
+                - cell [ref=f18e935]:
+                  - img "Included" [ref=f18e937]
+                - cell [ref=f18e940]:
+                  - img "Included" [ref=f18e942]
+                - cell [ref=f18e945]:
+                  - img "Included" [ref=f18e947]
+              - row [ref=f18e950]:
+                - rowheader "Design productivity tools (AI)" [ref=f18e951]:
+                  - button [ref=f18e952] [cursor=pointer]:
+                    - paragraph [ref=f18e955]: Design productivity tools (AI)
+                - cell [ref=f18e956]:
+                  - img "Not included" [ref=f18e958]
+                - cell [ref=f18e961]:
+                  - img "Included" [ref=f18e963]
+                - cell [ref=f18e966]:
+                  - img "Included" [ref=f18e968]
+                - cell [ref=f18e971]:
+                  - img "Included" [ref=f18e973]
+              - row [ref=f18e976]:
+                - rowheader "Weave tools" [ref=f18e977]:
+                  - button [ref=f18e978] [cursor=pointer]:
+                    - paragraph [ref=f18e981]: Weave tools
+                - cell [ref=f18e982]:
+                  - img "Not included" [ref=f18e984]
+                - cell [ref=f18e987]:
+                  - img "Included" [ref=f18e989]
+                - cell [ref=f18e992]:
+                  - img "Included" [ref=f18e994]
+                - cell [ref=f18e997]:
+                  - img "Included" [ref=f18e999]
+              - row [ref=f18e1002]:
+                - rowheader "Code layers" [ref=f18e1003]:
+                  - button [ref=f18e1004] [cursor=pointer]:
+                    - paragraph [ref=f18e1007]: Code layers
+                - cell [ref=f18e1008]:
+                  - img "Not included" [ref=f18e1010]
+                - cell [ref=f18e1013]:
+                  - img "Included" [ref=f18e1015]
+                - cell [ref=f18e1018]:
+                  - img "Included" [ref=f18e1020]
+                - cell [ref=f18e1023]:
+                  - img "Included" [ref=f18e1025]
+              - row [ref=f18e1028]:
+                - rowheader "Shared fonts" [ref=f18e1029]:
+                  - button [ref=f18e1030] [cursor=pointer]:
+                    - paragraph [ref=f18e1033]: Shared fonts
+                - cell [ref=f18e1034]:
+                  - img "Not included" [ref=f18e1036]
+                - cell [ref=f18e1039]:
+                  - img "Not included" [ref=f18e1041]
+                - cell [ref=f18e1044]:
+                  - img "Included" [ref=f18e1046]
+                - cell [ref=f18e1049]:
+                  - img "Included" [ref=f18e1051]
+              - row [ref=f18e1054]:
+                - rowheader "Branching and merging" [ref=f18e1055]:
+                  - button [ref=f18e1056] [cursor=pointer]:
+                    - paragraph [ref=f18e1059]: Branching and merging
+                - cell [ref=f18e1060]:
+                  - img "Not included" [ref=f18e1062]
+                - cell [ref=f18e1065]:
+                  - img "Not included" [ref=f18e1067]
+                - cell [ref=f18e1070]:
+                  - img "Included" [ref=f18e1072]
+                - cell [ref=f18e1075]:
+                  - img "Included" [ref=f18e1077]
+              - row [ref=f18e1080]:
+                - rowheader "In-app library analytics" [ref=f18e1081]:
+                  - button [ref=f18e1082] [cursor=pointer]:
+                    - paragraph [ref=f18e1085]: In-app library analytics
+                - cell [ref=f18e1086]:
+                  - img "Not included" [ref=f18e1088]
+                - cell [ref=f18e1091]:
+                  - img "Not included" [ref=f18e1093]
+                - cell [ref=f18e1096]:
+                  - img "Included" [ref=f18e1098]
+                - cell [ref=f18e1101]:
+                  - img "Included" [ref=f18e1103]
+              - row [ref=f18e1106]:
+                - rowheader "Organization-wide design systems" [ref=f18e1107]:
+                  - button [ref=f18e1108] [cursor=pointer]:
+                    - paragraph [ref=f18e1111]: Organization-wide design systems
+                - cell [ref=f18e1112]:
+                  - img "Not included" [ref=f18e1114]
+                - cell [ref=f18e1117]:
+                  - img "Not included" [ref=f18e1119]
+                - cell [ref=f18e1122]:
+                  - img "Included" [ref=f18e1124]
+                - cell [ref=f18e1127]:
+                  - img "Included" [ref=f18e1129]
+              - row [ref=f18e1132]:
+                - rowheader "Multi-brand design systems" [ref=f18e1133]:
+                  - button [ref=f18e1134] [cursor=pointer]:
+                    - paragraph [ref=f18e1137]: Multi-brand design systems
+                - cell [ref=f18e1138]:
+                  - img "Not included" [ref=f18e1140]
+                - cell [ref=f18e1143]:
+                  - img "Not included" [ref=f18e1145]
+                - cell [ref=f18e1148]:
+                  - img "Not included" [ref=f18e1150]
+                - cell [ref=f18e1153]:
+                  - img "Included" [ref=f18e1155]
+              - row [ref=f18e1158]:
+                - cell [ref=f18e1159]:
+                  - button "Figma Make" [ref=f18e1160] [cursor=pointer]
+              - row [ref=f18e1167]:
+                - cell [ref=f18e1168]:
+                  - button "Figma Motion (Beta)" [ref=f18e1169] [cursor=pointer]
+              - row [ref=f18e1176]:
+                - cell [ref=f18e1177]:
+                  - button "Figma Draw" [ref=f18e1178] [cursor=pointer]
+              - row [ref=f18e1185]:
+                - cell [ref=f18e1186]:
+                  - button "Figma Sites (Beta)" [ref=f18e1187] [cursor=pointer]
+              - row [ref=f18e1194]:
+                - cell [ref=f18e1195]:
+                  - button "Dev Mode" [ref=f18e1196] [cursor=pointer]
+              - row [ref=f18e1203]:
+                - cell [ref=f18e1204]:
+                  - button "FigJam" [ref=f18e1205] [cursor=pointer]
+              - row [ref=f18e1212]:
+                - cell [ref=f18e1213]:
+                  - button "Figma Slides" [ref=f18e1214] [cursor=pointer]
+              - row [ref=f18e1221]:
+                - cell [ref=f18e1222]:
+                  - button "Figma Buzz (Beta)" [ref=f18e1223] [cursor=pointer]
+              - row [ref=f18e1231]:
+                - cell [ref=f18e1232]:
+                  - button "Figma Specs (Beta)" [ref=f18e1233] [cursor=pointer]
+              - row [ref=f18e1240]:
+                - cell [ref=f18e1241]:
+                  - button "Figma agent" [ref=f18e1242] [cursor=pointer]
+              - row [ref=f18e1246]:
+                - cell [ref=f18e1247]:
+                  - button "Platform" [ref=f18e1248] [cursor=pointer]
+              - row [ref=f18e1252]:
+                - cell [ref=f18e1253]:
+                  - button "Admin" [ref=f18e1254] [cursor=pointer]
+              - row [ref=f18e1258]:
+                - cell [ref=f18e1259]:
+                  - button "Extensibility" [ref=f18e1260] [cursor=pointer]
+              - row [ref=f18e1264]:
+                - cell [ref=f18e1265]:
+                  - button "Security" [ref=f18e1266] [cursor=pointer]
+      - region "Pricing FAQs" [ref=f18e1270]:
+        - generic [ref=f18e1272]:
+          - heading "Pricing FAQs" [level=2] [ref=f18e1275]
+          - generic [ref=f18e1276]:
+            - generic [ref=f18e1277]:
+              - generic [ref=f18e1278]:
+                - heading [level=3] [ref=f18e1279]:
+                  - button "What is a seat?" [expanded] [ref=f18e1280] [cursor=pointer]
+                - generic [ref=f18e1284]:
+                  - paragraph [ref=f18e1285]: Seats give users access to Figma’s products. The different seats are designed to support different user workflows.
+                  - paragraph [ref=f18e1286]:
+                    - text: The
+                    - strong [ref=f18e1287]: Full seat
+                    - text: includes full access to all Figma products, including Figma Design, Figma Make, Figma Draw, Figma Motion, Figma Sites, Dev Mode, FigJam, Figma Slides, Figma Buzz, and Figma Specs.
+                  - paragraph [ref=f18e1288]:
+                    - text: The
+                    - strong [ref=f18e1289]: Dev seat
+                    - text: includes full access to Dev Mode, FigJam, Figma Slides, Figma Buzz, and Figma Specs. It also gives users view and comment access in Figma Design files.
+                  - paragraph [ref=f18e1290]:
+                    - text: The
+                    - strong [ref=f18e1291]: Collab seat
+                    - text: includes full access to FigJam, Figma Slides, Figma Buzz, and Figma Specs. It also gives users view and comment access in Figma Design files. It only includes
+                    - link "basic inspection" [ref=f18e1292] [cursor=pointer]:
+                      - /url: https://help.figma.com/hc/en-us/articles/22012921621015-Guide-to-inspecting
+                    - text: on Dev Mode.
+                  - paragraph [ref=f18e1293]:
+                    - text: If you’re on a paid plan, you can also let others view and comment on your files without purchasing extra seats. This view and comment access only includes
+                    - link "basic inspection" [ref=f18e1294] [cursor=pointer]:
+                      - /url: https://help.figma.com/hc/en-us/articles/22012921621015-Guide-to-inspecting
+                    - text: on Dev Mode.
+              - generic [ref=f18e1295]:
+                - heading [level=3] [ref=f18e1296]:
+                  - button "Where can I see a breakdown of my billing?" [expanded] [ref=f18e1297] [cursor=pointer]
+                - paragraph [ref=f18e1302]:
+                  - text: Only organization admins and billing group admins are able to view and manage billing. You can view a breakdown of your bill and manage seats from the Admin Dashboard in product.
+                  - link "Learn more about billing" [ref=f18e1303] [cursor=pointer]:
+                    - /url: https://help.figma.com/hc/en-us/articles/29717597009431-Guide-to-billing-at-Figma
+              - generic [ref=f18e1304]:
+                - heading [level=3] [ref=f18e1305]:
+                  - button "What happens if I add seats mid-year on an annual plan?" [expanded] [ref=f18e1306] [cursor=pointer]
+                - generic [ref=f18e1310]:
+                  - paragraph [ref=f18e1311]: This depends on which plan you’re on.
+                  - paragraph [ref=f18e1312]:
+                    - text: If you’re on a
+                    - strong [ref=f18e1313]: Professional
+                    - text: plan, if you add new paid seats to your team during your annual subscription term, Figma charges you a separate monthly subscription for those seats at the monthly price.
+                  - paragraph [ref=f18e1314]: Once an admin approves a new seat, it will be automatically added to your next monthly invoice. The cost of the seat will be prorated based on the day it was approved until the end of your current monthly billing term.
+                  - paragraph [ref=f18e1315]: You will continue to get monthly invoices for newly added seats unless you proactively add those seats to your annual subscription or remove the seats.
+                  - paragraph [ref=f18e1316]:
+                    - text: If you’re on an
+                    - strong [ref=f18e1317]: Organization
+                    - text: or
+                    - strong [ref=f18e1318]: Enterprise
+                    - text: plan, admins need to approve new seats that incur costs. By default, approved seats are included in your next invoice with prorated pricing, based on the date they were approved until the end of the annual subscription term. You’ll be invoiced quarterly for new seats added during your annual subscription term.
+              - generic [ref=f18e1319]:
+                - heading [level=3] [ref=f18e1320]:
+                  - button "Can I purchase products individually?" [expanded] [ref=f18e1321] [cursor=pointer]
+                - paragraph [ref=f18e1326]: We don’t offer the option to purchase products individually, but you can choose a plan and seats based on the products you’d like to use.
+              - generic [ref=f18e1327]:
+                - heading [level=3] [ref=f18e1328]:
+                  - button "Can I inspect files without Dev Mode?" [expanded] [ref=f18e1329] [cursor=pointer]
+                - paragraph [ref=f18e1334]:
+                  - text: Yes, you can access inspect information as a free viewer. While you will have view-only access, you will be able to view measurements and property values, copy CSS, iOS, and Android code, export assets, comment on files, and collaborate via cursor chat.
+                  - link "Learn more" [ref=f18e1335] [cursor=pointer]:
+                    - /url: https://help.figma.com/hc/en-us/articles/22012921621015-Guide-to-inspecting
+              - generic [ref=f18e1336]:
+                - heading [level=3] [ref=f18e1337]:
+                  - button "What are AI credits and how do they work?" [expanded] [ref=f18e1338] [cursor=pointer]
+                - generic [ref=f18e1342]:
+                  - paragraph [ref=f18e1343]: Figma AI uses a credit system that is shared across all Figma AI features and products. Every seat in Figma includes a monthly allotment of AI credits. The number of credits and which features you can use them with depends on your plan and seat type.
+                  - paragraph [ref=f18e1344]: "Full seats include:"
+                  - list [ref=f18e1345]:
+                    - listitem [ref=f18e1346]: 3,000 credits/month on the Professional plan
+                    - listitem [ref=f18e1347]: 3,500 credits/month on the Organization plan
+                    - listitem [ref=f18e1348]: 4,250 credits/month on the Enterprise plan
+                  - paragraph [ref=f18e1349]: All other seats (Collab, Dev, and View) and users on the Starter plan receive 500 credits/month.
+                  - paragraph [ref=f18e1350]:
+                    - text: If you need more credits, you can purchase additional AI credits on your plan. For more details, check out
+                    - link "our Help Center article" [ref=f18e1351] [cursor=pointer]:
+                      - /url: https://help.figma.com/hc/en-us/articles/33459875669015-How-AI-credits-work
+                    - text: on how AI credits work.
+              - generic [ref=f18e1352]:
+                - heading [level=3] [ref=f18e1353]:
+                  - button "Is Figma available for government or public sector teams?" [expanded] [ref=f18e1354] [cursor=pointer]
+                - paragraph [ref=f18e1359]:
+                  - text: Yes! You can learn more on
+                  - link "figma.com/government" [ref=f18e1360] [cursor=pointer]:
+                    - /url: https://www.figma.com/government/
+                  - text: .
+              - generic [ref=f18e1361]:
+                - heading [level=3] [ref=f18e1362]:
+                  - button "How do I downgrade or cancel my paid plan?" [expanded] [ref=f18e1363] [cursor=pointer]
+                - paragraph [ref=f18e1368]:
+                  - text: If you’re on the Professional plan, you can downgrade or cancel your plan your Admin Dashboard. If you’re on an Organization or Enterprise plan, please contact our Sales team to downgrade or cancel your plan.
+                  - link "Learn more" [ref=f18e1369] [cursor=pointer]:
+                    - /url: https://help.figma.com/hc/en-us/articles/360046216313-Upgrade-or-downgrade-your-plan
+              - generic [ref=f18e1370]:
+                - heading [level=3] [ref=f18e1371]:
+                  - button "Where can I learn more about security on Figma?" [expanded] [ref=f18e1372] [cursor=pointer]
+                - paragraph [ref=f18e1377]:
+                  - text: We follow extensive security practices to to protect your data and privacy. All plans meet recognized international security, privacy, and compliance standards. Learn more on
+                  - link "figma.com/security" [ref=f18e1378] [cursor=pointer]:
+                    - /url: https://www.figma.com/security/
+                  - text: .
+              - generic [ref=f18e1379]:
+                - heading [level=3] [ref=f18e1380]:
+                  - button "Do you have a discount for schools or classrooms?" [expanded] [ref=f18e1381] [cursor=pointer]
+                - paragraph [ref=f18e1386]:
+                  - text: Yes! Learn more on
+                  - link "figma.com/education" [ref=f18e1387] [cursor=pointer]:
+                    - /url: https://www.figma.com/education/
+                  - text: .
+            - link "See more FAQs" [ref=f18e1389] [cursor=pointer]:
+              - /url: https://www.figma.com/pricing-faq/
+      - generic [ref=f18e1391]:
+        - heading "Trusted by teams at" [level=2] [ref=f18e1393]
+        - generic [ref=f18e1394]:
+          - list "Logo marquee" [ref=f18e1395]:
+            - listitem [ref=f18e1396]:
+              - img "Atlassian" [ref=f18e1397]
+            - listitem [ref=f18e1398]:
+              - img "Braintree" [ref=f18e1399]
+            - listitem [ref=f18e1400]:
+              - img "Dribbble" [ref=f18e1401]
+            - listitem [ref=f18e1402]:
+              - img "GitHub" [ref=f18e1403]
+            - listitem [ref=f18e1404]:
+              - img "Microsoft" [ref=f18e1405]
+            - listitem [ref=f18e1406]:
+              - img "One Medical" [ref=f18e1407]
+            - listitem [ref=f18e1408]:
+              - img "Slack" [ref=f18e1409]
+            - listitem [ref=f18e1410]:
+              - img "The New York Times" [ref=f18e1411]
+            - listitem [ref=f18e1412]:
+              - img "Zoom" [ref=f18e1413]
+            - listitem [ref=f18e1414]:
+              - img "Walgreens" [ref=f18e1415]
+            - listitem [ref=f18e1416]:
+              - img "AirBnb" [ref=f18e1417]
+            - listitem [ref=f18e1418]:
+              - img "Asana" [ref=f18e1419]
+            - listitem [ref=f18e1420]:
+              - img "Basic/Dept" [ref=f18e1421]
+            - listitem [ref=f18e1422]:
+              - img "Coinbase" [ref=f18e1423]
+            - listitem [ref=f18e1424]:
+              - img "Dropbox" [ref=f18e1425]
+            - listitem [ref=f18e1426]:
+              - img "Herman Miller" [ref=f18e1427]
+            - listitem [ref=f18e1428]:
+              - img "Rakuten" [ref=f18e1429]
+            - listitem [ref=f18e1430]:
+              - img "Vodafone" [ref=f18e1431]
+          - list [aria-hidden] [ref=f18e1432]:
+            - listitem [ref=f18e1433]
+            - listitem [ref=f18e1435]
+            - listitem [ref=f18e1437]
+            - listitem [ref=f18e1439]
+            - listitem [ref=f18e1441]
+            - listitem [ref=f18e1443]
+            - listitem [ref=f18e1445]
+            - listitem [ref=f18e1447]
+            - listitem [ref=f18e1449]
+            - listitem [ref=f18e1451]
+            - listitem [ref=f18e1453]
+            - listitem [ref=f18e1455]
+            - listitem [ref=f18e1457]
+            - listitem [ref=f18e1459]
+            - listitem [ref=f18e1461]
+            - listitem [ref=f18e1463]
+            - listitem [ref=f18e1465]
+            - listitem [ref=f18e1467]
+          - list [aria-hidden] [ref=f18e1469]:
+            - listitem [ref=f18e1470]
+            - listitem [ref=f18e1472]
+            - listitem [ref=f18e1474]
+            - listitem [ref=f18e1476]
+            - listitem [ref=f18e1478]
+            - listitem [ref=f18e1480]
+            - listitem [ref=f18e1482]
+            - listitem [ref=f18e1484]
+            - listitem [ref=f18e1486]
+            - listitem [ref=f18e1488]
+            - listitem [ref=f18e1490]
+            - listitem [ref=f18e1492]
+            - listitem [ref=f18e1494]
+            - listitem [ref=f18e1496]
+            - listitem [ref=f18e1498]
+            - listitem [ref=f18e1500]
+            - listitem [ref=f18e1502]
+            - listitem [ref=f18e1504]
+          - list [aria-hidden] [ref=f18e1506]:
+            - listitem [ref=f18e1507]
+            - listitem [ref=f18e1509]
+            - listitem [ref=f18e1511]
+            - listitem [ref=f18e1513]
+            - listitem [ref=f18e1515]
+            - listitem [ref=f18e1517]
+            - listitem [ref=f18e1519]
+            - listitem [ref=f18e1521]
+            - listitem [ref=f18e1523]
+            - listitem [ref=f18e1525]
+            - listitem [ref=f18e1527]
+            - listitem [ref=f18e1529]
+            - listitem [ref=f18e1531]
+            - listitem [ref=f18e1533]
+            - listitem [ref=f18e1535]
+            - listitem [ref=f18e1537]
+            - listitem [ref=f18e1539]
+            - listitem [ref=f18e1541]
+    - contentinfo [ref=f18e1543]:
+      - generic [ref=f18e1544]:
+        - generic [ref=f18e1545]:
+          - link "Homepage" [ref=f18e1546] [cursor=pointer]:
+            - /url: https://www.figma.com/
+          - generic [ref=f18e1549]:
+            - heading "Figma Socials" [level=2] [ref=f18e1550]
+            - list [ref=f18e1551]:
+              - listitem [ref=f18e1552]:
+                - link "X" [ref=f18e1553] [cursor=pointer]:
+                  - /url: https://x.com/figma
+              - listitem [ref=f18e1556]:
+                - link "YouTube" [ref=f18e1557] [cursor=pointer]:
+                  - /url: https://www.youtube.com/figmadesign
+              - listitem [ref=f18e1560]:
+                - link "Instagram" [ref=f18e1561] [cursor=pointer]:
+                  - /url: https://www.instagram.com/figma
+              - listitem [ref=f18e1564]:
+                - link "Facebook" [ref=f18e1565] [cursor=pointer]:
+                  - /url: https://www.facebook.com/figmadesign
+        - generic [ref=f18e1568]:
+          - generic [ref=f18e1569]:
+            - heading "Product" [level=2] [ref=f18e1570]
+            - list "Product" [ref=f18e1571]:
+              - listitem [ref=f18e1572]:
+                - link "Figma Design" [ref=f18e1573] [cursor=pointer]:
+                  - /url: https://www.figma.com/design/
+              - listitem [ref=f18e1574]:
+                - link "Figma Make" [ref=f18e1575] [cursor=pointer]:
+                  - /url: https://www.figma.com/make/
+              - listitem [ref=f18e1576]:
+                - link "Figma Weave New" [ref=f18e1577] [cursor=pointer]:
+                  - /url: https://weave.figma.com/
+                  - text: Figma Weave
+                  - generic [ref=f18e1578]: New
+              - listitem [ref=f18e1579]:
+                - link "Dev Mode" [ref=f18e1580] [cursor=pointer]:
+                  - /url: https://www.figma.com/dev-mode/
+              - listitem [ref=f18e1581]:
+                - link "Figma Motion New" [ref=f18e1582] [cursor=pointer]:
+                  - /url: https://www.figma.com/motion/
+                  - text: Figma Motion
+                  - generic [ref=f18e1583]: New
+              - listitem [ref=f18e1584]:
+                - link "Figma Specs Beta" [ref=f18e1585] [cursor=pointer]:
+                  - /url: https://www.figma.com/specs/
+                  - text: Figma Specs
+                  - generic [ref=f18e1586]: Beta
+              - listitem [ref=f18e1587]:
+                - link "FigJam" [ref=f18e1588] [cursor=pointer]:
+                  - /url: https://www.figma.com/figjam/
+              - listitem [ref=f18e1589]:
+                - link "Figma Slides" [ref=f18e1590] [cursor=pointer]:
+                  - /url: https://www.figma.com/slides/
+              - listitem [ref=f18e1591]:
+                - link "Figma Draw" [ref=f18e1592] [cursor=pointer]:
+                  - /url: https://www.figma.com/draw/
+              - listitem [ref=f18e1593]:
+                - link "Figma Sites Beta" [ref=f18e1594] [cursor=pointer]:
+                  - /url: https://www.figma.com/sites/
+                  - text: Figma Sites
+                  - generic [ref=f18e1595]: Beta
+              - listitem [ref=f18e1596]:
+                - link "Figma Buzz Beta" [ref=f18e1597] [cursor=pointer]:
+                  - /url: https://www.figma.com/buzz/
+                  - text: Figma Buzz
+                  - generic [ref=f18e1598]: Beta
+              - listitem [ref=f18e1599]:
+                - link "Figma agent" [ref=f18e1600] [cursor=pointer]:
+                  - /url: https://www.figma.com/agent/
+              - listitem [ref=f18e1601]:
+                - link "Design and explore" [ref=f18e1602] [cursor=pointer]:
+                  - /url: https://www.figma.com/design-explore/
+              - listitem [ref=f18e1603]:
+                - link "Build and ship products" [ref=f18e1604] [cursor=pointer]:
+                  - /url: https://www.figma.com/build-ship/
+              - listitem [ref=f18e1605]:
+                - link "AI workflows" [ref=f18e1606] [cursor=pointer]:
+                  - /url: https://www.figma.com/ai/
+              - listitem [ref=f18e1607]:
+                - link "Release notes" [ref=f18e1608] [cursor=pointer]:
+                  - /url: https://www.figma.com/release-notes/
+              - listitem [ref=f18e1609]:
+                - link "MCP catalog" [ref=f18e1610] [cursor=pointer]:
+                  - /url: https://www.figma.com/mcp-catalog/
+              - listitem [ref=f18e1611]:
+                - link "Downloads" [ref=f18e1612] [cursor=pointer]:
+                  - /url: https://www.figma.com/downloads/
+          - generic [ref=f18e1613]:
+            - heading "Plans" [level=2] [ref=f18e1614]
+            - list "Plans" [ref=f18e1615]:
+              - listitem [ref=f18e1616]:
+                - link "Pricing" [ref=f18e1617] [cursor=pointer]:
+                  - /url: https://www.figma.com/pricing/
+              - listitem [ref=f18e1618]:
+                - link "Enterprise" [ref=f18e1619] [cursor=pointer]:
+                  - /url: https://www.figma.com/enterprise/
+              - listitem [ref=f18e1620]:
+                - link "Organization" [ref=f18e1621] [cursor=pointer]:
+                  - /url: https://www.figma.com/organization/
+              - listitem [ref=f18e1622]:
+                - link "Professional" [ref=f18e1623] [cursor=pointer]:
+                  - /url: https://www.figma.com/professional/
+        - generic [ref=f18e1625]:
+          - heading "Use cases" [level=2] [ref=f18e1626]
+          - list "Use cases" [ref=f18e1627]:
+            - listitem [ref=f18e1628]:
+              - link "UI design" [ref=f18e1629] [cursor=pointer]:
+                - /url: https://www.figma.com/ui-design-tool/
+            - listitem [ref=f18e1630]:
+              - link "UX design" [ref=f18e1631] [cursor=pointer]:
+                - /url: https://www.figma.com/ux-design-tool/
+            - listitem [ref=f18e1632]:
+              - link "Wireframing" [ref=f18e1633] [cursor=pointer]:
+                - /url: https://www.figma.com/wireframe-tool/
+            - listitem [ref=f18e1634]:
+              - link "Diagramming" [ref=f18e1635] [cursor=pointer]:
+                - /url: https://www.figma.com/figjam/diagramming-tool/
+            - listitem [ref=f18e1636]:
+              - link "Prototyping" [ref=f18e1637] [cursor=pointer]:
+                - /url: https://www.figma.com/prototyping/
+            - listitem [ref=f18e1638]:
+              - link "Brainstorming" [ref=f18e1639] [cursor=pointer]:
+                - /url: https://www.figma.com/figjam/brainstorming-tool/
+            - listitem [ref=f18e1640]:
+              - link "Presentation Maker" [ref=f18e1641] [cursor=pointer]:
+                - /url: https://www.figma.com/presentation-maker/
+            - listitem [ref=f18e1642]:
+              - link "Online whiteboard" [ref=f18e1643] [cursor=pointer]:
+                - /url: https://www.figma.com/figjam/online-whiteboard/
+            - listitem [ref=f18e1644]:
+              - link "Strategic planning" [ref=f18e1645] [cursor=pointer]:
+                - /url: https://www.figma.com/figjam/strategic-planning/
+            - listitem [ref=f18e1646]:
+              - link "Mind mapping" [ref=f18e1647] [cursor=pointer]:
+                - /url: https://www.figma.com/figjam/mind-map/
+            - listitem [ref=f18e1648]:
+              - link "AI website generator" [ref=f18e1649] [cursor=pointer]:
+                - /url: https://www.figma.com/solutions/ai-website-generator/
+            - listitem [ref=f18e1650]:
+              - link "AI design generator" [ref=f18e1651] [cursor=pointer]:
+                - /url: https://www.figma.com/solutions/ai-design-generator/
+            - listitem [ref=f18e1652]:
+              - link "AI app builder" [ref=f18e1653] [cursor=pointer]:
+                - /url: https://www.figma.com/solutions/ai-app-builder/
+            - listitem [ref=f18e1654]:
+              - link "AI UI generator" [ref=f18e1655] [cursor=pointer]:
+                - /url: https://www.figma.com/solutions/ai-ui-generator/
+            - listitem [ref=f18e1656]:
+              - link "Weave AI tool" [ref=f18e1657] [cursor=pointer]:
+                - /url: https://www.figma.com/solutions/figma-ai-tool-weave/
+        - generic [ref=f18e1659]:
+          - heading "Resources" [level=2] [ref=f18e1660]
+          - list "Resources" [ref=f18e1661]:
+            - listitem [ref=f18e1662]:
+              - link "Blog" [ref=f18e1663] [cursor=pointer]:
+                - /url: https://www.figma.com/blog/
+            - listitem [ref=f18e1664]:
+              - link "Best practices" [ref=f18e1665] [cursor=pointer]:
+                - /url: https://www.figma.com/best-practices/
+            - listitem [ref=f18e1666]:
+              - link "Gradient Library" [ref=f18e1667] [cursor=pointer]:
+                - /url: https://www.figma.com/gradients/
+            - listitem [ref=f18e1668]:
+              - link "Gradient Generator" [ref=f18e1669] [cursor=pointer]:
+                - /url: https://www.figma.com/gradient-generator/
+            - listitem [ref=f18e1670]:
+              - link "GIF maker" [ref=f18e1671] [cursor=pointer]:
+                - /url: https://www.figma.com/gif-maker/
+            - listitem [ref=f18e1672]:
+              - link "Color wheel" [ref=f18e1673] [cursor=pointer]:
+                - /url: https://www.figma.com/color-wheel/
+            - listitem [ref=f18e1674]:
+              - link "Colors" [ref=f18e1675] [cursor=pointer]:
+                - /url: https://www.figma.com/colors/
+            - listitem [ref=f18e1676]:
+              - link "Color picker" [ref=f18e1677] [cursor=pointer]:
+                - /url: https://www.figma.com/color-picker/
+            - listitem [ref=f18e1678]:
+              - link "Font Library" [ref=f18e1679] [cursor=pointer]:
+                - /url: https://www.figma.com/fonts/
+            - listitem [ref=f18e1680]:
+              - link "Templates" [ref=f18e1681] [cursor=pointer]:
+                - /url: https://www.figma.com/templates/
+            - listitem [ref=f18e1682]:
+              - link "Developers" [ref=f18e1683] [cursor=pointer]:
+                - /url: https://www.figma.com/developers
+            - listitem [ref=f18e1684]:
+              - link "Integrations" [ref=f18e1685] [cursor=pointer]:
+                - /url: https://www.figma.com/product-integrations/
+            - listitem [ref=f18e1686]:
+              - link "Affiliate program" [ref=f18e1687] [cursor=pointer]:
+                - /url: https://www.figma.com/affiliate-program/
+            - listitem [ref=f18e1688]:
+              - link "Resource library" [ref=f18e1689] [cursor=pointer]:
+                - /url: https://www.figma.com/resource-library/
+            - listitem [ref=f18e1690]:
+              - link "Reports and insights" [ref=f18e1691] [cursor=pointer]:
+                - /url: https://www.figma.com/reports/
+            - listitem [ref=f18e1692]:
+              - link "Support" [ref=f18e1693] [cursor=pointer]:
+                - /url: https://help.figma.com/hc/en-us
+            - listitem [ref=f18e1694]:
+              - link "Status" [ref=f18e1695] [cursor=pointer]:
+                - /url: https://status.figma.com/
+            - listitem [ref=f18e1696]:
+              - link "Legal and privacy" [ref=f18e1697] [cursor=pointer]:
+                - /url: https://www.figma.com/legal/
+            - listitem [ref=f18e1698]:
+              - link "Modern slavery statement" [ref=f18e1699] [cursor=pointer]:
+                - /url: https://static.figma.com/uploads/35bc6db4415269cfeace41c8c4637945a85732b2.pdf
+            - listitem [ref=f18e1700]:
+              - link "Climate disclosure statement" [ref=f18e1701] [cursor=pointer]:
+                - /url: https://static.figma.com/uploads/3920b4eb845c36faafa7706eba7c338036471161
+            - listitem [ref=f18e1702]:
+              - link "Impressum" [ref=f18e1703] [cursor=pointer]:
+                - /url: https://www.figma.com/legal/impressum/
+        - generic [ref=f18e1705]:
+          - heading "Company" [level=2] [ref=f18e1706]
+          - list "Company" [ref=f18e1707]:
+            - listitem [ref=f18e1708]:
+              - link "Events" [ref=f18e1709] [cursor=pointer]:
+                - /url: https://www.figma.com/events/
+            - listitem [ref=f18e1710]:
+              - link "Customers" [ref=f18e1711] [cursor=pointer]:
+                - /url: https://www.figma.com/customers/
+            - listitem [ref=f18e1712]:
+              - link "Careers" [ref=f18e1713] [cursor=pointer]:
+                - /url: https://www.figma.com/careers/
+            - listitem [ref=f18e1714]:
+              - link "Newsroom" [ref=f18e1715] [cursor=pointer]:
+                - /url: https://www.figma.com/newsroom/
+            - listitem [ref=f18e1716]:
+              - link "Brand assets" [ref=f18e1717] [cursor=pointer]:
+                - /url: https://www.figma.com/using-the-figma-brand/
+        - navigation "Choose a language" [ref=f18e1720]:
+          - button "English" [ref=f18e1721] [cursor=pointer]
+  - alert [ref=f18e1726]

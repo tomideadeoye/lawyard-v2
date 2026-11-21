@@ -9,7 +9,7 @@ export default function TermsPage() {
         <p className="text-muted-foreground">Effective Date: May 2026 | Lawyard Institutional Brand</p>
       </div>
 
-      <div className="premium-card prose prose-invert max-w-none space-y-12">
+      <div className="premium-card prose dark:prose-invert max-w-none space-y-12">
         <section className="space-y-4">
           <h2 className="text-2xl font-bold text-primary">Overview</h2>
           <p className="opacity-80 leading-relaxed">
@@ -18,21 +18,21 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Intellectual Property & Copyright</h3>
+          <h3 className="text-xl font-bold text-brand">Intellectual Property & Copyright</h3>
           <p className="opacity-80">
             All content on this website is Copyright © Lawyard 2026. We retain all rights to our works. You are not permitted to reuse, reproduce, or plagiarize our content, images, or graphics without prior written consent.
           </p>
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Governing Law</h3>
+          <h3 className="text-xl font-bold text-brand">Governing Law</h3>
           <p className="opacity-80">
             This website is managed from Nigeria, and as such, Nigerian laws apply to us. Disputes arising from the use of this directory shall be governed by the laws of the Federal Republic of Nigeria.
           </p>
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Liability & Third-Party Links</h3>
+          <h3 className="text-xl font-bold text-brand">Liability & Third-Party Links</h3>
           <p className="opacity-80">
             This website contains links to other websites. As those websites have their own policies independent of ours, we are not responsible for their security or any content they contain. 
           </p>

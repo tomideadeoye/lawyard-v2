@@ -122,6 +122,13 @@
       "detail": "Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide"
     },
     {
+      "id": "S-2026-11-21-17",
+      "type": "session",
+      "label": "A live Corporate Post displayed `<p><a target=\"_blank\"…` to readers. Find why one page …",
+      "date": "2026-11-21",
+      "detail": "Kredete post showed its own markup — render the body, then make rendering it safe"
+    },
+    {
       "id": "CH-001",
       "type": "change",
       "label": "Per-account coupon caps",
@@ -674,6 +681,14 @@
       "status": "fixed"
     },
     {
+      "id": "CH-070",
+      "type": "change",
+      "label": "Corporate Post page printed its own HTML as visible text",
+      "date": "2026-11-21",
+      "detail": "fixed",
+      "status": "fixed"
+    },
+    {
       "id": "F-01",
       "type": "feature",
       "label": "Auth — email/password, Google OAuth, magic link, password recovery",
@@ -1080,6 +1095,13 @@
       "label": "Email verification links land signed-out (PKCE code / implicit hash)",
       "status": "fixed",
       "detail": "high"
+    },
+    {
+      "id": "D13",
+      "type": "defect",
+      "label": "Corporate Post detail page escaped its content instead of rendering it",
+      "status": "fixed",
+      "detail": "medium"
     },
     {
       "id": "C01",
@@ -2021,6 +2043,16 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-070",
+      "to": "S-2026-11-21-17",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-070",
+      "to": "D13",
+      "kind": "fixes"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2173,6 +2205,11 @@
     {
       "from": "S-2026-11-09-16",
       "to": "D12",
+      "kind": "found"
+    },
+    {
+      "from": "S-2026-11-21-17",
+      "to": "D13",
       "kind": "found"
     },
     {
@@ -2578,6 +2615,11 @@
     {
       "from": "S-2026-11-09-16",
       "to": "F-31",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-21-17",
+      "to": "F-27",
       "kind": "touches"
     }
   ]

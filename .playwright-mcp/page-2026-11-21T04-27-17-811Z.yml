@@ -1,0 +1,319 @@
+- generic [active] [ref=f15e1]:
+  - generic [ref=f15e3]:
+    - banner [ref=f15e4]:
+      - navigation "Main navigation" [ref=f15e5]:
+        - list "Main navigation" [ref=f15e7]:
+          - listitem [ref=f15e8]:
+            - link "Notion homepage" [ref=f15e9] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=f15e15]:
+            - button "Open navigation" [ref=f15e16] [cursor=pointer]
+          - listitem:
+            - list:
+              - listitem [ref=f15e20]:
+                - link "Try Notion" [ref=f15e21] [cursor=pointer]:
+                  - /url: /signup?from=marketing&pathname=%2Fpricing&tid=7d359496d3534c6db63928bfb8eff367
+    - main [ref=f15e22]:
+      - heading "One tool to run your company." [level=1] [ref=f15e26]
+      - generic [ref=f15e27]:
+        - generic [ref=f15e28]:
+          - group "Select payment mode:" [ref=f15e30]:
+            - generic [ref=f15e33]:
+              - radio "Pay monthly" [ref=f15e34]
+              - generic [ref=f15e35] [cursor=pointer]: Pay monthly
+            - generic [ref=f15e37]:
+              - radio "Pay yearly" [checked] [ref=f15e38]
+              - generic [ref=f15e39]: Pay yearly
+          - generic [ref=f15e41]: Save up to 20% with yearly
+          - generic [ref=f15e42]:
+            - generic [ref=f15e43]: Price in
+            - generic [ref=f15e44]: USD
+        - generic [ref=f15e46]:
+          - generic [ref=f15e47]:
+            - generic [ref=f15e48]:
+              - heading "Essentials for staying organized." [level=2] [ref=f15e50]
+              - generic [ref=f15e51]:
+                - article [ref=f15e52]:
+                  - generic [ref=f15e53]:
+                    - heading "Free" [level=3] [ref=f15e54]
+                    - generic [ref=f15e55]:
+                      - generic [ref=f15e56]: $0
+                      - generic [ref=f15e57]: per seat / month
+                    - paragraph [ref=f15e58]: For individuals to organize personal projects and life.
+                    - link "Sign up" [ref=f15e60] [cursor=pointer]:
+                      - /url: /signup
+                - article [ref=f15e61]:
+                  - generic [ref=f15e62]:
+                    - heading "Plus*" [level=3] [ref=f15e63]
+                    - generic [ref=f15e64]:
+                      - generic [ref=f15e65]: $10
+                      - generic [ref=f15e66]: per seat / month
+                    - paragraph [ref=f15e67]: For small teams and professionals to work together.
+                    - link "Get started" [ref=f15e69] [cursor=pointer]:
+                      - /url: /signup?target=plans
+            - generic [ref=f15e72]:
+              - region "Free" [ref=f15e73]:
+                - paragraph [ref=f15e74]:
+                  - strong [ref=f15e75]: "Includes:"
+                - list [ref=f15e77]:
+                  - listitem [ref=f15e78]:
+                    - button "Trial of Notion AI" [ref=f15e79]
+                  - listitem [ref=f15e85]:
+                    - button "Basic forms" [ref=f15e86]
+                  - listitem [ref=f15e92]:
+                    - button "Basic sites" [ref=f15e93]
+                  - listitem [ref=f15e99]:
+                    - button "Notion Calendar" [ref=f15e100]
+                  - listitem [ref=f15e106]:
+                    - button "Databases including subtasks, dependencies, custom properties and more" [ref=f15e107]
+              - region "Plus*" [ref=f15e113]:
+                - paragraph [ref=f15e114]:
+                  - strong [ref=f15e115]: "Everything in Free, and:"
+                - list [ref=f15e117]:
+                  - listitem [ref=f15e118]:
+                    - button "Trial of Notion AI" [ref=f15e119]
+                  - listitem [ref=f15e125]:
+                    - button "Custom forms" [ref=f15e126]
+                  - listitem [ref=f15e132]:
+                    - button "Custom sites" [ref=f15e133]
+                  - listitem [ref=f15e139]:
+                    - button "Charts" [ref=f15e140]
+                  - listitem [ref=f15e146]:
+                    - button "Collaborative blocks" [ref=f15e147]
+                  - listitem [ref=f15e153]:
+                    - button "File uploads" [ref=f15e154]
+                  - listitem [ref=f15e160]:
+                    - button "Basic connections" [ref=f15e161]
+          - generic [ref=f15e182]:
+            - generic [ref=f15e183]:
+              - heading "The AI workspace for work that matters." [level=2] [ref=f15e185]
+              - generic [ref=f15e187]:
+                - article [ref=f15e188]:
+                  - generic [ref=f15e189]:
+                    - heading "Business Recommended" [level=3] [ref=f15e190]:
+                      - text: Business
+                      - generic [ref=f15e191]: Recommended
+                    - generic [ref=f15e192]:
+                      - generic [ref=f15e193]: $20
+                      - generic [ref=f15e194]: per seat / month
+                    - paragraph [ref=f15e195]: For growing businesses to streamline teamwork.
+                    - link "Get started" [ref=f15e197] [cursor=pointer]:
+                      - /url: /signup?target=plans
+                - article [ref=f15e198]:
+                  - generic [ref=f15e199]:
+                    - heading "Enterprise*" [level=3] [ref=f15e200]
+                    - generic [ref=f15e201]: Custom pricing
+                    - paragraph [ref=f15e204]: For organizations to operate with scalability, control, and security.
+                    - link "Contact Sales" [ref=f15e206] [cursor=pointer]:
+                      - /url: /contact-sales
+            - generic [ref=f15e208]:
+              - generic [ref=f15e209]:
+                - region "Business Recommended" [ref=f15e210]:
+                  - paragraph [ref=f15e211]:
+                    - strong [ref=f15e212]: "Everything in Plus, and:"
+                  - list [ref=f15e214]:
+                    - listitem [ref=f15e215]:
+                      - button "Notion Agent" [ref=f15e216]
+                    - listitem [ref=f15e222]:
+                      - button "Custom Agents" [ref=f15e223]
+                    - listitem [ref=f15e229]:
+                      - button "AI Meeting Notes" [ref=f15e230]
+                    - listitem [ref=f15e236]:
+                      - button [ref=f15e237]:
+                        - generic [ref=f15e242]:
+                          - text: Enterprise Search
+                          - generic [ref=f15e268]: Beta
+                    - listitem [ref=f15e334]:
+                      - button "SAML SSO" [ref=f15e335]
+                    - listitem [ref=f15e341]:
+                      - button "Granular database permissions" [ref=f15e342]
+                    - listitem [ref=f15e348]:
+                      - button "Verify any page" [ref=f15e349]
+                    - listitem [ref=f15e355]:
+                      - button "Private teamspaces" [ref=f15e356]
+                    - listitem [ref=f15e362]:
+                      - button "Domain verification" [ref=f15e363]
+                    - listitem [ref=f15e369]:
+                      - button "Premium connections" [ref=f15e370]
+                    - listitem [ref=f15e396]:
+                      - button [ref=f15e397]:
+                        - generic [ref=f15e402]:
+                          - text: Workers
+                          - generic [ref=f15e403]: Beta
+                    - listitem [ref=f15e404]:
+                      - button "1,500 Standard credits / month" [ref=f15e405]
+                    - listitem [ref=f15e412]:
+                      - button "500 Select credits / month" [ref=f15e413]
+                - region "Enterprise*" [ref=f15e420]:
+                  - paragraph [ref=f15e421]:
+                    - strong [ref=f15e422]: "Everything in Business, and:"
+                  - list [ref=f15e424]:
+                    - listitem [ref=f15e425]:
+                      - button "Zero data retention with LLM providers" [ref=f15e426]
+                    - listitem [ref=f15e432]:
+                      - button "User provisioning (SCIM)" [ref=f15e433]
+                    - listitem [ref=f15e439]:
+                      - button "Advanced security & controls" [ref=f15e440]
+                    - listitem [ref=f15e446]:
+                      - button "Audit log" [ref=f15e447]
+                    - listitem [ref=f15e453]:
+                      - button "Customer success manager" [ref=f15e454]
+                    - listitem [ref=f15e460]:
+                      - button "Security & Compliance connections (DLP, SIEM)" [ref=f15e461]
+                    - listitem [ref=f15e467]:
+                      - button "Domain management" [ref=f15e468]
+                    - listitem [ref=f15e474]:
+                      - button "Advanced connections" [ref=f15e475]
+                    - listitem [ref=f15e481]:
+                      - generic [ref=f15e482]: Custom credit amounts
+              - generic [ref=f15e490]:
+                - heading [level=3] [ref=f15e491]:
+                  - strong [ref=f15e492]: Notion Credits
+                - paragraph [ref=f15e493]:
+                  - text: Admins can purchase Notion credits for their workspaces to cover additional AI usage.
+                  - link "Learn more" [ref=f15e494] [cursor=pointer]:
+                    - /url: /help/manage-your-ai-credits
+                    - text: Learn more
+                    - generic [aria-hidden] [ref=f15e495]: →
+          - figure "Nick Erdenberger GTM, OpenAI Watch video" [ref=f15e502]:
+            - img "OpenAI logo" [ref=f15e505]
+            - blockquote [ref=f15e506]: There’s power in a single platform where you can do all your work out of. Notion is that single place.
+            - generic [ref=f15e507]:
+              - generic [ref=f15e508]:
+                - generic [ref=f15e509]: Nick Erdenberger
+                - generic [ref=f15e510]: GTM, OpenAI
+              - link "Watch video" [ref=f15e512] [cursor=pointer]:
+                - /url: https://www.notion.com/customers/openai
+                - generic [aria-hidden] [ref=f15e514]: →
+        - paragraph [ref=f15e515]: "* Plans may not be available for every workspace."
+      - generic [ref=f15e516]:
+        - heading "Questions & answers" [level=2] [ref=f15e517]
+        - article [ref=f15e519]:
+          - group [ref=f15e520]:
+            - paragraph [ref=f15e523] [cursor=pointer]: How does Notion AI use my data?
+          - group [ref=f15e528]:
+            - paragraph [ref=f15e531] [cursor=pointer]: Where can I find my invoices?
+          - group [ref=f15e536]:
+            - paragraph [ref=f15e539] [cursor=pointer]: What are your accepted payment methods?
+          - group [ref=f15e544]:
+            - paragraph [ref=f15e547] [cursor=pointer]: What is a block?
+          - group [ref=f15e552]:
+            - paragraph [ref=f15e555] [cursor=pointer]: What happens when I go over the block storage limit on a Free Plan?
+          - group [ref=f15e560]:
+            - paragraph [ref=f15e563] [cursor=pointer]: Do you offer student discounts?
+          - group [ref=f15e568]:
+            - paragraph [ref=f15e571] [cursor=pointer]: What do the different analytics tiers mean?
+          - group [ref=f15e576]:
+            - paragraph [ref=f15e579] [cursor=pointer]: How is pricing calculated for the paid plans?
+          - group [ref=f15e584]:
+            - paragraph [ref=f15e587] [cursor=pointer]: How do I get charged when I add members to my workspace?
+          - group [ref=f15e592]:
+            - paragraph [ref=f15e595] [cursor=pointer]: How does adding and removing members work?
+          - group [ref=f15e600]:
+            - paragraph [ref=f15e603] [cursor=pointer]: How are paid seats counted?
+          - group [ref=f15e608]:
+            - paragraph [ref=f15e611] [cursor=pointer]: What happens when I change plans?
+          - group [ref=f15e616]:
+            - paragraph [ref=f15e619] [cursor=pointer]: How do I cancel my paid plan?
+          - group [ref=f15e624]:
+            - paragraph [ref=f15e627] [cursor=pointer]: What happens if my payment fails? Like if my credit card expires?
+          - group [ref=f15e632]:
+            - paragraph [ref=f15e635] [cursor=pointer]: Can I change my payment method?
+          - group [ref=f15e640]:
+            - paragraph [ref=f15e643] [cursor=pointer]: How do refunds work?
+          - group [ref=f15e648]:
+            - paragraph [ref=f15e651] [cursor=pointer]: What if I live in a region with a mandatory refund policy?
+          - paragraph [ref=f15e657]:
+            - text: Still have more questions? Learn more in our
+            - link "help center" [ref=f15e658] [cursor=pointer]:
+              - /url: /help/guides
+            - text: .
+    - contentinfo [ref=f15e660]:
+      - generic [ref=f15e662]:
+        - link "Notion – Home" [ref=f15e664] [cursor=pointer]:
+          - /url: /product
+        - navigation "Footer" [ref=f15e665]:
+          - list "Product" [ref=f15e666]:
+            - text: Product
+            - listitem [ref=f15e667]:
+              - link "Features" [ref=f15e668] [cursor=pointer]:
+                - /url: /product/features
+            - listitem [ref=f15e670]:
+              - link "What's New" [ref=f15e671] [cursor=pointer]:
+                - /url: /releases
+            - listitem [ref=f15e673]:
+              - link "Notion AI" [ref=f15e674] [cursor=pointer]:
+                - /url: /product/ai
+            - listitem [ref=f15e676]:
+              - link "Pricing" [ref=f15e677] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=f15e679]:
+              - link "Request a demo" [ref=f15e680] [cursor=pointer]:
+                - /url: /contact-sales
+            - listitem [ref=f15e682]:
+              - link "Download" [ref=f15e683] [cursor=pointer]:
+                - /url: /download
+          - list "Resources" [ref=f15e685]:
+            - text: Resources
+            - listitem [ref=f15e686]:
+              - link "Customer stories" [ref=f15e687] [cursor=pointer]:
+                - /url: /customers
+            - listitem [ref=f15e689]:
+              - link "Connections" [ref=f15e690] [cursor=pointer]:
+                - /url: /connections
+            - listitem [ref=f15e692]:
+              - link "Marketplace" [ref=f15e693] [cursor=pointer]:
+                - /url: /templates
+            - listitem [ref=f15e695]:
+              - link "Help Center" [ref=f15e696] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=f15e698]:
+              - link "Academy" [ref=f15e699] [cursor=pointer]:
+                - /url: https://academy.notion.com
+            - listitem [ref=f15e701]:
+              - link "Community" [ref=f15e702] [cursor=pointer]:
+                - /url: /community
+          - list "Company" [ref=f15e704]:
+            - text: Company
+            - listitem [ref=f15e705]:
+              - link "About us" [ref=f15e706] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f15e708]:
+              - link "Careers" [ref=f15e709] [cursor=pointer]:
+                - /url: /careers
+            - listitem [ref=f15e711]:
+              - link "Security" [ref=f15e712] [cursor=pointer]:
+                - /url: /security
+            - listitem [ref=f15e714]:
+              - link "Status" [ref=f15e715] [cursor=pointer]:
+                - /url: https://www.notion-status.com
+            - listitem [ref=f15e717]:
+              - link "Terms & privacy" [ref=f15e718] [cursor=pointer]:
+                - /url: https://app.notion.com/p/28ffdd083dc3473e9c2da6ec011b58ac
+            - listitem [ref=f15e720]:
+              - link "Your privacy rights" [ref=f15e721] [cursor=pointer]:
+                - /url: https://www.notion.com/trust/privacy-policy#california
+          - list "Notion for" [ref=f15e723]:
+            - text: Notion for
+            - listitem [ref=f15e724]:
+              - link "Enterprise" [ref=f15e725] [cursor=pointer]:
+                - /url: /enterprise
+            - listitem [ref=f15e727]:
+              - link "Small businesses" [ref=f15e728] [cursor=pointer]:
+                - /url: /teams
+            - listitem [ref=f15e730]:
+              - link "Startups" [ref=f15e731] [cursor=pointer]:
+                - /url: /startups
+            - listitem [ref=f15e733]:
+              - link "Developers" [ref=f15e734] [cursor=pointer]:
+                - /url: https://developers.notion.com
+            - listitem [ref=f15e736]:
+              - link [ref=f15e737] [cursor=pointer]:
+                - /url: /explore
+                - generic [ref=f15e738]:
+                  - text: Explore more
+                  - generic [aria-hidden] [ref=f15e739]: →
+        - button "English (US)" [ref=f15e741] [cursor=pointer]
+        - button "Cookie settings" [ref=f15e750] [cursor=pointer]
+        - paragraph [ref=f15e752]: © 2026 Notion Labs, Inc.
+  - alert [ref=f15e753]

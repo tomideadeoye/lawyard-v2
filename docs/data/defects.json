@@ -202,6 +202,19 @@
       ],
       "fix": "Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.",
       "features": []
+    },
+    {
+      "id": "D13",
+      "title": "Corporate Post detail page escaped its content instead of rendering it",
+      "severity": "medium",
+      "status": "fixed",
+      "impact": "Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version.",
+      "evidence": [
+        "app/directory/corporate-posts/[slug]/page.tsx",
+        "app/(main)/insights/[slug]/page.tsx"
+      ],
+      "fix": "Render through `dangerouslySetInnerHTML` like the insights page, with `lib/sanitize.ts` cleaning the HTML on save (tag allowlist, safe URL schemes, forced `rel`) and again on read for older rows; excerpt fallbacks are plain text now.",
+      "features": []
     }
   ]
 }

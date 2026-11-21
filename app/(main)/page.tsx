@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { categoryCandidates, getPublishedArticles } from "@/lib/api/articles"
-import { coverUrl } from "@/lib/images"
+import { coverSrc } from "@/lib/images"
 import NewsletterBanner from "@/components/NewsletterBanner"
 import LegislationsCarousel from "@/components/LegislationsCarousel"
 
@@ -99,7 +99,7 @@ export default async function HomePage() {
               <Link href={`/insights/${featured.slug}`} className="group no-underline block">
                 <div className="aspect-[16/10.5] w-full overflow-hidden rounded-md bg-muted mb-6">
                   <img 
-                    src={coverUrl(featured.featured_image) ?? "/logo-blue.png"} 
+                    src={coverSrc(featured.featured_image)} 
                     alt={featured.title}
                     className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
                   />
@@ -138,7 +138,7 @@ export default async function HomePage() {
                   <Link href={`/insights/${item.slug}`} className="group no-underline block">
                     <div className="aspect-[16/10] w-full overflow-hidden rounded-md bg-muted mb-4">
                       <img 
-                        src={item.featured_image || "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800"} 
+                        src={coverSrc(item.featured_image)} 
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
                       />
@@ -299,7 +299,7 @@ export default async function HomePage() {
               className="group relative w-full aspect-[16/10] sm:aspect-[16/9.5] lg:aspect-[16/9.8] rounded-lg overflow-hidden border border-border/40 shadow-sm flex flex-col justify-center items-center text-center p-6 sm:p-10 no-underline hover:shadow-md transition-all duration-300"
             >
               <img 
-                src={coverUrl(sportsFeatured.featured_image) ?? "/logo-blue.png"} 
+                src={coverSrc(sportsFeatured.featured_image)} 
                 alt={sportsFeatured.title} 
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
               />
@@ -331,7 +331,7 @@ export default async function HomePage() {
               >
                 <div className="w-24 h-20 sm:w-28 sm:h-24 md:w-32 md:h-24 lg:w-28 lg:h-22 xl:w-32 xl:h-24 overflow-hidden rounded bg-muted shrink-0">
                   <img 
-                    src={item.featured_image ?? ""} 
+                    src={coverSrc(item.featured_image)} 
                     alt={item.title} 
                     className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   />
@@ -421,7 +421,7 @@ export default async function HomePage() {
               >
                 {/* Left Thumbnail with small play badge */}
                 <div className="w-20 h-14 sm:w-24 sm:h-16 rounded bg-zinc-900 shrink-0 relative overflow-hidden flex items-center justify-center">
-                  <img src={video.featured_image ?? "/logo-white.png"} alt={video.title} className="absolute inset-0 w-full h-full object-cover opacity-75" />
+                  <img src={coverSrc(video.featured_image)} alt={video.title} className="absolute inset-0 w-full h-full object-cover opacity-75" />
                   {idx === 0 ? (
                     <div className="absolute inset-0 bg-[#12102b]/80 flex flex-col items-center justify-center text-[7px] font-extrabold uppercase tracking-widest text-white text-center p-0.5">
                       <span>NOW</span>
@@ -492,7 +492,7 @@ export default async function HomePage() {
               <Link href={`/insights/${item.slug}`} className="group no-underline block">
                 <div className="aspect-[16/10] w-full overflow-hidden rounded-md bg-muted mb-4">
                   <img 
-                    src={item.featured_image ?? ""} 
+                    src={coverSrc(item.featured_image)} 
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
                   />

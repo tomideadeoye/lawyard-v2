@@ -8,6 +8,7 @@ import { postCorporatePostToSlackWithButtons } from '@/lib/slack'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import { corporatePostSchema } from '@/lib/validations/corporate-posts'
 import { generatePaymentReference } from '@/lib/utils/payment'
+import { sanitizeRichHtml, excerptFromHtml } from '@/lib/sanitize'
 
 export async function submitCorporatePost(formData: FormData) {
   const raw: Record<string, unknown> = Object.fromEntries(formData.entries())
@@ -102,13 +103,18 @@ export async function submitCorporatePost(formData: FormData) {
   const reference = generatePaymentReference('BP')
   const sbAdmin = createServiceRoleClient()
 
+  // Stored HTML is rendered raw on the post page, so it is cleaned once here
+  // rather than trusted at every read site.
+  const content = sanitizeRichHtml(data.content)
+  const excerpt = data.excerpt?.trim() || excerptFromHtml(content)
+
   const { data: article, error: articleError } = await sbAdmin
     .from('articles')
     .insert({
       title: data.title,
       slug,
-      content: data.content,
-      excerpt: data.excerpt || data.content.replace(/<[^>]*>/g, '').substring(0, 160),
+      content,
+      excerpt,
       featured_image: data.featured_image || null,
       author_id: submitterId || null,
       brand_name: data.brand_name,
@@ -167,7 +173,7 @@ export async function submitCorporatePost(formData: FormData) {
     title: data.title,
     slug,
     brandName: data.brand_name,
-    excerpt: data.excerpt || data.content.replace(/<[^>]*>/g, '').substring(0, 160),
+    excerpt,
     tier: tier.name,
     submitterName: submitterName,
   }).catch(() => {})

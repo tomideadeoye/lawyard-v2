@@ -11,10 +11,10 @@ function SubmitButton({ recommended }: { recommended: boolean }) {
     <Button
       type="submit"
       disabled={pending}
-      className={`w-full py-6 text-base font-semibold transition-all ${
+      className={`h-11 w-full rounded-lg text-sm font-semibold transition-colors ${
         recommended
-          ? 'bg-slate-700 dark:bg-yellow-700 hover:bg-slate-800 dark:hover:bg-yellow-600 text-white shadow-md'
-          : 'bg-transparent border border-slate-200 dark:border-yellow-700/40 text-slate-700 dark:text-yellow-200 hover:bg-slate-50 dark:hover:bg-yellow-800/30 shadow-sm'
+          ? 'bg-brand text-brand-foreground hover:bg-brand/90'
+          : 'border border-stone-300 bg-transparent text-stone-700 hover:border-brand hover:text-brand-muted dark:border-white/15 dark:text-neutral-300 dark:hover:border-brand-muted dark:hover:text-brand-muted'
       }`}
     >
       {pending ? 'Redirecting...' : 'Continue'}

@@ -9,17 +9,17 @@ export default function PrivacyPolicyPage() {
         <p className="text-muted-foreground">Last Updated: May 2026 | Lawyard Institutional Brand</p>
       </div>
 
-      <div className="premium-card prose prose-invert max-w-none space-y-12">
+      <div className="premium-card prose dark:prose-invert max-w-none space-y-12">
         <section className="space-y-4">
           <h2 className="text-2xl font-bold text-primary">Overview</h2>
           <p className="opacity-80 leading-relaxed">
-            Our website address is: <span className="text-accent font-mono">https://www.directory.lawyard.org</span>. 
+            Our website address is: <span className="text-brand font-mono">https://www.directory.lawyard.org</span>. 
             This platform exists to provide access to legal professionals across Africa. Privacy and data integrity are core to the Lawyard Protocol.
           </p>
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Comments & Interaction</h3>
+          <h3 className="text-xl font-bold text-brand">Comments & Interaction</h3>
           <p className="opacity-80">
             When visitors leave comments on the site we collect the data shown in the comments form, and also the visitor’s IP address and browser user agent string to help spam detection.
           </p>
@@ -29,14 +29,14 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Media & Metadata</h3>
+          <h3 className="text-xl font-bold text-brand">Media & Metadata</h3>
           <p className="opacity-80">
             If you upload images to the website, you should avoid uploading images with embedded location data (EXIF GPS) included. Visitors to the website can download and extract any location data from images on the website.
           </p>
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Cookie Protocol</h3>
+          <h3 className="text-xl font-bold text-brand">Cookie Protocol</h3>
           <p className="opacity-80">
             If you leave a comment on our site you may opt-in to saving your name, email address and website in cookies. These are for your convenience and last for one year.
           </p>
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xl font-bold text-accent">Data Retention & Rights</h3>
+          <h3 className="text-xl font-bold text-brand">Data Retention & Rights</h3>
           <p className="opacity-80">
             For users that register on our website, we also store the personal information they provide in their user profile. All users can see, edit, or delete their personal information at any time (except they cannot change their username).
           </p>

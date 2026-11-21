@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Article bodies are stored HTML, so they need typographic defaults the
+   utility classes alone do not give them (`.prose` was a no-op before this). */
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @source "../components";
@@ -53,6 +57,10 @@
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+  /* Brand bronze — the only accent. Fill is dark enough for white text (5.4:1). */
+  --brand: #8a6247;
+  --brand-foreground: #fffdfa;
+  --brand-muted: #8a6247;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -71,6 +79,10 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+  /* Bronze lifts to a light warm tone on dark; ink on it is near-black (8.1:1). */
+  --brand: #c9a184;
+  --brand-foreground: #12100e;
+  --brand-muted: #d5b79b;
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
@@ -133,6 +145,9 @@ input:-webkit-autofill:active {
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-muted: var(--brand-muted);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -183,4 +198,40 @@ input:-webkit-autofill:active {
   html {
     @apply font-sans;
   }
+}
+
+/* Lawyard's reading register: serif display headings, bronze links, generous
+   leading. Applied through the typography plugin's own variables so every
+   `.prose` block on the site inherits it instead of each page restyling.
+   Deliberately unlayered: the plugin's defaults live in `@layer components`,
+   so an override inside a layer would lose to them. */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--brand);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--brand);
+  --tw-prose-bullets: var(--brand);
+  --tw-prose-counters: var(--brand);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+}
+
+.prose :where(h1, h2, h3, h4):not(:where([class~="not-prose"] *)) {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.prose :where(a):not(:where([class~="not-prose"] *)) {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"] *)) {
+  font-style: normal;
+  font-family: var(--font-serif);
 }

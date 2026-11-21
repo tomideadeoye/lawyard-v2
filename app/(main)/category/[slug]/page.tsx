@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { getPublishedArticles } from "@/lib/api/articles"
+import { coverSrc } from "@/lib/images"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import NewsletterBanner from "@/components/NewsletterBanner"
@@ -154,7 +155,7 @@ export default async function CategoryPage({
                 className="group relative w-full aspect-[16/10] sm:aspect-[16/9.5] lg:aspect-[16/9.8] rounded-lg overflow-hidden border border-border/40 shadow-sm flex flex-col justify-center items-center text-center p-6 sm:p-10 no-underline hover:shadow-md transition-all duration-300"
               >
                 <img
-                  src={finalArticles[0].featured_image ?? ""}
+                  src={coverSrc(finalArticles[0].featured_image)}
                   alt={finalArticles[0].title}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
                 />
@@ -184,7 +185,7 @@ export default async function CategoryPage({
                 >
                   <div className="w-24 h-20 sm:w-28 sm:h-24 md:w-32 md:h-24 lg:w-28 lg:h-22 xl:w-32 xl:h-24 overflow-hidden rounded bg-muted shrink-0">
                     <img
-                      src={item.featured_image ?? ""}
+                      src={coverSrc(item.featured_image)}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />

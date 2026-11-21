@@ -133,6 +133,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 | D10 | Category filtering used `.eq()` on a TEXT[] column — every category page 400'd and rendered empty | high | `/insights?category=*` and `/category/*` returned 404/empty because PostgREST rejected `category=eq.news` with "malformed array literal". Corporate Posts were invisible for the same reason. | `lib/api/articles.ts` · `app/(main)/insights/page.tsx` · `app/(main)/category/[slug]/page.tsx` · `app/directory/knowledge/category/[id]/page.tsx` |
 | D11 | Corporate Posts listing fetched the 50 newest articles then filtered in JS | medium | Any burst of ordinary published articles pushed Corporate Posts off the listing entirely. | `app/directory/corporate-posts/page.tsx` · `lib/api/articles.ts` |
 | D12 | Email verification links land signed-out (PKCE code / implicit hash) | high | Confirmation links went to GoTrue /auth/v1/verify, which redirects with ?code= (needs the code-verifier cookie, so it fails on a phone) or #access_token (a fragment no route can read). Users were verified but signed out. | `lib/auth/confirm.ts` · `app/auth/confirm/route.ts` · `app/directory/auth/confirm/route.ts` · `app/api/auth/hook/route.ts` |
+| D13 | Corporate Post detail page escaped its content instead of rendering it | medium | Every Corporate Post showed its raw HTML — tags and all — because the body was passed to React as text. Paying customers got a visibly broken page, and the WordPress copy was the only readable version. | `app/directory/corporate-posts/[slug]/page.tsx` · `app/(main)/insights/[slug]/page.tsx` |
 
 **Fix notes**
 
@@ -148,6 +149,7 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 - **D10** — Added `categoryCandidates()` and switched every category filter to `.overlaps()` (&&), matching both slug and label spellings. Verified on prod data: news 1000+, opinions 235, judgements 30, sports-law 6, corporate-post 2.
 - **D11** — Filter server-side with `article_type = corporate_post` via the new `articleType` option on `getPublishedArticles()`.
 - **D12** — Added lib/auth/confirm.ts using verifyOtp({type, token_hash}) — no cookie needed — served at /auth/confirm on both hosts; the hook now mails that link and keeps ?next=. Verified live: session cookie set, redirect to /search.
+- **D13** — Render through `dangerouslySetInnerHTML` like the insights page, with `lib/sanitize.ts` cleaning the HTML on save (tag allowlist, safe URL schemes, forced `rel`) and again on read for older rows; excerpt fallbacks are plain text now.
 
 ## 7. Must-do before public launch
 

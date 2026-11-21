@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { coverUrl } from '@/lib/images'
+import { stripHtml } from '@/lib/sanitize'
 
 interface ArticleCardProps {
   title: string
@@ -34,6 +35,9 @@ export function ArticleCard({
   href,
 }: ArticleCardProps) {
   const cover = coverUrl(featured_image)
+  // Excerpts are plain text by contract, but rows written before Corporate
+  // Posts sanitised on save stored the HTML body, so strip what is left.
+  const snippet = excerpt ? stripHtml(excerpt) : ''
 
   const date = new Date(created_at).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -68,9 +72,9 @@ export function ArticleCard({
             <h2 className="text-xl font-bold group-hover:text-accent transition-colors mb-2">
               {title}
             </h2>
-            {excerpt && (
+            {snippet && (
               <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-                {excerpt}
+                {snippet}
               </p>
             )}
             {authorName && (
@@ -125,9 +129,9 @@ export function ArticleCard({
           <h3 className="text-lg font-bold group-hover:text-primary transition-colors leading-snug">
             {title}
           </h3>
-          {excerpt && (
+          {snippet && (
             <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-              {excerpt}
+              {snippet}
             </p>
           )}
         </div>
