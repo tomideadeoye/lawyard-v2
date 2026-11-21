@@ -1,6 +1,6 @@
-// Product-owner board lives in the MerisLabs PM system (orion-horizon Supabase,
-// multi-client). This page embeds it so Tobi accesses it from Lawyard's own
-// domain — no visit to merislabs needed. Token is carried in the iframe src.
+// The product-owner board is embedded from the shared project-management
+// system so the client reads pending questions from Lawyard's own domain.
+// Access is carried by a token in the iframe src.
 export const dynamic = 'force-dynamic'
 
 const PM_ORIGIN = process.env.PM_BOARD_ORIGIN || 'https://merislabs-merislabs.vercel.app'

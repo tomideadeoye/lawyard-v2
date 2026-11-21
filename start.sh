@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ==========================================
-# LAWYARD v2 - Sovereign Command Script
-# Orchestrated by Orion
+# LAWYARD v2 - local command script
+# Usage: ./start.sh
 # ==========================================
 
 # Text styling
@@ -18,7 +18,7 @@ clear
 echo -e "${CYAN}${BOLD}====================================================${RESET}"
 echo -e "${GOLD}${BOLD}             LAWYARD v2 - COMMAND INTERFACE         ${RESET}"
 echo -e "${CYAN}${BOLD}====================================================${RESET}"
-echo -e "Architected by ${GOLD}Orion${RESET} | Status: Ready\n"
+echo -e "Status: Ready\n"
 
 # Verify pnpm is installed
 if ! command -v pnpm &> /dev/null; then

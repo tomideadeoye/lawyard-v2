@@ -38,7 +38,7 @@
 
 ### Added
 
-- **Product-owner board**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later swapped to an embedded MerisLabs PM board for the multi-client system, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
+- **Product-owner board**: token-gated `/product-owner` — pending questions + insight dump for Tobi (`app/product-owner/`, `app/api/product-owner/route.ts`, `components/product-owner/ProductOwnerBoard.tsx`, `20261028000001_product_owner_questions.sql`); later replaced by an embedded view of the shared project board, with a middleware exemption so `/product-owner` skips the directory rewrite (`7454fc2`, `518a5e3`)
 
 ## 2026-10-20
 

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { coverUrl } from '@/lib/images'
 
 interface ArticleCardProps {
   title: string
@@ -32,6 +33,8 @@ export function ArticleCard({
   className,
   href,
 }: ArticleCardProps) {
+  const cover = coverUrl(featured_image)
+
   const date = new Date(created_at).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -74,10 +77,10 @@ export function ArticleCard({
               <p className="text-xs text-muted-foreground mt-3">By {authorName}</p>
             )}
           </div>
-          {featured_image && (
+          {cover && (
             <div className="aspect-[16/9] rounded-xl overflow-hidden bg-muted">
               <img
-                src={featured_image}
+                src={cover}
                 alt={title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
               />
@@ -94,10 +97,10 @@ export function ArticleCard({
       className={cn('group block no-underline', className)}
     >
       <article className="flex flex-col gap-4 p-6 bg-card border border-border/60 rounded-xl hover:border-accent/50 hover:shadow-lg transition-all h-full">
-        {featured_image && (
+        {cover && (
           <div className="aspect-video rounded-lg overflow-hidden bg-muted">
             <img
-              src={featured_image}
+              src={cover}
               alt={title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />

@@ -110,14 +110,14 @@
     {
       "id": "S-2026-11-05-15",
       "type": "session",
-      "label": "Stop letting markdown drift from the code: make the living docs machine-readable, the w…",
+      "label": "Stop letting markdown drift from the code: make the living docs machine-readable so a s…",
       "date": "2026-11-05",
       "detail": "Docs become data (registry + render gate)"
     },
     {
       "id": "S-2026-11-09-16",
       "type": "session",
-      "label": "Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditi…",
+      "label": "Work through the product owner's 8 November report; separate real defects from a WordPr…",
       "date": "2026-11-09",
       "detail": "Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide"
     },

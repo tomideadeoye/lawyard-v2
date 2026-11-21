@@ -108,7 +108,7 @@ export async function submitCorporatePost(formData: FormData) {
       title: data.title,
       slug,
       content: data.content,
-      excerpt: data.excerpt || data.content.substring(0, 160),
+      excerpt: data.excerpt || data.content.replace(/<[^>]*>/g, '').substring(0, 160),
       featured_image: data.featured_image || null,
       author_id: submitterId || null,
       brand_name: data.brand_name,
@@ -167,7 +167,7 @@ export async function submitCorporatePost(formData: FormData) {
     title: data.title,
     slug,
     brandName: data.brand_name,
-    excerpt: data.excerpt || data.content.substring(0, 160),
+    excerpt: data.excerpt || data.content.replace(/<[^>]*>/g, '').substring(0, 160),
     tier: tier.name,
     submitterName: submitterName,
   }).catch(() => {})

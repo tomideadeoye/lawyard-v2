@@ -166,9 +166,9 @@ function SubmitForm() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="mb-12">
-          <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Corporate Post</h1>
+          <h1 className="text-3xl sm:text-4xl font-black mb-3">Submit a Post</h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
-            Fill out the form to post your Corporate Post on Lawyard. You can publish now or set a future date.
+            Fill out the form to post on Lawyard. You can publish now or set a future date.
           </p>
         </div>
 

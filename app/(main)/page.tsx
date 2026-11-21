@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { categoryCandidates, getPublishedArticles } from "@/lib/api/articles"
+import { coverUrl } from "@/lib/images"
 import NewsletterBanner from "@/components/NewsletterBanner"
 import LegislationsCarousel from "@/components/LegislationsCarousel"
 
@@ -98,7 +99,7 @@ export default async function HomePage() {
               <Link href={`/insights/${featured.slug}`} className="group no-underline block">
                 <div className="aspect-[16/10.5] w-full overflow-hidden rounded-md bg-muted mb-6">
                   <img 
-                    src={featured.featured_image || "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800"} 
+                    src={coverUrl(featured.featured_image) ?? "/logo-blue.png"} 
                     alt={featured.title}
                     className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
                   />
@@ -298,7 +299,7 @@ export default async function HomePage() {
               className="group relative w-full aspect-[16/10] sm:aspect-[16/9.5] lg:aspect-[16/9.8] rounded-lg overflow-hidden border border-border/40 shadow-sm flex flex-col justify-center items-center text-center p-6 sm:p-10 no-underline hover:shadow-md transition-all duration-300"
             >
               <img 
-                src={sportsFeatured.featured_image ?? ""} 
+                src={coverUrl(sportsFeatured.featured_image) ?? "/logo-blue.png"} 
                 alt={sportsFeatured.title} 
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
               />

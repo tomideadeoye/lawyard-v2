@@ -515,7 +515,7 @@
           "detail": "(`153014d`): token-gated API route + board component + `product_owner_questions` migration — pending questions + insight dump."
         },
         {
-          "title": "Replaced by MerisLabs PM board embed",
+          "title": "Replaced by an embed of the shared project board",
           "detail": "(`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page."
         },
         {
@@ -524,7 +524,7 @@
         }
       ],
       "rationale": [
-        "The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two."
+        "The bespoke board duplicated the shared project board — one board is easier to keep honest than two."
       ],
       "files": [
         "`app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`"
@@ -600,7 +600,7 @@
       "date": "2026-11-05",
       "label": "Docs become data (registry + render gate)",
       "labelStyle": "dash",
-      "focus": "Stop letting markdown drift from the code: make the living docs machine-readable, the way Orion's design register already works.",
+      "focus": "Stop letting markdown drift from the code: make the living docs machine-readable so a stale claim fails the build.",
       "whatChanged": [
         {
           "title": "`docs/data/{features,changeset,defects,questions}.json`",
@@ -638,7 +638,7 @@
       "date": "2026-11-09",
       "label": "Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide",
       "labelStyle": "dash",
-      "focus": "Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditing the WordPress site, then fix both.",
+      "focus": "Work through the product owner's 8 November report; separate real defects from a WordPress/Next hosting mix-up, then fix both.",
       "whatChanged": [
         {
           "title": "Diagnosis first",
@@ -662,7 +662,7 @@
         },
         {
           "title": "Nav and copy",
-          "detail": "Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Removed the last user-visible \"Orion\" reference in `app/directory/add-listing/page.tsx`."
+          "detail": "Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Replaced the last third-party product reference in `app/directory/add-listing/page.tsx`."
         },
         {
           "title": "Test data purged",

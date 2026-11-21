@@ -326,11 +326,11 @@ Product-owner workflow for Tobi — surface pending questions/insights, then mov
 
 ### What Changed
 - **`/product-owner` board**: (`153014d`): token-gated API route + board component + `product_owner_questions` migration — pending questions + insight dump.
-- **Replaced by MerisLabs PM board embed**: (`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page.
+- **Replaced by an embed of the shared project board**: (`7454fc2`): Lawyard's pending questions now live in the multi-client product-owner system instead of a bespoke page.
 - **Middleware exemption**: (`518a5e3`): `/product-owner` removed from the directory rewrite so the route resolves.
 
 ### Rationale
-The bespoke board duplicated what the MerisLabs PM board already does for a multi-client setup — sovereignty over own infrastructure means one board, not two.
+The bespoke board duplicated the shared project board — one board is easier to keep honest than two.
 
 ### Related Files
 - `app/product-owner/page.tsx`, `app/api/product-owner/route.ts`, `middleware.ts`, `supabase/migrations/20261028000001_product_owner_questions.sql`
@@ -365,7 +365,7 @@ A checklist that says ✅ and code that can't enforce the cap is the same false-
 ## 2026-11-05 — Docs become data (registry + render gate)
 
 ### Focus
-Stop letting markdown drift from the code: make the living docs machine-readable, the way Orion's design register already works.
+Stop letting markdown drift from the code: make the living docs machine-readable so a stale claim fails the build.
 
 ### What Changed
 - **`docs/data/{features,changeset,defects,questions}.json`**: added as the source of truth: 54 features, 23 changeset items (with `alternatives` — the rejected option and why), 9 defects, 11 questions.
@@ -388,7 +388,7 @@ The same failure mode as a lint script that exits 0 without running: a doc that 
 ## 2026-11-09 — Tobi's 8 Nov thread: the email verification flow, and category pages that were dead sitewide
 
 ### Focus
-Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him auditing the WordPress site, then fix both.
+Work through the product owner's 8 November report; separate real defects from a WordPress/Next hosting mix-up, then fix both.
 
 ### What Changed
 - **Diagnosis first**: `www.lawyard.org` is still WordPress on Bluehost — Next serves only `directory.lawyard.org`. That explains "published post not on the website", "Categories dropdown has no Corporate Post", and why the redesign is the real unblocker.
@@ -396,7 +396,7 @@ Triage Tobi's 8 Nov Beeper thread; separate what was real code from what was him
 - **Corporate Posts listing starved**: `app/directory/corporate-posts/page.tsx` fetched the 50 newest published articles then filtered in JS. Now filtered in Postgres via a new `articleType` option.
 - **Email verification signed nobody in**: The Send Email hook pointed at GoTrue `/auth/v1/verify`, which returns `?code=` (needs the code-verifier cookie) or `#access_token` (a fragment a route can never read). Added `lib/auth/confirm.ts` with `verifyOtp({type, token_hash})` — no cookie needed — served at `/auth/confirm` on both hosts; the hook now mails that link and preserves `?next=`.
 - **Per-account coupon caps**: `max_uses` was global and `frequency_days` a global cooldown; neither means "three times by an account". Added `coupons.per_user_limit`, enforced against `transactions.metadata->>submitter_id`, and seeded `LAWYARD100` (3) and `LAWYARD30` (1) in production.
-- **Nav and copy**: Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Removed the last user-visible "Orion" reference in `app/directory/add-listing/page.tsx`.
+- **Nav and copy**: Corporate Posts added to the main-site header/insights chips/footer and to the live directory nav via `config/site-config.json`. Replaced the last third-party product reference in `app/directory/add-listing/page.tsx`.
 - **Test data purged**: Deleted the six MerisLabs corporate-post test rows plus the orphaned ₦250k pending transaction; only the real Kredete post remains.
 
 ### Next Steps

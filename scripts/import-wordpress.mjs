@@ -153,7 +153,10 @@ async function main() {
       slug: post.slug,
       content: post.content?.rendered ?? "",
       excerpt: stripHtml(post.excerpt?.rendered ?? "").slice(0, 400) || null,
-      featured_image: mediaUrl(post.featured_media),
+      // Never write a non-URL: a bad value renders as a broken <img>.
+      featured_image: /^https?:\/\//.test(String(mediaUrl(post.featured_media) ?? ""))
+        ? mediaUrl(post.featured_media)
+        : null,
       author_id: authorId,
       status: "published",
       article_type: "editorial",

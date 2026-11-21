@@ -1,13 +1,13 @@
 # Lawyard — Session Handoff
 
 > Purpose: everything a fresh session needs to start Lawyard work without re-discovery.
-> Last updated: 2026-11-04 (Orion). Next milestone: Tobi's pricing answers (Q1–Q11) → C01/C04/C13/C21 closure → audit fix pass (`docs/AUDIT-2026-10-20.md`).
+> Last updated: 2026-11-04. Next milestone: Tobi's pricing answers (Q1–Q11) → C01/C04/C13/C21 closure → audit fix pass (`docs/AUDIT-2026-10-20.md`).
 
 ## 0. Where everything is
 
 | Thing | Location |
 |---|---|
-| Codebase | `/Users/mac/Documents/GitHub/lawyard-v2` (Next.js 16 · Supabase · Brevo · Paystack · WordPress) |
+| Codebase | repository root (Next.js 16 · Supabase · Brevo · Paystack · WordPress) |
 | Live | https://directory.lawyard.org |
 | Staging/preview | https://lawyard-v2.vercel.app |
 | GitHub | https://github.com/tomideadeoye/lawyard-v2 |
@@ -20,7 +20,6 @@
 **People**
 - **Tobi Adebowale** — client / product owner · +234 706 100 3969 · tobi@lawyard.org · entity `94e9ebd8-8f16-4549-945a-02941231b2c5`
 - **Shefiu Adeyemi** — integrator on the main site · +234 905 879 7631
-- WhatsApp group: **"Lawyard Feature Updates"** (room `!oLbTjDbxqMZvU0Mokr9K:beeper.local`)
 
 ## 1. Where the 12 Sep changeset stands (updated 2026-11-04)
 
@@ -28,7 +27,7 @@
 
 - `164510d` — the 18-of-23 changeset (build green, lint 0 errors / 181 warnings)
 - `05caa76` — auth fixes (OAuth-only login messaging + email-hook verify URL; 2026-10-18)
-- `153014d`/`7454fc2`/`518a5e3` — product-owner board → MerisLabs PM embed (2026-10-28)
+- `153014d`/`7454fc2`/`518a5e3` — product-owner board → embedded shared project board (2026-10-28)
 
 **Seven migrations APPLIED to production** (`20261016000001..07`): hide_price · post caps/credits · service_requests · intro-videos bucket · chambers parity · lens courses (AI Governance seeded ₦200k/₦150k) · chamber_admins — verified via REST read-back. Schema and code match; `pnpm run check:migrations` is the gate (40, in sync).
 

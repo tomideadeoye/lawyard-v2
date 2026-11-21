@@ -48,9 +48,10 @@ export default async function CorporatePostPage({ params }: { params: Promise<{ 
         <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{article.excerpt}</p>
       )}
 
-      <div className="prose prose-lg dark:prose-invert max-w-none leading-relaxed">
-        {article.content}
-      </div>
+      <div
+        className="prose prose-lg dark:prose-invert max-w-none leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: article.content }}
+      />
     </article>
   )
 }

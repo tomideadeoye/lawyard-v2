@@ -3,9 +3,6 @@
 
 ## 👤 KEY CONTACTS
 - **Tobi Adebowale**: Primary Client / Decision Maker (+234 706 100 3969)
-- The Beeper ID for the group chat Lawyard Feature Updates is:
-
-!tVr4nUDpuRPXX1nt1jzw:beeper.local
 - **Shefiu**: AI Integration Lead (LawyardAI)
 - **Tomide Adeoye**: Lead Architect & Senior Engineer (Legal Engineering)
 
@@ -243,7 +240,7 @@
   - Update both `.env.local` files to point to `http://127.0.0.1:54321` instead of the remote URL.
   - **No seed.sql exists** — local DB starts empty. Dump remote data first or run migrations.
 
-*Document last updated by Orion Sovereign AI on 2026-06-15.*
+*Document last updated 2026-06-15.*
 
 # Lawyard v2 — Master Checklist
 
