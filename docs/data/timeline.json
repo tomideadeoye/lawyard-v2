@@ -745,7 +745,22 @@
       ],
       "rationale": [
         "The bug was a renderer decision, not bad data — the HTML was stored correctly, which is why the WordPress copy read fine while the Next page did not. Escaped markup is always the render path.",
-        "The moment the page renders HTML, submitted HTML becomes live, so the sanitizer belongs on the write path where it is checked once — with a second pass at read so the fix covers rows already in the table."
+        "The moment the page renders HTML, submitted HTML becomes live, so the sanitizer belongs on the write path where it is checked once — with a second pass at read so the fix covers rows already in the table.",
+        "The allowlist is exactly what the Tiptap editor can produce, not a general HTML allowlist. A submission containing something else is not content we meant to accept, and stripping it silently is better than rejecting a paid post over markup the submitter did not type.",
+        "Sanitising on read as well as on write is the cheap way to cover rows that predate the guard: no backfill migration, no window where an old post renders differently from a new one.",
+        "`@tailwindcss/typography` over hand-written article CSS because `.prose` was already used on six surfaces. Enabling the plugin fixed all of them at once; the brand register lives in plugin variables in one place, so the next article template inherits it instead of restyling.",
+        "The drop cap is CSS-only (`::first-letter`) rather than a span: submitted content cannot break it, and a body that opens with an image or heading simply gets no cap instead of a broken layout.",
+        "Ads are rows, not theme slots, because inventory changes weekly and a creative swap should not be a deploy. Flight windows and weights are sales operations, so they belong in a table an operator can edit.",
+        "Direct-sold over AdSense for the article: the sold banner is the higher-value product and it is what proves the page can carry paid placement. AdSense stays authorised in `ads.txt` so the option is not lost, but a Google unit above and below a paid Corporate Post devalues the page the client forwards onward.",
+        "Clicks are counted in a redirect route rather than in the browser: a client counter loses every click from an ad blocker or a no-JS visitor, and the count is the thing the advertiser is paying for. The destination is re-validated on the way out because a click route on our own domain is an open redirect otherwise.",
+        "An impression is an intersection event, not a render. Counting renders would pay a banner for being below the fold on a page nobody scrolls, and would count prefetch and crawlers.",
+        "Counters are a daily rollup written through one `SECURITY DEFINER` function, so the table stays small forever and anonymous readers can add an event without any right to read or forge it. The function validates the kind and that the creative exists.",
+        "No GA4 in this app yet: the news site already runs GA4 and adding a second property to a second host double-counts the same readers and muddies the numbers Tobi is using. Re-point at cutover, when the redirect map keeps the history coherent.",
+        "The migration guard scans the directory locally because `supabase migration list` prints one row per version — two files sharing a version read as clean. The CLI cannot tell you about uniqueness; the filesystem can.",
+        "Assumption: the delivery numbers are directional, not audited. They are first-party, session-deduped and unfiltered by bots — right for a house-inventory conversation with a direct buyer, not for billing a third party by impression.",
+        "Assumption: the seeded creatives stay hotlinked to `www.lawyard.org/wp-content/...` for now. Accepted as a time-boxed gap because WordPress is still serving them; recorded as a cutover blocker in `docs/CUTOVER.md` rather than fixed silently.",
+        "Assumption: renaming another session's `chamber_publish_gate` migration was safe because it had never been applied — `supabase migration list` showed the version applied to `ad_events`, and the rename only changed a file no remote row pointed at.",
+        "Assumption: the Kredete post is representative of a Corporate Post body (a link-led first paragraph, bold pseudo-headings, no images inside the body). The drop cap and the prose defaults were tuned against it; a body that opens with an image degrades to no cap rather than breaking."
       ],
       "files": [
         "`app/directory/corporate-posts/[slug]/page.tsx` · `app/directory/knowledge/[slug]/page.tsx` · `app/actions/corporate-posts.ts` · `components/ui/article-card.tsx`",

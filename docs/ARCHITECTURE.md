@@ -34,6 +34,8 @@ Article bodies are stored as editor HTML, and two rules hold everywhere they are
 - **Sanitise on write, and again on read.** `lib/sanitize.ts` (`sanitizeRichHtml`) keeps only the tags the Tiptap editor can produce, limits URL schemes to `http`/`https`/`mailto`/`tel`, forces `rel="noopener noreferrer nofollow"` on links and drops the empty paragraphs the editor leaves behind. `lib/sanitize.test.ts` covers the cases that matter.
 - **Render through `dangerouslySetInnerHTML`.** Passing stored HTML as a React child escapes it — a Corporate Post once printed its own markup to readers because of exactly that. `.prose` styling comes from `@tailwindcss/typography`, configured once in `app/globals.css`.
 
+Assumptions this rests on: the only writer of `articles.content` is the Tiptap editor plus the WordPress importer, so an editor-shaped allowlist is sufficient; rows written before the guard are covered by the read-side pass, which is why no backfill migration was needed; and the footer/oversight of a paid post stays human — the sanitiser removes unsafe markup, it does not detect a false claim.
+
 ## Advertising
 
 - Inventory is data: `ad_slots` holds placement, creative, destination, flight window and intrinsic image size; `/admin/ads` is the only editor.

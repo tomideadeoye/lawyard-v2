@@ -51,6 +51,22 @@ now data in `ad_slots`, edited at `/admin/ads`.
   inventory conversation, not for billing a third party by impression. If a
   buyer demands audited numbers, that is what a third-party ad server is for.
 
+**Assumptions behind those numbers**
+
+- An impression is counted **once per creative per browser session**, when at
+  least a third of it is in view. A reader who reloads counts again; a reader
+  who returns next week counts again. Reach, not frequency.
+- Clicks are counted at our redirect, so a click that is blocked before it
+  leaves the page is still counted — the advertiser was owed the click either
+  way. A click with no matching impression (a beacon that never fired) is kept,
+  not reconciled.
+- Both sides are ours: no third-party pixel, no cookie, nothing to add to the
+  consent banner. That also means **no independent verification** — the report
+  is what we say it is.
+- The row that matters commercially is the placement, not the individual
+  creative: two creatives rotating in `article-after` share the position's
+  value even though their counters are separate.
+
 **Models considered**
 
 | Model | What it needs | Verdict |
