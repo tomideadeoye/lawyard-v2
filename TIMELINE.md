@@ -519,6 +519,38 @@ Does the category chosen on /add-listing do anything after signup, and how is a 
 
 ---
 
+## 2026-11-22 — A new firm could not exist: separating listing from indexing
+
+### Focus
+The publish gate treated three matters or a 120-character description as the price of a firm page. A firm that incorporated last month has neither, so the rule blocked exactly the supply a cold-start directory needs — and the only firm in the directory was unreachable at its own URL.
+
+### What Changed
+- **Existence is firm details only**: A firm page goes live on name, location and at least one practice area. Description, matters, contact channels and images are optional; the gate no longer asks for anything a new firm cannot yet have.
+- **Indexing is its own bar**: A page without a description and without three matters is served with noindex, follow and kept out of the sitemap. It is still reachable by link and still appears on the firm listing, so a client given the URL sees it while search engines do not.
+- **Publishing actually happens now**: The save action never wrote published_at, so no firm could publish through the product at all — the column was only ever set by a one-off migration. Every save now evaluates the gate and stamps the page; publishing is one-way, so an edit that clears a field cannot take a live page down.
+- **A taxonomy that disagreed with itself**: data/specialties.json offered five ids the specialties table does not contain and omitted five it does, so the ids the picker offered could not be saved against either junction table. The table is now the source of truth, two advertised areas (Dispute Resolution, Commercial) were added, and old slugs still resolve.
+
+### Next Steps
+1. Bloomfield has no description, no matters and no contact channel, so it is live but not indexable. A 120-character description from the firm is the cheapest way to change that.
+2. The homepage featured rail is empty: it filters on an active subscription, and the one firm is on the free tier.
+
+### Verification
+- Migrations applied: taxonomy 22 rows in both the table and the JSON, chamber_specialties backfilled to three areas for the one firm, published_at stamped. `check:migrations` clean at 51.
+- The firm page returns 200 with no draft banner, three practice areas and noindex, follow; it appears on /chamber and is absent from the sitemap. 112 unit tests, typecheck and docs render pass.
+
+### Rationale
+- Existing and being findable are different promises. Blocking existence to protect the index punishes the wrong party: the firm that has just started, not the search engine.
+- Three matters was a well-meant proxy for substance but it is unearnable on day one. A page-level noindex achieves the same SEO protection without making the firm wait a year.
+- Once published_at started being written, a saved edit could have flipped it back to null and silently removed a live page. Publishing had to become monotonic.
+
+### Related Files
+- `lib/directory/publishability.ts` · `lib/directory/practice-areas.ts` · `lib/directory/api.ts`
+- `app/directory/actions/save-chamber.ts` · `app/directory/chamber/[id]/page.tsx` · `app/sitemap.ts` · `app/directory/layout.tsx`
+- `components/directory/FirmMatters.tsx` · `components/directory/forms/listing/MattersEditor.tsx` · `data/specialties.json`
+- `supabase/migrations/20261122000002–000005`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.

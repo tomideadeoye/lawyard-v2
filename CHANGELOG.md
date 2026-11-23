@@ -7,6 +7,12 @@
 > and appear as nodes in `docs/data/graph.json` — nothing is retyped into a second place.
 > **Newest first.** Add an entry to the JSON; it lands under the right date by itself.
 
+## 2026-11-22
+
+### Changed
+
+- **A firm page exists on its details; indexation is a separate bar**: The gate asked for a description, a contact channel and an image, and treated three matters as the substitute for prose. A firm that incorporated last month has none of that, so the rule excluded exactly the new supply a cold-start directory needs. Existing now requires firm details only: name, location, at least one practice area. Description, contact, images and matters are optional. Indexing is decided separately — a page with no description and fewer than three matters is served noindex, follow and kept out of the sitemap. Publishing is one-way, and the save action writes published_at for the first time; until now nothing in the product ever set it.
+
 ## 2026-11-21
 
 ### Added

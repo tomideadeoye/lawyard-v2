@@ -9,9 +9,12 @@ lawyard-v2/
 │   ├── globals.css             # Tailwind v4 base styles
 │   ├── not-found.tsx           # Global 404
 │   ├── feed.xml/route.ts       # RSS feed
-│   ├── sitemap.xml/route.ts    # Sitemap
+│   ├── sitemap.ts              # Sitemap (pages through PostgREST's 1,000-row cap)
+│   ├── robots.ts               # robots.txt
+│   ├── error.tsx               # Root error boundary (reports to /api/errors)
 │   ├── ads/click/[id]/route.ts # Ad click counter, then 302 to the advertiser
 │   ├── api/ads/impression/     # Impression beacon endpoint (POST, silent)
+│   ├── api/errors/route.ts     # Server error sink (service role, no public read)
 │   ├── fonts/                  # GeistVF.woff, GeistMonoVF.woff
 │   ├── actions/                # Shared server actions (corporate-posts, newsletter, shop)
 │   │
@@ -40,6 +43,7 @@ lawyard-v2/
 │   │   ├── lawyers/            # page.tsx, lawyers-filters, edit-dialog
 │   │   ├── subscribers/        # page.tsx, subscribers-client, actions
 │   │   ├── ads/                # House ad inventory + delivery report
+│   │   ├── errors/             # Application error log (D8 surface)
 │   │   ├── actions.ts          # verifyLawyer, rejectLawyer, ad CRUD
 │   │   └── not-found.tsx
 │   │
@@ -94,6 +98,8 @@ lawyard-v2/
 │   │   ├── lawyers-filters.tsx
 │   │   └── subscribers-client.tsx
 │   │
+│   ├── observability/          # error-reporter.tsx (client error → /api/errors)
+│   │
 │   ├── ads/                    # House ads
 │   │   ├── ad-slot.tsx         # Server-rendered slot (creative or nothing)
 │   │   └── ad-beacon.tsx       # Counts an impression when the creative is seen
@@ -110,6 +116,7 @@ lawyard-v2/
 ├── lib/                        # Shared utilities & API helpers
 │   ├── utils.ts                # cn() utility
 │   ├── ads.ts                  # Ad slots: live-window, destination, totals
+│   ├── observability/report.ts # Client/server error reporting helper
 │   ├── sanitize.ts             # Stored-HTML allowlist (write + read)
 │   ├── images.ts               # coverUrl / placeholder for legacy covers
 │   ├── corporate-posts.json        # Corporate Posts tier config
@@ -134,6 +141,11 @@ lawyard-v2/
 │   │
 │   └── directory/              # Directory-specific helpers
 │       ├── api.ts              # getLawyers, getChambers, getLawyerById, etc.
+│       ├── entitlements.ts     # Plan/seat entitlements
+│       ├── seats.ts            # Seat allocation for firm membership
+│       ├── roles.ts            # client | lawyer | admin · owner | firm admin
+│       ├── practice-areas.ts   # Canonical practice areas ↔ specialties
+│       ├── publishability.ts   # What makes a firm page indexable
 │       ├── paystack.ts
 │       └── supabase/           # client.ts, middleware.ts, server.ts
 │
@@ -211,13 +223,16 @@ lawyard-v2/
 | `/checkout` | (main) | Checkout |
 | `/search` | (main) | Article search |
 | `/feed.xml` | — | RSS feed |
-| `/sitemap.xml` | — | Sitemap |
+| `/sitemap.xml` | — | Sitemap (`app/sitemap.ts`) |
+| `/robots.txt` | — | robots.txt (`app/robots.ts`) |
+| `/api/errors` | — | Server error sink |
 | `/admin` | admin | Dashboard |
 | `/admin/login` | admin | Login |
 | `/admin/content` | admin | Content manager |
 | `/admin/lawyers` | admin | Lawyer directory |
 | `/admin/subscribers` | admin | Newsletter subscribers |
 | `/admin/ads` | admin | House ad inventory + delivery (7/28-day) |
+| `/admin/errors` | admin | Application error log |
 | `/ads/click/[id]` | — | Ad click counter, then 302 to the advertiser |
 | `/api/ads/impression` | — | Impression beacon endpoint |
 | `/directory` | directory | Homepage |

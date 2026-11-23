@@ -81,7 +81,7 @@ Filesystem:             app/directory/dashboard/page.tsx
 
 **Key rules:**
 1. **All redirect/callback URLs must omit the `/directory` prefix.** The middleware prepends it internally. Hardcoding `/directory/login` in a redirect produces `/directory/directory/login`.
-2. **Exception paths** (`/admin`, `/_next`, `/api`, `/feed.xml`, `/sitemap.xml`) pass through without rewrite.
+2. **Exception paths** (`/admin`, `/_next`, `/api`, `/ads`, `/feed.xml`, `/sitemap.xml`, `/robots.txt`, `/ads.txt`) pass through without rewrite.
 3. **Auth paths** (`/login`, `/signup`, `/auth/callback`) follow the same pattern — they live in `app/directory/` but users see them at root level.
 4. **Build-time paths** in code (component imports, server actions, file references) always use the full `app/directory/...` filesystem path. Only user-facing redirect URLs drop the prefix.
 
@@ -138,6 +138,7 @@ Admin dashboard for managing lawyers, content, and subscribers.
 - **Content Manager**: Articles, Podcasts, Corporate Posts tabs with approve/reject
 - **Subscribers**: View, search, export, broadcast
 - **Ads**: House inventory by placement, flight windows, 7/28-day delivery (views, clicks, CTR)
+- **Errors**: Application error log written by the client reporter and server routes
 - **Settings**: Auto-approve hours, brand press clash window from DB
 - **Auth**: Supabase Auth with admin role enforcement
 
