@@ -125,6 +125,19 @@
         "docs/CUTOVER.md",
         "docs/plans/media-storage.jsonl"
       ]
+    },
+    {
+      "id": "PD-011",
+      "date": "2026-11-24",
+      "decision": "The news front end is restored and served on non-directory hosts (the *.vercel.app review host), while directory.lawyard.org keeps serving the marketplace. WordPress remains the public news site until its phase completes.",
+      "rationale": "The client asked to see the new news website. Serving it by host keeps the directory untouched and avoids a second public, indexable news site.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": [
+        "app/(main) restored",
+        "app/page.tsx removed",
+        "docs/WORDPRESS-MIGRATION.md Phase 0"
+      ]
     }
   ]
 }

@@ -22,8 +22,12 @@ export async function middleware(request: NextRequest) {
     isPreviewHost
   const isLocalDev = host.startsWith('localhost')
 
+  // Any host that is not a canonical public address must stay out of the index:
+  // a review copy of the news site competing with WordPress is duplicate content.
+  const isReviewHost = isPreviewHost || host.endsWith('.vercel.app') || forwardedHost.endsWith('.vercel.app')
+
   const noIndex = (response: NextResponse) => {
-    if (isPreviewHost) response.headers.set('x-robots-tag', 'noindex, nofollow')
+    if (isReviewHost) response.headers.set('x-robots-tag', 'noindex, nofollow')
     return response
   }
 
@@ -88,7 +92,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return supabaseResponse
+  return noIndex(supabaseResponse)
 }
 
 export const config = {
