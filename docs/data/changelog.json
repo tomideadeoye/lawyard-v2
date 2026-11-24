@@ -944,6 +944,19 @@
         "app/sitemap.ts",
         "supabase/migrations/20261122000005_publish_firms_with_details.sql"
       ]
+    },
+    {
+      "id": "CH-079",
+      "date": "2026-11-24",
+      "type": "added",
+      "title": "A firm page can be contacted",
+      "detail": "Firms became publishable on their details, which means a page can be live with no email, phone or website. Its only action was `request to join this firm` — for lawyers — so a client had nowhere to go. `chamber_inquiries` stores the message, open to guests because a signup wall in front of the page's one action defeats the purpose. Delivery prefers the firm's address, then the login emails of its admins, then the Lawyard inbox, so an unclaimed listing still reaches a human. Server-side validation and a honeypot are the spam gate; reads are limited to the firm's owner and admins.",
+      "evidence": [
+        "supabase/migrations/20261122000006_chamber_inquiries.sql",
+        "app/directory/actions/chamber-inquiries.ts",
+        "components/directory/ChamberInquiryForm.tsx",
+        "lib/directory/inquiries.ts"
+      ]
     }
   ]
 }

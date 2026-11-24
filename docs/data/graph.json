@@ -143,6 +143,13 @@
       "detail": "A new firm could not exist: separating listing from indexing"
     },
     {
+      "id": "S-2026-11-24-01",
+      "type": "session",
+      "label": "Publishing firms on their details made a page reachable that had no contact route at al…",
+      "date": "2026-11-24",
+      "detail": "A live firm page with no way to reach the firm"
+    },
+    {
       "id": "CH-001",
       "type": "change",
       "label": "Per-account coupon caps",
@@ -765,6 +772,14 @@
       "date": "2026-11-22",
       "detail": "changed",
       "status": "changed"
+    },
+    {
+      "id": "CH-079",
+      "type": "change",
+      "label": "A firm page can be contacted",
+      "date": "2026-11-24",
+      "detail": "added",
+      "status": "added"
     },
     {
       "id": "F-01",
@@ -2255,6 +2270,11 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-079",
+      "to": "S-2026-11-24-01",
+      "kind": "logged-in"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2867,6 +2887,11 @@
     {
       "from": "S-2026-11-22-01",
       "to": "F-12",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-24-01",
+      "to": "F-09",
       "kind": "touches"
     }
   ]

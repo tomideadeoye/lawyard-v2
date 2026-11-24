@@ -50,6 +50,7 @@ const OUT = {
   changeset: path.join(ROOT, "docs", "TOBI-12SEP-CHANGES.md"),
   changelog: path.join(ROOT, "CHANGELOG.md"),
   timeline: path.join(ROOT, "TIMELINE.md"),
+  decisions: path.join(ROOT, "docs", "DECISIONS.md"),
 };
 const GRAPH = {
   json: path.join(DATA, "graph.json"),
@@ -145,8 +146,9 @@ const defects = load("defects");
 const questions = load("questions");
 const changelog = load("changelog");
 const timeline = load("timeline");
+const decisions = load("decisions");
 
-for (const [name, data] of Object.entries({ features, changeset, defects, questions, changelog, timeline })) {
+for (const [name, data] of Object.entries({ features, changeset, defects, questions, changelog, timeline, decisions })) {
   validateRegistry(name, data);
 }
 
@@ -488,6 +490,51 @@ ${changeset.out_of_scope.map((line) => `- ${line}`).join("\n")}
 }
 
 /* ── CHANGELOG.md ───────────────────────────────────────────────────────── */
+
+function renderDecisions() {
+  const active = decisions.decisions.filter((d) => d.status === "active");
+  const proposed = decisions.decisions.filter((d) => d.status === "proposed");
+  const superseded = decisions.decisions.filter((d) => d.status === "superseded");
+
+  const section = (rows) =>
+    table(
+      ["#", "Decision", "Decided by", "Date"],
+      rows.map((d) => [code(d.id), d.decision, d.decided_by, d.date])
+    );
+
+  const detail = (rows) =>
+    rows
+      .map((d) => {
+        const lines = [`### ${d.id} — ${d.decision}`, ""];
+        lines.push(`- **Status:** ${d.status}`);
+        lines.push(`- **Decided by:** ${d.decided_by}${d.source ? ` · ${d.source}` : ""}`);
+        if (d.rationale) lines.push(`- **Why:** ${d.rationale}`);
+        if (d.affects?.length) lines.push(`- **Applies to:** ${d.affects.map(code).join(" · ")}`);
+        if (d.supersedes) lines.push(`- **Supersedes:** ${code(d.supersedes)}`);
+        return lines.join("\n");
+      })
+      .join("\n\n");
+
+  return `# Product decisions
+
+> **GENERATED FILE — do not edit by hand.** Source of truth: \`docs/data/decisions.json\`.
+> Regenerate: \`pnpm run docs:render\` · Gate: \`pnpm run docs:check\`.
+
+A rule that lives only in a chat message gets re-litigated. Each row records what
+was decided, who decided it, and why — so the next person can tell a deliberate
+constraint from an accident.
+
+## Active (${active.length})
+
+${section(active)}
+
+${proposed.length ? `## Proposed — awaiting a decision (${proposed.length})\n\n${section(proposed)}\n` : ""}
+${superseded.length ? `## Superseded (${superseded.length})\n\n${section(superseded)}\n` : ""}
+## Detail
+
+${detail([...active, ...proposed])}
+`;
+}
 
 function renderChangelog() {
   const rows = [...changelog.changelog].sort(
@@ -940,7 +987,13 @@ if (!["render", "graph"].includes(command)) {
 
 const artifacts = [];
 if (command === "render") {
-  artifacts.push([OUT.features, renderFeatures()], [OUT.changeset, renderChangeset()], [OUT.changelog, renderChangelog()], [OUT.timeline, renderTimeline()]);
+  artifacts.push(
+    [OUT.features, renderFeatures()],
+    [OUT.changeset, renderChangeset()],
+    [OUT.changelog, renderChangelog()],
+    [OUT.timeline, renderTimeline()],
+    [OUT.decisions, renderDecisions()]
+  );
 } else {
   const graph = buildGraph();
   artifacts.push([GRAPH.json, JSON.stringify(graph, null, 2) + "\n"], [GRAPH.html, renderGraphHtml(graph)]);

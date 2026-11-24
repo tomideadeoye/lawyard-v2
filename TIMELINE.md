@@ -551,6 +551,37 @@ The publish gate treated three matters or a 120-character description as the pri
 
 ---
 
+## 2026-11-24 — A live firm page with no way to reach the firm
+
+### Focus
+Publishing firms on their details made a page reachable that had no contact route at all: no email, no phone, no website, and the only button asked lawyers to join the firm. The one firm on the directory was live and unusable.
+
+### What Changed
+- **Inquiries addressed to the firm**: `chamber_inquiries` mirrors the lawyer table with a chamber foreign key. Reads are limited to the billing owner and chamber admins; writes are open to guests, since requiring an account would put a signup wall in front of the page's only action.
+- **Delivery that cannot dead-end**: The notification prefers the firm's own address, then the login emails of its admins, then the Lawyard inbox. An unclaimed listing therefore still reaches a person instead of a table nobody reads.
+- **Validation where it can be trusted**: Length caps, an email check and a UUID check run server-side in a pure module with its own tests; the browser checks nothing. A hidden honeypot drops bots without telling them.
+- **A seed image that did not exist**: The one firm pointed at `/chamber-1.jpg`, which is not in the repo, so every page load requested a 400 from the image optimiser. The value was cleared and the existing building-icon fallback now renders.
+
+### Next Steps
+1. A firm-side inbox for inquiries — today the owner only sees them by email.
+2. The claim flow: the one live firm has no owner, so its inquiries route to Lawyard rather than the firm.
+
+### Verification
+- Submitted through the form in a browser: success state rendered and the row stored with name, email, phone and message. The row was deleted afterwards; email delivery was suppressed for the run by starting the server without a Brevo key, so the send itself is unexercised.
+- Guest insert verified directly against the API (201) and reads confirmed empty for anonymous callers. 121 tests, typecheck and docs render pass; `check:migrations` clean at 53.
+
+### Rationale
+- The page was made publishable without a contact route — that was the gap the change created, so it is fixed before anything else.
+- Guests, not accounts: the directory's value is a client reaching counsel, and the registration step is exactly where that stops.
+- Falling back to the Lawyard inbox keeps an unclaimed listing useful until the claim flow exists.
+
+### Related Files
+- `supabase/migrations/20261122000006_chamber_inquiries.sql` · `lib/directory/inquiries.ts` · `lib/directory/inquiries.test.ts`
+- `app/directory/actions/chamber-inquiries.ts` · `components/directory/ChamberInquiryForm.tsx` · `app/directory/chamber/[id]/page.tsx`
+- `lib/api/email.ts` · `lib/api/email-layout.ts` · `lib/api/email-layout.test.ts`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.

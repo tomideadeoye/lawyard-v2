@@ -883,6 +883,50 @@
         "Bloomfield has no description, no matters and no contact channel, so it is live but not indexable. A 120-character description from the firm is the cheapest way to change that.",
         "The homepage featured rail is empty: it filters on an active subscription, and the one firm is on the free tier."
       ]
+    },
+    {
+      "id": "S-2026-11-24-01",
+      "date": "2026-11-24",
+      "label": "A live firm page with no way to reach the firm",
+      "labelStyle": "dash",
+      "focus": "Publishing firms on their details made a page reachable that had no contact route at all: no email, no phone, no website, and the only button asked lawyers to join the firm. The one firm on the directory was live and unusable.",
+      "whatChanged": [
+        {
+          "title": "Inquiries addressed to the firm",
+          "detail": "`chamber_inquiries` mirrors the lawyer table with a chamber foreign key. Reads are limited to the billing owner and chamber admins; writes are open to guests, since requiring an account would put a signup wall in front of the page's only action."
+        },
+        {
+          "title": "Delivery that cannot dead-end",
+          "detail": "The notification prefers the firm's own address, then the login emails of its admins, then the Lawyard inbox. An unclaimed listing therefore still reaches a person instead of a table nobody reads."
+        },
+        {
+          "title": "Validation where it can be trusted",
+          "detail": "Length caps, an email check and a UUID check run server-side in a pure module with its own tests; the browser checks nothing. A hidden honeypot drops bots without telling them."
+        },
+        {
+          "title": "A seed image that did not exist",
+          "detail": "The one firm pointed at `/chamber-1.jpg`, which is not in the repo, so every page load requested a 400 from the image optimiser. The value was cleared and the existing building-icon fallback now renders."
+        }
+      ],
+      "rationale": [
+        "The page was made publishable without a contact route — that was the gap the change created, so it is fixed before anything else.",
+        "Guests, not accounts: the directory's value is a client reaching counsel, and the registration step is exactly where that stops.",
+        "Falling back to the Lawyard inbox keeps an unclaimed listing useful until the claim flow exists."
+      ],
+      "files": [
+        "`supabase/migrations/20261122000006_chamber_inquiries.sql` · `lib/directory/inquiries.ts` · `lib/directory/inquiries.test.ts`",
+        "`app/directory/actions/chamber-inquiries.ts` · `components/directory/ChamberInquiryForm.tsx` · `app/directory/chamber/[id]/page.tsx`",
+        "`lib/api/email.ts` · `lib/api/email-layout.ts` · `lib/api/email-layout.test.ts`"
+      ],
+      "verification": [
+        "Submitted through the form in a browser: success state rendered and the row stored with name, email, phone and message. The row was deleted afterwards; email delivery was suppressed for the run by starting the server without a Brevo key, so the send itself is unexercised.",
+        "Guest insert verified directly against the API (201) and reads confirmed empty for anonymous callers. 121 tests, typecheck and docs render pass; `check:migrations` clean at 53."
+      ],
+      "defects": [],
+      "nextSteps": [
+        "A firm-side inbox for inquiries — today the owner only sees them by email.",
+        "The claim flow: the one live firm has no owner, so its inquiries route to Lawyard rather than the firm."
+      ]
     }
   ]
 }

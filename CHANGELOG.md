@@ -7,6 +7,12 @@
 > and appear as nodes in `docs/data/graph.json` — nothing is retyped into a second place.
 > **Newest first.** Add an entry to the JSON; it lands under the right date by itself.
 
+## 2026-11-24
+
+### Added
+
+- **A firm page can be contacted**: Firms became publishable on their details, which means a page can be live with no email, phone or website. Its only action was `request to join this firm` — for lawyers — so a client had nowhere to go. `chamber_inquiries` stores the message, open to guests because a signup wall in front of the page's one action defeats the purpose. Delivery prefers the firm's address, then the login emails of its admins, then the Lawyard inbox, so an unclaimed listing still reaches a human. Server-side validation and a honeypot are the spam gate; reads are limited to the firm's owner and admins.
+
 ## 2026-11-22
 
 ### Changed

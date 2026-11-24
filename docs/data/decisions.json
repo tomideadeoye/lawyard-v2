@@ -1,0 +1,89 @@
+{
+  "$schema": "./schema/decisions.schema.json",
+  "schema": 1,
+  "note": "Product rules the system enforces, with the person who decided them. Add a row when a rule changes; mark the old one superseded rather than editing history.",
+  "decisions": [
+    {
+      "id": "PD-001",
+      "date": "2026-11-21",
+      "decision": "The news site stays on WordPress; this application is the legal directory only.",
+      "rationale": "Merging both meant a media migration of ~9.5k images, an ad rebuild, an 11k-URL redirect map and an editorial CMS that does not exist yet. None of that serves the marketplace, which is where the revenue is.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["app/(main) removed", "app/page.tsx redirects to /directory", "www.lawyard.org not attached to Vercel"]
+    },
+    {
+      "id": "PD-002",
+      "date": "2026-11-21",
+      "decision": "A lawyer appears in search only when verification_status = 'verified'.",
+      "rationale": "The Verified badge has to mean something. A pending profile is a draft; the dashboard tells the lawyer why they are not visible instead of leaving them to guess.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["lib/directory/api.ts getLawyers", "app/directory/dashboard/page.tsx"]
+    },
+    {
+      "id": "PD-003",
+      "date": "2026-11-21",
+      "decision": "A law-firm page publishes only when it is complete: name, 120+ character description, location, practice area, email or phone, and one image.",
+      "rationale": "A page whose only content is a name cannot rank and cannot convert. Drafts stay editable, invisible in the index, search and sitemap.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["lib/directory/publishability.ts", "chambers.published_at", "app/directory/chamber", "app/sitemap.ts"]
+    },
+    {
+      "id": "PD-004",
+      "date": "2026-11-21",
+      "decision": "A law firm may be registered by an administrator who is not a lawyer, and a member lawyer is not required to publish.",
+      "rationale": "Firm administrators are often practice managers or marketing staff. Requiring a lawyer would exclude legitimate firms; the completeness gate covers the quality risk instead.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["lib/directory/publishability.ts"]
+    },
+    {
+      "id": "PD-005",
+      "date": "2026-11-24",
+      "decision": "The law-firm plan is ₦1,000,000 per year, flat, including up to 15 lawyer profiles. Lawyers under the plan pay no individual fee.",
+      "rationale": "Client instruction: \"put N1m per year, we will review it later if necessary. No fees for individual lawyers under the law firm plan.\" The fee is a firm subscription, not a per-seat price.",
+      "status": "active",
+      "decided_by": "Tobi",
+      "source": "WhatsApp, 24 Nov 2026",
+      "affects": ["plans.price (chamber Premium)", "components/directory/seat-checkout.tsx", "app/directory/pricing/page.tsx"]
+    },
+    {
+      "id": "PD-006",
+      "date": "2026-11-09",
+      "decision": "A plan priced above zero but below ₦1,000 is treated as an unset placeholder: shown as \"Pricing under review\" and not purchasable.",
+      "rationale": "The plans table still carries dollar-era figures. Selling a 365-day premium listing for ₦2 is worse than selling nothing, and the guard releases automatically once real naira prices land.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["app/directory/pricing/page.tsx"]
+    },
+    {
+      "id": "PD-007",
+      "date": "2026-11-21",
+      "decision": "Advertising stays on the WordPress news site; the directory carries no ad slots.",
+      "rationale": "Ad revenue depends on editorial traffic, which remains on WordPress. Ad slot components exist for a future direct-sold offer but are not wired into marketplace pages.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": ["public/ads.txt", "components/ads"]
+    },
+    {
+      "id": "PD-008",
+      "date": "2026-11-24",
+      "decision": "The directory opens as a founding-listings marketplace, not as a finished one: below 25 verified lawyers the homepage invites listings instead of publishing counts.",
+      "rationale": "The alternative is advertising an inventory that does not exist. Honest scarcity recruits suppliers; invented numbers destroy trust once checked.",
+      "status": "proposed",
+      "decided_by": "Engineering recommendation",
+      "affects": ["app/directory/page.tsx"]
+    },
+    {
+      "id": "PD-009",
+      "date": "2026-11-21",
+      "decision": "An owner may preview their own draft firm page; the public sees a 404.",
+      "rationale": "Owners need to see what they are publishing. Leaving drafts publicly addressable would expose thin pages to crawlers and reviewers.",
+      "status": "proposed",
+      "decided_by": "Engineering recommendation",
+      "affects": ["app/directory/chamber/[id]/page.tsx", "lib/directory/api.ts"]
+    }
+  ]
+}
