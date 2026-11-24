@@ -7,17 +7,18 @@ A rule that lives only in a chat message gets re-litigated. Each row records wha
 was decided, who decided it, and why — so the next person can tell a deliberate
 constraint from an accident.
 
-## Active (7)
+## Active (8)
 
 | # | Decision | Decided by | Date |
 |---|---|---|---|
-| `PD-001` | The news site stays on WordPress; this application is the legal directory only. | Tomide | 2026-11-21 |
+| `PD-001` | Until the WordPress migration completes, this application is the directory only and the news site stays on WordPress. | Tomide | 2026-11-21 |
 | `PD-002` | A lawyer appears in search only when verification_status = 'verified'. | Tomide | 2026-11-21 |
 | `PD-003` | A law-firm page publishes only when it is complete: name, 120+ character description, location, practice area, email or phone, and one image. | Tomide | 2026-11-21 |
 | `PD-004` | A law firm may be registered by an administrator who is not a lawyer, and a member lawyer is not required to publish. | Tomide | 2026-11-21 |
 | `PD-005` | The law-firm plan is ₦1,000,000 per year, flat, including up to 15 lawyer profiles. Lawyers under the plan pay no individual fee. | Tobi | 2026-11-24 |
 | `PD-006` | A plan priced above zero but below ₦1,000 is treated as an unset placeholder: shown as "Pricing under review" and not purchasable. | Tomide | 2026-11-09 |
 | `PD-007` | Advertising stays on the WordPress news site; the directory carries no ad slots. | Tomide | 2026-11-21 |
+| `PD-010` | The target state is off WordPress. The news site migrates gradually, section by section, with WordPress serving anything not yet replaced. | Tobi (relayed by Tomide) | 2026-11-24 |
 
 ## Proposed — awaiting a decision (2)
 
@@ -29,11 +30,11 @@ constraint from an accident.
 
 ## Detail
 
-### PD-001 — The news site stays on WordPress; this application is the legal directory only.
+### PD-001 — Until the WordPress migration completes, this application is the directory only and the news site stays on WordPress.
 
 - **Status:** active
 - **Decided by:** Tomide
-- **Why:** Merging both meant a media migration of ~9.5k images, an ad rebuild, an 11k-URL redirect map and an editorial CMS that does not exist yet. None of that serves the marketplace, which is where the revenue is.
+- **Why:** The split was taken to protect the marketplace from a premature cutover. It remains the current state; the target state is set by PD-010.
 - **Applies to:** `app/(main) removed` · `app/page.tsx redirects to /directory` · `www.lawyard.org not attached to Vercel`
 
 ### PD-002 — A lawyer appears in search only when verification_status = 'verified'.
@@ -77,6 +78,13 @@ constraint from an accident.
 - **Decided by:** Tomide
 - **Why:** Ad revenue depends on editorial traffic, which remains on WordPress. Ad slot components exist for a future direct-sold offer but are not wired into marketplace pages.
 - **Applies to:** `public/ads.txt` · `components/ads`
+
+### PD-010 — The target state is off WordPress. The news site migrates gradually, section by section, with WordPress serving anything not yet replaced.
+
+- **Status:** active
+- **Decided by:** Tobi (relayed by Tomide)
+- **Why:** A single big-bang cutover carries a media migration, an 11k-URL redirect map, ad re-integration and an untested editorial surface at once. Gradual migration keeps every step reversible and lets one section prove itself before the next moves.
+- **Applies to:** `docs/WORDPRESS-MIGRATION.md` · `docs/CUTOVER.md` · `docs/plans/media-storage.jsonl`
 
 ### PD-008 — The directory opens as a founding-listings marketplace, not as a finished one: below 25 verified lawyers the homepage invites listings instead of publishing counts.
 

@@ -6,11 +6,15 @@
     {
       "id": "PD-001",
       "date": "2026-11-21",
-      "decision": "The news site stays on WordPress; this application is the legal directory only.",
-      "rationale": "Merging both meant a media migration of ~9.5k images, an ad rebuild, an 11k-URL redirect map and an editorial CMS that does not exist yet. None of that serves the marketplace, which is where the revenue is.",
+      "decision": "Until the WordPress migration completes, this application is the directory only and the news site stays on WordPress.",
+      "rationale": "The split was taken to protect the marketplace from a premature cutover. It remains the current state; the target state is set by PD-010.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["app/(main) removed", "app/page.tsx redirects to /directory", "www.lawyard.org not attached to Vercel"]
+      "affects": [
+        "app/(main) removed",
+        "app/page.tsx redirects to /directory",
+        "www.lawyard.org not attached to Vercel"
+      ]
     },
     {
       "id": "PD-002",
@@ -19,7 +23,10 @@
       "rationale": "The Verified badge has to mean something. A pending profile is a draft; the dashboard tells the lawyer why they are not visible instead of leaving them to guess.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["lib/directory/api.ts getLawyers", "app/directory/dashboard/page.tsx"]
+      "affects": [
+        "lib/directory/api.ts getLawyers",
+        "app/directory/dashboard/page.tsx"
+      ]
     },
     {
       "id": "PD-003",
@@ -28,7 +35,12 @@
       "rationale": "A page whose only content is a name cannot rank and cannot convert. Drafts stay editable, invisible in the index, search and sitemap.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["lib/directory/publishability.ts", "chambers.published_at", "app/directory/chamber", "app/sitemap.ts"]
+      "affects": [
+        "lib/directory/publishability.ts",
+        "chambers.published_at",
+        "app/directory/chamber",
+        "app/sitemap.ts"
+      ]
     },
     {
       "id": "PD-004",
@@ -37,7 +49,9 @@
       "rationale": "Firm administrators are often practice managers or marketing staff. Requiring a lawyer would exclude legitimate firms; the completeness gate covers the quality risk instead.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["lib/directory/publishability.ts"]
+      "affects": [
+        "lib/directory/publishability.ts"
+      ]
     },
     {
       "id": "PD-005",
@@ -47,7 +61,11 @@
       "status": "active",
       "decided_by": "Tobi",
       "source": "WhatsApp, 24 Nov 2026",
-      "affects": ["plans.price (chamber Premium)", "components/directory/seat-checkout.tsx", "app/directory/pricing/page.tsx"]
+      "affects": [
+        "plans.price (chamber Premium)",
+        "components/directory/seat-checkout.tsx",
+        "app/directory/pricing/page.tsx"
+      ]
     },
     {
       "id": "PD-006",
@@ -56,7 +74,9 @@
       "rationale": "The plans table still carries dollar-era figures. Selling a 365-day premium listing for ₦2 is worse than selling nothing, and the guard releases automatically once real naira prices land.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["app/directory/pricing/page.tsx"]
+      "affects": [
+        "app/directory/pricing/page.tsx"
+      ]
     },
     {
       "id": "PD-007",
@@ -65,7 +85,10 @@
       "rationale": "Ad revenue depends on editorial traffic, which remains on WordPress. Ad slot components exist for a future direct-sold offer but are not wired into marketplace pages.",
       "status": "active",
       "decided_by": "Tomide",
-      "affects": ["public/ads.txt", "components/ads"]
+      "affects": [
+        "public/ads.txt",
+        "components/ads"
+      ]
     },
     {
       "id": "PD-008",
@@ -74,7 +97,9 @@
       "rationale": "The alternative is advertising an inventory that does not exist. Honest scarcity recruits suppliers; invented numbers destroy trust once checked.",
       "status": "proposed",
       "decided_by": "Engineering recommendation",
-      "affects": ["app/directory/page.tsx"]
+      "affects": [
+        "app/directory/page.tsx"
+      ]
     },
     {
       "id": "PD-009",
@@ -83,7 +108,23 @@
       "rationale": "Owners need to see what they are publishing. Leaving drafts publicly addressable would expose thin pages to crawlers and reviewers.",
       "status": "proposed",
       "decided_by": "Engineering recommendation",
-      "affects": ["app/directory/chamber/[id]/page.tsx", "lib/directory/api.ts"]
+      "affects": [
+        "app/directory/chamber/[id]/page.tsx",
+        "lib/directory/api.ts"
+      ]
+    },
+    {
+      "id": "PD-010",
+      "date": "2026-11-24",
+      "decision": "The target state is off WordPress. The news site migrates gradually, section by section, with WordPress serving anything not yet replaced.",
+      "rationale": "A single big-bang cutover carries a media migration, an 11k-URL redirect map, ad re-integration and an untested editorial surface at once. Gradual migration keeps every step reversible and lets one section prove itself before the next moves.",
+      "status": "active",
+      "decided_by": "Tobi (relayed by Tomide)",
+      "affects": [
+        "docs/WORDPRESS-MIGRATION.md",
+        "docs/CUTOVER.md",
+        "docs/plans/media-storage.jsonl"
+      ]
     }
   ]
 }
