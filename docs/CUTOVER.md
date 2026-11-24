@@ -1,20 +1,22 @@
-# Moving Lawyard off WordPress (parked)
+# Moving Lawyard off WordPress
 
-**Status: parked — not the current plan.** The decision taken in November 2026 is
-to keep the news site on WordPress and run this application as the directory
-only. Keep this document as the costed plan if that decision is ever revisited;
-do not treat it as a to-do list.
+**Status: planned — blocked on media, not on people.** The November 2026 decision
+to stay on WordPress was taken on the assumption that the newsroom needed the
+WordPress editor. On 2026-11-24 Tobi confirmed nobody edits in WordPress:
+publishing arrives through Slack review and automations that POST to the
+WordPress REST API. That removes the editorial objection, so the cutover is the
+plan again — and the remaining blocker is media (see below), not tooling.
 
-The work is now planned as two machine-readable task files, so it can be sized
-and resumed without re-deriving anything:
+The work is planned as two machine-readable task files, so it can be sized and
+resumed without re-deriving anything:
 
 - `docs/plans/media-storage.jsonl` — 27 tasks: move every media reference off
-  `www.lawyard.org`, derivatives on write, 12-month redirect tail. **Runs before
-  any cutover and is safe to start while the decision is still open.**
-- `docs/plans/wordpress-cutover.jsonl` — 24 tasks: routes, URL map, taxonomy,
-  comments/users, SEO continuity, editorial surface, DNS flip, rollback and
-  WordPress retirement. **Blocked on one decision: is the WordPress editor
-  non-negotiable?** (task `C0.1`)
+  `www.lawyard.org`, derivatives on write, 12-month redirect tail. **Runs first;
+  nothing else can flip until the zero-reference gate is green.**
+- `docs/plans/wordpress-cutover.jsonl` — 27 tasks: URL corpus and 301 map,
+  restored news routes, taxonomy, comments/users, SEO continuity, moving the
+  publish target off WordPress, preview host, rollback rehearsal, flip, 72-hour
+  watch and a dated WordPress retirement.
 
 Each line is a JSON record with `id`, `phase`, `why`, `steps`, `acceptance`,
 `effort`, `risk`, `owner`, `depends_on` and `rollback`; filter with
