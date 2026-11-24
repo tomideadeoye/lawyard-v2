@@ -12,17 +12,37 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const host = request.headers.get('host') || ''
   const forwardedHost = request.headers.get('x-forwarded-host') || ''
-  const isDirectoryHost = host === 'directory.lawyard.org' || host.endsWith('.directory.lawyard.org') || forwardedHost.includes('directory.lawyard.org')
+  // preview.lawyard.org serves the same directory for stakeholder review, but is
+  // never indexed: a demo appearing in search results is a support problem.
+  const isPreviewHost = host.startsWith('preview.') || forwardedHost.startsWith('preview.')
+  const isDirectoryHost =
+    host === 'directory.lawyard.org' ||
+    host.endsWith('.directory.lawyard.org') ||
+    forwardedHost.includes('directory.lawyard.org') ||
+    isPreviewHost
   const isLocalDev = host.startsWith('localhost')
+
+  const noIndex = (response: NextResponse) => {
+    if (isPreviewHost) response.headers.set('x-robots-tag', 'noindex, nofollow')
+    return response
+  }
+
+  if (isPreviewHost && pathname.startsWith('/directory/')) {
+    // Keep the unprefixed path as the public address on the review host.
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace(/^\/directory/, '') || '/'
+    url.search = search
+    return noIndex(NextResponse.rewrite(url))
+  }
 
   if (STATIC_EXT.test(pathname)) return NextResponse.next()
 
   if (isDirectoryHost || isLocalDev) {
-    if (NON_DIRECTORY_PREFIXES.some(p => pathname.startsWith(p))) return NextResponse.next()
+    if (NON_DIRECTORY_PREFIXES.some(p => pathname.startsWith(p))) return noIndex(NextResponse.next())
     const url = request.nextUrl.clone()
     url.pathname = pathname === '/' ? '/directory' : `/directory${pathname}`
     url.search = search
-    return NextResponse.rewrite(url)
+    return noIndex(NextResponse.rewrite(url))
   }
 
   let supabaseResponse = NextResponse.next({ request })
