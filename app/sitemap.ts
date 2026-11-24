@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { MIN_DESCRIPTION, MIN_MATTERS } from "@/lib/directory/publishability";
 
 /**
  * Sitemap for the directory.
@@ -35,16 +36,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (data.length < 1000) break;
   }
 
-  const chambers: { id: string; created_at: string | null }[] = [];
+  const chambers: { id: string; created_at: string | null; description: string | null }[] = [];
   for (let from = 0; from < 5_000; from += 1000) {
     const { data } = await supabase
       .from("chambers")
-      .select("id, created_at")
+      .select("id, created_at, description")
       .not("published_at", "is", null)
       .range(from, from + 999);
     if (!data?.length) break;
     chambers.push(...data);
     if (data.length < 1000) break;
+  }
+
+  // A firm page is published on its details, but only indexed once it has
+  // substance. Listing a noindex URL in the sitemap is a contradictory signal,
+  // so the sitemap applies the same bar the page does: a real description, or
+  // enough matters to carry it.
+  const visibleMatters = new Map<string, number>();
+  {
+    const { data } = await supabase
+      .from("chamber_matters")
+      .select("chamber_id")
+      .neq("visibility", "private");
+    for (const row of (data ?? []) as { chamber_id: string }[]) {
+      visibleMatters.set(row.chamber_id, (visibleMatters.get(row.chamber_id) ?? 0) + 1);
+    }
   }
 
   const corporatePosts: { slug: string; created_at: string | null }[] = [];
@@ -78,12 +94,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const chamberRoutes: MetadataRoute.Sitemap = chambers.map((row) => ({
-    url: `${SITE}/chamber/${row.id}`,
-    lastModified: row.created_at ? new Date(row.created_at) : undefined,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const chamberRoutes: MetadataRoute.Sitemap = chambers
+    .filter(
+      (row) =>
+        (row.description ?? "").trim().length >= MIN_DESCRIPTION ||
+        (visibleMatters.get(row.id) ?? 0) >= MIN_MATTERS
+    )
+    .map((row) => ({
+      url: `${SITE}/chamber/${row.id}`,
+      lastModified: row.created_at ? new Date(row.created_at) : undefined,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
 
   const postRoutes: MetadataRoute.Sitemap = corporatePosts.map((row) => ({
     url: `${SITE}/corporate-posts/${row.slug}`,

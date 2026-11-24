@@ -1,14 +1,19 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
 import { PaystackButton } from './paystack-button'
 import { CURRENCY } from '@/lib/currency'
-import { MAX_SEATS_PER_FIRM, clampSeats } from '@/lib/directory/seats'
+import { MAX_SEATS_PER_FIRM, MIN_SEAT_LIMIT } from '@/lib/directory/seats'
 
-// Firm plans are billed per seat, so the price on the card is a unit price. The
-// total has to be visible before checkout — a per-seat plan that only reveals the
-// multiplication on a Paystack page is how firms end up disputing a charge.
+/**
+ * Firm subscription checkout.
+ *
+ * One annual fee for the firm. Lawyers under the plan are included — a firm is
+ * not charged again for each of its lawyers. The fee buys a number of profile
+ * seats (the cap on how many lawyers can be listed under the firm); it is not a
+ * unit price, so this deliberately does not multiply by seat count.
+ */
+export const INCLUDED_SEATS = 15
+
 export function SeatCheckout({
   planName,
   seatPrice,
@@ -24,64 +29,37 @@ export function SeatCheckout({
   usedSeats: number
   recommended?: boolean
 }) {
-  // Never offer fewer seats than the firm already occupies: buying "1 seat" while
-  // four lawyers sit in the firm would sell a downgrade disguised as a renewal.
-  const floor = Math.max(1, usedSeats)
-  const [seats, setSeats] = useState(() => clampSeats(Math.max(floor, currentSeats)))
-
-  const total = useMemo(() => seatPrice * seats, [seatPrice, seats])
-
-  const step = (delta: number) => setSeats((s) => clampSeats(s + delta))
+  // Never let a renewal cut the firm below the seats it already occupies.
+  const included = Math.min(
+    MAX_SEATS_PER_FIRM,
+    Math.max(INCLUDED_SEATS, MIN_SEAT_LIMIT, usedSeats, currentSeats)
+  )
+  const overCap = usedSeats > included
 
   return (
     <div className="w-full space-y-3">
-      <div className="flex items-center justify-between rounded-lg border border-stone-200 px-2 py-1.5 dark:border-white/10">
-        <button
-          type="button"
-          onClick={() => step(-1)}
-          disabled={seats <= floor}
-          aria-label="One fewer seat"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-stone-100 disabled:opacity-30 dark:text-neutral-300 dark:hover:bg-white/5"
-        >
-          <Minus className="h-3.5 w-3.5" />
-        </button>
-
-        <div className="text-center leading-tight">
-          <div className="text-sm font-semibold tabular-nums text-stone-900 dark:text-neutral-50">
-            {seats} {seats === 1 ? 'seat' : 'seats'}
-          </div>
-          <div className="text-[10px] text-muted-foreground">
-            {usedSeats} in use
-          </div>
+      <div className="rounded-lg border border-stone-200 px-3 py-2.5 text-xs dark:border-white/10">
+        <div className="flex items-baseline justify-between">
+          <span className="text-muted-foreground">Total per year</span>
+          <span className="text-sm font-semibold tabular-nums text-stone-900 dark:text-neutral-50">
+            {CURRENCY.symbol}
+            {seatPrice.toLocaleString(CURRENCY.locale)}
+          </span>
         </div>
-
-        <button
-          type="button"
-          onClick={() => step(1)}
-          disabled={seats >= MAX_SEATS_PER_FIRM}
-          aria-label="One more seat"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-stone-100 disabled:opacity-30 dark:text-neutral-300 dark:hover:bg-white/5"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      <div className="flex items-baseline justify-between text-xs text-muted-foreground">
-        <span>Total per year</span>
-        <span className="text-sm font-semibold tabular-nums text-stone-900 dark:text-neutral-50">
-          {CURRENCY.symbol}
-          {total.toLocaleString(CURRENCY.locale)}
-        </span>
+        <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+          Covers up to <strong>{included}</strong> lawyer profiles — no individual fee for lawyers under this plan.
+          {overCap && ` You currently have ${usedSeats} listed; contact us to extend.`}
+        </p>
       </div>
 
       <PaystackButton
         planName={planName}
         planRole="chamber"
-        amount={total}
+        amount={seatPrice}
         chamberId={chamberId}
-        seats={seats}
+        seats={included}
         recommended={recommended}
-        label={seats === currentSeats ? 'Renew seats' : `Buy ${seats} ${seats === 1 ? 'seat' : 'seats'}`}
+        label={currentSeats > 0 ? 'Renew the firm plan' : 'Subscribe the firm'}
       />
     </div>
   )

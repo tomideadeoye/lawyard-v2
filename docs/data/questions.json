@@ -9,8 +9,8 @@
       "from": [
         "C01"
       ],
-      "status": "open",
-      "answer": null
+      "status": "answered",
+      "answer": "Firm pays one annual fee; lawyers under the law firm plan are included with no individual fee."
     },
     {
       "id": "Q2",
@@ -54,8 +54,8 @@
       "from": [
         "C20"
       ],
-      "status": "open",
-      "answer": null
+      "status": "answered",
+      "answer": "₦1,000,000 per year. Tobi: \"put N1m per year, we will review it later if necessary.\""
     },
     {
       "id": "Q7",

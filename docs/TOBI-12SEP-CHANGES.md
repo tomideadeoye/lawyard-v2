@@ -329,12 +329,12 @@ Full detail, severity and fix notes: [`docs/FEATURE-STATUS.md`](FEATURE-STATUS.m
 
 | # | Question | From | Status |
 |---|---|---|---|
-| Q1 | Chamber subscription model — per member lawyer (seat-based), or flat per chamber? | C01 | ⚠ open |
+| Q1 | Chamber subscription model — per member lawyer (seat-based), or flat per chamber? | C01 | ✅ Firm pays one annual fee; lawyers under the law firm plan are included with no individual fee. |
 | Q2 | Premium Single (Lawyer, 365d) — NGN price? | C20 | ⚠ open |
 | Q3 | Premium Package (Lawyer, 365d) — NGN price? | C20 | ⚠ open |
 | Q4 | Premium Single (Client, 90d) — NGN price? | C20 | ⚠ open |
 | Q5 | Premium Package (Client, 90d) — NGN price? | C20 | ⚠ open |
-| Q6 | Premium (Chamber / Law Firm, 365d) — NGN price? | C20 | ⚠ open |
+| Q6 | Premium (Chamber / Law Firm, 365d) — NGN price? | C20 | ✅ ₦1,000,000 per year. Tobi: "put N1m per year, we will review it later if necessary." |
 | Q7 | Scrap the 60-min corporate-post clash detection? (blocks back-to-back posts from different brands) | pre-existing | ⚠ open |
 | Q8 | Silver category — which items stay vs get added? | C21 | ⚠ open |
 | Q9 | Exact annual figure for enterprise / law firm (range heard as ₦3–5M — confirm) | C04 | ⚠ open |

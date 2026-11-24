@@ -1,10 +1,22 @@
 /**
- * What a firm page needs before it may be published.
+ * Two different questions, deliberately answered separately.
  *
- * A firm can be registered by an administrator who is not a lawyer, so a member
- * lawyer is deliberately *not* required. What is required is that the page says
- * something, can be found, and can be contacted — otherwise it is a thin page
- * that cannot rank and cannot convert.
+ * 1. MAY THIS FIRM EXIST?
+ *    A firm page goes live as soon as the firm is identifiable and findable: a
+ *    name, a place, and at least one practice area. That is all "firm details"
+ *    means. A firm that incorporated last month has no matters, no reviews and
+ *    no written history — requiring any of those would exclude exactly the new
+ *    supply a cold-start directory is trying to attract. Contact channels are
+ *    offered when present but not required to exist.
+ *
+ * 2. SHOULD SEARCH ENGINES INDEX IT?
+ *    A page with nothing on it but a name is a doorway page: real to a client
+ *    who was given the link, worthless and risky as a search result. Indexing
+ *    therefore needs one piece of substance — a description, or listed matters.
+ *    Failing that the page still exists, still appears in directory search, and
+ *    is served with `noindex, follow`.
+ *
+ * A firm is never blocked from existing by a field it cannot have yet.
  */
 export const MIN_DESCRIPTION = 120;
 /** Matters are the alternative to a written description: facts instead of prose. */
@@ -20,9 +32,9 @@ export interface PublishableChamber {
   website?: string | null;
   image_url?: string | null;
   gallery_images?: string[] | null;
-  /** Number of matters listed; a firm can publish on matters alone. */
+  /** Number of matters listed. */
   matters?: number | null;
-  /** Saved practice areas. A firm can publish on these without a tagline. */
+  /** Saved practice areas; a firm with areas does not need a tagline. */
   practiceAreas?: number | null;
 }
 
@@ -35,30 +47,7 @@ export interface PublishCheck {
 
 const filled = (value?: string | null) => Boolean(value && value.trim().length > 0);
 
-export function chamberPublishCheck(chamber: PublishableChamber): PublishCheck {
-  const matterCount = chamber.matters ?? 0;
-
-  const checks: Array<{ key: string; ok: boolean; label: string }> = [
-    { key: "name", ok: filled(chamber.name), label: "Firm name" },
-    {
-      key: "substance",
-      ok: (chamber.description ?? "").trim().length >= MIN_DESCRIPTION || matterCount >= MIN_MATTERS,
-      label: `A description (${MIN_DESCRIPTION}+ characters) or ${MIN_MATTERS} matters`,
-    },
-    { key: "location", ok: filled(chamber.location), label: "Location" },
-    {
-      key: "focus",
-      ok: filled(chamber.focus) || (chamber.practiceAreas ?? 0) > 0,
-      label: "Practice areas",
-    },
-    { key: "contact", ok: filled(chamber.email) || filled(chamber.phone), label: "A contact email or phone" },
-    {
-      key: "image",
-      ok: filled(chamber.image_url) || (chamber.gallery_images ?? []).length > 0,
-      label: "A logo or at least one image",
-    },
-  ];
-
+function resolve(checks: Array<{ ok: boolean; label: string }>): PublishCheck {
   const blockers = checks.filter((check) => !check.ok).map((check) => check.label);
   const passed = checks.length - blockers.length;
 
@@ -67,4 +56,29 @@ export function chamberPublishCheck(chamber: PublishableChamber): PublishCheck {
     blockers,
     score: Math.round((passed / checks.length) * 100) / 100,
   };
+}
+
+/** May the page be listed and reachable at its URL? */
+export function chamberPublishCheck(chamber: PublishableChamber): PublishCheck {
+  return resolve([
+    { ok: filled(chamber.name), label: "Firm name" },
+    { ok: filled(chamber.location), label: "Location" },
+    {
+      ok: filled(chamber.focus) || (chamber.practiceAreas ?? 0) > 0,
+      label: "At least one practice area",
+    },
+  ]);
+}
+
+/** Is there enough on the page to be worth a search result? */
+export function chamberIndexCheck(chamber: PublishableChamber): PublishCheck {
+  const hasDescription = (chamber.description ?? "").trim().length >= MIN_DESCRIPTION;
+  const hasMatters = (chamber.matters ?? 0) >= MIN_MATTERS;
+
+  return resolve([
+    {
+      ok: hasDescription || hasMatters,
+      label: `A description (${MIN_DESCRIPTION}+ characters) or ${MIN_MATTERS} matters`,
+    },
+  ]);
 }

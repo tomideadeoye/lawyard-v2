@@ -4,6 +4,7 @@ import {
   corporatePostApproved,
   corporatePostRejected,
   inquiryNotification,
+  chamberInquiryNotification,
   corporatePostInvoice,
   shopOrderConfirmation,
   adminNewSubmission,
@@ -54,6 +55,22 @@ export async function sendInquiryNotification(params: {
     to: [{ email: params.lawyerEmail, name: params.lawyerName }],
     subject: `New Consultation Request — ${params.clientName}`,
     htmlContent: inquiryNotification(params),
+  })
+}
+
+export async function sendChamberInquiryNotification(params: {
+  firmEmail: string
+  firmName: string
+  clientName: string
+  clientEmail: string
+  clientPhone?: string
+  message: string
+  viaLawyard?: boolean
+}) {
+  return sendTransactionalEmail({
+    to: [{ email: params.firmEmail, name: params.firmName }],
+    subject: `New Inquiry — ${params.clientName}`,
+    htmlContent: chamberInquiryNotification(params),
   })
 }
 

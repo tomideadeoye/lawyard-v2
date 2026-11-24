@@ -1365,7 +1365,7 @@
       "id": "Q1",
       "type": "question",
       "label": "Chamber subscription model — per member lawyer (seat-based), or flat per chamber?",
-      "status": "open"
+      "status": "answered"
     },
     {
       "id": "Q2",
@@ -1395,7 +1395,7 @@
       "id": "Q6",
       "type": "question",
       "label": "Premium (Chamber / Law Firm, 365d) — NGN price?",
-      "status": "open"
+      "status": "answered"
     },
     {
       "id": "Q7",

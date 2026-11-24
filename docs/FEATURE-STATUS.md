@@ -170,12 +170,10 @@ Found by the 2026-11-04 code verification. Security findings are **not** duplica
 
 ## 8. Open questions (blocking)
 
-- **Q1** — Chamber subscription model — per member lawyer (seat-based), or flat per chamber? *(from C01)*
 - **Q2** — Premium Single (Lawyer, 365d) — NGN price? *(from C20)*
 - **Q3** — Premium Package (Lawyer, 365d) — NGN price? *(from C20)*
 - **Q4** — Premium Single (Client, 90d) — NGN price? *(from C20)*
 - **Q5** — Premium Package (Client, 90d) — NGN price? *(from C20)*
-- **Q6** — Premium (Chamber / Law Firm, 365d) — NGN price? *(from C20)*
 - **Q7** — Scrap the 60-min corporate-post clash detection? (blocks back-to-back posts from different brands) *(from )*
 - **Q8** — Silver category — which items stay vs get added? *(from C21)*
 - **Q9** — Exact annual figure for enterprise / law firm (range heard as ₦3–5M — confirm) *(from C04)*

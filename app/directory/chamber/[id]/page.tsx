@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getChamberById } from '@/lib/directory/api';
 import { derivePracticeAreas, type PracticeArea } from '@/lib/directory/practice-areas';
-import { chamberPublishCheck } from '@/lib/directory/publishability';
+import { chamberPublishCheck, chamberIndexCheck } from '@/lib/directory/publishability';
 import { ListingAvatar } from '@/components/directory/ListingAvatar';
 import RequestSeat from '@/components/directory/request-seat';
+import ChamberInquiryForm from '@/components/directory/ChamberInquiryForm';
 import FirmMatters, { type MatterRow } from '@/components/directory/FirmMatters';
 import { TERMS } from '@/lib/constants';
 
@@ -28,10 +29,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   if (!chamber) return { title: 'Firm not found' };
 
-  // `published_at` is null for a draft. Drafts stay reachable by direct link
-  // but must never enter an index — a page nobody has filled in should not be
-  // the search result for the firm's name.
-  const isDraft = !chamber.published_at;
+  // Existing is not the same as worth indexing. A page with only firm details
+  // is reachable by link but stays out of the index until it has substance.
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from('chamber_matters')
+    .select('id', { count: 'exact', head: true })
+    .eq('chamber_id', id)
+    .neq('visibility', 'private');
+
+  const indexable = chamber.published_at
+    ? chamberIndexCheck({ ...chamber, matters: count ?? 0 }).ready
+    : false;
+
   const title = chamber.focus ? `${chamber.name} — ${chamber.focus}` : chamber.name;
   const description =
     (chamber.description ?? '').trim().slice(0, 160) ||
@@ -41,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title,
     description,
     alternates: { canonical: `/chamber/${id}` },
-    robots: isDraft ? { index: false, follow: true } : undefined,
+    robots: indexable ? undefined : { index: false, follow: true },
     openGraph: { title, description, type: 'profile', url: `/chamber/${id}` },
   };
 }
@@ -109,10 +119,10 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
     seatState = seat?.status === 'active' ? 'member' : seat?.status === 'pending' ? 'pending' : 'eligible'
   }
 
-  // A draft is reachable by direct link, so it has to say so. Owners get a way
-  // to finish it; everyone else gets a claim route.
+  // Who is looking decides what the page tells them: an owner gets the way to
+  // finish the listing, everyone else gets a claim route.
   let canEdit = false
-  if (isDraft && user) {
+  if (user) {
     if (chamber.user_id === user.id) {
       canEdit = true
     } else {
@@ -155,6 +165,7 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
   const verifiedCount = lawyers?.filter((l) => l.verification_status === 'verified').length ?? 0;
 
   const publishCheck = chamberPublishCheck({ ...chamber, matters: matters.length, practiceAreas: areas.length });
+  const indexCheck = chamberIndexCheck({ ...chamber, matters: matters.length });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -183,6 +194,17 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
               className="font-bold underline underline-offset-2 hover:no-underline"
             >
               {canEdit ? 'Complete it in your dashboard' : 'Is this your firm? Claim it'}
+            </Link>
+          </div>
+        )}
+
+        {/* Owner-only: live but not yet indexable */}
+        {!isDraft && canEdit && !indexCheck.ready && (
+          <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-border/40 bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
+            <span className="font-bold uppercase tracking-wider">Not indexed yet</span>
+            <span>Live on the directory. Search engines will index it once it has {indexCheck.blockers.join(' or ')}.</span>
+            <Link href="/dashboard/chamber" className="font-bold underline underline-offset-2 hover:no-underline">
+              Add detail
             </Link>
           </div>
         )}
@@ -399,6 +421,15 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
 
           {/* Right Sidebar */}
           <aside className="space-y-6">
+            {/* Contact this firm — the primary action on the page */}
+            <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h3 className="text-sm font-bold mb-1">Contact this firm</h3>
+              <p className="text-xs text-muted-foreground/70 mb-4">
+                Send a message through Lawyard and we&rsquo;ll pass it to {chamber.name}.
+              </p>
+              <ChamberInquiryForm chamberId={id} firmName={chamber.name} />
+            </div>
+
             {/* Contact Card */}
             {(chamber.email || chamber.phone || chamber.website || chamber.location) && (
               <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">

@@ -166,13 +166,13 @@ const FALLBACK_PLANS: Record<string, any[]> = {
   chamber: [
     {
       name: "Premium",
-      price: formatNGN(2),
+      price: formatNGN(1000000),
       period: "/ 365 days",
       recommended: true,
-      desc: "Best for firms putting their whole team on the directory.",
+      desc: "One annual fee for the firm. Lawyers under the plan are covered — no individual fee.",
       features: [
         { name: "Listing as featured", included: true },
-        { name: "Team seats for your lawyers — billed per seat", included: true },
+        { name: "Your lawyers listed under the firm plan — no individual fees", included: true },
         { name: "Working Hours", included: true },
         { name: "FAQs", included: true },
         { name: "Social Info", included: true },

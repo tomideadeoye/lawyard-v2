@@ -69,8 +69,10 @@ export const getPlans = unstable_cache(
 
     return grouped
   },
-  ['plans'],
-  { revalidate: 3600, tags: ['plans'] }
+  // A price change must not wait for a deploy: the key is versioned so a stale
+  // entry is abandoned, and the value refreshes within a minute.
+  ['plans', 'v2'],
+  { revalidate: 60, tags: ['plans'] }
 )
 
 /**

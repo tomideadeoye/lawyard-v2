@@ -194,12 +194,15 @@ export async function saveChamber(input: ChamberFormInput): Promise<SaveChamberR
   // the editor's personal plan meant an Enterprise firm whose owner had no
   // personal plan was capped at the free gallery ceiling (C22).
   let firmTier = profile?.subscription_tier
+  let existingPublishedAt: string | null = null
   if (input.chamber_id) {
     const { data: existingChamber } = await supabase
       .from('chambers')
-      .select('subscription_tier, subscription_status, subscription_expires_at')
+      .select('subscription_tier, subscription_status, subscription_expires_at, published_at')
       .eq('id', input.chamber_id)
       .maybeSingle()
+
+    existingPublishedAt = existingChamber?.published_at ?? null
 
     const active =
       existingChamber?.subscription_status === 'active' &&
@@ -233,8 +236,14 @@ export async function saveChamber(input: ChamberFormInput): Promise<SaveChamberR
     image_url: null as string | null,
     gallery_images: gallery.slice(0, galleryCap),
     matters: matterResult.rows?.length ?? 0,
+    practiceAreas: areas?.length ?? 0,
   };
   const gate = chamberPublishCheck(draft);
+
+  // The gate is evaluated on every save. Publishing is one-way: a firm that is
+  // already live stays live even if it later clears a required field, so an
+  // edit can never quietly take a page back out of the directory.
+  const publishedAt = existingPublishedAt ?? (gate.ready ? new Date().toISOString() : null)
 
   const payload = {
     name,
@@ -248,6 +257,7 @@ export async function saveChamber(input: ChamberFormInput): Promise<SaveChamberR
     faqs: input.faqs ?? [],
     gallery_images: gallery.slice(0, galleryCap),
     intro_video_url: introVideo,
+    published_at: publishedAt,
   }
 
   if (input.chamber_id) {

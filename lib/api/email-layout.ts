@@ -302,3 +302,34 @@ export function authConfirmationTemplate(): string {
 export function authRecoveryTemplate(): string {
   return authLayout('Reset your password', '<p style="font-size:15px;color:#475569;margin:0;">A verification link has been sent to your email. Click the button in the email to reset your password.</p>')
 }
+
+export function chamberInquiryNotification(params: {
+  firmName: string
+  clientName: string
+  clientEmail: string
+  clientPhone?: string
+  message: string
+  viaLawyard?: boolean
+}) {
+  const phoneRow = params.clientPhone
+    ? `<tr><td style="padding:6px 0;color:#64748B;width:100px;">Phone</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientPhone)}</td></tr>`
+    : ''
+  const intro = params.viaLawyard
+    ? `<p>Someone contacted <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory. The firm has not claimed this listing, so it has no direct inbox — forward this on, or invite them to claim it.</p>`
+    : `<p>Someone contacted <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory.</p>`
+  return emailLayout('New Inquiry — Firm Page', `
+${intro}
+<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+  <tr><td style="padding:6px 0;color:#64748B;width:100px;">Name</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientName)}</td></tr>
+  <tr><td style="padding:6px 0;color:#64748B;">Email</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientEmail)}</td></tr>
+  ${phoneRow}
+</table>
+<div style="background:#f8fafc;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;">
+  <p style="margin:0 0 8px;font-weight:600;font-size:13px;">Message</p>
+  <p style="margin:0;color:#475569;line-height:1.6;">${escapeHtml(params.message)}</p>
+</div>
+<p style="color:#94a3b8;font-size:12px;margin-top:24px;">
+  Reply directly to <a href="mailto:${escapeHtml(params.clientEmail)}" style="color:${BRAND_COLOR};font-weight:600;">${escapeHtml(params.clientEmail)}</a>
+</p>
+${footerNote()}`)
+}
