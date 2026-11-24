@@ -42,13 +42,15 @@ export default function PublishQuotaBanner({ quota }: { quota: PublishingQuota }
         <p className="font-semibold">
           {tierLabel} plan ·{' '}
           <span className="text-muted-foreground font-normal">
-            {quota.used}/{quota.limit} posts used {period}
+            {Number.isFinite(quota.limit) ? `${quota.used}/${quota.limit}` : `${quota.used}`} posts used {period}
           </span>
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
           {quota.canPublish
-            ? quota.remaining > 0
-              ? `${quota.remaining} post${quota.remaining === 1 ? '' : 's'} remaining.`
+            ? !Number.isFinite(quota.remaining) || quota.remaining > 0
+              ? Number.isFinite(quota.remaining)
+                ? `${quota.remaining} post${quota.remaining === 1 ? '' : 's'} remaining.`
+                : 'No limit on your account.'
               : `Using a purchased extra-post credit (${quota.credits} left).`
             : `You've reached your ${tierLabel} limit. Buy an extra post or upgrade to keep publishing.`}
         </p>

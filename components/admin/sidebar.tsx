@@ -6,6 +6,7 @@ import { signOut } from '@/app/admin/login/actions'
 const navItems = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/pipeline', label: 'Editorial Pipeline' },
+  { href: '/dashboard/publish', label: 'Write an article' },
   { href: '/admin/lawyers', label: 'Lawyers Directory' },
   { href: '/admin/verifications', label: 'Verifications' },
   { href: '/admin/subscribers', label: 'Subscribers' },

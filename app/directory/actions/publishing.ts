@@ -51,10 +51,11 @@ export async function getPublishingQuota(userId?: string): Promise<PublishingQuo
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_tier')
+    .select('subscription_tier, role')
     .eq('id', uid)
     .maybeSingle()
 
+  const isStaff = profile?.role === 'admin'
   const tier = (profile?.subscription_tier as string) || 'free'
   const paid = isPaidTier(tier)
 
@@ -67,6 +68,20 @@ export async function getPublishingQuota(userId?: string): Promise<PublishingQuo
   const monthStart = new Date()
   monthStart.setDate(1)
   monthStart.setHours(0, 0, 0, 0)
+
+  // Newsroom staff publish without a cap; the allowance prices member content.
+  if (isStaff) {
+    return {
+      tier,
+      paid: true,
+      used: 0,
+      limit: Number.POSITIVE_INFINITY,
+      remaining: Number.POSITIVE_INFINITY,
+      credits: 0,
+      extraPostPrice,
+      canPublish: true,
+    }
+  }
 
   const limit = paid ? paidPerMonth : freeTotal
   const used = paid ? await countPosts(supabase, uid, monthStart.toISOString()) : await countPosts(supabase, uid)

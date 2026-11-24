@@ -333,3 +333,51 @@ ${intro}
 </p>
 ${footerNote()}`)
 }
+
+/**
+ * Thread notices are pointers, never the conversation.
+ *
+ * No client address, no message body: the firm signs in to read and reply, and
+ * the client opens its token link. Email is the doorbell, not the room.
+ */
+export function chamberThreadNotice(params: {
+  audience: 'firm' | 'client'
+  kind: 'new' | 'reply' | 'first'
+  firmName: string
+  threadUrl: string
+  unclaimed?: boolean
+}) {
+  const button = (label: string) => `
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;">
+  <tr><td style="border-radius:8px;background:${BRAND_COLOR};">
+    <a href="${escapeHtml(params.threadUrl)}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">${escapeHtml(label)}</a>
+  </td></tr>
+</table>`
+
+  let title = 'New inquiry'
+  let body = ''
+
+  if (params.audience === 'firm' && params.kind === 'new') {
+    title = 'New inquiry'
+    body = `<p>A client has sent a message to <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory.</p>
+<p>Open it on Lawyard to read the message and reply. The conversation stays in one place, with the record attached to your listing.</p>`
+  } else if (params.audience === 'firm') {
+    title = 'New reply'
+    body = `<p>A client has replied to a conversation with <strong>${escapeHtml(params.firmName)}</strong>.</p>
+<p>Open the thread on Lawyard to read it and reply.</p>`
+  } else if (params.kind === 'first') {
+    title = 'Your conversation'
+    body = `<p><strong>${escapeHtml(params.firmName)}</strong> has received your message.</p>
+<p>Keep this link — it is your way back into the conversation. You can read replies and reply here without creating an account.</p>`
+  } else {
+    title = 'New reply from the firm'
+    body = `<p><strong>${escapeHtml(params.firmName)}</strong> has replied to you.</p>
+<p>Open the conversation to read the reply and answer.</p>`
+  }
+
+  const note = params.unclaimed
+    ? `<p style="color:#94a3b8;font-size:12px;margin-top:20px;">${escapeHtml(params.firmName)} has not claimed this listing yet, so this reached the Lawyard team, who will pass it on.</p>`
+    : ''
+
+  return emailLayout(title, `${body}${button('Open on Lawyard')}${note}${footerNote()}`)
+}

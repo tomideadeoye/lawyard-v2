@@ -5,6 +5,7 @@ import {
   corporatePostRejected,
   inquiryNotification,
   chamberInquiryNotification,
+  chamberThreadNotice,
   corporatePostInvoice,
   shopOrderConfirmation,
   adminNewSubmission,
@@ -58,19 +59,25 @@ export async function sendInquiryNotification(params: {
   })
 }
 
-export async function sendChamberInquiryNotification(params: {
+export async function sendChamberThreadNotice(params: {
   firmEmail: string
   firmName: string
-  clientName: string
-  clientEmail: string
-  clientPhone?: string
-  message: string
-  viaLawyard?: boolean
+  audience: 'firm' | 'client'
+  kind: 'new' | 'reply' | 'first'
+  threadUrl: string
+  unclaimed?: boolean
 }) {
   return sendTransactionalEmail({
     to: [{ email: params.firmEmail, name: params.firmName }],
-    subject: `New Inquiry — ${params.clientName}`,
-    htmlContent: chamberInquiryNotification(params),
+    subject:
+      params.audience === 'firm'
+        ? params.kind === 'new'
+          ? 'New inquiry on your firm page'
+          : 'New reply on your firm page'
+        : params.kind === 'first'
+          ? 'Your Lawyard conversation'
+          : 'New reply from the firm',
+    htmlContent: chamberThreadNotice(params),
   })
 }
 
