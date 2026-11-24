@@ -5,6 +5,21 @@ to keep the news site on WordPress and run this application as the directory
 only. Keep this document as the costed plan if that decision is ever revisited;
 do not treat it as a to-do list.
 
+The work is now planned as two machine-readable task files, so it can be sized
+and resumed without re-deriving anything:
+
+- `docs/plans/media-storage.jsonl` — 27 tasks: move every media reference off
+  `www.lawyard.org`, derivatives on write, 12-month redirect tail. **Runs before
+  any cutover and is safe to start while the decision is still open.**
+- `docs/plans/wordpress-cutover.jsonl` — 24 tasks: routes, URL map, taxonomy,
+  comments/users, SEO continuity, editorial surface, DNS flip, rollback and
+  WordPress retirement. **Blocked on one decision: is the WordPress editor
+  non-negotiable?** (task `C0.1`)
+
+Each line is a JSON record with `id`, `phase`, `why`, `steps`, `acceptance`,
+`effort`, `risk`, `owner`, `depends_on` and `rollback`; filter with
+`jq -c 'select(.type=="task" and .phase=="2-migrate")'`.
+
 Everything needed to point `www.lawyard.org` at this application and retire the
 WordPress install. Written to be followed in order; each section says what
 breaks if it is skipped.
