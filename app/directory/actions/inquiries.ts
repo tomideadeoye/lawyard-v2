@@ -5,6 +5,7 @@ import { createClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { sendThreadNotice } from '@/lib/api/email';
 import { UUID, validateInquiryFields } from '@/lib/directory/inquiries';
 import { createThreadToken, validateThreadBody } from '@/lib/directory/inquiry-thread';
+import { guardContactDetails } from '@/lib/directory/contact-guard';
 import {
   appendLawyerClientMessageByToken,
   authoriseLawyerInquiry,
@@ -36,6 +37,8 @@ export async function submitInquiry(input: InquiryInput) {
   const fields = validateInquiryFields(input);
   if (!fields.ok) throw new Error(fields.error);
   const value = fields.value;
+
+  await guardContactDetails(value.message, { surface: 'lawyer', direction: 'client' });
 
   const supabase = await createClient();
   const { data: lawyer } = await supabase
@@ -108,6 +111,12 @@ export async function replyToInquiry(inquiryId: string, body: string) {
   const parsed = validateThreadBody(body);
   if (!parsed.ok) throw new Error(parsed.error);
 
+  await guardContactDetails(parsed.body, {
+    surface: 'lawyer',
+    direction: 'provider',
+    inquiryId,
+  });
+
   const authorised = await authoriseLawyerInquiry(inquiryId);
   if (!authorised) throw new Error('You do not have access to this inquiry.');
 
@@ -148,6 +157,7 @@ export async function replyToInquiry(inquiryId: string, body: string) {
 }
 
 export async function replyAsLawyerClient(token: string, body: string) {
+  await guardContactDetails(body, { surface: 'lawyer', direction: 'client' });
   const result = await appendLawyerClientMessageByToken(token, body);
   if (!result.ok) throw new Error(result.error);
 

@@ -116,7 +116,8 @@ export default function ChamberInquiryForm({
       </button>
 
       <p className="text-[10px] text-muted-foreground/50 text-center">
-        Your details go to the firm. By sending, you agree to our Privacy Policy.
+        Keep email addresses and phone numbers out of the message — the thread stays here.
+        By sending, you agree to our Privacy Policy.
       </p>
     </form>
   );

@@ -202,6 +202,9 @@ export default function InquiryInbox({
                 className="w-full resize-none rounded-lg border border-border/40 bg-muted/20 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#a77c5c]"
               />
               {error && <p className="mt-1 text-xs font-medium text-destructive">{error}</p>}
+              <p className="mt-1 text-[10px] text-muted-foreground/60">
+                Email addresses and phone numbers are blocked — keep the conversation here.
+              </p>
               <div className="mt-2 flex justify-end">
                 <button
                   type="button"

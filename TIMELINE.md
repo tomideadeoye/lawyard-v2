@@ -646,6 +646,37 @@ Firm inquiries had become threads; lawyer inquiries had only lost the client add
 
 ---
 
+## 2026-11-25 — Closing the last obvious exit
+
+### Focus
+Threads kept the conversation in-app only until someone typed an address into the first message. That is one field and no friction, so the model was still bypassable by anyone who wanted to leave.
+
+### What Changed
+- **Messages are screened at the boundary**: A pure detector runs in every server action that can reach the other side — firm and lawyer, first message and reply. Email addresses, bracketed obfuscation, phone numbers in any spacing and social handles are all caught.
+- **The block explains itself**: The send is refused with a message naming what was found and why the thread is the better route, rather than a generic validation error.
+- **Blocks are recorded**: `contact_flags` keeps surface, direction and kinds. It has no insert policy, so only the server can write one; admins can read them.
+- **False positives were designed out**: Money with commas, suit numbers, dates and years do not match, and unbracketed "at ... dot ..." prose is left alone. Website links remain allowed because the firm's site is already published.
+
+### Next Steps
+1. An admin view for contact_flags; today they are queryable but not surfaced.
+2. The header logs a duplicate React key ("Search Lawyers") on every page — unrelated, but visible in the console.
+
+### Verification
+- Submitted "Call me on 0803 123 4567 or email ada@example.com" through the public firm form: refused, both kinds named, no inquiry stored, one flag recorded with kinds email,phone.
+- Submitted a message containing a suit number, a date and a price: accepted, so the detector does not eat ordinary legal text. Test rows and flags removed. All 74 directory and API tests, typecheck and docs render pass; migrations clean at 57. The full suite is red on an unrelated shop test (lib/shop/catalogue.test.ts), owned by other in-flight work.
+
+### Rationale
+- A rule nobody can see is a trap. The block has to say what it objected to or it reads as a broken form.
+- Recording attempts turns an anti-bypass rule into a signal: a listing that keeps triggering it is a listing that is leaving.
+- This is friction, not prevention. Two determined people can still meet; the point is that the easy path is now the on-platform one.
+
+### Related Files
+- `lib/directory/contact-filter.ts` · `lib/directory/contact-filter.test.ts` · `lib/directory/contact-guard.ts`
+- `supabase/migrations/20261125000002_contact_flags.sql` · `app/directory/actions/{chamber-inquiries,inquiries}.ts`
+- `components/directory/{ChamberInquiryForm,InquiryInbox}.tsx` · `app/directory/inquiry/[token]/reply-form.tsx`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.

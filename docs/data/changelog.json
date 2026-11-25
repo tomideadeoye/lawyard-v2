@@ -985,6 +985,19 @@
         "components/directory/InquiryInbox.tsx",
         "app/directory/inquiry/[token]/page.tsx"
       ]
+    },
+    {
+      "id": "CH-082",
+      "date": "2026-11-25",
+      "type": "added",
+      "title": "Addresses and numbers are blocked inside messages",
+      "detail": "Keeping the conversation in-app only matters if the obvious exit is closed: typing an email or a phone number into the first message. Messages through a firm or lawyer thread are now screened for email addresses (including bracketed obfuscation), phone numbers in any spacing, and social handles. A hit blocks the send with a message naming what was found. Money, dates, suit numbers and years do not match. Website links are still allowed because the firm's site is published on its page by decision. Every block is recorded in contact_flags for review, which is how you see whether a listing is systematically pushing clients off-platform.",
+      "evidence": [
+        "lib/directory/contact-filter.ts",
+        "lib/directory/contact-guard.ts",
+        "supabase/migrations/20261125000002_contact_flags.sql",
+        "app/directory/actions/chamber-inquiries.ts"
+      ]
     }
   ]
 }

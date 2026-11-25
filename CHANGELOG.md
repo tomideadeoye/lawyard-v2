@@ -9,6 +9,10 @@
 
 ## 2026-11-25
 
+### Added
+
+- **Addresses and numbers are blocked inside messages**: Keeping the conversation in-app only matters if the obvious exit is closed: typing an email or a phone number into the first message. Messages through a firm or lawyer thread are now screened for email addresses (including bracketed obfuscation), phone numbers in any spacing, and social handles. A hit blocks the send with a message naming what was found. Money, dates, suit numbers and years do not match. Website links are still allowed because the firm's site is published on its page by decision. Every block is recorded in contact_flags for review, which is how you see whether a listing is systematically pushing clients off-platform.
+
 ### Changed
 
 - **Lawyer inquiries are threads too**: The lawyer notification had already been reduced to a pointer, but the inbox only listed messages — there was nowhere to reply. Lawyer inquiries now carry a token thread like firm ones: the lawyer replies from the dashboard, the client answers through a private link, and neither sees the other's address. The client's email and phone are removed from the authenticated grant, so a lawyer cannot read them from the row. The public form no longer requires an account. Both provider inboxes now share one component.

@@ -70,6 +70,10 @@ export default function InquiryForm({ lawyerId }: { lawyerId: string }) {
         </p>
       )}
 
+      <p className="text-[10px] text-muted-foreground/50">
+        Keep email addresses and phone numbers out of the message — the thread stays here.
+      </p>
+
       <button
         type="submit"
         disabled={mutation.isPending}

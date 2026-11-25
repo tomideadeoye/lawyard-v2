@@ -5,6 +5,7 @@ import { createClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { sendThreadNotice } from '@/lib/api/email';
 import { validateChamberInquiry, type ChamberInquiryInput } from '@/lib/directory/inquiries';
 import { createThreadToken, validateThreadBody } from '@/lib/directory/inquiry-thread';
+import { guardContactDetails } from '@/lib/directory/contact-guard';
 import {
   appendClientMessageByToken,
   authoriseFirmInquiry,
@@ -25,6 +26,8 @@ export async function submitChamberInquiry(input: ChamberInquiryInput) {
   const result = validateChamberInquiry(input);
   if (!result.ok) throw new Error(result.error);
   const value = result.value;
+
+  await guardContactDetails(value.message, { surface: 'chamber', direction: 'client' });
 
   const supabase = await createClient();
   const { data: chamber } = await supabase
@@ -101,6 +104,12 @@ export async function replyToChamberInquiry(inquiryId: string, body: string) {
   const parsed = validateThreadBody(body);
   if (!parsed.ok) throw new Error(parsed.error);
 
+  await guardContactDetails(parsed.body, {
+    surface: 'chamber',
+    direction: 'provider',
+    inquiryId,
+  });
+
   const authorised = await authoriseFirmInquiry(inquiryId);
   if (!authorised) throw new Error('You do not have access to this inquiry.');
 
@@ -141,6 +150,7 @@ export async function replyToChamberInquiry(inquiryId: string, body: string) {
 }
 
 export async function replyAsClient(token: string, body: string) {
+  await guardContactDetails(body, { surface: 'chamber', direction: 'client' });
   const result = await appendClientMessageByToken(token, body);
   if (!result.ok) throw new Error(result.error);
 
