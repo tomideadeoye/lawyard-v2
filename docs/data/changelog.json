@@ -971,6 +971,20 @@
         "app/directory/dashboard/chamber/inquiries/page.tsx",
         "app/directory/inquiry/[token]/page.tsx"
       ]
+    },
+    {
+      "id": "CH-081",
+      "date": "2026-11-25",
+      "type": "changed",
+      "title": "Lawyer inquiries are threads too",
+      "detail": "The lawyer notification had already been reduced to a pointer, but the inbox only listed messages — there was nowhere to reply. Lawyer inquiries now carry a token thread like firm ones: the lawyer replies from the dashboard, the client answers through a private link, and neither sees the other's address. The client's email and phone are removed from the authenticated grant, so a lawyer cannot read them from the row. The public form no longer requires an account. Both provider inboxes now share one component.",
+      "evidence": [
+        "supabase/migrations/20261125000001_lawyer_inquiry_threads.sql",
+        "lib/directory/lawyer-inquiry-server.ts",
+        "app/directory/actions/inquiries.ts",
+        "components/directory/InquiryInbox.tsx",
+        "app/directory/inquiry/[token]/page.tsx"
+      ]
     }
   ]
 }

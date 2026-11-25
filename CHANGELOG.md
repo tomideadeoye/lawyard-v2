@@ -7,6 +7,12 @@
 > and appear as nodes in `docs/data/graph.json` — nothing is retyped into a second place.
 > **Newest first.** Add an entry to the JSON; it lands under the right date by itself.
 
+## 2026-11-25
+
+### Changed
+
+- **Lawyer inquiries are threads too**: The lawyer notification had already been reduced to a pointer, but the inbox only listed messages — there was nowhere to reply. Lawyer inquiries now carry a token thread like firm ones: the lawyer replies from the dashboard, the client answers through a private link, and neither sees the other's address. The client's email and phone are removed from the authenticated grant, so a lawyer cannot read them from the row. The public form no longer requires an account. Both provider inboxes now share one component.
+
 ## 2026-11-24
 
 ### Added

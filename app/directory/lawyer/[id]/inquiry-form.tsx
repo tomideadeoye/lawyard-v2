@@ -24,8 +24,8 @@ export default function InquiryForm({ lawyerId }: { lawyerId: string }) {
     return (
       <div className="text-center py-6 space-y-2">
         <div className="text-2xl">✓</div>
-        <p className="text-sm font-semibold text-emerald-600">Message sent!</p>
-        <p className="text-xs text-muted-foreground">The lawyer will respond within 24 hours.</p>
+        <p className="text-sm font-semibold text-emerald-600">Message sent</p>
+        <p className="text-xs text-muted-foreground">The lawyer will reply in this thread. Check your email for your link back to it.</p>
       </div>
     );
   }

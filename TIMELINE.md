@@ -614,6 +614,38 @@ The inquiry built hours earlier emailed the firm the client address and told it 
 
 ---
 
+## 2026-11-25 — The lawyer inbox listed messages and stopped
+
+### Focus
+Firm inquiries had become threads; lawyer inquiries had only lost the client address from the notification. A lawyer could read a message and had no way to answer except off-platform — the half-migration was worse than either state.
+
+### What Changed
+- **Lawyer inquiries are threads**: `lawyer_inquiry_messages` plus an access token on the inquiry. The client replies through the same `/inquiry/[token]` page used for firms; one link shape, resolved against both tables.
+- **One inbox component**: The firm and lawyer dashboards now render the same master-detail thread UI, differing only in which action the buttons call. The lawyer inbox gained replies; the firm inbox lost its bespoke copy.
+- **Client contact removed from the lawyer grant**: Same column-level revocation as firms: a lawyer can read the inquiry row and cannot read the client's email or phone. The admin query was moved to explicit columns so it survives the grant.
+- **No sign-in to ask a lawyer a question**: The public form was gated behind an account while the firm form was not. Both are now guest-open, because the token link is what keeps the conversation on-platform.
+
+### Next Steps
+1. Open a real lawyer account and exercise the dashboard inbox end to end.
+2. Detect contact details typed into message bodies; that is the remaining bypass.
+3. The lawyer page still has no generateMetadata, so its title is the directory default.
+
+### Verification
+- Created a temporary lawyer listing, submitted the public form as a guest, opened the mailed token link and replied: both messages rendered in order, page served noindex/nofollow/nocache, and deleting the lawyer cascaded the inquiry and its messages. Listing and test rows removed.
+- Email delivery suppressed by starting without a Brevo key, so the send path is still unexercised. The lawyer dashboard inbox was not opened with a session — it needs a real account. 135 tests, typecheck and docs render pass; migrations clean at 56.
+
+### Rationale
+- A notification without a reply path is not a channel — it is an instruction to leave.
+- Sharing the inbox UI removes the drift that let the two provider types diverge in the first place.
+- Guest access is the point: the client returns through a link, not an account, and the provider never learns the address.
+
+### Related Files
+- `supabase/migrations/20261125000001_lawyer_inquiry_threads.sql` · `lib/directory/lawyer-inquiry-server.ts` · `lib/directory/inquiries.ts`
+- `app/directory/actions/inquiries.ts` · `components/directory/InquiryInbox.tsx` · `app/directory/inquiry/[token]/{page,reply-form}.tsx`
+- `app/directory/dashboard/inquiries/page.tsx` · `app/directory/dashboard/chamber/inquiries/page.tsx` · `app/directory/lawyer/[id]/page.tsx`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.
