@@ -162,24 +162,18 @@ export function inquiryNotification(params: {
   clientPhone?: string
   message: string
 }) {
-  const phoneRow = params.clientPhone
-    ? `<tr><td style="padding:6px 0;color:#64748B;width:100px;">Phone</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientPhone)}</td></tr>`
-    : ''
+  // Pointer only. The conversation stays in the Lawyard inbox: no client
+  // address in the email, no "reply directly". Same rule as the firm threads.
+  const url = `${SITE_URL}/dashboard/inquiries`
   return emailLayout('New Consultation Request', `
 <p>Hi <strong>${escapeHtml(params.lawyerName)}</strong>,</p>
-<p>Someone has requested a consultation through your Lawyard profile.</p>
-<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
-  <tr><td style="padding:6px 0;color:#64748B;width:100px;">Name</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientName)}</td></tr>
-  <tr><td style="padding:6px 0;color:#64748B;">Email</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientEmail)}</td></tr>
-  ${phoneRow}
+<p>A client has requested a consultation through your Lawyard profile.</p>
+<p>Open your inbox on Lawyard to read the message and reply. The thread stays attached to your listing.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;">
+  <tr><td style="border-radius:8px;background:${BRAND_COLOR};">
+    <a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Open your inbox</a>
+  </td></tr>
 </table>
-<div style="background:#f8fafc;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;">
-  <p style="margin:0 0 8px;font-weight:600;font-size:13px;">Message</p>
-  <p style="margin:0;color:#475569;line-height:1.6;">${escapeHtml(params.message)}</p>
-</div>
-<p style="color:#94a3b8;font-size:12px;margin-top:24px;">
-  Respond to the client directly at <a href="mailto:${escapeHtml(params.clientEmail)}" style="color:${BRAND_COLOR};font-weight:600;">${escapeHtml(params.clientEmail)}</a>
-</p>
 ${footerNote()}`)
 }
 
@@ -303,47 +297,17 @@ export function authRecoveryTemplate(): string {
   return authLayout('Reset your password', '<p style="font-size:15px;color:#475569;margin:0;">A verification link has been sent to your email. Click the button in the email to reset your password.</p>')
 }
 
-export function chamberInquiryNotification(params: {
-  firmName: string
-  clientName: string
-  clientEmail: string
-  clientPhone?: string
-  message: string
-  viaLawyard?: boolean
-}) {
-  const phoneRow = params.clientPhone
-    ? `<tr><td style="padding:6px 0;color:#64748B;width:100px;">Phone</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientPhone)}</td></tr>`
-    : ''
-  const intro = params.viaLawyard
-    ? `<p>Someone contacted <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory. The firm has not claimed this listing, so it has no direct inbox — forward this on, or invite them to claim it.</p>`
-    : `<p>Someone contacted <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory.</p>`
-  return emailLayout('New Inquiry — Firm Page', `
-${intro}
-<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
-  <tr><td style="padding:6px 0;color:#64748B;width:100px;">Name</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientName)}</td></tr>
-  <tr><td style="padding:6px 0;color:#64748B;">Email</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(params.clientEmail)}</td></tr>
-  ${phoneRow}
-</table>
-<div style="background:#f8fafc;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;">
-  <p style="margin:0 0 8px;font-weight:600;font-size:13px;">Message</p>
-  <p style="margin:0;color:#475569;line-height:1.6;">${escapeHtml(params.message)}</p>
-</div>
-<p style="color:#94a3b8;font-size:12px;margin-top:24px;">
-  Reply directly to <a href="mailto:${escapeHtml(params.clientEmail)}" style="color:${BRAND_COLOR};font-weight:600;">${escapeHtml(params.clientEmail)}</a>
-</p>
-${footerNote()}`)
-}
-
 /**
  * Thread notices are pointers, never the conversation.
  *
  * No client address, no message body: the firm signs in to read and reply, and
  * the client opens its token link. Email is the doorbell, not the room.
  */
-export function chamberThreadNotice(params: {
-  audience: 'firm' | 'client'
+export function threadNotice(params: {
+  audience: 'provider' | 'client'
   kind: 'new' | 'reply' | 'first'
-  firmName: string
+  /** The firm or lawyer the client is talking to. */
+  providerName: string
   threadUrl: string
   unclaimed?: boolean
 }) {
@@ -357,26 +321,26 @@ export function chamberThreadNotice(params: {
   let title = 'New inquiry'
   let body = ''
 
-  if (params.audience === 'firm' && params.kind === 'new') {
+  if (params.audience === 'provider' && params.kind === 'new') {
     title = 'New inquiry'
-    body = `<p>A client has sent a message to <strong>${escapeHtml(params.firmName)}</strong> through the Lawyard directory.</p>
+    body = `<p>A client has sent a message to <strong>${escapeHtml(params.providerName)}</strong> through the Lawyard directory.</p>
 <p>Open it on Lawyard to read the message and reply. The conversation stays in one place, with the record attached to your listing.</p>`
-  } else if (params.audience === 'firm') {
+  } else if (params.audience === 'provider') {
     title = 'New reply'
-    body = `<p>A client has replied to a conversation with <strong>${escapeHtml(params.firmName)}</strong>.</p>
+    body = `<p>A client has replied to a conversation with <strong>${escapeHtml(params.providerName)}</strong>.</p>
 <p>Open the thread on Lawyard to read it and reply.</p>`
   } else if (params.kind === 'first') {
     title = 'Your conversation'
-    body = `<p><strong>${escapeHtml(params.firmName)}</strong> has received your message.</p>
+    body = `<p><strong>${escapeHtml(params.providerName)}</strong> has received your message.</p>
 <p>Keep this link — it is your way back into the conversation. You can read replies and reply here without creating an account.</p>`
   } else {
     title = 'New reply from the firm'
-    body = `<p><strong>${escapeHtml(params.firmName)}</strong> has replied to you.</p>
+    body = `<p><strong>${escapeHtml(params.providerName)}</strong> has replied to you.</p>
 <p>Open the conversation to read the reply and answer.</p>`
   }
 
   const note = params.unclaimed
-    ? `<p style="color:#94a3b8;font-size:12px;margin-top:20px;">${escapeHtml(params.firmName)} has not claimed this listing yet, so this reached the Lawyard team, who will pass it on.</p>`
+    ? `<p style="color:#94a3b8;font-size:12px;margin-top:20px;">${escapeHtml(params.providerName)} has not claimed this listing yet, so this reached the Lawyard team, who will pass it on.</p>`
     : ''
 
   return emailLayout(title, `${body}${button('Open on Lawyard')}${note}${footerNote()}`)

@@ -135,9 +135,8 @@ export default async function ShopPaymentCallbackPage({
                         </p>
                       </div>
                       
-                      {/* Premium mock download button */}
-                      <a 
-                        href="#"
+                      <a
+                        href={`/api/legislations/${item.id}/download`}
                         className="bg-[#a77c5c] hover:bg-[#906b4e] text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-2.5 rounded shadow-sm transition-colors shrink-0 no-underline"
                       >
                         Download PDF

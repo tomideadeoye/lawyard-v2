@@ -1,6 +1,45 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+function LegislationDownloads({ transactions }: { transactions: Array<Record<string, any>> }) {
+  const purchases = transactions.filter(
+    (tx) => tx.status === 'success' && tx.plan_role === 'legislation_buyer'
+  )
+
+  const items = purchases.flatMap((tx) => {
+    const raw = (tx.metadata as { items?: Array<{ id?: string; title?: string; quantity?: number }> } | null)?.items ?? []
+    return raw.map((item) => ({ ...item, reference: tx.reference as string }))
+  })
+
+  if (items.length === 0) return null
+
+  const seen = new Set<string>()
+
+  return (
+    <div className="rounded-xl border border-border bg-background p-5">
+      <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Your legislations</h2>
+      <ul className="mt-3 divide-y divide-border/60">
+        {items.map((item) => {
+          const slug = item.id as string
+          if (!slug || seen.has(slug)) return null
+          seen.add(slug)
+          return (
+            <li key={`${item.reference}-${slug}`} className="flex items-center justify-between gap-4 py-3">
+              <span className="text-sm font-medium">{item.title ?? slug}</span>
+              <a
+                href={`/api/legislations/${slug}/download`}
+                className="shrink-0 rounded-lg bg-accent px-4 py-2 text-xs font-bold text-accent-foreground hover:bg-accent/90"
+              >
+                Download PDF
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     success: 'text-green-600 bg-green-50 border-green-200',
@@ -34,6 +73,8 @@ export default async function OrdersPage() {
           {transactions?.length ?? 0} order{(transactions?.length ?? 0) !== 1 ? 's' : ''}
         </p>
       </div>
+
+      <LegislationDownloads transactions={transactions ?? []} />
 
       {!transactions?.length ? (
         <div className="rounded-xl border border-border bg-background p-8 text-center">
@@ -71,6 +112,9 @@ export default async function OrdersPage() {
               ))}
             </tbody>
           </table>
+          <div className="border-t border-border p-3 text-xs text-muted-foreground">
+            Bought a legislation? Downloads are under each order below.
+          </div>
         </div>
       )}
     </div>

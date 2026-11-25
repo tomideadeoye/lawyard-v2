@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { getInquiryStats } from '@/app/directory/actions/inquiries';
-import InboxClient from './inbox-client';
+import InquiryInbox, { type InboxThread } from '@/components/directory/InquiryInbox';
 
 export default async function InquiriesPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const { data: profile } = await supabase
@@ -18,37 +19,51 @@ export default async function InquiriesPage() {
   const isLawyer = profile?.role === 'lawyer' || profile?.role === 'chamber';
   if (!isLawyer) redirect('/dashboard');
 
-  const statsResult = await getInquiryStats();
-
-  const { data: inquiries, error } = await supabase
+  // Explicit columns: the lawyer has no SELECT grant on the client's email or
+  // phone, so `*` would fail — by design.
+  const { data, error } = await supabase
     .from('lawyer_inquiries')
-    .select('*')
+    .select(
+      'id, name, read, created_at, last_activity_at, lawyer_inquiry_messages(id, sender, sender_name, body, created_at)'
+    )
     .eq('lawyer_id', user.id)
-    .order('created_at', { ascending: false });
+    .order('last_activity_at', { ascending: false })
+    .limit(100);
 
-  const stats = !statsResult.error ? statsResult : null;
+  const threads: InboxThread[] = ((data ?? []) as unknown as Record<string, unknown>[]).map((row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    read: row.read as boolean,
+    created_at: row.created_at as string,
+    last_activity_at: row.last_activity_at as string,
+    messages: (row.lawyer_inquiry_messages ?? []) as InboxThread['messages'],
+  }));
+
+  const unread = threads.filter((thread) => !thread.read).length;
 
   return (
     <div className="space-y-6 animate-fade-in px-4 sm:px-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inquiries</h1>
           <p className="text-muted-foreground text-sm">
-            Messages from clients requesting consultation.
+            Conversations from your listing. Replies are sent from here — the client never sees
+            your email, and you never see theirs unless they share it.
           </p>
         </div>
-        {stats && !stats.error && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{stats.total}</strong> total
+        <div className="flex items-center gap-3">
+          {unread > 0 && (
+            <span className="px-2.5 py-1 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[10px] font-bold uppercase tracking-wider border border-[#a77c5c]/20">
+              {unread} unread
             </span>
-            {(stats as { unread: number }).unread > 0 && (
-              <span className="px-2.5 py-1 rounded-full bg-[#a77c5c]/10 text-[#a77c5c] text-[10px] font-bold uppercase tracking-wider border border-[#a77c5c]/20">
-                {(stats as { unread: number }).unread} unread
-              </span>
-            )}
-          </div>
-        )}
+          )}
+          <Link
+            href={`/lawyer/${user.id}`}
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            View listing &rarr;
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -57,20 +72,7 @@ export default async function InquiriesPage() {
         </div>
       )}
 
-      {inquiries && inquiries.length === 0 && (
-        <div className="text-center py-16 space-y-4">
-          <div className="text-5xl">📬</div>
-          <h3 className="text-lg font-bold">No inquiries yet</h3>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            When clients send you messages from your listing page, they&apos;ll appear here.
-          </p>
-          <Link href={`/lawyer/${user.id}`} className="inline-block text-sm font-semibold text-primary hover:underline">
-            View your listing page &rarr;
-          </Link>
-        </div>
-      )}
-
-      {inquiries && inquiries.length > 0 && <InboxClient inquiries={inquiries} />}
+      <InquiryInbox kind="lawyer" threads={threads} />
     </div>
   );
 }

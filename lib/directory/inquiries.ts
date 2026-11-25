@@ -1,9 +1,8 @@
-// Validation for a firm inquiry, kept out of the server action so it can be
-// tested without a database. The browser checks nothing: a firm page is public
-// and the endpoint has no session, so the only trustworthy check is this one.
+// Validation for an inquiry, kept out of the server actions so it can be tested
+// without a database. A provider page is public, so the only trustworthy check
+// is this one.
 
-export interface ChamberInquiryInput {
-  chamberId: string;
+export interface InquiryFields {
   name: string;
   email: string;
   phone?: string;
@@ -12,19 +11,24 @@ export interface ChamberInquiryInput {
   company?: string;
 }
 
-export interface ChamberInquiryValue {
-  chamberId: string;
+export interface InquiryFieldsValue {
   name: string;
   email: string;
   phone: string | null;
   message: string;
 }
 
-export type ChamberInquiryResult =
-  | { ok: true; value: ChamberInquiryValue }
-  | { ok: false; error: string };
+export interface ChamberInquiryInput extends InquiryFields {
+  chamberId: string;
+}
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export interface ChamberInquiryValue extends InquiryFieldsValue {
+  chamberId: string;
+}
+
+export type InquiryResult<T> = { ok: true; value: T } | { ok: false; error: string };
+
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const LIMITS = {
@@ -36,10 +40,8 @@ export const LIMITS = {
 
 const clean = (value?: string | null) => (value ?? '').trim();
 
-export function validateChamberInquiry(input: ChamberInquiryInput): ChamberInquiryResult {
-  const chamberId = clean(input.chamberId);
-  if (!UUID.test(chamberId)) return { ok: false, error: 'Unknown firm.' };
-
+/** Name, address and message. Shared by firm and lawyer inquiries. */
+export function validateInquiryFields(input: InquiryFields): InquiryResult<InquiryFieldsValue> {
   // Silently accept bot submissions without writing them, so the sender learns
   // nothing about the filter.
   if (clean(input.company)) return { ok: false, error: 'Message could not be sent.' };
@@ -63,8 +65,17 @@ export function validateChamberInquiry(input: ChamberInquiryInput): ChamberInqui
     return { ok: false, error: `Please keep the message under ${LIMITS.message} characters.` };
   }
 
-  return {
-    ok: true,
-    value: { chamberId, name, email, phone: phone || null, message },
-  };
+  return { ok: true, value: { name, email, phone: phone || null, message } };
+}
+
+export function validateChamberInquiry(
+  input: ChamberInquiryInput
+): InquiryResult<ChamberInquiryValue> {
+  const chamberId = clean(input.chamberId);
+  if (!UUID.test(chamberId)) return { ok: false, error: 'Unknown firm.' };
+
+  const fields = validateInquiryFields(input);
+  if (!fields.ok) return fields;
+
+  return { ok: true, value: { ...fields.value, chamberId } };
 }

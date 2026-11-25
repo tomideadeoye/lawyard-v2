@@ -150,6 +150,13 @@
       "detail": "A live firm page with no way to reach the firm"
     },
     {
+      "id": "S-2026-11-24-02",
+      "type": "session",
+      "label": "The inquiry built hours earlier emailed the firm the client address and told it to repl…",
+      "date": "2026-11-24",
+      "detail": "The contact form was a hand-off, not a channel"
+    },
+    {
       "id": "CH-001",
       "type": "change",
       "label": "Per-account coupon caps",
@@ -780,6 +787,14 @@
       "date": "2026-11-24",
       "detail": "added",
       "status": "added"
+    },
+    {
+      "id": "CH-080",
+      "type": "change",
+      "label": "Client conversations stay on Lawyard",
+      "date": "2026-11-24",
+      "detail": "changed",
+      "status": "changed"
     },
     {
       "id": "F-01",
@@ -2275,6 +2290,21 @@
       "kind": "logged-in"
     },
     {
+      "from": "CH-079",
+      "to": "S-2026-11-24-02",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-080",
+      "to": "S-2026-11-24-01",
+      "kind": "logged-in"
+    },
+    {
+      "from": "CH-080",
+      "to": "S-2026-11-24-02",
+      "kind": "logged-in"
+    },
+    {
       "from": "S-2026-10-18-10",
       "to": "C01",
       "kind": "delivers"
@@ -2892,6 +2922,26 @@
     {
       "from": "S-2026-11-24-01",
       "to": "F-09",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-24-02",
+      "to": "F-09",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-24-02",
+      "to": "F-13",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-24-02",
+      "to": "F-23",
+      "kind": "touches"
+    },
+    {
+      "from": "S-2026-11-24-02",
+      "to": "F-43",
       "kind": "touches"
     }
   ]

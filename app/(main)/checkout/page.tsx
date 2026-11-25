@@ -113,7 +113,9 @@ export default function CheckoutPage() {
     )
   }
 
-  const loginRedirectUrl = `http://localhost:3000/login?next=${encodeURIComponent("http://localhost:3002/checkout")}`
+  const directorySite = process.env.NEXT_PUBLIC_SITE_URL || "https://directory.lawyard.org"
+  const returnTo = typeof window !== "undefined" ? `${window.location.origin}/checkout` : ""
+  const loginRedirectUrl = `${directorySite}/login?next=${encodeURIComponent(returnTo)}`
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">

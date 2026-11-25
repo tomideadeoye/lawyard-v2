@@ -49,6 +49,20 @@ export async function initializeShopPayment(
     return { error: 'Invalid order amount.' }
   }
 
+  // Server-side availability: the UI hides unavailable items, but a crafted
+  // request must not be able to buy a legislation that has no file.
+  const sb = createServiceRoleClient()
+  const { data: catalogue } = await sb
+    .from('legislations')
+    .select('slug, file_path')
+    .in('slug', cartItems.map((item) => item.id))
+
+  const available = new Set((catalogue ?? []).filter((row) => row.file_path).map((row) => row.slug))
+  const unavailable = cartItems.filter((item) => !available.has(item.id))
+  if (unavailable.length > 0) {
+    return { error: 'One or more items are not available yet. Please remove them from your cart.' }
+  }
+
   const reference = generatePaymentReference('SH')
   const planName = cartItems.map((item) => `${item.title} x ${item.quantity}`).join(", ").substring(0, 250)
 

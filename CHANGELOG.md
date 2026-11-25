@@ -13,6 +13,10 @@
 
 - **A firm page can be contacted**: Firms became publishable on their details, which means a page can be live with no email, phone or website. Its only action was `request to join this firm` — for lawyers — so a client had nowhere to go. `chamber_inquiries` stores the message, open to guests because a signup wall in front of the page's one action defeats the purpose. Delivery prefers the firm's address, then the login emails of its admins, then the Lawyard inbox, so an unclaimed listing still reaches a human. Server-side validation and a honeypot are the spam gate; reads are limited to the firm's owner and admins.
 
+### Changed
+
+- **Client conversations stay on Lawyard**: The inquiry flow handed the firm the client address and told it to reply directly — a one-click bypass of the directory. Firms and lawyers no longer publish email or phone (website stays), notifications are pointers with no client details and no message body, and every inquiry is now a thread: the firm replies in its dashboard, the client replies through a private token link mailed to them. Client email and phone are revoked at the column level, so a firm admin cannot read them even though it can read the row. Existing inquiries were backfilled into one-message threads.
+
 ## 2026-11-22
 
 ### Changed

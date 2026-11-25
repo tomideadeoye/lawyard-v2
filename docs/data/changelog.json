@@ -957,6 +957,20 @@
         "components/directory/ChamberInquiryForm.tsx",
         "lib/directory/inquiries.ts"
       ]
+    },
+    {
+      "id": "CH-080",
+      "date": "2026-11-24",
+      "type": "changed",
+      "title": "Client conversations stay on Lawyard",
+      "detail": "The inquiry flow handed the firm the client address and told it to reply directly — a one-click bypass of the directory. Firms and lawyers no longer publish email or phone (website stays), notifications are pointers with no client details and no message body, and every inquiry is now a thread: the firm replies in its dashboard, the client replies through a private token link mailed to them. Client email and phone are revoked at the column level, so a firm admin cannot read them even though it can read the row. Existing inquiries were backfilled into one-message threads.",
+      "evidence": [
+        "supabase/migrations/20261124000001_inquiry_threads.sql",
+        "lib/directory/inquiry-server.ts",
+        "app/directory/actions/chamber-inquiries.ts",
+        "app/directory/dashboard/chamber/inquiries/page.tsx",
+        "app/directory/inquiry/[token]/page.tsx"
+      ]
     }
   ]
 }

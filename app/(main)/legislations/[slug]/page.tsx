@@ -1,7 +1,29 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getLegislationBySlug, LEGISLATIONS } from '@/lib/legislations'
+import { createClient } from '@supabase/supabase-js'
 import AddToCartButton from './AddToCartButton'
+
+export const revalidate = 300
+
+/** Sellable only when the PDF exists; availability is data, not a deploy. */
+async function hasFile(slug: string): Promise<boolean> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+      { auth: { persistSession: false } }
+    )
+    const { data } = await supabase
+      .from('legislations')
+      .select('file_path')
+      .eq('slug', slug)
+      .maybeSingle()
+    return Boolean(data?.file_path)
+  } catch {
+    return false
+  }
+}
 
 export async function generateStaticParams() {
   return LEGISLATIONS.map((l) => ({ slug: l.slug }))
@@ -50,6 +72,8 @@ export default async function LegislationPage({
   const { slug } = await params
   const act = getLegislationBySlug(slug)
   if (!act) notFound()
+
+  const available = await hasFile(slug)
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-24">
@@ -122,7 +146,13 @@ export default async function LegislationPage({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <AddToCartButton act={act} />
+            {available ? (
+              <AddToCartButton act={act} />
+            ) : (
+              <span className="border border-border text-muted-foreground font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl text-center">
+                Not yet available
+              </span>
+            )}
             <Link
               href="/legislations"
               className="border border-border hover:bg-muted text-foreground font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all text-center no-underline"
@@ -133,7 +163,7 @@ export default async function LegislationPage({
 
           <p className="text-xs text-muted-foreground/60 leading-relaxed pt-4 border-t border-border/20">
             By purchasing this legislation, you agree to our terms of service.
-            PDF will be available for download immediately after payment
+            The PDF unlocks immediately after payment
             confirmation.
           </p>
         </div>

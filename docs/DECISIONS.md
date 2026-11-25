@@ -7,7 +7,7 @@ A rule that lives only in a chat message gets re-litigated. Each row records wha
 was decided, who decided it, and why — so the next person can tell a deliberate
 constraint from an accident.
 
-## Active (9)
+## Active (10)
 
 | # | Decision | Decided by | Date |
 |---|---|---|---|
@@ -20,6 +20,7 @@ constraint from an accident.
 | `PD-007` | Advertising stays on the WordPress news site; the directory carries no ad slots. | Tomide | 2026-11-21 |
 | `PD-010` | The target state is off WordPress. The news site migrates gradually, section by section, with WordPress serving anything not yet replaced. | Tobi (relayed by Tomide) | 2026-11-24 |
 | `PD-011` | The news front end is restored and served on non-directory hosts (the *.vercel.app review host), while directory.lawyard.org keeps serving the marketplace. WordPress remains the public news site until its phase completes. | Tomide | 2026-11-24 |
+| `PD-012` | A legislation is listed as sold only when its PDF exists; downloads are served through a signed URL to a buyer whose payment succeeded. | Tomide | 2026-11-25 |
 
 ## Proposed — awaiting a decision (2)
 
@@ -93,6 +94,13 @@ constraint from an accident.
 - **Decided by:** Tomide
 - **Why:** The client asked to see the new news website. Serving it by host keeps the directory untouched and avoids a second public, indexable news site.
 - **Applies to:** `app/(main) restored` · `app/page.tsx removed` · `docs/WORDPRESS-MIGRATION.md Phase 0`
+
+### PD-012 — A legislation is listed as sold only when its PDF exists; downloads are served through a signed URL to a buyer whose payment succeeded.
+
+- **Status:** active
+- **Decided by:** Tomide
+- **Why:** The shop previously showed a price and delivered a placeholder download link. Selling something undeliverable costs more trust than an item marked 'Coming soon'.
+- **Applies to:** `legislations table` · `app/api/legislations/[slug]/download` · `app/(main)/shop` · `app/actions/shop.ts`
 
 ### PD-008 — The directory opens as a founding-listings marketplace, not as a finished one: below 25 verified lawyers the homepage invites listings instead of publishing counts.
 

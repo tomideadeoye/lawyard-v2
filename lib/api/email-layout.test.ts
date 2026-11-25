@@ -1,43 +1,56 @@
 import { describe, expect, it } from 'vitest';
-import { chamberInquiryNotification } from './email-layout';
+import { threadNotice } from './email-layout';
 
-describe('chamberInquiryNotification', () => {
-  it('renders the firm, the client and the message', () => {
-    const html = chamberInquiryNotification({
-      firmName: 'Bloomfield Law Practice',
-      clientName: 'Ada Obi',
-      clientEmail: 'ada@example.com',
-      clientPhone: '+234 800 000 0000',
-      message: 'I need help with a shareholder agreement.',
+const threadUrl = 'https://directory.lawyard.org/inquiry/' + 'a'.repeat(64);
+
+describe('threadNotice', () => {
+  it('tells the firm there is a new inquiry without naming the client', () => {
+    const html = threadNotice({
+      audience: 'provider',
+      kind: 'new',
+      providerName: 'Bloomfield Law Practice',
+      threadUrl,
     });
 
     expect(html).toContain('Bloomfield Law Practice');
-    expect(html).toContain('Ada Obi');
-    expect(html).toContain('ada@example.com');
-    expect(html).toContain('shareholder agreement');
+    expect(html).toContain(threadUrl);
+    expect(html).not.toMatch(/@example\.com/);
   });
 
-  it('escapes anything a client types', () => {
-    const html = chamberInquiryNotification({
-      firmName: 'Firm',
-      clientName: '<script>alert(1)</script>',
-      clientEmail: 'x@example.com',
-      message: '<img src=x onerror=alert(1)>',
+  it('never carries the conversation in the email', () => {
+    const html = threadNotice({
+      audience: 'provider',
+      kind: 'reply',
+      providerName: 'Firm',
+      threadUrl,
     });
 
-    expect(html).not.toContain('<script>alert(1)</script>');
-    expect(html).toContain('&lt;script&gt;');
+    expect(html).toMatch(/open the thread on lawyard/i);
+    expect(html).not.toContain('I need help with a shareholder agreement');
   });
 
-  it('tells the reader when the firm has not claimed the listing', () => {
-    const html = chamberInquiryNotification({
-      firmName: 'Firm',
-      clientName: 'Ada',
-      clientEmail: 'ada@example.com',
-      message: 'Hello there, I need advice.',
-      viaLawyard: true,
+  it('gives the client a way back without exposing the firm’s address', () => {
+    const html = threadNotice({
+      audience: 'client',
+      kind: 'first',
+      providerName: 'Bloomfield Law Practice',
+      threadUrl,
     });
 
-    expect(html).toMatch(/not claimed/i);
+    expect(html).toContain(threadUrl);
+    expect(html).toMatch(/keep this link/i);
+    expect(html).not.toContain('mailto:');
+  });
+
+  it('says so when the listing is unclaimed', () => {
+    const html = threadNotice({
+      audience: 'provider',
+      kind: 'new',
+      providerName: 'Firm',
+      threadUrl,
+      unclaimed: true,
+    });
+
+    expect(html).toMatch(/has not claimed/i);
   });
 });

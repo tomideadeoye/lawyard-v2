@@ -430,23 +430,12 @@ export default async function ChamberPage({ params }: { params: Promise<{ id: st
               <ChamberInquiryForm chamberId={id} firmName={chamber.name} />
             </div>
 
-            {/* Contact Card */}
-            {(chamber.email || chamber.phone || chamber.website || chamber.location) && (
+            {/* Contact Card — email and phone are deliberately not published:
+                this page is the channel, not a forwarding address. */}
+            {(chamber.website || chamber.location) && (
               <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
                 <h3 className="text-sm font-bold mb-4">Contact Information</h3>
                 <div className="space-y-4">
-                  {chamber.email && (
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Email</span>
-                      <a href={`mailto:${chamber.email}`} className="block text-sm font-semibold text-primary hover:underline mt-0.5 truncate">{chamber.email}</a>
-                    </div>
-                  )}
-                  {chamber.phone && (
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Phone</span>
-                      <a href={`tel:${chamber.phone}`} className="block text-sm font-semibold mt-0.5">{chamber.phone}</a>
-                    </div>
-                  )}
                   {chamber.website && (
                     <div>
                       <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Website</span>

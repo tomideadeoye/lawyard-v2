@@ -582,6 +582,38 @@ Publishing firms on their details made a page reachable that had no contact rout
 
 ---
 
+## 2026-11-24 — The contact form was a hand-off, not a channel
+
+### Focus
+The inquiry built hours earlier emailed the firm the client address and told it to reply directly. That moves every relationship off-platform on message one, which is the exact outcome the directory exists to prevent.
+
+### What Changed
+- **Email and phone are no longer published**: Firm and lawyer pages keep location, address and website; the mailto/tel links are gone. The inquiry form is the contact channel.
+- **Notifications became pointers**: Both templates now say there is a message and link to the dashboard. No client name, no address, no body — so the notification cannot be replied to by email.
+- **Inquiry became a thread**: `chamber_inquiry_messages` holds client and firm messages. The firm replies in a dashboard inbox; the client replies through a private 256-bit token link, which is how a guest returns without an account and without the firm learning their address.
+- **Client contact is unreachable from the firm role**: A table-level SELECT grant includes every column, so the grant was dropped and re-issued without email and phone. Row-level security alone would not have hidden them.
+
+### Next Steps
+1. Claim the firm, then open the inbox with a real account.
+2. Detect contact details typed into messages — the remaining bypass is a phone number in the body.
+3. Apply the same thread model to lawyer inquiries; today only their notification was made pointer-only.
+
+### Verification
+- Submitted through the form in a browser, opened the mailed token link, replied as the client: both messages rendered in order, the page served `noindex, nofollow, nocache`, deletion cascaded the thread. Email delivery suppressed by starting the server without a Brevo key, so the send itself is unexercised.
+- The firm inbox was not exercised — it needs a firm session and the one firm has no owner. 128 tests, typecheck and docs render pass; migrations clean at 54.
+
+### Rationale
+- A conversation that starts in email cannot be measured, moderated or defended — it is the directory paying for acquisition and the firm keeping the client.
+- Hashing the token would force rotation on every reply, and a rotated link silently breaks every older email in the client's inbox. It is stored as issued but outside every grant, readable only by the service role.
+- Removing the affordances is honest: a determined pair can still exchange a phone number in a message. What changed is that the default path is now on-platform.
+
+### Related Files
+- `supabase/migrations/20261124000001_inquiry_threads.sql` · `lib/directory/inquiry-thread.ts` · `lib/directory/inquiry-server.ts`
+- `app/directory/actions/chamber-inquiries.ts` · `app/directory/dashboard/chamber/inquiries/{page,inbox-client}.tsx` · `app/directory/inquiry/[token]/{page,reply-form}.tsx`
+- `app/directory/chamber/[id]/page.tsx` · `app/directory/lawyer/[id]/page.tsx` · `lib/api/email-layout.ts`
+
+---
+
 ## Maintenance
 
 - **Never edit this file.** Add or change a session in `docs/data/timeline.json`, then run `pnpm run docs:render`.

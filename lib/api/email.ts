@@ -4,8 +4,7 @@ import {
   corporatePostApproved,
   corporatePostRejected,
   inquiryNotification,
-  chamberInquiryNotification,
-  chamberThreadNotice,
+  threadNotice,
   corporatePostInvoice,
   shopOrderConfirmation,
   adminNewSubmission,
@@ -59,25 +58,42 @@ export async function sendInquiryNotification(params: {
   })
 }
 
-export async function sendChamberThreadNotice(params: {
-  firmEmail: string
-  firmName: string
-  audience: 'firm' | 'client'
+export async function sendThreadNotice(params: {
+  toEmail: string
+  toName: string
+  /** The firm or lawyer the client is talking to — not the recipient. */
+  providerName: string
+  providerRole: 'firm' | 'lawyer'
+  audience: 'provider' | 'client'
   kind: 'new' | 'reply' | 'first'
   threadUrl: string
   unclaimed?: boolean
 }) {
-  return sendTransactionalEmail({
-    to: [{ email: params.firmEmail, name: params.firmName }],
-    subject:
-      params.audience === 'firm'
-        ? params.kind === 'new'
+  const subject =
+    params.audience === 'provider'
+      ? params.kind === 'new'
+        ? params.providerRole === 'firm'
           ? 'New inquiry on your firm page'
-          : 'New reply on your firm page'
-        : params.kind === 'first'
-          ? 'Your Lawyard conversation'
-          : 'New reply from the firm',
-    htmlContent: chamberThreadNotice(params),
+          : 'New inquiry on your profile'
+        : params.providerRole === 'firm'
+          ? 'New reply on your firm page'
+          : 'New reply on your profile'
+      : params.kind === 'first'
+        ? 'Your Lawyard conversation'
+        : params.providerRole === 'firm'
+          ? 'New reply from the firm'
+          : 'New reply on Lawyard'
+
+  return sendTransactionalEmail({
+    to: [{ email: params.toEmail, name: params.toName }],
+    subject,
+    htmlContent: threadNotice({
+      audience: params.audience,
+      kind: params.kind,
+      providerName: params.providerName,
+      threadUrl: params.threadUrl,
+      unclaimed: params.unclaimed,
+    }),
   })
 }
 

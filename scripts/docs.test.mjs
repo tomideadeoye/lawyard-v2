@@ -115,6 +115,23 @@ const baseTimeline = () => ({
   ],
 });
 
+function baseDecisions() {
+  return {
+    schema: 1,
+    note: "fixture",
+    decisions: [
+      {
+        id: "PD-001",
+        date: "2026-11-10",
+        decision: "A product decision",
+        rationale: "Because.",
+        status: "active",
+        decided_by: "Tomide",
+      },
+    ],
+  };
+}
+
 function makeRepo(mutate = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "lawyard-docs-"));
   fs.mkdirSync(path.join(root, "docs", "data", "schema"), { recursive: true });
@@ -132,6 +149,7 @@ function makeRepo(mutate = {}) {
     questions: baseQuestions(),
     changelog: baseChangelog(),
     timeline: baseTimeline(),
+    decisions: baseDecisions(),
   };
 
   for (const [name, data] of Object.entries(registries)) {

@@ -138,6 +138,20 @@
         "app/page.tsx removed",
         "docs/WORDPRESS-MIGRATION.md Phase 0"
       ]
+    },
+    {
+      "id": "PD-012",
+      "date": "2026-11-25",
+      "decision": "A legislation is listed as sold only when its PDF exists; downloads are served through a signed URL to a buyer whose payment succeeded.",
+      "rationale": "The shop previously showed a price and delivered a placeholder download link. Selling something undeliverable costs more trust than an item marked 'Coming soon'.",
+      "status": "active",
+      "decided_by": "Tomide",
+      "affects": [
+        "legislations table",
+        "app/api/legislations/[slug]/download",
+        "app/(main)/shop",
+        "app/actions/shop.ts"
+      ]
     }
   ]
 }

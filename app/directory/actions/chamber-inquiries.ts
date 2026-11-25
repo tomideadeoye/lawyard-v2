@@ -1,54 +1,25 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server';
-import { sendChamberInquiryNotification } from '@/lib/api/email';
+import { sendThreadNotice } from '@/lib/api/email';
 import { validateChamberInquiry, type ChamberInquiryInput } from '@/lib/directory/inquiries';
+import { createThreadToken, validateThreadBody } from '@/lib/directory/inquiry-thread';
+import {
+  appendClientMessageByToken,
+  authoriseFirmInquiry,
+  getClientContact,
+  resolveFirmRecipients,
+} from '@/lib/directory/inquiry-server';
 
-// The firm page is public and a firm may have no contact details at all, so the
-// inquiry is the only route a client has. It is accepted from guests: requiring
-// an account here would put a signup wall in front of the one action the page
-// offers. The honeypot and server-side validation are the spam gate.
+// The conversation lives here. Email only announces that it moved: no client
+// address is ever put in a firm's inbox, and no message body is put in an
+// email. The firm replies in the dashboard; the client replies through the
+// token link that was mailed to them.
 
-interface Recipient {
-  email: string;
-  name: string;
-}
-
-/**
- * Where a firm inquiry is delivered.
- *
- * Prefer the firm's own address. Otherwise the people who manage the listing —
- * their login emails, which live in auth, not in profiles. If nobody manages it
- * yet (the common case for an unclaimed listing), it falls back to the Lawyard
- * inbox so a client message is never written to a table nobody reads.
- */
-async function resolveRecipients(
-  chamberId: string,
-  firmName: string,
-  firmEmail: string | null
-): Promise<{ recipients: Recipient[]; fallback: boolean }> {
-  if (firmEmail) return { recipients: [{ email: firmEmail, name: firmName }], fallback: false };
-
-  const admin = createServiceRoleClient();
-  const { data: admins } = await admin
-    .from('chamber_admins')
-    .select('user_id')
-    .eq('chamber_id', chamberId);
-
-  const recipients: Recipient[] = [];
-  for (const row of admins ?? []) {
-    const { data } = await admin.auth.admin.getUserById(row.user_id as string);
-    const email = data?.user?.email;
-    if (email) recipients.push({ email, name: firmName });
-  }
-
-  if (recipients.length > 0) return { recipients, fallback: false };
-
-  return {
-    recipients: [{ email: process.env.ADMIN_EMAIL || 'contact@lawyard.org', name: 'Lawyard Directory' }],
-    fallback: true,
-  };
-}
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL || 'https://directory.lawyard.org').replace(/\/$/, '');
+const firmInboxUrl = `${SITE}/dashboard/chamber/inquiries`;
+const clientThreadUrl = (token: string) => `${SITE}/inquiry/${token}`;
 
 export async function submitChamberInquiry(input: ChamberInquiryInput) {
   const result = validateChamberInquiry(input);
@@ -56,50 +27,156 @@ export async function submitChamberInquiry(input: ChamberInquiryInput) {
   const value = result.value;
 
   const supabase = await createClient();
-
-  const { data: chamber, error: chamberError } = await supabase
+  const { data: chamber } = await supabase
     .from('chambers')
-    .select('id, name, email, published_at')
+    .select('id, name')
     .eq('id', value.chamberId)
     .maybeSingle();
 
-  if (chamberError || !chamber) throw new Error('Unknown firm.');
+  if (!chamber) throw new Error('Unknown firm.');
 
-  const { error } = await supabase.from('chamber_inquiries').insert({
-    chamber_id: value.chamberId,
-    name: value.name,
-    email: value.email,
-    phone: value.phone,
-    message: value.message,
+  // Service role: the browser must not choose the token, and the insert has to
+  // return the id without the client acquiring a read grant on the table.
+  const admin = createServiceRoleClient();
+  const token = createThreadToken();
+
+  const { data: inquiry, error } = await admin
+    .from('chamber_inquiries')
+    .insert({
+      chamber_id: value.chamberId,
+      name: value.name,
+      email: value.email,
+      phone: value.phone,
+      message: value.message,
+      access_token: token,
+    })
+    .select('id')
+    .single();
+
+  if (error || !inquiry) throw new Error('Message could not be sent. Please try again.');
+
+  await admin.from('chamber_inquiry_messages').insert({
+    inquiry_id: inquiry.id,
+    sender: 'client',
+    sender_name: value.name,
+    body: value.message,
   });
 
-  if (error) throw new Error('Message could not be sent. Please try again.');
-
-  // Delivery is best-effort: the message is already stored, and the firm's
-  // dashboard reads it from there.
+  // Delivery is best-effort and must never fail the client's message: it is
+  // already stored and visible to the firm's dashboard.
   try {
-    const { recipients, fallback } = await resolveRecipients(
-      value.chamberId,
-      chamber.name,
-      chamber.email ?? null
-    );
+    const { recipients, unclaimed } = await resolveFirmRecipients(value.chamberId, chamber.name);
 
-    await Promise.allSettled(
-      recipients.map((recipient) =>
-        sendChamberInquiryNotification({
-          firmEmail: recipient.email,
-          firmName: recipient.name,
-          clientName: value.name,
-          clientEmail: value.email,
-          clientPhone: value.phone ?? undefined,
-          message: value.message,
-          viaLawyard: fallback,
+    await Promise.allSettled([
+      ...recipients.map((recipient) =>
+        sendThreadNotice({
+          toEmail: recipient.email,
+          toName: recipient.name,
+          providerName: chamber.name,
+          providerRole: 'firm',
+          audience: 'provider',
+          kind: 'new',
+          threadUrl: firmInboxUrl,
+          unclaimed,
         })
-      )
-    );
+      ),
+      sendThreadNotice({
+        toEmail: value.email,
+        toName: value.name,
+        providerName: chamber.name,
+        providerRole: 'firm',
+        audience: 'client',
+        kind: 'first',
+        threadUrl: clientThreadUrl(token),
+      }),
+    ]);
   } catch (notificationError) {
     console.error('Firm inquiry notification failed:', notificationError);
   }
 
+  return { success: true };
+}
+
+export async function replyToChamberInquiry(inquiryId: string, body: string) {
+  const parsed = validateThreadBody(body);
+  if (!parsed.ok) throw new Error(parsed.error);
+
+  const authorised = await authoriseFirmInquiry(inquiryId);
+  if (!authorised) throw new Error('You do not have access to this inquiry.');
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('chamber_inquiry_messages').insert({
+    inquiry_id: inquiryId,
+    sender: 'firm',
+    sender_name: authorised.chamber.name,
+    body: parsed.body,
+  });
+
+  if (error) throw new Error('Reply could not be sent.');
+
+  await supabase
+    .from('chamber_inquiries')
+    .update({ read: true, last_activity_at: new Date().toISOString() })
+    .eq('id', inquiryId);
+
+  try {
+    const client = await getClientContact(inquiryId);
+    if (client?.email && client.access_token) {
+      await sendThreadNotice({
+        toEmail: client.email,
+        toName: client.name,
+        providerName: authorised.chamber.name,
+        providerRole: 'firm',
+        audience: 'client',
+        kind: 'reply',
+        threadUrl: clientThreadUrl(client.access_token),
+      });
+    }
+  } catch (notificationError) {
+    console.error('Reply notification failed:', notificationError);
+  }
+
+  revalidatePath('/dashboard/chamber/inquiries');
+  return { success: true };
+}
+
+export async function replyAsClient(token: string, body: string) {
+  const result = await appendClientMessageByToken(token, body);
+  if (!result.ok) throw new Error(result.error);
+
+  try {
+    const { recipients, unclaimed } = await resolveFirmRecipients(
+      result.thread.chamberId,
+      result.thread.firmName
+    );
+
+    await Promise.allSettled(
+      recipients.map((recipient) =>
+        sendThreadNotice({
+          toEmail: recipient.email,
+          toName: recipient.name,
+          providerName: result.thread.firmName,
+          providerRole: 'firm',
+          audience: 'provider',
+          kind: 'reply',
+          threadUrl: firmInboxUrl,
+          unclaimed,
+        })
+      )
+    );
+  } catch (notificationError) {
+    console.error('Client reply notification failed:', notificationError);
+  }
+
+  return { success: true };
+}
+
+export async function markChamberInquiryRead(inquiryId: string) {
+  const authorised = await authoriseFirmInquiry(inquiryId);
+  if (!authorised) throw new Error('You do not have access to this inquiry.');
+
+  const supabase = await createClient();
+  await supabase.from('chamber_inquiries').update({ read: true }).eq('id', inquiryId);
+  revalidatePath('/dashboard/chamber/inquiries');
   return { success: true };
 }

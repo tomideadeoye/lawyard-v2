@@ -217,42 +217,29 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
             </section>
           )}
 
-          {/* Contact info row */}
-          <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
-            <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Contact & Location</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              {row.email && (
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Email</span>
-                  <p className="font-medium mt-0.5">
-                    <a href={`mailto:${row.email}`} className="text-primary hover:underline">{row.email}</a>
-                  </p>
-                </div>
-              )}
-              {row.phone && (
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Phone</span>
-                  <p className="font-medium mt-0.5">
-                    <a href={`tel:${row.phone}`} className="hover:text-primary transition-colors">{row.phone}</a>
-                  </p>
-                </div>
-              )}
-              {row.website && (
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Website</span>
-                  <p className="font-medium mt-0.5 truncate">
-                    <a href={row.website} target="_blank" rel="noreferrer" className="text-primary hover:underline">{row.website}</a>
-                  </p>
-                </div>
-              )}
-              {row.address && (
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Address</span>
-                  <p className="font-medium mt-0.5">{row.address}</p>
-                </div>
-              )}
-            </div>
-          </section>
+          {/* Contact info row — email and phone are not published; the inquiry
+              form above is the contact channel. */}
+          {(row.website || row.address) && (
+            <section className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6">
+              <h2 className="text-sm uppercase tracking-wider font-bold text-muted-foreground mb-4">Contact &amp; Location</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                {row.website && (
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Website</span>
+                    <p className="font-medium mt-0.5 truncate">
+                      <a href={row.website} target="_blank" rel="noreferrer" className="text-primary hover:underline">{row.website}</a>
+                    </p>
+                  </div>
+                )}
+                {row.address && (
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Address</span>
+                    <p className="font-medium mt-0.5">{row.address}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* Two column: Education + Awards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -443,17 +430,8 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
           {!row.hide_contact_form && (
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sticky top-24">
               <h3 className="text-sm font-bold mb-1">Request Consultation</h3>
-              <p className="text-xs text-muted-foreground/70 mb-4">Send a direct message. {TERMS.lawyer.plural} respond within 24 hours.</p>
-              {user ? (
-                <InquiryForm lawyerId={id} />
-              ) : (
-                <div className="text-center py-6 space-y-3">
-                  <p className="text-sm text-muted-foreground">Sign in to send a message</p>
-                  <Link href="/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#a77c5c] text-white text-sm font-bold hover:bg-[#906b4e] transition-colors">
-                    Sign In
-                  </Link>
-                </div>
-              )}
+              <p className="text-xs text-muted-foreground/70 mb-4">Send a message through Lawyard. The conversation stays here, in one thread.</p>
+              <InquiryForm lawyerId={id} />
               <p className="text-[10px] text-muted-foreground/50 mt-4 text-center">By sending, you agree to our Privacy Policy.</p>
             </div>
           )}

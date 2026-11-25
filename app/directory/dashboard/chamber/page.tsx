@@ -170,6 +170,14 @@ export default async function ChamberPage() {
         <p className="text-muted-foreground text-sm mt-1">
           {chamber ? `Manage your ${TERMS.firm.lower} listing and subscription.` : `Create a ${TERMS.firm.lower} listing for your ${TERMS.firm.lower}.`}
         </p>
+        {chamber && (
+          <Link
+            href="/dashboard/chamber/inquiries"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#a77c5c] hover:underline"
+          >
+            Enquiries from your page →
+          </Link>
+        )}
       </div>
 
       {chamber && (
